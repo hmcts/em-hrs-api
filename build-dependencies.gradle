@@ -58,7 +58,7 @@ dependencies {
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: versions.springBoot
   compile group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '3.17.0-RELEASE'
   compile group:'org.hibernate', name: 'hibernate-core', version: '5.4.27.Final'
-  compile("org.postgresql:postgresql:42.2.13")
+  compile("org.postgresql:postgresql:42.2.18")
   compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
   functionalTestImplementation sourceSets.main.runtimeClasspath
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
