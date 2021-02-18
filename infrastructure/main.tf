@@ -93,7 +93,7 @@ module "storage_account" {
   location                  = var.location
   account_kind              = "StorageV2"
   account_tier              = "Standard"
-  account_replication_type  = "LRS"
+  account_replication_type  = "ZRS"
   access_tier               = "Hot"
 
   enable_https_traffic_only = true
@@ -104,6 +104,14 @@ module "storage_account" {
   common_tags  = local.tags
   team_contact = var.team_contact
   destroy_me   = var.destroy_me
+}
+
+
+resource "azurerm_management_lock" "storage_account_lock" {
+  name       = "emhrs${var.env}-storagelock"
+  scope      = module.storage_account.storageaccount_id
+  lock_level = "CanNotDelete"
+  notes      = "Contains Evidence - Hearing Recordings"
 }
 
 resource "azurerm_key_vault_secret" "storage_account_id" {
