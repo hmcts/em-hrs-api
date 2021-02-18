@@ -1,9 +1,21 @@
 def coverageExclusionList = [
-  '**uk/gov/hmcts/reform/em/hrs/*',
+  '**uk/gov/hmcts/reform/em/hrs/Application*',
   '**uk/gov/hmcts/reform/em/hrs/config/**',
+  '**uk/gov/hmcts/reform/em/hrs/domain/**',
+  '**uk/gov/hmcts/reform/em/hrs/exception/**',
+  '**uk/gov/hmcts/reform/em/hrs/repository/**',
   '**uk/gov/hmcts/reform/em/hrs/service/**',
-  '**uk/gov/hmcts/reform/em/hrs/domain/*',
 ]
+
+jacocoTestReport {
+  afterEvaluate {
+    classDirectories.setFrom(files(classDirectories.files.collect {
+      fileTree(dir: it, exclude: coverageExclusionList)
+    }))
+  }
+}
+
+
 
 project.tasks['sonarqube'].dependsOn test, integration, jacocoTestReport
 
