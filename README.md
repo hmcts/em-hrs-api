@@ -5,14 +5,16 @@
 
 ##First Time Build
 
-You'll need to get sonarcube, and initialise it and change the password to adminnew
+You'll need to get sonarqube, and initialise it and change the password
 
 to fetch the latest image, run it and open the browser
 run:
-make sonarqube-fetch-sonarqube-latest
+make sonarqube-fetch-and-run-sonarqube-latest-with-password-as-admin
 make report-sonarcube
+this will open http://localhost:9000/account/security/
+login is admin/admin
+please change the password to adminnew
 
-in the browser, log in as admin (password=admin), go to http://localhost:9000/account/security/ and change password to adminnew
 
 
 ##Subsequent Builds (these must all pass before raising a PR)

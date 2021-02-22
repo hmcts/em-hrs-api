@@ -93,7 +93,7 @@ module "storage_account" {
   location                  = var.location
   account_kind              = "StorageV2"
   account_tier              = "Standard"
-  account_replication_type  = "ZRS"
+  account_replication_type  = "RAGRS"
   access_tier               = "Hot"
 
   enable_https_traffic_only = true
@@ -107,12 +107,20 @@ module "storage_account" {
 }
 
 
-resource "azurerm_management_lock" "storage_account_lock" {
-  name       = "emhrs${var.env}-storagelock"
-  scope      = module.storage_account.storageaccount_id
-  lock_level = "CanNotDelete"
-  notes      = "Contains Evidence - Hearing Recordings"
-}
+// Platops say that resource locks are automatically applied to resource groups in AAT and PROD.
+// However this is not currently the case, they are looking into it
+// https://hmcts-reform.slack.com/archives/C6DN09J8G/p1614001898005100
+//
+//resource "azurerm_management_lock" "storage_account_lock" {
+//  name       = "emhrs-${var.env}-storagelock"
+//  scope      = module.storage_account.storageaccount_id
+//  lock_level = "CanNotDelete"
+//  notes      = "Contains Evidence - Hearing Recordings"
+//
+//  lifecycle {
+//    prevent_destroy = true
+//  }
+//}
 
 resource "azurerm_key_vault_secret" "storage_account_id" {
   name         = "storage-account-id"
