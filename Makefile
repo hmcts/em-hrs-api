@@ -1,23 +1,73 @@
-docker-compose:
+#Purpose - common commands and combinations to assist with build and build reports
+#Under linux it also enables commandline autocompletion (using TAB key), so most commands can be invoked with just a couple of keystrokes
+#
+#
+# Usage:
+# make dependencies-down
+# or make d[TAB]d[TAB]
+#
+# It includes
+#  Docker builds
+#  Gradle builds
+#  Sonar Cube
+#  Code Coverage Checks (Gradle)
+#  Reports
+#
+#Some reports use "open" to open the html file. This is a native mac command, for linux - add this to your ~/.bashrc
+#
+#
+#case "$OSTYPE" in
+#   cygwin*)
+#      alias open="cmd /c start"
+#      ;;
+#   linux*)
+#      alias start="xdg-open"
+#      alias open="xdg-open"
+#      ;;
+#   darwin*)
+#      alias start="open"
+#      ;;
+#esac
+##
+
+compose-up:
 	docker-compose up
 
-docker-compose-dependencies-up:
+compose-down:
+	docker-compose down
+
+#fires up dependencies for this project
+dependencies-up:
 	docker-compose -f docker-compose-dependencies.yml up
 
-docker-compose-dependencies-down:
+#shuts down dependencies for this project - database content will be reset to a vanilla postgres instance
+dependencies-down:
 	docker-compose -f docker-compose-dependencies.yml down
 
+
+
+
+
+#analyses the current local database vs the current JPA annotations, and appends the changeset to resources/db/db.changelog-master.xml
 liquibase-create-change-log:
 	./gradlew liquibaseDiffChangelog
 
+
+#applies the changeset (as performed during jenkins builds)
 liquibase-apply-change-log:
 	./gradlew migratePostgresDatabase
+
+
+
 
 app-run:
 	./gradlew bootRun
 
 app-smoke-test:
 	./gradlew smoke -i
+
+
+
 
 test-functional:
 	./gradlew functional -i
@@ -28,6 +78,10 @@ test-integration:
 test-code:
 	./gradlew test -i
 
+
+
+
+
 check-code:
 	./gradlew check -i
 
@@ -35,54 +89,66 @@ check-dependencies:
 	./gradlew dependencyCheckAggregate -i
 
 check-coverage:
-	./gradlew test integration  jacocoTestCoverageVerification jacocoTestReport && xdg-open build/reports/jacoco/test/html/index.html
+	./gradlew test integration  jacocoTestCoverageVerification jacocoTestReport && open build/reports/jacoco/test/html/index.html
 
 check-all:
-	./gradlew test integration check dependencyCheckAggregate jacocoTestCoverageVerification jacocoTestReport && xdg-open	build/reports/jacoco/test/html/index.html
+	./gradlew test integration check dependencyCheckAggregate jacocoTestCoverageVerification jacocoTestReport && open	build/reports/jacoco/test/html/index.html
 
-#Note this fails if there is already a container.
+
+
+#convenience first time download and run of sonarcube with default username/password of admin/admin
+sonarqube-fetch-and-run-sonarqube-latest-with-password-as-admin:
+	docker run -d --name sonarqube -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true -p 9000:9000 sonarqube:latest
+
+
+#Note this fails if there is already a container running.
 sonarqube-run-local-sonarqube-server:
 	docker start sonarqube
 
-sonarqube-fetch-sonarqube-latest:
-	docker run -d --name sonarqube -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true -p 9000:9000 sonarqube:latest
 
-# New containers will require logging in, and changing password to a temporary password, and back to admin
+# First time run sonarqube containers have a default password of admin
 sonarqube-run-tests-with-password-as-admin:
 	./gradlew sonarqube -Dsonar.login="admin" -Dsonar.password="admin" -i
 
+
 sonarqube-run-tests-with-password-as-adminnew:
-	./gradlew sonarqube -Dsonar.login="admin" -Dsonar.password="adminnew" -i && xdg-open http://localhost:9000/
+	./gradlew sonarqube -Dsonar.login="admin" -Dsonar.password="adminnew" -i && open http://localhost:9000/
+
+
+
+
+
+#convenenience links for all generated reports
 
 report-sonarcube:
-	xdg-open http://localhost:9000/
+	open http://localhost:9000/
 
 report-checkstyle:
-	xdg-open build/reports/checkstyle/main.html
+	open build/reports/checkstyle/main.html
 
 report-code-tests:
-	xdg-open build/reports/tests/test/index.html
+	open build/reports/tests/test/index.html
 
 report-integration-tests:
-	xdg-open build/reports/tests/integration/index.html
+	open build/reports/tests/integration/index.html
 
 report-smoke-tests:
-	xdg-open build/reports/tests/smoke/index.html
+	open build/reports/tests/smoke/index.html
 
 report-code-pmd-main:
-	xdg-open build/reports/pmd/main.html
+	open build/reports/pmd/main.html
 
 report-code-pmd-test:
-	xdg-open build/reports/pmd/test.html
+	open build/reports/pmd/test.html
 
 report-code-pmd-integration-test:
-	xdg-open build/reports/pmd/integrationTest.html
+	open build/reports/pmd/integrationTest.html
 
 report-code-pmd-smoke-test:
-	xdg-open build/reports/pmd/smokeTest.html
+	open build/reports/pmd/smokeTest.html
 
 report-dependency-check:
-	xdg-open build/reports/dependency-check-report.html
+	open build/reports/dependency-check-report.html
 
 report-jacoco:
-	xdg-open build/reports/jacoco/test/html/index.html
+	open build/reports/jacoco/test/html/index.html

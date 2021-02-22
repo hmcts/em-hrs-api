@@ -8,13 +8,13 @@
 You'll need to get sonarqube, and initialise it and change the password
 
 to fetch the latest image, run it and open the browser
-run:
-make sonarqube-fetch-and-run-sonarqube-latest-with-password-as-admin
-make report-sonarcube
-this will open http://localhost:9000/account/security/
-login is admin/admin
-please change the password to adminnew
+run these from command line:
+ - make sonarqube-fetch-and-run-sonarqube-latest-with-password-as-admin
+ - make report-sonarcube
 
+this will open http://localhost:9000/
+login is admin/admin
+it will force you to change password, please change it to adminnew
 
 
 ##Subsequent Builds (these must all pass before raising a PR)
@@ -26,11 +26,14 @@ sonarcube:
  - make sonarqube-run-local-sonarqube-server
  - sonarqube-run-tests-with-password-as-adminnew
 
-smoketest:
+smoketest (will require 3 terminal windows):
 
  - make docker-compose-dependencies-up
  - make app-run
  - make app-smoke-test
+
+
+
 
 #Connecting to Database
 Using PGAdmin, or IntelliJ Ultimate:
@@ -42,7 +45,7 @@ pass:emhrs
 jdbc_url: jdbc:postgresql://localhost:5432/emhrs
 
 
-#Idea Setup
+#Intellij IDEA Setup
 
 Increase import star to 200 to avoid conflicts with checkstyle
 https://intellij-support.jetbrains.com/hc/en-us/community/posts/206203659-Turn-off-Wildcard-imports-
@@ -55,7 +58,9 @@ Import the checkstyle code scheme into the java code settings
 Reverse the import layout settings / modify until the checkstyle passes
 Uncheck "Comment at first column"
 
-The Below is taken from the spring boot template readme (https://github.com/hmcts/spring-boot-template/):
+---
+
+The Below is copied verbatim from the spring boot template readme at time of project setup (https://github.com/hmcts/spring-boot-template/):
 
 # Spring Boot application template
 
