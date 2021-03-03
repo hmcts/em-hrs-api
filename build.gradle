@@ -232,7 +232,7 @@ def versions = [
   serenityRestAssured : '2.3.4',
   serenityreporter   : '2.3.12',
   junit           : '5.7.0',
-  junitPlatform   : '1.7.0',
+  junitPlatform   : '1.7.1',
 ]
 
 ext.libraries = [
