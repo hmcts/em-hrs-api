@@ -294,7 +294,7 @@ dependencies {
   implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '3.17.0-RELEASE'
 
 //rest clients
-  implementation "com.squareup.okhttp3:okhttp:4.9.0"
+  implementation "com.squareup.okhttp3:okhttp:4.9.1"
   implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
 
 //rest server / API publishing?
