@@ -264,7 +264,7 @@ dependencies {
 //  }
 
   implementation "org.apache.tomcat.embed:tomcat-embed-core:9.0.40" //TODO is tomcat version independent of spring boot version?
-  implementation "org.apache.tomcat.embed:tomcat-embed-websocket:9.0.40" //TODO is tomcat version independent of spring boot version?
+  implementation "org.apache.tomcat.embed:tomcat-embed-websocket:10.0.2" //TODO is tomcat version independent of spring boot version?
   implementation "org.springframework.boot:spring-boot-starter-actuator"
   implementation "org.springframework.boot:spring-boot-starter-aop"
   implementation "org.springframework.boot:spring-boot-starter-json"
