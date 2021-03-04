@@ -5,8 +5,7 @@ plugins {
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id 'org.springframework.boot' version '2.3.4.RELEASE'
-  id 'org.owasp.dependencycheck' version '6.0.3'
-  id 'uk.gov.hmcts.java' version '0.12.3'
+  id 'uk.gov.hmcts.java' version '0.12.5'
   id 'com.github.ben-manes.versions' version '0.36.0'
   id 'org.sonarqube' version '3.1.1'
   id 'org.liquibase.gradle' version '2.0.4'
@@ -196,18 +195,6 @@ dependencyManagement {
       // Guava CVE-2018-10237 - Unbounded memory allocation
       entry 'guava'
     }
-  }
-}
-
-repositories {
-  maven { url "https://dl.bintray.com/hmcts/hmcts-maven" } //TODO confirm this should be the primary maven repo (it is in dm store and em stictching)
-  mavenLocal()
-  jcenter()
-  mavenCentral()
-}
-
-dependencyManagement {
-  dependencies {
 
     dependencySet(group: 'org.jetbrains.kotlin', version: '1.4.30') {
       entry 'kotlin'
@@ -217,7 +204,44 @@ dependencyManagement {
       entry 'kotlin-stdlib-jdk7'
       entry 'kotlin-stdlib-jdk8'
     }
+
+    //CVE-2021-21290
+    dependencySet(group: 'io.netty', version: '4.1.59.Final') {
+      entry 'netty-buffer'
+      entry 'netty-codec'
+      entry 'netty-common'
+      entry 'netty-handler'
+      entry 'netty-resolver'
+      entry 'netty-transport'
+      entry 'netty-codec-http'
+      entry 'netty-codec-http2'
+      entry 'netty-transport-native-epoll'
+      entry 'netty-transport-native-kqueue'
+      entry 'netty-transport-native-unix-common'
+      entry 'netty-codec-socks'
+      entry 'netty-handler-proxy'
+    }
+
+    //CVE-2021-22112
+    dependencySet(group: 'org.springframework.security', version: '5.3.8.RELEASE') {
+      entry 'spring-security-config'
+      entry 'spring-security-core'
+      entry 'spring-security-crypto'
+      entry 'spring-security-oauth2-client'
+      entry 'spring-security-oauth2-core'
+      entry 'spring-security-oauth2-jose'
+      entry 'spring-security-oauth2-resource-server'
+      entry 'spring-security-web'
+    }
+    
   }
+}
+
+repositories {
+  maven { url "https://dl.bintray.com/hmcts/hmcts-maven" } //TODO confirm this should be the primary maven repo (it is in dm store and em stictching)
+  mavenLocal()
+  jcenter()
+  mavenCentral()
 }
 
 def versions = [
@@ -254,6 +278,9 @@ dependencies {
     exclude group: 'org.springframework.boot', module: 'spring-boot-starter-test'
     exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
   }
+
+  compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+  compile group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
@@ -294,8 +321,8 @@ dependencies {
   implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '3.17.0-RELEASE'
 
 //rest clients
-  implementation "com.squareup.okhttp3:okhttp:4.9.0"
-  implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
+  implementation "com.squareup.okhttp3:okhttp:4.9.1"
+  implementation "com.squareup.okhttp3:logging-interceptor:4.9.1"
 
 //rest server / API publishing?
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
@@ -315,8 +342,8 @@ dependencies {
 
   liquibaseRuntime "com.h2database:h2"
   liquibaseRuntime "org.liquibase.ext:liquibase-hibernate5:4.2.2"
-  liquibaseRuntime "org.liquibase:liquibase-core:4.2.2"
-  liquibaseRuntime "org.liquibase:liquibase-groovy-dsl:2.1.2"
+  liquibaseRuntime "org.liquibase:liquibase-core:4.3.1"
+  liquibaseRuntime "org.liquibase:liquibase-groovy-dsl:3.0.0"
   liquibaseRuntime group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
 
   liquibaseRuntime sourceSets.main.compileClasspath
