@@ -15,7 +15,7 @@ properties([
 
 def type = "java"
 def product = "em"
-def component = "hrs"
+def component = "hrs-api"
 
 def secrets = [
         's2s-${env}': [
@@ -47,7 +47,7 @@ def vaultOverrides = [
 ]
 
 withPipeline(type , product, component) {
-    enableDbMigration('em-hrs')
+    enableDbMigration('em-hrs-api')
     overrideVaultEnvironments(vaultOverrides)
     loadVaultSecrets(secrets)
 

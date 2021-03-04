@@ -78,17 +78,10 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   key_vault_id = module.key-vault.key_vault_id
 }
 
-resource "azurerm_key_vault_secret" "OLD-POSTGRES-PASS" {
-  name         = "${local.app_full_name}-POSTGRES-PASS"
-  value        = module.db.postgresql_password
-  key_vault_id = module.key-vault.key_vault_id
-}
-
-
 module "storage_account" {
   source                    = "git@github.com:hmcts/cnp-module-storage-account?ref=master"
   env                       = var.env
-  storage_account_name      = "emhrs${var.env}"
+  storage_account_name      = "emhrsapi${var.env}"
   resource_group_name       = azurerm_resource_group.rg.name
   location                  = var.location
   account_kind              = "StorageV2"
@@ -149,5 +142,21 @@ resource "azurerm_key_vault_secret" "storage_account_primary_connection_string" 
 resource "azurerm_key_vault_secret" "storage_account_secondary_connection_string" {
   name         = "storage-account-secondary-connection-string"
   value        = module.storage_account.storageaccount_secondary_connection_string
+  key_vault_id = module.key-vault.key_vault_id
+}
+
+data "azurerm_key_vault" "s2s_vault" {
+  name = "s2s-${var.env}"
+  resource_group_name = "rpe-service-auth-provider-${var.env}"
+}
+
+data "azurerm_key_vault_secret" "s2s_key" {
+  name      = "microservicekey-em-hrs-api"
+  key_vault_id = data.azurerm_key_vault.s2s_vault.id
+}
+
+resource "azurerm_key_vault_secret" "local_s2s_key" {
+  name         = "microservicekey-em-hrs-api"
+  value        = data.azurerm_key_vault_secret.s2s_key.value
   key_vault_id = module.key-vault.key_vault_id
 }

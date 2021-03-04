@@ -3,9 +3,9 @@ spring:
     propertiesvolume:
       enabled: true
       prefixed: false
-      paths: /mnt/secrets/em-hrs
+      paths: /mnt/secrets/em-hrs-api
       aliases:
-        microservicekey-em-hrs-api: S2S_KEY
-        AppInsightsInstrumentationKey: APPINSIGHTS_INSTRUMENTATIONKEY
-        hrs-POSTGRES-PASS: SPRING_DATASOURCE_PASSWORD
-        notification-api-key: NOTIFICATION_API_KEY
+#        microservicekey-em-hrs-api: S2S_KEY
+#        AppInsightsInstrumentationKey: APPINSIGHTS_INSTRUMENTATIONKEY
+        hrs-api-POSTGRES-PASS: SPRING_DATASOURCE_PASSWORD
+#        notification-api-key: NOTIFICATION_API_KEY
