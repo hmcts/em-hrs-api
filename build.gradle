@@ -170,7 +170,15 @@ sonarqube {
 /***********************************************************************************************************************
  * Dependency Management
  **********************************************************************************************************************/
-
+configurations.all {
+  resolutionStrategy {
+    eachDependency { DependencyResolveDetails details ->
+      if (details.requested.group in ['org.apache.tomcat.embed']) {
+        details.useVersion '9.0.40'
+      }
+    }
+  }
+}
 
 // before committing a change, make sure task still works
 dependencyUpdates {
@@ -290,8 +298,6 @@ dependencies {
 //    exclude group: 'org.springframework.boot' , module: 'spring-boot-starter-web'
 //  }
 
-  implementation "org.apache.tomcat.embed:tomcat-embed-core:10.0.2" //TODO is tomcat version independent of spring boot version?
-  implementation "org.apache.tomcat.embed:tomcat-embed-websocket:9.0.40" //TODO is tomcat version independent of spring boot version?
   implementation "org.springframework.boot:spring-boot-starter-actuator"
   implementation "org.springframework.boot:spring-boot-starter-aop"
   implementation "org.springframework.boot:spring-boot-starter-json"
