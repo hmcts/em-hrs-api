@@ -265,7 +265,7 @@ def versions = [
   serenity           : '2.3.12',
   serenityRestAssured : '2.3.4',
   serenityreporter   : '2.3.12',
-  junit           : '5.7.0',
+  junit           : '5.7.1',
   junitPlatform   : '1.7.0',
 ]
 
