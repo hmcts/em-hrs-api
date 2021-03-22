@@ -341,7 +341,7 @@ dependencies {
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
 
 //azure components
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.10.0'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.10.1'
 
 /***********************************************************************************************************************
  * DATABASE DEPENDENCIES AND SOURCE SETS
