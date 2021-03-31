@@ -481,7 +481,7 @@ dependencies {
     contractTestRuntime("org.junit.jupiter:junit-jupiter-engine:5.6.2")
     contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.2.0'
 
-    contractTestCompileOnly 'org.projectlombok:lombok:1.18.12'
+    contractTestCompileOnly 'org.projectlombok:lombok:1.18.18'
     contractTestImplementation "ch.qos.logback:logback-classic:1.2.3"
 
     contractTestImplementation sourceSets.main.runtimeClasspath
