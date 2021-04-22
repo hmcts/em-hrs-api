@@ -4,13 +4,13 @@ provider "azurerm" {
 
 locals {
   app_full_name = "${var.product}-${var.component}"
-  tags = "${merge(
-      var.common_tags,
-      map(
-        "Team Contact", var.team_contact,
-        "Destroy Me", var.destroy_me
-      )
-    )}"
+  tags = (merge(
+  var.common_tags,
+  map(
+  "Team Contact", var.team_contact,
+  "Destroy Me", var.destroy_me
+  )
+  ))
 }
 
 resource "azurerm_resource_group" "rg" {
@@ -119,15 +119,50 @@ resource "azurerm_key_vault_secret" "storage_account_secondary_access_key" {
 
 resource "azurerm_key_vault_secret" "storage_account_primary_connection_string" {
   name         = "storage-account-primary-connection-string"
-  value        = module.storage_account.storageaccount_primary_connection_string
+  value = module.storage_account.storageaccount_primary_connection_string
   key_vault_id = module.key-vault.key_vault_id
 }
 
 resource "azurerm_key_vault_secret" "storage_account_secondary_connection_string" {
-  name         = "storage-account-secondary-connection-string"
-  value        = module.storage_account.storageaccount_secondary_connection_string
+  name = "storage-account-secondary-connection-string"
+  value = module.storage_account.storageaccount_secondary_connection_string
   key_vault_id = module.key-vault.key_vault_id
 }
+
+
+module "cvp_storage_account_simulator" {
+  count = var.env == "aat" ? 1 : 0
+
+  source = "git@github.com:hmcts/cnp-module-storage-account?ref=master"
+  env = var.env
+  storage_account_name = "emhrscvp${var.env}"
+  resource_group_name = azurerm_resource_group.rg.name
+  location = var.location
+  account_kind = "StorageV2"
+  account_tier = "Standard"
+  account_replication_type = "LRS"
+  access_tier = "Hot"
+
+  enable_https_traffic_only = true
+
+  default_action = "Allow"
+
+  // Tags
+  common_tags = local.tags
+  team_contact = var.team_contact
+  destroy_me = var.destroy_me
+}
+
+//disabled as tf complains about unsupport attribute, when querying module output, despite it being in same
+//format as the primary blob. have manually created it in the keyvault for now.
+//TODO resolve this
+//resource "azurerm_key_vault_secret" "cvp_storage_simulator_connection_string" {
+//  count = var.env == "aat" ? 1 : 0
+//  name = "cvp-storage-simulator-connection-string"
+//  value = module.cvp_storage_account_simulator.storageaccount_primary_connection_string
+//  key_vault_id = module.key-vault.key_vault_id
+//}
+
 
 data "azurerm_key_vault" "s2s_vault" {
   name = "s2s-${var.env}"
@@ -135,12 +170,31 @@ data "azurerm_key_vault" "s2s_vault" {
 }
 
 data "azurerm_key_vault_secret" "s2s_key" {
-  name      = "microservicekey-em-hrs-api"
+  name = "microservicekey-em-hrs-api"
   key_vault_id = data.azurerm_key_vault.s2s_vault.id
 }
 
 resource "azurerm_key_vault_secret" "local_s2s_key" {
   name         = "microservicekey-em-hrs-api"
   value        = data.azurerm_key_vault_secret.s2s_key.value
+  key_vault_id = module.key-vault.key_vault_id
+}
+
+# Load AppInsights key from common EM vault - aka "rpa vault"
+data "azurerm_key_vault" "rpa_vault" {
+  name                = "rpa-${var.env}"
+  resource_group_name = "rpa-${var.env}"
+}
+
+
+data "azurerm_key_vault_secret" "app_insights_key" {
+  name = "AppInsightsInstrumentationKey"
+  key_vault_id = data.azurerm_key_vault.rpa_vault.id
+}
+
+#copy AppInsights key to "local vault" as that's where kubernetes injects secrets from
+resource "azurerm_key_vault_secret" "local_app_insights_key" {
+  name         = "AppInsightsInstrumentationKey"
+  value        = data.azurerm_key_vault_secret.app_insights_key.value
   key_vault_id = module.key-vault.key_vault_id
 }

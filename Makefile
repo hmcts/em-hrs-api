@@ -11,10 +11,14 @@ liquibase-create-change-log:
 	./gradlew liquibaseDiffChangelog
 
 liquibase-apply-change-log:
-	./gradlew migratePostgresDatabase
+	./gradlew migratePostgresDatabase liquibaseDiffChangelog
 
+#applies database changes if required, and runs spring bootapp
 app-run:
-	./gradlew bootRun
+	./gradlew migratePostgresDatabase bootRun
+
+app-clean-run:
+	./gradlew clean bootRun
 
 app-smoke-test:
 	./gradlew smoke -i
@@ -35,26 +39,23 @@ check-dependencies:
 	./gradlew dependencyCheckAggregate -i
 
 check-coverage:
-	./gradlew test integration  jacocoTestCoverageVerification jacocoTestReport && xdg-open build/reports/jacoco/test/html/index.html
+	./gradlew test integration  jacocoTestCoverageVerification jacocoTestReport && open build/reports/jacoco/test/html/index.html
 
 check-all:
-	./gradlew test integration check dependencyCheckAggregate jacocoTestCoverageVerification jacocoTestReport && xdg-open	build/reports/jacoco/test/html/index.html
+	./gradlew test integration check dependencyCheckAggregate jacocoTestCoverageVerification jacocoTestReport && open	build/reports/jacoco/test/html/index.html
 
 #Note this fails if there is already a container.
 sonarqube-run-local-sonarqube-server:
 	docker start sonarqube
 
-sonarqube-fetch-sonarqube-latest:
+sonarqube-fetch-and-run-sonarqube-latest-with-password-as-admin:
 	docker run -d --name sonarqube -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true -p 9000:9000 sonarqube:latest
 
-# New containers will require logging in, and changing password to a temporary password, and back to admin
-sonarqube-run-tests-with-password-as-admin:
-	./gradlew sonarqube -Dsonar.login="admin" -Dsonar.password="admin" -i
 
 sonarqube-run-tests-with-password-as-adminnew:
-	./gradlew sonarqube -Dsonar.login="admin" -Dsonar.password="adminnew" -i && xdg-open http://localhost:9000/
+	./gradlew sonarqube -Dsonar.login="admin" -Dsonar.password="adminnew" -Dsonar.host.url="http://localhost:9000/" -i && open http://localhost:9000/
 
-report-sonarcube:
+report-sonarqube:
 	xdg-open http://localhost:9000/
 
 report-checkstyle:

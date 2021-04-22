@@ -1,14 +1,13 @@
 #!groovy
-
 properties([
-    [
-        $class: 'GithubProjectProperty',
-        displayName: 'Hearing Recording Service',
-        projectUrlStr: 'https://github.com/hmcts/em-hrs-api'
-    ],
-    pipelineTriggers([
-        [$class: 'GitHubPushTrigger']
-    ])
+  [
+    $class       : 'GithubProjectProperty',
+    displayName  : 'Hearing Recording Service',
+    projectUrlStr: 'https://github.com/hmcts/em-hrs-api'
+  ],
+  pipelineTriggers([
+    [$class: 'GitHubPushTrigger']
+  ])
 ])
 
 @Library("Infrastructure")
@@ -18,49 +17,231 @@ def product = "em"
 def component = "hrs-api"
 
 def secrets = [
-        's2s-${env}': [
-                secret('microservicekey-em-gw', 'FUNCTIONAL_TEST_CLIENT_S2S_TOKEN')
-        ],
-        'rpa-${env}': [
-                secret('show-oauth2-token', 'FUNCTIONAL_TEST_CLIENT_OAUTH_SECRET')
-        ]
+  's2s-${env}': [
+    secret('microservicekey-em-hrs-api', 'S2S_KEY'),
+    secret('microservicekey-ccd-gw', 'FUNCTIONAL_TEST_CCD_GW_SERVICE_SECRET'),
+    secret('microservicekey-em-gw', 'FUNCTIONAL_TEST_CLIENT_S2S_TOKEN')
+  ],
+  'rpa-${env}': [
+    secret('oauth2-client-id', 'OAUTH_CLIENT_ID'),
+    secret('show-oauth2-token', 'IDAM_CLIENT_OAUTH_SECRET')
+  ],
+  'em-hrs-api-${env}': [
+      secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING')
+   ]
 ]
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
-    [ $class: 'AzureKeyVaultSecret',
-      secretType: 'Secret',
-      name: secretName,
-      version: '',
-      envVariable: envVar
-    ]
+  [$class     : 'AzureKeyVaultSecret',
+   secretType : 'Secret',
+   name       : secretName,
+   version    : '',
+   envVariable: envVar
+  ]
 }
 
 // Vars for Kubernetes
 env.IDAM_API_BASE_URI = 'https://idam-api.aat.platform.hmcts.net'
 env.OPEN_ID_API_BASE_URI = 'https://idam-web-public.aat.platform.hmcts.net/o'
 env.S2S_BASE_URI = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
-env.IDAM_WEBSHOW_WHITELIST = 'https://em-show-aat.service.core-compute-aat.internal/oauth2/callback'
+env.CCD_DATA_API_URL = 'http://ccd-data-store-api-aat.service.core-compute-aat.internal'
+env.CCD_DEF_API = 'http://ccd-definition-store-api-aat.service.core-compute-aat.internal'
+env.IDAM_REDIRECT_URI = 'https://em-hrs-api-aat.service.core-compute-aat.internal/oauth2/callback'
+env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
 
 def vaultOverrides = [
-        'preview' : 'aat',
-        'spreview': 'saat'
+  'preview' : 'aat',
+  'spreview': 'saat'
 ]
 
-withPipeline(type , product, component) {
-    enableDbMigration('em-hrs-api')
-    overrideVaultEnvironments(vaultOverrides)
-    loadVaultSecrets(secrets)
+withPipeline(type, product, component) {
+  enableDbMigration('em-hrs-api')
+  overrideVaultEnvironments(vaultOverrides)
+  loadVaultSecrets(secrets)
 
-    onMaster {
-        after('test') {
-            sh '''
+  onMaster {
+    after('test') {
+      sh '''
             curl https://raw.githubusercontent.com/hmcts/reform-api-docs/master/bin/publish-swagger-docs.sh > publish-swagger-docs.sh
             sh ./publish-swagger-docs.sh
              '''
-        }
+
+      publishHTML target: [
+        allowMissing         : true,
+        alwaysLinkToLastBuild: true,
+        keepAll              : true,
+        reportDir            : "build/reports/checkstyle",
+        reportFiles          : "main.html",
+        reportName           : "HRS API Checkstyle Main Report"
+      ]
+
+      publishHTML target: [
+        allowMissing         : true,
+        alwaysLinkToLastBuild: true,
+        keepAll              : true,
+        reportDir            : "build/reports/checkstyle",
+        reportFiles          : "test.html",
+        reportName           : "HRS API Checkstyle Test Report"
+      ]
+
+      publishHTML target: [
+        allowMissing         : true,
+        alwaysLinkToLastBuild: true,
+        keepAll              : true,
+        reportDir            : "build/reports/checkstyle",
+        reportFiles          : "aat.html",
+        reportName           : "HRS API Checkstyle AAT Report"
+      ]
+
+      publishHTML target: [
+        allowMissing         : true,
+        alwaysLinkToLastBuild: true,
+        keepAll              : true,
+        reportDir            : "build/reports/pmd",
+        reportFiles          : "main.html",
+        reportName           : "HRS API PMD Main Report"
+      ]
+
+      publishHTML target: [
+        allowMissing         : true,
+        alwaysLinkToLastBuild: true,
+        keepAll              : true,
+        reportDir            : "build/reports/pmd",
+        reportFiles          : "test.html",
+        reportName           : "HRS API PMD Test Report"
+      ]
+
+      publishHTML target: [
+        allowMissing         : true,
+        alwaysLinkToLastBuild: true,
+        keepAll              : true,
+        reportDir            : "build/reports/tests/test",
+        reportFiles          : "index.html",
+        reportName           : "HRS API Unit Tests Report"
+      ]
     }
 
-    after('functionalTest:preview') {
-        steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
+//    enablePactAs([
+    //    AppPipelineDsl.PactRoles.CONSUMER
+    //   ])
+
+    after('contractTest:aat') {
+      publishHTML target: [
+        allowMissing         : true,
+        alwaysLinkToLastBuild: true,
+        keepAll              : true,
+        reportDir            : "build/reports/tests/contract",
+        reportFiles          : "index.html",
+        reportName           : "HRS API Contract Test Report"
+      ]
     }
+
+    after('smoketest:aat') {
+      publishHTML target: [
+        allowMissing         : true,
+        alwaysLinkToLastBuild: true,
+        keepAll              : true,
+        reportDir            : "build/reports/tests/smoke",
+        reportFiles          : "index.html",
+        reportName           : "HRS Ingestor Smoke Test Report"
+      ]
+    }
+
+    after('functionalTest:aat') {
+
+      publishHTML target: [
+        allowMissing         : true,
+        alwaysLinkToLastBuild: true,
+        keepAll              : true,
+        reportDir            : "build/reports/tests/functional",
+        reportFiles          : "index.html",
+        reportName           : "HRS API Functional Test Report"
+      ]
+      steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
+    }
+  }
+
+  after('test') {
+    publishHTML target: [
+      allowMissing         : true,
+      alwaysLinkToLastBuild: true,
+      keepAll              : true,
+      reportDir            : "build/reports/checkstyle",
+      reportFiles          : "main.html",
+      reportName           : "HRS Ingestor Checkstyle Main Report"
+    ]
+
+    publishHTML target: [
+      allowMissing         : true,
+      alwaysLinkToLastBuild: true,
+      keepAll              : true,
+      reportDir            : "build/reports/checkstyle",
+      reportFiles          : "test.html",
+      reportName           : "HRS Ingestor Checkstyle Test Report"
+    ]
+
+    publishHTML target: [
+      allowMissing         : true,
+      alwaysLinkToLastBuild: true,
+      keepAll              : true,
+      reportDir            : "build/reports/checkstyle",
+      reportFiles          : "aat.html",
+      reportName           : "HRS Ingestor Checkstyle AAT Report"
+    ]
+
+    publishHTML target: [
+      allowMissing         : true,
+      alwaysLinkToLastBuild: true,
+      keepAll              : true,
+      reportDir            : "build/reports/pmd",
+      reportFiles          : "main.html",
+      reportName           : "HRS Ingestor PMD Main Report"
+    ]
+
+    publishHTML target: [
+      allowMissing         : true,
+      alwaysLinkToLastBuild: true,
+      keepAll              : true,
+      reportDir            : "build/reports/pmd",
+      reportFiles          : "test.html",
+      reportName           : "HRS Ingestor PMD Test Report"
+    ]
+
+    publishHTML target: [
+      allowMissing         : true,
+      alwaysLinkToLastBuild: true,
+      keepAll              : true,
+      reportDir            : "build/reports/tests/test",
+      reportFiles          : "index.html",
+      reportName           : "HRS Ingestor Unit Tests Report"
+    ]
+
+  }
+
+//  enablePactAs([
+//    AppPipelineDsl.PactRoles.CONSUMER
+//  ])
+
+  after('smoketest:preview') {
+    publishHTML target: [
+      allowMissing         : true,
+      alwaysLinkToLastBuild: true,
+      keepAll              : true,
+      reportDir            : "build/reports/tests/smoke",
+      reportFiles          : "index.html",
+      reportName           : "HRS Ingestor Smoke Test Report"
+    ]
+  }
+
+  after('functionalTest:preview') {
+    publishHTML target: [
+      allowMissing         : true,
+      alwaysLinkToLastBuild: true,
+      keepAll              : true,
+      reportDir            : "build/reports/tests/functional",
+      reportFiles          : "index.html",
+      reportName           : "HRS Ingestor API Functional Test Report"
+    ]
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
+  }
 }

@@ -1,0 +1,48 @@
+{
+  "id": "1616409088923344",
+  "jurisdiction": "HRS",
+  "caseTypeId": "HearingRecordings",
+  "createdDate": "2021-03-22T10:31:28.925033",
+  "lastModified": "2021-03-22T10:31:29.918614",
+  "state": "1_OPEN",
+  "lockedBy": null,
+  "securityLevel": null,
+  "data": {
+    "recordingTime": "2021-03-22T10:31:28.000",
+    "serviceCode": "probate",
+    "recordingTimeOfDay": "morning",
+    "hearingSource": "CVP",
+    "jurisdictionCode": "family",
+    "courtLocationCode": "12",
+    "hearingLocation": "london",
+    "recordingFiles": [
+      {
+        "value": {
+          "documentLink": {
+            "document_url": "http://dm-store:8080/documents/57340931-bfce-424d-bcee-6b3f0abf56fb",
+            "document_filename": "hearing-recording-segment",
+            "document_binary_url": "http://dm-store:8080/documents/57340931-bfce-424d-bcee-6b3f0abf56fb/binary"
+          },
+          "segmentNumber": 0,
+          "recordingLength": 10
+        },
+        "id": "609e8ab2-5676-4a3c-abdd-86272ee50118"
+      },
+      {
+        "value": {
+          "documentLink": {
+            "document_url": "http//dm-store:8080/documents/57340931-bfce-424d-bcee-123412341234",
+            "document_binary_url": "http://dm-store:8080/documents/57340931-bfce-424d-bcee-123412341234/binary",
+            "document_filename": "new-hearing-recording-segment"
+          },
+          "segmentNumber": 0,
+          "recordingLength": 10
+        },
+        "id": "faaaf99e-b943-4ed0-b20b-8678d44ecb22"
+      }
+    ],
+    "recordingReference": "hearing-12-family-probate-morning"
+  },
+  "securityClassification": "PUBLIC",
+  "callbackResponseStatus": null
+}

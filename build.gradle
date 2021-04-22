@@ -5,11 +5,15 @@ plugins {
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id 'org.springframework.boot' version '2.3.4.RELEASE'
-  id 'uk.gov.hmcts.java' version '0.12.5'
-  id 'com.github.ben-manes.versions' version '0.38.0'
+  id 'uk.gov.hmcts.java' version '0.12.8'
+  id 'com.github.ben-manes.versions' version '0.36.0'
+// NOTE version 0.38 is suspected to be the cause of
+  // the intermittant failure with module metadata. TO BE CONFIRMED!!
   id 'org.sonarqube' version '3.1.1'
   id 'org.liquibase.gradle' version '2.0.4'
   id 'groovy'
+  id 'au.com.dius.pact' version '4.0.10'
+  id "info.solidsoft.pitest" version '1.6.0'
 }
 
 apply from: 'liquibase.gradle'
@@ -29,19 +33,17 @@ mainClassName = 'uk.gov.hmcts.reform.em.hrs.Application'
  **********************************************************************************************************************/
 
 sourceSets {
-  //functionalTest typically run on AAT environment only. Includes tests to real external endpoints.
+  //functionalTests typically run on AAT environment only. Includes tests to real external endpoints.
   //if running locally, need the relevant docker containers to test against
   //if need to run any locally, then the specific test(s) should be specified
   functionalTest {
-    //will pick up any tests with @WithTags({@WithTag("testType:Functional")})
     java {
       compileClasspath += main.output
       runtimeClasspath += main.output
-      srcDir file('src/functionalTest/java')
+      srcDir file('src/aat/java')
     }
-    resources.srcDir file('src/functionalTest/resources')
+    resources.srcDir file('src/aat/resources')
   }
-
 
   //integrationTest typically tests with mocked external endpoints (so can run locally without dependencies)
   integrationTest {
@@ -53,8 +55,18 @@ sourceSets {
     resources.srcDir file('src/integrationTest/resources')
   }
 
+  //contractTest typically tests with PACT broker
+  contractTest {
+    java {
+      compileClasspath += main.output
+      runtimeClasspath += main.output
+      srcDir file('src/contractTest/java')
+    }
+    resources.srcDir file('src/contractTest/resources')
+  }
+
   //smokeTest should include helloworld & healthcheck. Ideally will also include downstream healthchecks
-  //should work locally, in AAT and production
+  //should work locally with docker dependencies, in AAT and production
   smokeTest {
     java {
       compileClasspath += main.output
@@ -92,6 +104,19 @@ task functional(type: Test) {
   group = "Verification"
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
+  environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
+  include "uk/gov/hmcts/reform/em/hrs/**"
+}
+
+task contract(type: Test) {
+  description = "Runs contract tests"
+  group = "Verification"
+  testClassesDirs = sourceSets.contractTest.output.classesDirs
+  classpath = sourceSets.contractTest.runtimeClasspath
+  include "uk/gov/hmcts/reform/em/hrs/consumer/**"
+  systemProperty 'pact.rootDir', "pacts"
+  environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
+  failFast = true
 }
 
 task integration(type: Test) {
@@ -108,7 +133,18 @@ task smoke(type: Test) {
   testClassesDirs = sourceSets.smokeTest.output.classesDirs
   classpath = sourceSets.smokeTest.runtimeClasspath
 
+  environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
+
 }
+
+task runAndPublishConsumerPactTests(type: Test) {
+  logger.lifecycle("Runs pact Tests")
+  testClassesDirs = sourceSets.contractTest.output.classesDirs
+  classpath = sourceSets.contractTest.runtimeClasspath
+}
+
+runAndPublishConsumerPactTests.dependsOn contract
+runAndPublishConsumerPactTests.finalizedBy pactPublish
 
 /***********************************************************************************************************************
  * Code Checks
@@ -131,7 +167,7 @@ pmd {
 }
 
 jacocoTestReport {
-  executionData(test)
+  executionData(test, integration)
   reports {
     xml.enabled = true
     csv.enabled = false
@@ -141,11 +177,14 @@ jacocoTestReport {
 
 def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/Application*',
+  '**uk/gov/hmcts/reform/em/hrs/appinsights/**',
   '**uk/gov/hmcts/reform/em/hrs/config/**',
+  '**uk/gov/hmcts/reform/em/hrs/dto/**',
+  '**uk/gov/hmcts/reform/em/hrs/model/**',
   '**uk/gov/hmcts/reform/em/hrs/domain/**',
   '**uk/gov/hmcts/reform/em/hrs/exception/**',
-  '**uk/gov/hmcts/reform/em/hrs/repository/**',
-  '**uk/gov/hmcts/reform/em/hrs/service/**',
+  '**uk/gov/hmcts/reform/em/hrs/service/ccd/**',
+  '**uk/gov/hmcts/reform/em/hrs/appinsights/**'
 ]
 
 jacocoTestReport {
@@ -164,6 +203,9 @@ sonarqube {
     property "sonar.projectKey", "uk.gov.hmcts.reform.em.hrs:em-hrs-api"
     property "sonar.exclusions", coverageExclusionList.join(", ")
     property "sonar.coverage.jacoco.xmlReportPaths", "${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+    property "sonar.host.url", "https://sonar.reform.hmcts.net/"
+    property "sonar.pitest.mode", "reuseReport"
+    property "sonar.pitest.reportsDirectory", "build/reports/pitest"
   }
 }
 
@@ -199,12 +241,13 @@ dependencyCheck {
 
 dependencyManagement {
   dependencies {
-    dependencySet(group: 'com.google.guava', version: '30.1-jre') {
+    dependencySet(group: 'com.google.guava', version: '30.1.1-jre') {
       // Guava CVE-2018-10237 - Unbounded memory allocation
       entry 'guava'
     }
 
-    dependencySet(group: 'org.jetbrains.kotlin', version: '1.4.30') {
+    //CVE-2020-15824, CVE-2020-29582
+    dependencySet(group: 'org.jetbrains.kotlin', version: '1.5.0-M1') {
       entry 'kotlin'
       entry 'kotlin-stdlib'
       entry 'kotlin-reflect'
@@ -213,8 +256,8 @@ dependencyManagement {
       entry 'kotlin-stdlib-jdk8'
     }
 
-    //CVE-2021-21290
-    dependencySet(group: 'io.netty', version: '4.1.59.Final') {
+    //CVE-2021-21295
+    dependencySet(group: 'io.netty', version: '4.1.63.Final') {
       entry 'netty-buffer'
       entry 'netty-codec'
       entry 'netty-common'
@@ -241,30 +284,36 @@ dependencyManagement {
       entry 'spring-security-oauth2-resource-server'
       entry 'spring-security-web'
     }
-    
+
+    //CVE-2021-29425
+    dependencySet(group: 'commons-io', version: '2.8.0') {
+      entry 'commons-io'
+    }
+
   }
 }
 
 repositories {
-  maven { url "https://dl.bintray.com/hmcts/hmcts-maven" } //TODO confirm this should be the primary maven repo (it is in dm store and em stictching)
-  mavenLocal()
-  jcenter()
+  maven { url "https://dl.bintray.com/hmcts/hmcts-maven" }
+  //TODO confirm this should be the primary maven repo (it is in dm store and em stictching)
   mavenCentral()
+  jcenter()
 }
 
 def versions = [
-  lombok          : '1.18.10',
-  reformLogging   : '5.1.5',
-  springBoot      : springBoot.class.package.implementationVersion,
-  springfoxSwagger: '2.9.2',
-
-  postgresql: '42.2.13',
-
+  lombok             : '1.18.10',
+  reformLogging      : '5.1.5',
+  springBoot         : springBoot.class.package.implementationVersion,
+  springfoxSwagger   : '2.9.2',
+  postgresql         : '42.2.13',
+  pact_version       : '3.6.15',
+  restAssured        : '4.2.0',
   serenity           : '2.3.12',
-  serenityRestAssured : '2.3.4',
+  serenityRestAssured: '2.3.4',
   serenityreporter   : '2.3.12',
-  junit           : '5.7.0',
-  junitPlatform   : '1.7.1',
+  junit              : '5.7.0',
+  junitPlatform      : '1.7.1',
+  springSecurity     : '5.3.8.RELEASE'
 ]
 
 ext.libraries = [
@@ -283,12 +332,19 @@ dependencies {
     exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
     exclude group: 'com.vaadin.external.google', module: 'android-json'
     exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
-    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-test'
     exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
   }
 
   compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
   compile group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
+
+  implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server', version: versions.springSecurity
+  implementation group: 'org.springframework.security', name: 'spring-security-oauth2-client', version: versions.springSecurity
+  implementation group: 'org.springframework.security', name: 'spring-security-web', version: versions.springSecurity
+  implementation group: 'org.springframework.security', name: 'spring-security-oauth2-jose', version: versions.springSecurity
+  implementation group: 'org.springframework.security', name: 'spring-security-oauth2-core', version: versions.springSecurity
+  implementation group: 'org.springframework.security', name: 'spring-security-config', version: versions.springSecurity
+  implementation group: 'org.springframework.security', name: 'spring-security-core', version: versions.springSecurity
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
@@ -298,6 +354,11 @@ dependencies {
 //    exclude group: 'org.springframework.boot' , module: 'spring-boot-starter-web'
 //  }
 
+  compileOnly 'org.projectlombok:lombok:1.18.20'
+  implementation "ch.qos.logback:logback-classic:1.2.3"
+
+  implementation group: 'javax.inject', name: 'javax.inject', version: '1'
+
   implementation "org.springframework.boot:spring-boot-starter-actuator"
   implementation "org.springframework.boot:spring-boot-starter-aop"
   implementation "org.springframework.boot:spring-boot-starter-json"
@@ -305,18 +366,23 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-web"
   implementation "org.springframework.boot:spring-boot-starter-security"
 
-  implementation "uk.gov.hmcts.reform:properties-volume-spring-boot-starter:0.1.0" //injects secret properties into container from azure vault TODO deprecated in favour of spring config tree
+  implementation "uk.gov.hmcts.reform:properties-volume-spring-boot-starter:0.1.0"
+  //injects secret properties into container from azure vault TODO deprecated in favour of spring config tree
 
 //hmcts autho
-
+  implementation group: 'uk.gov.hmcts.reform', name: 'idam-client', version: '1.5.5'
   implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.4'
-  implementation (group: 'uk.gov.hmcts.reform.auth', name: 'auth-checker-lib', version: '2.1.4') {
+  implementation(group: 'uk.gov.hmcts.reform.auth', name: 'auth-checker-lib', version: '2.1.4') {
     exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
   }
 
+
+//hmcts ccd
+  implementation group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: '4.7.5'
+
 //hmcts logging
-  implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.0'
-  implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: '2.14.0'
+  implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
+  implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: '2.14.1'
   implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
 
@@ -334,22 +400,26 @@ dependencies {
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
 
 //azure components
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.10.0'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.10.2'
+
+  // Job scheduling
+  implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
+  implementation group: 'org.springframework', name: 'spring-context-support'
 
 /***********************************************************************************************************************
  * DATABASE DEPENDENCIES AND SOURCE SETS
  **********************************************************************************************************************/
 
   implementation group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
-  implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.4.29.Final'
+  implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.4.30.Final'
   implementation "org.liquibase:liquibase-core"
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
   implementation "org.springframework.boot:spring-boot-starter-jdbc"
 
   liquibaseRuntime "com.h2database:h2"
-  liquibaseRuntime "org.liquibase.ext:liquibase-hibernate5:4.2.2"
-  liquibaseRuntime "org.liquibase:liquibase-core:4.3.1"
-  liquibaseRuntime "org.liquibase:liquibase-groovy-dsl:3.0.0"
+  liquibaseRuntime "org.liquibase.ext:liquibase-hibernate5:4.3.2"
+  liquibaseRuntime "org.liquibase:liquibase-core:4.3.2"
+  liquibaseRuntime "org.liquibase:liquibase-groovy-dsl:3.0.1"
   liquibaseRuntime group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
 
   liquibaseRuntime sourceSets.main.compileClasspath
@@ -359,20 +429,41 @@ dependencies {
  * TEST DEPENDENCIES
  **********************************************************************************************************************/
 
-  testImplementation "org.springframework.boot:spring-boot-starter-test", withoutStuff
-  testImplementation 'com.github.gmazzo:okhttp-mock:1.3.2'
   testImplementation libraries.junit5
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
+
+  functionalTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
+    exclude group: 'junit', module: 'junit'
+    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    exclude group: 'com.vaadin.external.google', module: 'android-json'
+  }
+
+  functionalTestImplementation 'uk.gov.hmcts.reform:em-test-helper:1.18.1', withoutStuff
+  functionalTestImplementation 'net.serenity-bdd:serenity-rest-assured:2.3.4', withoutStuff
+
+  testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.19.0'
+  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.25.0'
+  testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.15.2'
+  testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.2'
+  testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.4', {
+    exclude group: 'com.google.guava', module: 'guava'
+  }
+  testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.0.3'
+  testImplementation group :'info.solidsoft.gradle.pitest', name : 'gradle-pitest-plugin',version: '1.6.0'
+  testImplementation group: 'org.pitest', name: 'pitest', version: '1.6.4'
+  testImplementation group:'org.codehaus.sonar-plugins', name:'sonar-pitest-plugin', version: '0.5'
 
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+  smokeTestImplementation "uk.gov.hmcts.reform:em-test-helper:1.18.1"
 
 /***********************************************************************************************************************
  * TEST SOURCE SETS
@@ -385,6 +476,32 @@ dependencies {
 
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation sourceSets.test.runtimeClasspath
+
+  contractTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
+    exclude group: 'junit', module: 'junit'
+    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    exclude group: 'com.vaadin.external.google', module: 'android-json'
+  }
+  contractTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
+  contractTestImplementation group: 'io.rest-assured', name: 'json-schema-validator', version: versions.restAssured
+  contractTestImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
+  contractTestImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
+  contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-junit5_2.12', version: versions.pact_version
+  contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-java8_2.12', version: versions.pact_version
+  contractTestCompile group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.0.10'
+  contractTestCompile group: 'au.com.dius', name: 'pact-jvm-provider-gradle', version: '4.0.10'
+
+  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.6.2"
+  contractTestImplementation "org.junit.vintage:junit-vintage-engine:5.6.2"
+  contractTestCompile("org.junit.jupiter:junit-jupiter-api:5.6.2")
+  contractTestRuntime("org.junit.jupiter:junit-jupiter-engine:5.6.2")
+  contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.2.0'
+
+  contractTestCompileOnly 'org.projectlombok:lombok:1.18.12'
+  contractTestImplementation "ch.qos.logback:logback-classic:1.2.3"
+
+  contractTestImplementation sourceSets.main.runtimeClasspath
+  contractTestImplementation sourceSets.test.runtimeClasspath
 }
 
 /***********************************************************************************************************************
@@ -393,7 +510,6 @@ dependencies {
 
 test {
   failFast = true
-
 }
 
 bootJar {
@@ -407,5 +523,53 @@ bootJar {
 }
 
 wrapper {
-    distributionType = Wrapper.DistributionType.ALL
+  distributionType = Wrapper.DistributionType.ALL
+}
+
+project.ext {
+  pactVersion = getCheckedOutGitCommitHash()
+}
+
+def getCheckedOutGitCommitHash() {
+  'git rev-parse --verify --short HEAD'.execute().text.trim()
+}
+
+pact {
+
+  reports {
+    defaultReports() // adds the standard console output
+
+    markdown // report in markdown format
+    json // report in json format
+  }
+
+  publish {
+    pactDirectory = 'pacts'
+    pactBrokerUrl = System.getenv("PACT_BROKER_FULL_URL") ?: 'http://localhost:80'
+    tags = [System.getenv("PACT_BRANCH_NAME") ?: 'Dev']
+    version = project.pactVersion
+  }
+}
+
+pitest {
+  targetClasses = ['uk.gov.hmcts.reform.em.hrs.util.*', 'uk.gov.hmcts.reform.em.hrs.service.*', 'uk.gov.hmcts.reform.em.hrs.controller.*', 'uk.gov.hmcts.reform.em.hrs.repository.*', 'uk.gov.hmcts.reform.em.hrs.storage.*']
+  targetTests = ['uk.gov.hmcts.reform.em.hrs.util.*', 'uk.gov.hmcts.reform.em.hrs.service.*', 'uk.gov.hmcts.reform.em.hrs.controller.*', 'uk.gov.hmcts.reform.em.hrs.repository.*', 'uk.gov.hmcts.reform.em.hrs.storage.*']
+  //excludedClasses = ['uk.gov.hmcts.reform.em.hrs.service.SecurityServiceImplTest']
+  //targetClasses = ['uk.gov.hmcts.reform.em.hrs.util.*']
+  //targetTests = ['uk.gov.hmcts.reform.em.hrs.util.*']
+  enableDefaultIncrementalAnalysis = true
+  historyInputLocation = 'build/reports/pitest/fastermutationtesting'
+  historyOutputLocation = 'build/reports/pitest/fastermutationtestingoutput'
+  threads = 15
+  testSourceSets = [sourceSets.test, sourceSets.integrationTest]
+  mainSourceSets = [sourceSets.main]
+  fileExtensionsToFilter.addAll('xml', 'json')
+  outputFormats = ['XML', 'HTML', 'CSV']
+  mutationThreshold = 0
+  coverageThreshold = 0
+  maxMutationsPerClass = 15
+  jvmArgs = ['-Xms1G', '-Xmx3G']
+  timestampedReports = false
+  failWhenNoMutations = false
+  detectInlinedCode = true
 }
