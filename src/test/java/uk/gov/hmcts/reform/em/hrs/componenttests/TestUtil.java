@@ -2,114 +2,173 @@ package uk.gov.hmcts.reform.em.hrs.componenttests;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import uk.gov.hmcts.reform.em.hrs.domain.Folder;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
+import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
+import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
+import uk.gov.hmcts.reform.em.hrs.domain.JobInProgress;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
+import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 
 public class TestUtil {
+    private static final String DOWNLOAD_URL_PREFIX = "https://SOMEPREFIXTBD";
 
-    public static final String BLOB_DATA = "data";
-    /*
-    public static final DocumentContent DOCUMENT_CONTENT;
-
-    static {
-        try {
-            DOCUMENT_CONTENT = new DocumentContent(new SerialBlob(BLOB_DATA.getBytes(StandardCharsets.UTF_8)));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    */
-    public static final MockMultipartFile TEST_FILE;
-    public static final MockMultipartFile TEST_FILE_EXE;
-    public static final MockMultipartFile TEST_FILE_WITH_FUNNY_NAME;
-    public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(MediaType.APPLICATION_JSON.getType(),
-                                                                        MediaType.APPLICATION_JSON.getSubtype(),
-                                                                        Charset.forName("utf8")
-    );
-    public static final MediaType MULTIPART_FORM_DATA =
-        new MediaType(MediaType.MULTIPART_FORM_DATA.getType(), MediaType.MULTIPART_FORM_DATA.getSubtype());
+    public static final int INGESTION_QUEUE_SIZE = 2;
+    public static final String FILE_1 = "file-1.mp4";
+    public static final String FILE_2 = "file-2.mp4";
+    public static final String FILE_3 = "file-3.mp4";
+    public static final String TEST_FOLDER_NAME = "folder-1";
     public static final UUID RANDOM_UUID = UUID.randomUUID();
-    public static final Folder TEST_FOLDER =
-        new Folder(RANDOM_UUID, "name", null, null, null, null, null);
-    public static final Folder folder = Folder.builder()
+    public static final String AUTHORIZATION_TOKEN = "xxx";
+    public static final String SERVICE_AUTHORIZATION_TOKEN = "xxx";
+    public static final Long CCD_CASE_ID = 1234L;
+    public static final String SHAREE_EMAIL_ADDRESS = "sharee.tester@test.com";
+    public static final String SHARER_EMAIL_ADDRESS = "sharer.tester@test.com";
+    public static final UUID SHAREE_ID = UUID.randomUUID();
+    public static final String CASE_REFERENCE = "hrs-grant-" + SHAREE_ID;
+    public static final LocalDateTime RECORDING_DATETIME = LocalDateTime.now();
+    public static final String RECORDING_REFERENCE = "file-1";
+    public static final Folder TEST_FOLDER = Folder.builder().name(TEST_FOLDER_NAME).build();
+    public static final String SERVER_ERROR_MESSAGE = "We have detected a problem and our engineers are working on it."
+        + "\nPlease try again later and thank you for your patience";
+
+    public static final HearingRecordingSegment SEGMENT_1 = HearingRecordingSegment.builder()
         .id(RANDOM_UUID)
-        .hearingRecordings(
-            Stream.of(HearingRecording.builder().id(RANDOM_UUID).build()).collect(Collectors.toList()))
+        .filename(FILE_1)
         .build();
+    private static final HearingRecordingSegment SEGMENT_2 = HearingRecordingSegment.builder()
+        .id(RANDOM_UUID)
+        .filename(FILE_2)
+        .build();
+    private static final HearingRecordingSegment SEGMENT_3 = HearingRecordingSegment.builder()
+        .id(RANDOM_UUID)
+        .filename(FILE_3)
+        .build();
+
+    public static final HearingRecordingDto HEARING_RECORDING_DTO = HearingRecordingDto.builder()
+        .folder(TEST_FOLDER_NAME)
+        .caseRef(CASE_REFERENCE)
+        .recordingSource("CVP")
+        .courtLocationCode("LC")
+        .jurisdictionCode("JC")
+        .hearingRoomRef("123")
+        .recordingRef(RECORDING_REFERENCE)
+        .filename("hearing-recording-file-name")
+        .recordingDateTime(RECORDING_DATETIME)
+        .filenameExtension("mp4")
+        .fileSize(123456789L)
+        .segment(0)
+        .cvpFileUrl("recording-cvp-uri")
+        .checkSum("erI2foA30B==")
+        .build();
+
+    public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(
+        MediaType.APPLICATION_JSON.getType(),
+        MediaType.APPLICATION_JSON.getSubtype(),
+        StandardCharsets.UTF_8
+    );
+
+    public static final Set<String> SEGMENTS_DOWNLOAD_LINKS = Set.of(
+        String.format("%s/%s", DOWNLOAD_URL_PREFIX, SEGMENT_1.getFilename()),
+        String.format("%s/%s", DOWNLOAD_URL_PREFIX, SEGMENT_2.getFilename()),
+        String.format("%s/%s", DOWNLOAD_URL_PREFIX, SEGMENT_3.getFilename())
+    );
+    public static final List<String> RECORDING_SEGMENT_DOWNLOAD_URLS = List.copyOf(SEGMENTS_DOWNLOAD_LINKS);
+
+    public static final Folder EMPTY_FOLDER = Folder.builder()
+        .id(RANDOM_UUID)
+        .name("EMPTY_FOLDER")
+        .hearingRecordings(Collections.emptyList())
+        .jobsInProgress(Collections.emptyList())
+        .build();
+
+    public static final Folder FOLDER = Folder.builder()
+        .id(RANDOM_UUID)
+        .hearingRecordings(List.of(HearingRecording.builder()
+                                       .id(RANDOM_UUID)
+                                       .segments(Collections.emptySet())
+                                       .build()))
+        .jobsInProgress(Collections.emptyList())
+        .build();
+
+    public static final Folder FOLDER_WITH_SEGMENT = Folder.builder()
+        .id(RANDOM_UUID)
+        .hearingRecordings(List.of(HearingRecording.builder()
+                                       .id(RANDOM_UUID)
+                                       .segments(Set.of(SEGMENT_1, SEGMENT_2, SEGMENT_3))
+                                       .build()))
+        .jobsInProgress(Collections.emptyList())
+        .build();
+
+    public static final Folder FOLDER_WITH_JOBS_IN_PROGRESS = Folder.builder()
+        .id(RANDOM_UUID)
+        .name(TEST_FOLDER_NAME)
+        .hearingRecordings(Collections.emptyList())
+        .jobsInProgress(List.of(
+            JobInProgress.builder().filename(FILE_1).build(),
+            JobInProgress.builder().filename(FILE_2).build()
+        ))
+        .build();
+
+    public static final Folder FOLDER_WITH_SEGMENT_AND_IN_PROGRESS = Folder.builder()
+        .id(RANDOM_UUID)
+        .hearingRecordings(List.of(HearingRecording.builder()
+                                       .id(RANDOM_UUID)
+                                       .segments(Set.of(SEGMENT_1, SEGMENT_2))
+                                       .build()))
+        .jobsInProgress(List.of(JobInProgress.builder().filename(FILE_3).build()))
+        .build();
+
     public static final HearingRecording HEARING_RECORDING = HearingRecording.builder()
         .id(RANDOM_UUID)
-        .folder(Folder.builder().id(RANDOM_UUID).build())
+        .folder(TEST_FOLDER)
+        .segments(Collections.emptySet())
         .build();
-    public static final HearingRecording DELETED_HEARING_RECORDING = HearingRecording.builder()
+
+    public static final HearingRecording HEARING_RECORDING_WITH_SEGMENTS = HearingRecording.builder()
         .id(RANDOM_UUID)
-        .deleted(true)
+        .caseRef(CASE_REFERENCE)
+        .ccdCaseId(CCD_CASE_ID)
+        .segments(Set.of(SEGMENT_1, SEGMENT_2, SEGMENT_3))
         .folder(Folder.builder().id(RANDOM_UUID).build())
-        .build();
-    public static final HearingRecording HARD_DELETED_HEARING_RECORDING = HearingRecording.builder()
-        .id(RANDOM_UUID)
-        .deleted(true)
-        .hardDeleted(true)
-        .folder(Folder.builder().id(RANDOM_UUID).build())
+        .createdOn(RECORDING_DATETIME)
         .build();
 
-    static {
-        try {
-            TEST_FILE = new MockMultipartFile("file",
-                                              "filename.txt",
-                                              "text/plain",
-                                              "some xml".getBytes(StandardCharsets.UTF_8)
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+    public static final HearingRecordingSharee HEARING_RECORDING_SHAREE = HearingRecordingSharee.builder()
+        .id(SHAREE_ID)
+        .build();
 
-    static {
-        try {
-            TEST_FILE_EXE = new MockMultipartFile("file",
-                                                  "filename.exe",
-                                                  "application/octet-stream",
-                                                  "some xml".getBytes(StandardCharsets.UTF_8)
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    static {
-        try {
-            TEST_FILE_WITH_FUNNY_NAME = new MockMultipartFile("file",
-                                                              "filename!@£$%^&*()<>.txt",
-                                                              "text/plain",
-                                                              "some xml".getBytes(StandardCharsets.UTF_8)
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+    public static final CaseRecordingFile CASE_RECORDING_FILE = CaseRecordingFile.builder()
+        .caseDocument(
+            CaseDocument.builder().url("document-url").binaryUrl("document-url").filename("filename").build()
+        )
+        .fileSize(123456789L)
+        .segmentNumber(0)
+        .build();
 
     private TestUtil() {
     }
 
     public static byte[] convertObjectToJsonBytes(Object object) throws IOException {
-        ObjectMapper om = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        final ObjectMapper om = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         return om.writeValueAsBytes(object);
     }
 
     public static String convertObjectToJsonString(Object object) throws IOException {
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        return ow.writeValueAsString(object);
+        final ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.findAndRegisterModules();
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.KEBAB_CASE);
+        return objectMapper.writeValueAsString(object);
     }
-
 }

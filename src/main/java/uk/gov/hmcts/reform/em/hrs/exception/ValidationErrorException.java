@@ -1,16 +1,13 @@
 package uk.gov.hmcts.reform.em.hrs.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import lombok.NonNull;
 
-@ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
-public class ValidationErrorException extends RuntimeException {
+import java.util.Map;
 
-    public ValidationErrorException(String message) {
-        super(message);
+public class ValidationErrorException extends BadRequestException {
+
+    public ValidationErrorException(@NonNull final Map<String, Object> data) {
+        super(data);
     }
 
-    public ValidationErrorException(Throwable t) {
-        super(t);
-    }
 }

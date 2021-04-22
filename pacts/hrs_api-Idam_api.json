@@ -1,0 +1,182 @@
+{
+  "provider": {
+    "name": "Idam_api"
+  },
+  "consumer": {
+    "name": "hrs_api"
+  },
+  "interactions": [
+    {
+      "description": "Provider returns user info to Annotation API",
+      "request": {
+        "method": "GET",
+        "path": "/o/userinfo",
+        "headers": {
+          "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiJiL082T3ZWdjEre"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "uid": "1234-2345-3456-4567",
+          "roles": [
+            "citizen"
+          ],
+          "given_name": "emCaseOfficer",
+          "family_name": "Jar"
+        },
+        "matchingRules": {
+          "body": {
+            "$.uid": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.given_name": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.family_name": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.roles[0]": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            }
+          }
+        }
+      },
+      "providerStates": [
+        {
+          "name": "I have obtained an access_token as a user",
+          "params": {
+            "client_id": "pact",
+            "client_secret": "pactsecret",
+            "password": "Password123",
+            "redirect_uri": "http://www.dummy-pact-service.com/callback",
+            "scope": "openid profile roles",
+            "username": "emCaseOfficer@email.net"
+          }
+        }
+      ]
+    },
+    {
+      "description": "Provider takes user/pwd and returns Access Token to Annotation API",
+      "request": {
+        "method": "POST",
+        "path": "/o/token",
+        "headers": {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        "body": "redirect_uri\u003dhttp%3A%2F%2Fwww.dummy-pact-service.com%2Fcallback\u0026client_id\u003dpact\u0026grant_type\u003dpassword\u0026username\u003demCaseOfficer%40email.net\u0026password\u003dPassword123\u0026client_secret\u003dpactsecret\u0026scope\u003dopenid profile roles"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "access_token": "eyJ0eXAiOiJKV1QiLCJraWQiOiJiL082T3ZWdjEre",
+          "refresh_token": "eyJ0eXAiOiJKV1QiLCJ6aXAiOiJOT05FIiwia2lkIjoiYi9PNk92V",
+          "scope": "openid roles profile",
+          "id_token": "eyJ0eXAiOiJKV1QiLCJraWQiOiJiL082T3ZWdjEre",
+          "token_type": "Bearer",
+          "expires_in": "28798"
+        },
+        "matchingRules": {
+          "body": {
+            "$.access_token": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.refresh_token": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.scope": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.id_token": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.token_type": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.expires_in": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            }
+          }
+        }
+      },
+      "providerStates": [
+        {
+          "name": "a user exists",
+          "params": {
+            "email": "emCaseOfficer@email.net",
+            "forename": "emCaseOfficer",
+            "password": "Password123",
+            "roles": [
+              "citizen"
+            ],
+            "surname": "jar123"
+          }
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "3.0.0"
+    },
+    "pact-jvm": {
+      "version": "3.6.15"
+    }
+  }
+}

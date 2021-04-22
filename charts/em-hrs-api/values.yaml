@@ -14,16 +14,34 @@ java:
         - hrs-api-POSTGRES-PASS
         - microservicekey-em-hrs-api
         - storage-account-primary-connection-string
+        - idam-system-user-name
+        - idam-system-user-password
+        - AppInsightsInstrumentationKey
+    rpa:
+      resourceGroup: rpa
+      secrets:
+        - show-oauth2-token
+        - oauth2-client-id
   environment:
-    # db
     SPRING_DATASOURCE_URL: jdbc:postgresql://em-hrs-api-postgres-v11-db-{{ .Values.global.environment }}.postgres.database.azure.com:5432/emhrs?ssl=disable
     SPRING_DATASOURCE_USERNAME: emhrs@em-hrs-api-postgres-v11-db-{{ .Values.global.environment }}
-
-    # Document Storage
-    STORAGE_CONTAINER_DOCUMENT_CONTAINER_NAME: em-hrs-api-{{ .Values.global.environment }}
-
+    STORAGE_CONTAINER_DOCUMENT_CONTAINER_NAME: recordings
+    CVP_STORAGE_CONTAINER_NAME: recordings
+    OPEN_ID_API_BASE_URI: https://idam-web-public.{{ .Values.global.environment }}.platform.hmcts.net/o
     IDAM_API_BASE_URI: https://idam-api.{{ .Values.global.environment }}.platform.hmcts.net
     S2S_BASE_URI: http://rpe-service-auth-provider-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
+    CCD_DATA_API_URL: http://ccd-data-store-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
+    IDAM_REDIRECT_URI: http://em-hrs-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal/oauth2redirect
+    JSON_CONSOLE_PRETTY_PRINT: false
+    LOG_OUTPUT: single
+    ROOT_LOGGING_LEVEL: INFO
+    LOG_LEVEL_SPRING_WEB: INFO
+    LOG_LEVEL_DM: INFO
+    SHOW_SQL: true
+    ENDPOINTS_HEALTH_SENSITIVE: false
+    ENDPOINTS_INFO_SENSITIVE: false
+    ENABLE_IDAM_HEALTH_CHECK: false
+    ENABLE_S2S_HEALTH_CHECK: false
 
 blobstorage:
   resourceGroup: em-hrs-api-aks

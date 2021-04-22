@@ -1,8 +1,6 @@
-
-
 //loading properties file.
 Properties liquibaseProps = new Properties()
-liquibaseProps.load(new FileInputStream("src/main/resources/liquibase.properties"))
+liquibaseProps.load(new FileInputStream(projectDir.toString() + "/src/main/resources/liquibase.properties"))
 
 if (!project.hasProperty('runList')) {
   project.ext.runList = 'main'
