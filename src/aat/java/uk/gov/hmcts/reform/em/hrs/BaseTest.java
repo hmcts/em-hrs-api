@@ -230,4 +230,29 @@ public abstract class BaseTest {
             .assertThat()
             .statusCode(200);
     }
+
+
+    protected CallbackRequest getCallbackRequest(final CaseDetails caseDetails, final String emailId) {
+        caseDetails.getData().put("recipientEmailAddress", emailId);
+        return CallbackRequest.builder().caseDetails(caseDetails).build();
+    }
+
+    protected JsonNode getSegmentPayload(final String fileName) {
+        final Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        return createRecordingSegmentPayload(
+            FOLDER,
+            cvpContainerUrl + fileName,
+            FILE_NAME,
+            FILE_EXT,
+            SEGMENT,
+            DATE_FORMAT.format(timestamp)
+        );
+    }
+
+    protected void createFolderIfDoesNotExistInHrsDB(final String folderName) {
+        getRecordingFileNames(folderName)
+            .log().all()
+            .assertThat()
+            .statusCode(200);
+    }
 }
