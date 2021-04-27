@@ -1,3 +1,10 @@
+buildscript {
+  dependencies {
+    classpath("net.serenity-bdd:serenity-gradle-plugin:2.3.13")
+    classpath("net.serenity-bdd:serenity-single-page-report:2.3.13")
+  }
+}
+
 plugins {
   id 'application'
   id 'checkstyle'
@@ -14,7 +21,7 @@ plugins {
 }
 
 apply from: 'liquibase.gradle'
-
+apply plugin: 'net.serenity-bdd.aggregator'
 
 allprojects {
   sourceCompatibility = '11'
@@ -107,6 +114,9 @@ task functional(type: Test) {
   environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
   include "uk/gov/hmcts/reform/em/hrs/**"
 }
+
+// Serenity Reporting
+functional.finalizedBy(aggregate)
 
 task contract(type: Test) {
   description = "Runs contract tests"
@@ -256,9 +266,9 @@ def versions = [
   postgresql         : '42.2.20',
   pact_version       : '3.6.15',
   restAssured        : '4.2.0',
-  serenity           : '2.3.12',
+  serenity           : '2.3.13',
   serenityRestAssured: '2.3.4',
-  serenityreporter   : '2.3.12',
+  serenityreporter   : '2.3.13',
   junit              : '5.7.0',
   junitPlatform      : '1.7.1',
   springSecurity     : '5.4.6'
@@ -385,8 +395,18 @@ dependencies {
     exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
 
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
   functionalTestImplementation 'uk.gov.hmcts.reform:em-test-helper:1.18.1', withoutStuff
-  functionalTestImplementation 'net.serenity-bdd:serenity-rest-assured:2.3.4', withoutStuff
+
+  functionalTestImplementation "org.junit.jupiter:junit-jupiter-api:5.6.2"
+  functionalTestImplementation "org.junit.vintage:junit-vintage-engine:5.6.2"
+  functionalTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.2.0'
+  functionalTestCompile("org.junit.jupiter:junit-jupiter-api:5.6.2")
+  functionalTestRuntime("org.junit.jupiter:junit-jupiter-engine:5.6.2")
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.19.0'
   testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.25.0'
@@ -514,4 +534,8 @@ pitest {
   timestampedReports = false
   failWhenNoMutations = false
   detectInlinedCode = true
+}
+
+serenity {
+  reports = ["single-page-html"]
 }
