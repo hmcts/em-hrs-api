@@ -10,7 +10,7 @@ plugins {
   id 'checkstyle'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-  id 'org.springframework.boot' version '2.3.4.RELEASE'
+  id 'org.springframework.boot' version '2.4.5'
   id 'uk.gov.hmcts.java' version '0.12.8'
   id 'com.github.ben-manes.versions' version '0.36.0'
   id 'org.sonarqube' version '3.1.1'
@@ -44,9 +44,9 @@ sourceSets {
     java {
       compileClasspath += main.output
       runtimeClasspath += main.output
-      srcDir file('src/functionalTest/java')
+      srcDir file('src/aat/java')
     }
-    resources.srcDir file('src/functionalTest/resources')
+    resources.srcDir file('src/aat/resources')
   }
 
   //integrationTest typically tests with mocked external endpoints (so can run locally without dependencies)
@@ -111,9 +111,8 @@ task functional(type: Test) {
   group = "Verification"
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
-  include "uk/gov/hmcts/reform/em/hrs/functional/**"
   environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
-  failFast = true
+  include "uk/gov/hmcts/reform/em/hrs/**"
 }
 
 // Serenity Reporting
@@ -161,19 +160,6 @@ runAndPublishConsumerPactTests.finalizedBy pactPublish
  * Code Checks
  **********************************************************************************************************************/
 
-def coverageExclusionList = [
-  '**uk/gov/hmcts/reform/em/hrs/Application*',
-  '**uk/gov/hmcts/reform/em/hrs/appinsights/**',
-  '**uk/gov/hmcts/reform/em/hrs/config/**',
-  '**uk/gov/hmcts/reform/em/hrs/dto/**',
-  '**uk/gov/hmcts/reform/em/hrs/model/**',
-  '**uk/gov/hmcts/reform/em/hrs/domain/**',
-  '**uk/gov/hmcts/reform/em/hrs/exception/**',
-  '**uk/gov/hmcts/reform/em/hrs/domain/**',
-  '**uk/gov/hmcts/reform/em/hrs/storage/**',//TODO implement tests after integration test passes for perf>stage copy
-
-]
-
 checkstyle {
   maxWarnings = 10
   toolVersion = '8.29'
@@ -187,13 +173,20 @@ jacocoTestReport {
     csv.enabled = false
     xml.destination file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
   }
-
-  afterEvaluate {
-    classDirectories.setFrom(files(classDirectories.files.collect {
-      fileTree(dir: it, exclude: coverageExclusionList)
-    }))
-  }
 }
+
+def coverageExclusionList = [
+  '**uk/gov/hmcts/reform/em/hrs/Application*',
+  '**uk/gov/hmcts/reform/em/hrs/appinsights/**',
+  '**uk/gov/hmcts/reform/em/hrs/config/**',
+  '**uk/gov/hmcts/reform/em/hrs/dto/**',
+  '**uk/gov/hmcts/reform/em/hrs/model/**',
+  '**uk/gov/hmcts/reform/em/hrs/domain/**',
+  '**uk/gov/hmcts/reform/em/hrs/exception/**',
+  '**uk/gov/hmcts/reform/em/hrs/service/ccd/**',
+  '**uk/gov/hmcts/reform/em/hrs/service/PermissionEvaluatorImpl*',
+  '**uk/gov/hmcts/reform/em/hrs/service/IngestionServiceImpl*',
+]
 
 project.tasks['sonarqube'].dependsOn test, integration, jacocoTestReport
 
@@ -256,39 +249,6 @@ dependencyManagement {
       entry 'kotlin-stdlib-jdk8'
     }
 
-    //CVE-2021-21295
-    dependencySet(group: 'io.netty', version: '4.1.63.Final') {
-      entry 'netty-buffer'
-      entry 'netty-codec'
-      entry 'netty-common'
-      entry 'netty-handler'
-      entry 'netty-resolver'
-      entry 'netty-transport'
-      entry 'netty-codec-http'
-      entry 'netty-codec-http2'
-      entry 'netty-transport-native-epoll'
-      entry 'netty-transport-native-kqueue'
-      entry 'netty-transport-native-unix-common'
-      entry 'netty-codec-socks'
-      entry 'netty-handler-proxy'
-    }
-
-    //CVE-2021-22112
-    dependencySet(group: 'org.springframework.security', version: '5.3.8.RELEASE') {
-      entry 'spring-security-config'
-      entry 'spring-security-core'
-      entry 'spring-security-crypto'
-      entry 'spring-security-oauth2-client'
-      entry 'spring-security-oauth2-core'
-      entry 'spring-security-oauth2-jose'
-      entry 'spring-security-oauth2-resource-server'
-      entry 'spring-security-web'
-    }
-
-    //CVE-2021-29425
-    dependencySet(group: 'commons-io', version: '2.8.0') {
-      entry 'commons-io'
-    }
   }
 }
 
@@ -311,7 +271,7 @@ def versions = [
   serenityreporter   : '2.3.13',
   junit              : '5.7.0',
   junitPlatform      : '1.7.1',
-  springSecurity     : '5.3.8.RELEASE'
+  springSecurity     : '5.4.6'
 ]
 
 ext.libraries = [
@@ -335,10 +295,6 @@ dependencies {
 
   compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
   compile group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
-
-  //for retry mechanism updatign ccd
-  compile "com.github.rholder:guava-retrying:2.0.0"
-
   implementation group: "commons-validator", name: "commons-validator", version: "1.7"
 
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server', version: versions.springSecurity
@@ -356,6 +312,7 @@ dependencies {
 
   implementation group: 'javax.inject', name: 'javax.inject', version: '1'
 
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.0.2'
   implementation "org.springframework.boot:spring-boot-starter-actuator"
   implementation "org.springframework.boot:spring-boot-starter-aop"
   implementation "org.springframework.boot:spring-boot-starter-json"
@@ -363,18 +320,16 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-web"
   implementation "org.springframework.boot:spring-boot-starter-security"
 
-  implementation "uk.gov.hmcts.reform:properties-volume-spring-boot-starter:0.1.0"
-
 //hmcts autho
-  implementation group: 'uk.gov.hmcts.reform', name: 'idam-client', version: '1.5.5'
-  implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.4'
+  implementation group: 'uk.gov.hmcts.reform', name: 'idam-client', version: '2.0.0'
+  implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '4.0.0'
   implementation(group: 'uk.gov.hmcts.reform.auth', name: 'auth-checker-lib', version: '2.1.4') {
     exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
   }
 
 
 //hmcts ccd
-  implementation group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: '4.7.5'
+  implementation group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: '4.7.6'
 
 //hmcts logging
   implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
@@ -383,7 +338,7 @@ dependencies {
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
 
 //hmcts resilience
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.7.RELEASE'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.8.RELEASE'
 
 //gov notify email service
   implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '3.17.2-RELEASE'
@@ -434,6 +389,25 @@ dependencies {
     exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
 
+  functionalTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
+    exclude group: 'junit', module: 'junit'
+    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    exclude group: 'com.vaadin.external.google', module: 'android-json'
+  }
+
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+  functionalTestImplementation 'uk.gov.hmcts.reform:em-test-helper:1.18.1', withoutStuff
+
+  functionalTestImplementation "org.junit.jupiter:junit-jupiter-api:5.6.2"
+  functionalTestImplementation "org.junit.vintage:junit-vintage-engine:5.6.2"
+  functionalTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.2.0'
+  functionalTestCompile("org.junit.jupiter:junit-jupiter-api:5.6.2")
+  functionalTestRuntime("org.junit.jupiter:junit-jupiter-engine:5.6.2")
+
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.19.0'
   testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.25.0'
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.15.2'
@@ -442,39 +416,9 @@ dependencies {
     exclude group: 'com.google.guava', module: 'guava'
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.0.3'
-  testImplementation group: 'info.solidsoft.gradle.pitest', name: 'gradle-pitest-plugin', version: '1.6.0'
+  testImplementation group :'info.solidsoft.gradle.pitest', name : 'gradle-pitest-plugin',version: '1.6.0'
   testImplementation group: 'org.pitest', name: 'pitest', version: '1.6.4'
-  testImplementation group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
-
-  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
-  functionalTestCompile 'org.junit.vintage:junit-vintage-engine:5.6.3'
-  functionalTestCompile 'org.junit.jupiter:junit-jupiter-api:5.6.3'
-  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
-
-  testCompile "org.junit.jupiter:junit-jupiter-api:5.6.3"
-  testRuntime "org.junit.jupiter:junit-jupiter-engine:5.6.3"
-  testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.3"
-
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
-
-  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
-  functionalTestCompile 'org.junit.vintage:junit-vintage-engine:5.6.3'
-  functionalTestCompile 'org.junit.jupiter:junit-jupiter-api:5.6.3'
-  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
-
-  testCompile "org.junit.jupiter:junit-jupiter-api:5.6.3"
-  testRuntime "org.junit.jupiter:junit-jupiter-engine:5.6.3"
-  testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.3"
-
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
+  testImplementation group:'org.codehaus.sonar-plugins', name:'sonar-pitest-plugin', version: '0.5'
 
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
@@ -482,8 +426,6 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
   smokeTestImplementation "uk.gov.hmcts.reform:em-test-helper:1.18.1"
-
-  functionalTestCompile "uk.gov.hmcts.reform:em-test-helper:1.18.1", withoutStuff
 
 /***********************************************************************************************************************
  * TEST SOURCE SETS
