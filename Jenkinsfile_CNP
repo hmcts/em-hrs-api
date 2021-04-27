@@ -28,12 +28,13 @@ def secrets = [
   ],
   'em-hrs-api-${env}': [
       secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING'),
-      secret('cvp-storage-container-name', 'CVP_STORAGE_CONTAINER_NAME'),
-      secret('notification-api-key', 'NOTIFICATION_API_KEY'),
-      secret('idam-system-user-name', 'HRS_SYSTEM_USER'),
-      secret('idam-system-user-password', 'HRS_SYSTEM_USER_PASSWORD')
+      secret('storage-account-primary-connection-string', 'AAT_HRS_STORAGEACCOUNT_CONNECTION_STRING'),
+      secret('cvp-storage-container-name', 'AAT_CVP_STORAGE_CONTAINER_NAME')
    ]
 ]
+
+env.AAT_HRS_STORAGE_CONTAINER_NAME='em-hrs-api-aat'
+env.AAT_CVP_STORAGE_CONTAINER_NAME='recordings'
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
   [$class     : 'AzureKeyVaultSecret',
@@ -49,7 +50,6 @@ env.IDAM_API_BASE_URI = 'https://idam-api.aat.platform.hmcts.net'
 env.OPEN_ID_API_BASE_URI = 'https://idam-web-public.aat.platform.hmcts.net/o'
 env.S2S_BASE_URI = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
 env.CCD_DATA_API_URL = 'http://ccd-data-store-api-aat.service.core-compute-aat.internal'
-env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
 env.CCD_DEF_API = 'http://ccd-definition-store-api-aat.service.core-compute-aat.internal'
 env.IDAM_REDIRECT_URI = 'https://em-hrs-api-aat.service.core-compute-aat.internal/oauth2/callback'
 env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
@@ -90,6 +90,15 @@ withPipeline(type, product, component) {
         reportDir            : "build/reports/checkstyle",
         reportFiles          : "test.html",
         reportName           : "HRS API Checkstyle Test Report"
+      ]
+
+      publishHTML target: [
+        allowMissing         : true,
+        alwaysLinkToLastBuild: true,
+        keepAll              : true,
+        reportDir            : "build/reports/checkstyle",
+        reportFiles          : "aat.html",
+        reportName           : "HRS API Checkstyle AAT Report"
       ]
 
       publishHTML target: [
@@ -142,7 +151,7 @@ withPipeline(type, product, component) {
         keepAll              : true,
         reportDir            : "build/reports/tests/smoke",
         reportFiles          : "index.html",
-        reportName           : "HRS API Smoke Test Report"
+        reportName           : "HRS Ingestor Smoke Test Report"
       ]
     }
 
@@ -167,7 +176,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/checkstyle",
       reportFiles          : "main.html",
-      reportName           : "HRS API Checkstyle Main Report"
+      reportName           : "HRS Ingestor Checkstyle Main Report"
     ]
 
     publishHTML target: [
@@ -176,7 +185,16 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/checkstyle",
       reportFiles          : "test.html",
-      reportName           : "HRS API Checkstyle Test Report"
+      reportName           : "HRS Ingestor Checkstyle Test Report"
+    ]
+
+    publishHTML target: [
+      allowMissing         : true,
+      alwaysLinkToLastBuild: true,
+      keepAll              : true,
+      reportDir            : "build/reports/checkstyle",
+      reportFiles          : "aat.html",
+      reportName           : "HRS Ingestor Checkstyle AAT Report"
     ]
 
     publishHTML target: [
@@ -185,7 +203,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/pmd",
       reportFiles          : "main.html",
-      reportName           : "HRS API PMD Main Report"
+      reportName           : "HRS Ingestor PMD Main Report"
     ]
 
     publishHTML target: [
@@ -194,7 +212,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/pmd",
       reportFiles          : "test.html",
-      reportName           : "HRS API PMD Test Report"
+      reportName           : "HRS Ingestor PMD Test Report"
     ]
 
     publishHTML target: [
@@ -203,7 +221,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/tests/test",
       reportFiles          : "index.html",
-      reportName           : "HRS API Unit Tests Report"
+      reportName           : "HRS Ingestor Unit Tests Report"
     ]
 
   }
@@ -219,7 +237,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/tests/smoke",
       reportFiles          : "index.html",
-      reportName           : "HRS API Smoke Test Report"
+      reportName           : "HRS Ingestor Smoke Test Report"
     ]
   }
 
@@ -230,7 +248,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/tests/functional",
       reportFiles          : "index.html",
-      reportName           : "HRS API Functional Test Report"
+      reportName           : "HRS Ingestor API Functional Test Report"
     ]
     steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
   }
