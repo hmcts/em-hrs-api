@@ -27,14 +27,14 @@ def secrets = [
     secret('show-oauth2-token', 'IDAM_CLIENT_OAUTH_SECRET')
   ],
   'em-hrs-api-${env}': [
-      secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING')
-      secret('storage-account-primary-connection-string', 'AAT_HRS_STORAGEACCOUNT_CONNECTION_STRING'),
-      secret('cvp-storage-container-name', 'AAT_CVP_STORAGE_CONTAINER_NAME')
-   ]
+    secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING'),
+    secret('storage-account-primary-connection-string', 'AAT_HRS_STORAGEACCOUNT_CONNECTION_STRING'),
+    secret('cvp-storage-container-name', 'AAT_CVP_STORAGE_CONTAINER_NAME')
+  ]
 ]
 
-env.AAT_HRS_STORAGE_CONTAINER_NAME='em-hrs-api-aat'
-env.AAT_CVP_STORAGE_CONTAINER_NAME='recordings'
+env.AAT_HRS_STORAGE_CONTAINER_NAME = 'recordings'
+env.AAT_CVP_STORAGE_CONTAINER_NAME = 'cvpsimulatorrecordings'
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
   [$class     : 'AzureKeyVaultSecret',
