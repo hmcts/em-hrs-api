@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.em.hrs;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.testutil.TestUtil;
@@ -24,7 +24,7 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
     @Autowired
     private TestUtil testUtil;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         testUtil.deleteFileFromCvpContainer(FOLDER);
         testUtil.deleteFileFromHrsContainer(FOLDER);
@@ -35,7 +35,7 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
         createFolderIfDoesNotExistInHrsDB(FOLDER);
     }
 
-    @After
+    @AfterEach
     public void clear(){
         testUtil.deleteFileFromHrsContainer(FOLDER);
         testUtil.deleteFileFromCvpContainer(FOLDER);
