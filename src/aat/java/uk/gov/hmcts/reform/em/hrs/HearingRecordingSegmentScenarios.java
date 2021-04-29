@@ -27,8 +27,8 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
         testUtil.deleteFileFromCvpContainer(FOLDER);
 
         final String id = UUID.randomUUID().toString();
-        FILE_NAME = String.format(FILE_NAME, id);
-        testUtil.uploadToCvpContainer(FILE_NAME);
+        fileName = String.format(fileName, id);
+        testUtil.uploadToCvpContainer(fileName);
         createFolderIfDoesNotExistInHrsDB(FOLDER);
     }
 
@@ -41,7 +41,7 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
     @Test
     @DisplayName("Create a segment and verify it has been created")
     public void shouldCreateHearingRecordingSegment() throws Exception {
-        final JsonNode segmentPayload = getSegmentPayload(FILE_NAME);
+        final JsonNode segmentPayload = getSegmentPayload(fileName);
 
         postRecordingSegment(segmentPayload)
             .then()
@@ -57,7 +57,7 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
             .statusCode(200)
             .body("folder-name", equalTo(FOLDER))
             .body("filenames", hasSize(1))
-            .body("filenames[0]", equalTo(FILE_NAME));
+            .body("filenames[0]", equalTo(fileName));
     }
 
     @Test

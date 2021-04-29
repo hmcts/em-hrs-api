@@ -30,8 +30,8 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
         testUtil.deleteFileFromHrsContainer(FOLDER);
 
         final String id = UUID.randomUUID().toString();
-        FILE_NAME = String.format(FILE_NAME, id);
-        testUtil.uploadToCvpContainer(FILE_NAME);
+        fileName = String.format(fileName, id);
+        testUtil.uploadToCvpContainer(fileName);
         createFolderIfDoesNotExistInHrsDB(FOLDER);
     }
 
@@ -44,7 +44,7 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
     @Test
     @DisplayName("An user with caseworker-hrs role should be able to download hearing recordings")
     public void anUserWithCaseWorkerHrsRoleShouldBeAbleToDownloadHearingRecordings() throws Exception {
-        final JsonNode segmentPayload = getSegmentPayload(FILE_NAME);
+        final JsonNode segmentPayload = getSegmentPayload(fileName);
 
         postRecordingSegment(segmentPayload)
             .then()
@@ -53,7 +53,7 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
 
         TimeUnit.SECONDS.sleep(20);
 
-        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCCDByRecordingReference(FILE_NAME);
+        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCcdByRecordingReference(fileName);
         assertTrue(optionalCaseDetails.isPresent());
 
         final CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
@@ -79,7 +79,7 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
     @Test
     @DisplayName("An user with caseworker role should not be able to download hearing recordings")
     public void anUserWithCaseWorkerRoleShouldNotBeAbleToDownloadHearingRecordings() throws Exception {
-        final JsonNode segmentPayload = getSegmentPayload(FILE_NAME);
+        final JsonNode segmentPayload = getSegmentPayload(fileName);
 
         postRecordingSegment(segmentPayload)
             .then()
@@ -88,7 +88,7 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
 
         TimeUnit.SECONDS.sleep(20);
 
-        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCCDByRecordingReference(FILE_NAME);
+        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCcdByRecordingReference(fileName);
         assertTrue(optionalCaseDetails.isPresent());
 
         final CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
@@ -115,7 +115,7 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
     @Test
     @DisplayName("An user with citizen role should not be able to download hearing recordings")
     public void anUserWithCitizenRoleShouldNotBeAbleToDownloadHearingRecordings() throws Exception {
-        final JsonNode segmentPayload = getSegmentPayload(FILE_NAME);
+        final JsonNode segmentPayload = getSegmentPayload(fileName);
 
         postRecordingSegment(segmentPayload)
             .then()
@@ -124,7 +124,7 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
 
         TimeUnit.SECONDS.sleep(20);
 
-        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCCDByRecordingReference(FILE_NAME);
+        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCcdByRecordingReference(fileName);
         assertTrue(optionalCaseDetails.isPresent());
 
         final CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
