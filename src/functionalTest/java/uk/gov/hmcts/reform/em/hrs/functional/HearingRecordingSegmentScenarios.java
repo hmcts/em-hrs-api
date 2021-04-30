@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.em.hrs.functional.util.TestUtil;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -19,13 +20,14 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
     @Autowired
     private TestUtil testUtil;
 
-
     @Before
     public void setup() throws Exception {
         testUtil.deleteFileFromHrsContainer(FOLDER);
         testUtil.deleteFileFromCvpContainer(FOLDER);
-        fileName = String.format(fileName, counter.incrementAndGet());
-        testUtil.uploadToCvpContainer(fileName);
+
+        final String id = UUID.randomUUID().toString();
+        FILE_NAME = String.format(FILE_NAME, id);
+        testUtil.uploadToCvpContainer(FILE_NAME);
         createFolderIfDoesNotExistInHrsDB(FOLDER);
     }
 
@@ -37,7 +39,7 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
 
     @Test
     public void shouldCreateHearingRecordingSegment() throws Exception {
-        final JsonNode segmentPayload = getSegmentPayload(fileName);
+        final JsonNode segmentPayload = getSegmentPayload(FILE_NAME);
 
         postRecordingSegment(segmentPayload)
             .then()
@@ -53,7 +55,7 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
             .statusCode(200)
             .body("folder-name", equalTo(FOLDER))
             .body("filenames", hasSize(1))
-            .body("filenames[0]", equalTo(fileName));
+            .body("filenames[0]", equalTo(FILE_NAME));
     }
 
     @Test
