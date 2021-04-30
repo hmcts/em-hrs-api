@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.testutil;
+package uk.gov.hmcts.reform.em.hrs.functional.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -8,15 +8,14 @@ import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGeneratorFactory;
 
 @Configuration
-public class CcdAuthTokenGeneratorConfiguration {
+public class AuthTokenGeneratorConfiguration {
 
     @Bean
-    public AuthTokenGenerator ccdAuthTokenGenerator(
-        @Value("${s2s.api.ccdGwSecret}") final String secret,
-        @Value("${s2s.api.ccdGwServiceName}") final String microService,
+    public AuthTokenGenerator authTokenGenerator(
+        @Value("${s2s.api.secret}") final String secret,
+        @Value("${s2s.api.serviceName}") final String microService,
         final ServiceAuthorisationApi serviceAuthorisationApi
     ) {
         return AuthTokenGeneratorFactory.createDefaultGenerator(secret, microService, serviceAuthorisationApi);
     }
-
 }

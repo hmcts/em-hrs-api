@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.testutil;
+package uk.gov.hmcts.reform.em.hrs.functional.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
