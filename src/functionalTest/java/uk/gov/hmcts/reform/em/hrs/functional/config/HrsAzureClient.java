@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.config;
+package uk.gov.hmcts.reform.em.hrs.functional.config;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.em.hrs.controller.GlobalExceptionHandler;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -27,7 +26,7 @@ public class HrsAzureClient {
     @Value("${azure.storage.cvp.blob-container-reference}")
     private String cvpContainer;
 
-    @Bean
+    @Bean(name = "hrsBlobContainerClient")
     public BlobContainerClient hrsBlobContainerClient() {
         LOGGER.info("HRS ConnectionString: {}, HRS Container: {} ",hrsConnectionString, hrsContainer);
         return new BlobContainerClientBuilder()
@@ -36,7 +35,7 @@ public class HrsAzureClient {
             .buildClient();
     }
 
-    @Bean
+    @Bean(name = "cvpBlobContainerClient")
     public BlobContainerClient cvpBlobContainerClient() {
         LOGGER.info("CVP ConnectionString: {}, CVP Container: {} ",cvpConnectionString, cvpContainer);
         return new BlobContainerClientBuilder()

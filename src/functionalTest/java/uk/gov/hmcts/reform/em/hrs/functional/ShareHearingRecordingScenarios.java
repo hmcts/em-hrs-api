@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs;
+package uk.gov.hmcts.reform.em.hrs.functional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.restassured.response.Response;
@@ -6,11 +6,10 @@ import org.apache.commons.lang3.RandomUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
-import uk.gov.hmcts.reform.em.hrs.testutil.TestUtil;
+import uk.gov.hmcts.reform.em.hrs.functional.util.TestUtil;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -39,13 +38,12 @@ public class ShareHearingRecordingScenarios extends BaseTest {
     }
 
     @After
-    public void clear(){
+    public void clear() {
         testUtil.deleteFileFromHrsContainer(FOLDER);
         testUtil.deleteFileFromCvpContainer(FOLDER);
     }
 
     @Test
-    @DisplayName("Sharee with caseworker role should be able to download hearing recordings")
     public void shouldAbleToShareHearingRecordingsToEmailAddressAndDownload() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
 
@@ -90,7 +88,6 @@ public class ShareHearingRecordingScenarios extends BaseTest {
     }
 
     @Test
-    @DisplayName("Sharee with citizen role should not be able to download a hearing recording")
     public void shareeWithCitizenRoleShouldNotBeAbleToDownloadHearingRecordings() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
 
@@ -135,7 +132,6 @@ public class ShareHearingRecordingScenarios extends BaseTest {
     }
 
     @Test
-    @DisplayName("Should not share a hearing recording to an invalid email address")
     public void shouldReturn400WhenShareHearingRecordingsToInvalidEmailAddress() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
 
@@ -163,7 +159,6 @@ public class ShareHearingRecordingScenarios extends BaseTest {
     }
 
     @Test
-    @DisplayName("Should not share a hearing recording when case id does not exist")
     public void shouldReturn404WhenShareHearingRecordingsToEmailAddressWithNonExistentCaseId() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
 

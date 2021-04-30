@@ -1,13 +1,12 @@
-package uk.gov.hmcts.reform.em.hrs;
+package uk.gov.hmcts.reform.em.hrs.functional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
-import uk.gov.hmcts.reform.em.hrs.testutil.TestUtil;
+import uk.gov.hmcts.reform.em.hrs.functional.util.TestUtil;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -36,13 +35,12 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
     }
 
     @After
-    public void clear(){
+    public void clear() {
         testUtil.deleteFileFromHrsContainer(FOLDER);
         testUtil.deleteFileFromCvpContainer(FOLDER);
     }
 
     @Test
-    @DisplayName("An user with caseworker-hrs role should be able to download hearing recordings")
     public void anUserWithCaseWorkerHrsRoleShouldBeAbleToDownloadHearingRecordings() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
 
@@ -77,7 +75,6 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
     }
 
     @Test
-    @DisplayName("An user with caseworker role should not be able to download hearing recordings")
     public void anUserWithCaseWorkerRoleShouldNotBeAbleToDownloadHearingRecordings() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
 
@@ -113,7 +110,6 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
     }
 
     @Test
-    @DisplayName("An user with citizen role should not be able to download hearing recordings")
     public void anUserWithCitizenRoleShouldNotBeAbleToDownloadHearingRecordings() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
 
