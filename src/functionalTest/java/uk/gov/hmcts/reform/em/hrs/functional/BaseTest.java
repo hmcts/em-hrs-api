@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs;
+package uk.gov.hmcts.reform.em.hrs.functional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,12 +20,12 @@ import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.EmTestConfig;
-import uk.gov.hmcts.reform.em.hrs.config.HrsAzureClient;
+import uk.gov.hmcts.reform.em.hrs.functional.config.HrsAzureClient;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
-import uk.gov.hmcts.reform.em.hrs.testutil.AuthTokenGeneratorConfiguration;
-import uk.gov.hmcts.reform.em.hrs.testutil.CcdAuthTokenGeneratorConfiguration;
-import uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper;
-import uk.gov.hmcts.reform.em.hrs.testutil.TestUtil;
+import uk.gov.hmcts.reform.em.hrs.functional.config.AuthTokenGeneratorConfiguration;
+import uk.gov.hmcts.reform.em.hrs.functional.config.CcdAuthTokenGeneratorConfiguration;
+import uk.gov.hmcts.reform.em.hrs.functional.util.ExtendedCcdHelper;
+import uk.gov.hmcts.reform.em.hrs.functional.util.TestUtil;
 import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
@@ -39,7 +39,7 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper.HRS_TESTER;
+import static uk.gov.hmcts.reform.em.hrs.functional.util.ExtendedCcdHelper.HRS_TESTER;
 
 
 @SpringBootTest(classes = {

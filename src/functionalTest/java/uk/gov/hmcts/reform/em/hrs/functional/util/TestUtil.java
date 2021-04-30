@@ -1,9 +1,10 @@
-package uk.gov.hmcts.reform.em.hrs.testutil;
+package uk.gov.hmcts.reform.em.hrs.functional.util;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedInputStream;
@@ -21,8 +22,8 @@ public class TestUtil {
     private final BlobContainerClient cvpBlobContainerClient;
 
     @Autowired
-    public TestUtil(BlobContainerClient hrsBlobContainerClient,
-                    BlobContainerClient cvpBlobContainerClient) {
+    public TestUtil(@Qualifier("hrsBlobContainerClient") BlobContainerClient hrsBlobContainerClient,
+                    @Qualifier("cvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient) {
         this.hrsBlobContainerClient = hrsBlobContainerClient;
         this.cvpBlobContainerClient = cvpBlobContainerClient;
     }
@@ -59,7 +60,6 @@ public class TestUtil {
     public FileInputStream getTestFile() throws Exception {
         final URL resource = TestUtil.class.getClassLoader().getResource("data/test_data.mp4");
         final File file = new File(Objects.requireNonNull(resource).toURI());
-        final FileInputStream fileInputStream = new FileInputStream(file);
-        return fileInputStream;
+        return new FileInputStream(file);
     }
 }
