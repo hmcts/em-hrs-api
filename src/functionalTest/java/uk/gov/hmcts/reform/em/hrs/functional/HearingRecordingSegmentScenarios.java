@@ -8,7 +8,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.em.hrs.functional.util.TestUtil;
 
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -20,13 +19,12 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
     @Autowired
     private TestUtil testUtil;
 
+
     @Before
     public void setup() throws Exception {
         testUtil.deleteFileFromHrsContainer(FOLDER);
         testUtil.deleteFileFromCvpContainer(FOLDER);
-
-        final String id = UUID.randomUUID().toString();
-        fileName = String.format(fileName, id);
+        fileName = String.format(fileName, counter.incrementAndGet());
         testUtil.uploadToCvpContainer(fileName);
         createFolderIfDoesNotExistInHrsDB(FOLDER);
     }

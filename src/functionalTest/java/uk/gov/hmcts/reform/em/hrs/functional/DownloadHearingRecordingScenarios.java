@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.functional.util.TestUtil;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -28,8 +27,7 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
         testUtil.deleteFileFromCvpContainer(FOLDER);
         testUtil.deleteFileFromHrsContainer(FOLDER);
 
-        final String id = UUID.randomUUID().toString();
-        fileName = String.format(fileName, id);
+        fileName = String.format(fileName, counter.incrementAndGet());
         testUtil.uploadToCvpContainer(fileName);
         createFolderIfDoesNotExistInHrsDB(FOLDER);
     }
