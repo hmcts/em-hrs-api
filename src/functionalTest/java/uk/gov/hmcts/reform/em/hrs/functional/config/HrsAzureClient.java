@@ -2,17 +2,17 @@ package uk.gov.hmcts.reform.em.hrs.functional.config;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-<<<<<<<< HEAD:src/functionalTest/java/uk/gov/hmcts/reform/em/hrs/functional/config/HrsAzureClient.java
 
 import static org.slf4j.LoggerFactory.getLogger;
-========
->>>>>>>> refactored and fixed functional tests junit version issue:src/aat/java/uk/gov/hmcts/reform/em/hrs/config/HrsAzureClient.java
 
 @Component
 public class HrsAzureClient {
+
+    private static final Logger LOGGER = getLogger(HrsAzureClient.class);
 
     @Value("${azure.storage.hrs.connection-string}")
     private String hrsConnectionString;
@@ -28,6 +28,7 @@ public class HrsAzureClient {
 
     @Bean(name = "hrsBlobContainerClient")
     public BlobContainerClient hrsBlobContainerClient() {
+        LOGGER.info("HRS ConnectionString: {}, HRS Container: {} ",hrsConnectionString, hrsContainer);
         return new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
             .containerName(hrsContainer)
@@ -36,6 +37,7 @@ public class HrsAzureClient {
 
     @Bean(name = "cvpBlobContainerClient")
     public BlobContainerClient cvpBlobContainerClient() {
+        LOGGER.info("CVP ConnectionString: {}, CVP Container: {} ",cvpConnectionString, cvpContainer);
         return new BlobContainerClientBuilder()
             .connectionString(cvpConnectionString)
             .containerName(cvpContainer)
