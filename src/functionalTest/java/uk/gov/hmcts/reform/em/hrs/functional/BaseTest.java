@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs;
+package uk.gov.hmcts.reform.em.hrs.functional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,27 +20,26 @@ import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.EmTestConfig;
-import uk.gov.hmcts.reform.em.hrs.config.HrsAzureClient;
+import uk.gov.hmcts.reform.em.hrs.functional.config.HrsAzureClient;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
-import uk.gov.hmcts.reform.em.hrs.testutil.AuthTokenGeneratorConfiguration;
-import uk.gov.hmcts.reform.em.hrs.testutil.CcdAuthTokenGeneratorConfiguration;
-import uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper;
-import uk.gov.hmcts.reform.em.hrs.testutil.TestUtil;
+import uk.gov.hmcts.reform.em.hrs.functional.config.AuthTokenGeneratorConfiguration;
+import uk.gov.hmcts.reform.em.hrs.functional.config.CcdAuthTokenGeneratorConfiguration;
+import uk.gov.hmcts.reform.em.hrs.functional.util.ExtendedCcdHelper;
+import uk.gov.hmcts.reform.em.hrs.functional.util.TestUtil;
 import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 
-import javax.annotation.PostConstruct;
-import java.io.FileInputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.PostConstruct;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper.HRS_TESTER;
+import static uk.gov.hmcts.reform.em.hrs.functional.util.ExtendedCcdHelper.HRS_TESTER;
 
 
 @SpringBootTest(classes = {
@@ -64,11 +63,10 @@ public abstract class BaseTest {
     protected static final String ERROR_SHAREE_EMAIL_ADDRESS = "sharee.testertest.com";
     protected static final int SEGMENT = 0;
     protected static final String FOLDER = "audiostream123456";
-    protected String FILE_NAME = "audiostream123456/FM-0123-BV20D01_2020-11-04-14.56.32.819-UTC_%s.mp4";
+    protected String fileName = "audiostream123456/FM-0123-BV20D01_2020-11-04-14.56.32.819-UTC_%s.mp4";
     protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss.SSS");
     protected static List<String> CASE_WORKER_ROLE = List.of("caseworker");
     protected static List<String> CASE_WORKER_HRS_ROLE = List.of("caseworker-hrs");
-    protected static List<String> CCD_IMPORT_ROLE = List.of("ccd-import");
     protected static List<String> CITIZEN_ROLE = List.of("citizen");
     public static List<String> HRS_TESTER_ROLES = List.of("caseworker", "caseworker-hrs", "ccd-import");
     protected String idamAuth;
@@ -92,6 +90,9 @@ public abstract class BaseTest {
 
     @Autowired
     protected CoreCaseDataApi coreCaseDataApi;
+
+    @Autowired
+    private TestUtil testUtil;
 
     @PostConstruct
     public void init() {
@@ -139,7 +140,7 @@ public abstract class BaseTest {
             .get(recordingUrl);
     }
 
-    protected Response downloadRecording(String email, List<String> roles,Map<String, Object> caseData) {
+    protected Response downloadRecording(String email, List<String> roles, Map<String, Object> caseData) {
         @SuppressWarnings("unchecked")
         List<Map> segmentNodes = (ArrayList) caseData.getOrDefault("recordingFiles", new ArrayList());
 
@@ -155,7 +156,7 @@ public abstract class BaseTest {
             .get(recordingUrl);
     }
 
-    protected Optional<CaseDetails> findCaseDetailsInCCDByRecordingReference(String recordingRef) {
+    protected Optional<CaseDetails> findCaseDetailsInCcdByRecordingReference(String recordingRef) {
         Map<String, String> searchCriteria = Map.of("case.recordingReference", recordingRef);
         return coreCaseDataApi
             .searchForCaseworker(idamAuth, s2sAuth, userId, JURISDICTION, CASE_TYPE, searchCriteria)
@@ -216,8 +217,8 @@ public abstract class BaseTest {
         final Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         return createRecordingSegmentPayload(
             FOLDER,
-            cvpContainerUrl + fileName,
-            FILE_NAME,
+            testUtil.getCvpBlobContainerClient().getBlobContainerUrl() + "/" + fileName,
+            this.fileName,
             FILE_EXT,
             SEGMENT,
             DATE_FORMAT.format(timestamp)

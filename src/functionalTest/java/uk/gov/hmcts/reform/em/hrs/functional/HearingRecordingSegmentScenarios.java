@@ -1,13 +1,12 @@
-package uk.gov.hmcts.reform.em.hrs;
+package uk.gov.hmcts.reform.em.hrs.functional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.restassured.response.ValidatableResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.gov.hmcts.reform.em.hrs.testutil.TestUtil;
+import uk.gov.hmcts.reform.em.hrs.functional.util.TestUtil;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +38,6 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
     }
 
     @Test
-    @DisplayName("Create a segment and verify it has been created")
     public void shouldCreateHearingRecordingSegment() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(FILE_NAME);
 
@@ -61,7 +59,6 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
     }
 
     @Test
-    @DisplayName("Should create a folder when it does not exist and return empty filenames")
     public void shouldCreateFolderWhenDoesNotExistAndReturnEmptyFileNames() {
         final String nonExistentFolder = "audiostream000000";
 

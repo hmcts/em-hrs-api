@@ -1,13 +1,15 @@
-package uk.gov.hmcts.reform.em.hrs;
+package uk.gov.hmcts.reform.em.hrs.functional;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.restassured.response.Response;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
+import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
-import uk.gov.hmcts.reform.em.hrs.testutil.TestUtil;
+import uk.gov.hmcts.reform.em.hrs.functional.util.TestUtil;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -19,7 +21,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class DownloadHearingRecordingScenarios extends BaseTest {
+public class ShareHearingRecordingScenarios extends BaseTest {
 
     @Autowired
     private TestUtil testUtil;
@@ -36,14 +38,13 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
     }
 
     @After
-    public void clear(){
+    public void clear() {
         testUtil.deleteFileFromHrsContainer(FOLDER);
         testUtil.deleteFileFromCvpContainer(FOLDER);
     }
 
     @Test
-    @DisplayName("An user with caseworker-hrs role should be able to download hearing recordings")
-    public void anUserWithCaseWorkerHrsRoleShouldBeAbleToDownloadHearingRecordings() throws Exception {
+    public void shouldAbleToShareHearingRecordingsToEmailAddressAndDownload() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(FILE_NAME);
 
         postRecordingSegment(segmentPayload)
@@ -61,24 +62,33 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
         assertNotNull(caseDetails.getId());
         assertNotNull(caseDetails.getData());
 
+        final CallbackRequest callbackRequest = getCallbackRequest(caseDetails, SHAREE_EMAIL_ADDRESS);
+        final Response shareRecordingResponse = shareRecording(SHAREE_EMAIL_ADDRESS, CASE_WORKER_ROLE, callbackRequest);
+
+        shareRecordingResponse
+            .then()
+            .log().all()
+            .assertThat()
+            .statusCode(200);
+
         final int expectedFileSize = testUtil.getTestFile().readAllBytes().length;
         assertThat(expectedFileSize, is(not(0)));
 
         final byte[] downloadedFileBytes =
-            downloadRecording(EMAIL_ADDRESS, CASE_WORKER_HRS_ROLE, caseDetails.getData())
+            downloadRecording(caseDetails.getData())
                 .then()
                 .statusCode(200)
                 .extract().response()
                 .body().asByteArray();
 
         final int actualFileSize = downloadedFileBytes.length;
+
         assertThat(actualFileSize, is(not(0)));
         assertThat(actualFileSize, is(expectedFileSize));
     }
 
     @Test
-    @DisplayName("An user with caseworker role should not be able to download hearing recordings")
-    public void anUserWithCaseWorkerRoleShouldNotBeAbleToDownloadHearingRecordings() throws Exception {
+    public void shareeWithCitizenRoleShouldNotBeAbleToDownloadHearingRecordings() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(FILE_NAME);
 
         postRecordingSegment(segmentPayload)
@@ -96,25 +106,33 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
         assertNotNull(caseDetails.getId());
         assertNotNull(caseDetails.getData());
 
+        final CallbackRequest callbackRequest = getCallbackRequest(caseDetails, SHAREE_EMAIL_ADDRESS);
+        final Response shareRecordingResponse = shareRecording(SHAREE_EMAIL_ADDRESS, CITIZEN_ROLE, callbackRequest);
+
+        shareRecordingResponse
+            .then()
+            .log().all()
+            .assertThat()
+            .statusCode(200);
+
         final int expectedFileSize = testUtil.getTestFile().readAllBytes().length;
         assertThat(expectedFileSize, is(not(0)));
 
         final byte[] downloadedFileBytes =
-            downloadRecording(EMAIL_ADDRESS, CASE_WORKER_ROLE, caseDetails.getData())
+            downloadRecording(SHAREE_EMAIL_ADDRESS, CITIZEN_ROLE, caseDetails.getData())
                 .then()
-                .statusCode(200) //FIXME should return 403
+                .statusCode(200) //FIXME citizen role should not download hearing recordings
                 .extract().response()
                 .body().asByteArray();
 
         final int actualFileSize = downloadedFileBytes.length;
+
         assertThat(actualFileSize, is(not(0)));
         assertThat(actualFileSize, is(expectedFileSize));
-
     }
 
     @Test
-    @DisplayName("An user with citizen role should not be able to download hearing recordings")
-    public void anUserWithCitizenRoleShouldNotBeAbleToDownloadHearingRecordings() throws Exception {
+    public void shouldReturn400WhenShareHearingRecordingsToInvalidEmailAddress() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(FILE_NAME);
 
         postRecordingSegment(segmentPayload)
@@ -127,23 +145,44 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
         final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCCDByRecordingReference(FILE_NAME);
         assertTrue(optionalCaseDetails.isPresent());
 
-        final CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
+        CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
         assertNotNull(caseDetails);
         assertNotNull(caseDetails.getId());
         assertNotNull(caseDetails.getData());
 
-        final int expectedFileSize = testUtil.getTestFile().readAllBytes().length;
-        assertThat(expectedFileSize, is(not(0)));
+        final CallbackRequest callbackRequest = getCallbackRequest(caseDetails, ERROR_SHAREE_EMAIL_ADDRESS);
+        final Response shareRecordingResponse = shareRecording(SHAREE_EMAIL_ADDRESS, CASE_WORKER_ROLE, callbackRequest);
 
-        final byte[] downloadedFileBytes =
-            downloadRecording(EMAIL_ADDRESS, CITIZEN_ROLE, caseDetails.getData())
-                .then()
-                .statusCode(200) //FIXME should return 403
-                .extract().response()
-                .body().asByteArray();
+        shareRecordingResponse
+            .then().log().all()
+            .assertThat().statusCode(400);
+    }
 
-        final int actualFileSize = downloadedFileBytes.length;
-        assertThat(actualFileSize, is(not(0)));
-        assertThat(actualFileSize, is(expectedFileSize));
+    @Test
+    public void shouldReturn404WhenShareHearingRecordingsToEmailAddressWithNonExistentCaseId() throws Exception {
+        final JsonNode segmentPayload = getSegmentPayload(FILE_NAME);
+
+        postRecordingSegment(segmentPayload)
+            .then()
+            .log().all()
+            .statusCode(202);
+
+        TimeUnit.SECONDS.sleep(20);
+
+        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCCDByRecordingReference(FILE_NAME);
+        assertTrue(optionalCaseDetails.isPresent());
+
+        CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
+        assertNotNull(caseDetails);
+        assertNotNull(caseDetails.getId());
+        assertNotNull(caseDetails.getData());
+
+        caseDetails.setId(RandomUtils.nextLong());
+        final CallbackRequest callbackRequest = getCallbackRequest(caseDetails, SHAREE_EMAIL_ADDRESS);
+        final Response shareRecordingResponse = shareRecording(SHAREE_EMAIL_ADDRESS, CASE_WORKER_ROLE, callbackRequest);
+
+        shareRecordingResponse
+            .then().log().all()
+            .assertThat().statusCode(404);
     }
 }
