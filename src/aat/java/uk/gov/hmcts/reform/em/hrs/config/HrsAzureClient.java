@@ -2,12 +2,18 @@ package uk.gov.hmcts.reform.em.hrs.config;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.em.hrs.controller.GlobalExceptionHandler;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class HrsAzureClient {
+
+    private static final Logger LOGGER = getLogger(HrsAzureClient.class);
 
     @Value("${azure.storage.hrs.connection-string}")
     private String hrsConnectionString;
@@ -23,6 +29,7 @@ public class HrsAzureClient {
 
     @Bean
     public BlobContainerClient hrsBlobContainerClient() {
+        LOGGER.info("HRS ConnectionString: {}, HRS Container: {} ",hrsConnectionString, hrsContainer);
         return new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
             .containerName(hrsContainer)
@@ -31,6 +38,7 @@ public class HrsAzureClient {
 
     @Bean
     public BlobContainerClient cvpBlobContainerClient() {
+        LOGGER.info("CVP ConnectionString: {}, CVP Container: {} ",cvpConnectionString, cvpContainer);
         return new BlobContainerClientBuilder()
             .connectionString(cvpConnectionString)
             .containerName(cvpContainer)
