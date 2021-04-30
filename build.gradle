@@ -478,6 +478,21 @@ dependencies {
   functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
   functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
 
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestCompile 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestCompile 'org.junit.jupiter:junit-jupiter-api:5.6.3'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
+
+  testCompile "org.junit.jupiter:junit-jupiter-api:5.6.3"
+  testRuntime "org.junit.jupiter:junit-jupiter-engine:5.6.3"
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.3"
+
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
+
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
