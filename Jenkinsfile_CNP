@@ -28,8 +28,7 @@ def secrets = [
   ],
   'em-hrs-api-${env}': [
     secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING'),
-    secret('storage-account-primary-connection-string', 'AAT_HRS_STORAGEACCOUNT_CONNECTION_STRING'),
-    secret('cvp-storage-container-name', 'AAT_CVP_STORAGE_CONTAINER_NAME')
+    secret('storage-account-primary-connection-string', 'AAT_HRS_STORAGEACCOUNT_CONNECTION_STRING')
   ]
 ]
 
