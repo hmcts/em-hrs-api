@@ -92,7 +92,7 @@ withPipeline(type, product, component) {
         alwaysLinkToLastBuild: true,
         keepAll              : true,
         reportDir            : "build/reports/checkstyle",
-        reportFiles          : "aat.html",
+        reportFiles          : "main.html",
         reportName           : "HRS API Checkstyle AAT Report"
       ]
 
@@ -146,7 +146,7 @@ withPipeline(type, product, component) {
         keepAll              : true,
         reportDir            : "build/reports/tests/smoke",
         reportFiles          : "index.html",
-        reportName           : "HRS Ingestor Smoke Test Report"
+        reportName           : "HRS API Smoke Test Report"
       ]
     }
 
@@ -171,7 +171,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/checkstyle",
       reportFiles          : "main.html",
-      reportName           : "HRS Ingestor Checkstyle Main Report"
+      reportName           : "HRS API Checkstyle Main Report"
     ]
 
     publishHTML target: [
@@ -180,7 +180,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/checkstyle",
       reportFiles          : "test.html",
-      reportName           : "HRS Ingestor Checkstyle Test Report"
+      reportName           : "HRS API Checkstyle Test Report"
     ]
 
     publishHTML target: [
@@ -188,8 +188,8 @@ withPipeline(type, product, component) {
       alwaysLinkToLastBuild: true,
       keepAll              : true,
       reportDir            : "build/reports/checkstyle",
-      reportFiles          : "aat.html",
-      reportName           : "HRS Ingestor Checkstyle AAT Report"
+      reportFiles          : "main.html",
+      reportName           : "HRS API Checkstyle AAT Report"
     ]
 
     publishHTML target: [
@@ -198,7 +198,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/pmd",
       reportFiles          : "main.html",
-      reportName           : "HRS Ingestor PMD Main Report"
+      reportName           : "HRS API PMD Main Report"
     ]
 
     publishHTML target: [
@@ -207,7 +207,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/pmd",
       reportFiles          : "test.html",
-      reportName           : "HRS Ingestor PMD Test Report"
+      reportName           : "HRS API PMD Test Report"
     ]
 
     publishHTML target: [
@@ -216,7 +216,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/tests/test",
       reportFiles          : "index.html",
-      reportName           : "HRS Ingestor Unit Tests Report"
+      reportName           : "HRS API Unit Tests Report"
     ]
 
   }
@@ -232,7 +232,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/tests/smoke",
       reportFiles          : "index.html",
-      reportName           : "HRS Ingestor Smoke Test Report"
+      reportName           : "HRS API Smoke Test Report"
     ]
   }
 
@@ -243,7 +243,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/tests/functional",
       reportFiles          : "index.html",
-      reportName           : "HRS Ingestor API Functional Test Report"
+      reportName           : "HRS API API Functional Test Report"
     ]
     steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
   }
