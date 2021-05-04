@@ -1,6 +1,7 @@
 plugins {
   id 'application'
   id 'checkstyle'
+  id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id 'org.springframework.boot' version '2.3.4.RELEASE'
@@ -154,6 +155,16 @@ checkstyle {
   maxWarnings = 10
   toolVersion = '8.29'
   getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
+}
+
+pmd {
+  toolVersion = "6.30.0"
+  ignoreFailures = true
+  sourceSets = [sourceSets.main, sourceSets.test, sourceSets.functionalTest, sourceSets.integrationTest, sourceSets.smokeTest]
+  reportsDir = file("$project.buildDir/reports/pmd")
+  // https://github.com/pmd/pmd/issues/876
+  ruleSets = []
+  ruleSetFiles = files("config/pmd/ruleset.xml")
 }
 
 jacocoTestReport {
