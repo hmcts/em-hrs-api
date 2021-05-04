@@ -92,7 +92,7 @@ withPipeline(type, product, component) {
         alwaysLinkToLastBuild: true,
         keepAll              : true,
         reportDir            : "build/reports/checkstyle",
-        reportFiles          : "main.html",
+        reportFiles          : "aat.html",
         reportName           : "HRS API Checkstyle AAT Report"
       ]
 
@@ -243,7 +243,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/tests/functional",
       reportFiles          : "index.html",
-      reportName           : "HRS API API Functional Test Report"
+      reportName           : "HRS API Functional Test Report"
     ]
     steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
   }
