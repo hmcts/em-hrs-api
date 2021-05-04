@@ -113,7 +113,7 @@ withPipeline(type, product, component) {
         reportFiles          : "index.html",
         reportName           : "HRS API Unit Tests Report"
       ]
-    }
+
 
 //    enablePactAs([
     //    AppPipelineDsl.PactRoles.CONSUMER
@@ -128,7 +128,7 @@ withPipeline(type, product, component) {
         reportFiles          : "index.html",
         reportName           : "HRS API Contract Test Report"
       ]
-    }
+
 
     after('smoketest:aat') {
       publishHTML target: [
@@ -139,7 +139,7 @@ withPipeline(type, product, component) {
         reportFiles          : "index.html",
         reportName           : "HRS API Smoke Test Report"
       ]
-    }
+
 
     after('functionalTest:aat') {
 
@@ -152,7 +152,7 @@ withPipeline(type, product, component) {
         reportName           : "HRS API Functional Test Report"
       ]
       steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
-    }
+
   }
 
   after('test') {
@@ -201,7 +201,7 @@ withPipeline(type, product, component) {
       reportName           : "HRS API Unit Tests Report"
     ]
 
-  }
+  }}}}}
 
 //  enablePactAs([
 //    AppPipelineDsl.PactRoles.CONSUMER
