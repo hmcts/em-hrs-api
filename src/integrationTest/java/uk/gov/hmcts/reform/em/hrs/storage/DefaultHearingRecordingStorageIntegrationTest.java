@@ -7,7 +7,7 @@ import org.mockito.Captor;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestApplicationConfig;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestAzureStorageConfig;
-import uk.gov.hmcts.reform.em.hrs.helper.AzureOperations;
+import uk.gov.hmcts.reform.em.hrs.helper.AzureIntegrationTestOperations;
 import uk.gov.hmcts.reform.em.hrs.util.Snooper;
 
 import java.time.Duration;
@@ -27,28 +27,26 @@ import static org.mockito.Mockito.verify;
     TestAzureStorageConfig.class,
     TestApplicationConfig.class,
     DefaultHearingRecordingStorage.class,
-    AzureOperations.class}
+    AzureIntegrationTestOperations.class}
 )
 class DefaultHearingRecordingStorageIntegrationTest {
-    @Inject
-    private Snooper snooper;
-    @Inject
-    private AzureOperations azureOperations;
-    @Inject
-    private DefaultHearingRecordingStorage underTest;
-
-    @Captor
-    private ArgumentCaptor<String> snoopCaptor;
-
     private static final Duration TEN_SECONDS = Duration.ofSeconds(10);
     private static final String EMPTY_FOLDER = "folder-0";
     private static final String ONE_ITEM_FOLDER = "folder-1";
     private static final String MANY_ITEMS_FOLDER = "folder-2";
+    @Inject
+    private Snooper snooper;
+    @Inject
+    private AzureIntegrationTestOperations azureIntegrationTestOperations;
+    @Inject
+    private DefaultHearingRecordingStorage underTest;
+    @Captor
+    private ArgumentCaptor<String> snoopCaptor;
 
     @BeforeEach
     void setup() {
         snoopCaptor.getAllValues().clear();
-        azureOperations.clearContainer();
+        azureIntegrationTestOperations.clearContainer();
     }
 
     @Test
@@ -61,7 +59,7 @@ class DefaultHearingRecordingStorageIntegrationTest {
     @Test
     void testShouldReturnASetContainingOneWhenFolderContainsOneItem() {
         final String filePath = ONE_ITEM_FOLDER + "/" + UUID.randomUUID().toString() + ".txt";
-        azureOperations.uploadToHrsContainer(filePath);
+        azureIntegrationTestOperations.uploadToHrsContainer(filePath);
 
         final Set<String> files = underTest.findByFolder(ONE_ITEM_FOLDER);
 
@@ -71,7 +69,7 @@ class DefaultHearingRecordingStorageIntegrationTest {
     @Test
     void testShouldReturnSetContainingMultipleFilenamesWhenFolderContainsMultipleItems() {
         final Set<String> filePaths = generateFilePaths();
-        azureOperations.populateHrsContainer(filePaths);
+        azureIntegrationTestOperations.populateHrsContainer(filePaths);
 
         final Set<String> files = underTest.findByFolder(MANY_ITEMS_FOLDER);
 
@@ -82,13 +80,13 @@ class DefaultHearingRecordingStorageIntegrationTest {
     void testShouldEnsureTheSpecifiedCvpBlobAppearsInHrsBlobstore() {
         final String folder = UUID.randomUUID().toString();
         final String file = folder + "/" + UUID.randomUUID().toString() + ".txt";
-        azureOperations.uploadToCvpContainer(file);
-        final String sourceUrl = azureOperations.getBlobUrl(file);
+        azureIntegrationTestOperations.uploadToCvpContainer(file);
+        final String sourceUrl = azureIntegrationTestOperations.getBlobUrl(file);
 
         underTest.copyRecording(sourceUrl, file);
 
         await().atMost(TEN_SECONDS)
-            .untilAsserted(() -> assertThat(azureOperations.getHrsBlobsFrom(folder))
+            .untilAsserted(() -> assertThat(azureIntegrationTestOperations.getHrsBlobsFrom(folder))
                 .singleElement()
                 .isEqualTo(file));
     }
@@ -98,13 +96,13 @@ class DefaultHearingRecordingStorageIntegrationTest {
         final String folder = UUID.randomUUID().toString();
         final String file1 = folder + "/" + UUID.randomUUID().toString() + ".txt";
         final String file2 = folder + "/" + UUID.randomUUID().toString() + ".txt";
-        azureOperations.populateCvpContainer(Set.of(file1, file2));
-        final String sourceUrl = azureOperations.getBlobUrl(file1);
+        azureIntegrationTestOperations.populateCvpContainer(Set.of(file1, file2));
+        final String sourceUrl = azureIntegrationTestOperations.getBlobUrl(file1);
 
         underTest.copyRecording(sourceUrl, file1);
 
         await().atMost(TEN_SECONDS)
-            .untilAsserted(() -> assertThat(azureOperations.getHrsBlobsFrom(folder))
+            .untilAsserted(() -> assertThat(azureIntegrationTestOperations.getHrsBlobsFrom(folder))
                 .singleElement()
                 .isEqualTo(file1));
     }
@@ -112,8 +110,8 @@ class DefaultHearingRecordingStorageIntegrationTest {
     @Test
     void testShouldEmitCopySuccessfulMessage() {
         final String file = UUID.randomUUID().toString() + "/" + UUID.randomUUID().toString() + ".txt";
-        azureOperations.uploadToCvpContainer(file);
-        final String sourceUrl = azureOperations.getBlobUrl(file);
+        azureIntegrationTestOperations.uploadToCvpContainer(file);
+        final String sourceUrl = azureIntegrationTestOperations.getBlobUrl(file);
 
         underTest.copyRecording(sourceUrl, file);
 
@@ -123,7 +121,7 @@ class DefaultHearingRecordingStorageIntegrationTest {
     @Test
     void testShouldEmitCopyFailedMessage() {
         final String file = UUID.randomUUID().toString() + "/" + UUID.randomUUID().toString() + ".txt";
-        final String sourceUrl = azureOperations.getBlobUrl(file);
+        final String sourceUrl = azureIntegrationTestOperations.getBlobUrl(file);
 
         underTest.copyRecording(sourceUrl, file);
 

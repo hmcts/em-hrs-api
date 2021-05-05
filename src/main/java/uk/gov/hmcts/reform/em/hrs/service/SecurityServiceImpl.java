@@ -1,15 +1,20 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
+import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
-import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Map;
 
 @Named
 public class SecurityServiceImpl implements SecurityService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityServiceImpl.class);
 
     private final IdamClient idamClient;
     private final AuthTokenGenerator authTokenGenerator;
@@ -37,6 +42,8 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public String getUserToken() {
+        LOGGER.info("retrieving access token with these credentials ({}/{})",
+                    systemUsername, systemUserPassword.substring(0, 4).concat("*****"));
         return idamClient.getAccessToken(systemUsername, systemUserPassword);
     }
 
@@ -58,5 +65,10 @@ public class SecurityServiceImpl implements SecurityService {
     @Override
     public String getUserEmail(String userAuthorization) {
         return idamClient.getUserDetails(userAuthorization).getEmail();
+    }
+
+    @Override
+    public UserInfo getUserInfo(String jwtToken) {
+        return idamClient.getUserInfo(jwtToken);
     }
 }

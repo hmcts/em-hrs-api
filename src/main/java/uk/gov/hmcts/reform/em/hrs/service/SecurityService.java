@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
+import uk.gov.hmcts.reform.idam.client.models.UserInfo;
+
 import java.util.Map;
 
 public interface SecurityService {
@@ -14,4 +16,6 @@ public interface SecurityService {
     String getUserEmail();
 
     String getUserEmail(String userAuthorization);
+
+    UserInfo getUserInfo(String jwtToken);
 }

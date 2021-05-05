@@ -18,15 +18,13 @@ import java.util.UUID;
 public class CcdDataStoreApiClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CcdDataStoreApiClient.class);
-
-    private final SecurityService securityService;
-    private final CaseDataContentCreator caseDataCreator;
-    private final CoreCaseDataApi coreCaseDataApi;
-
     private static final String JURISDICTION = "HRS";
     private static final String CASE_TYPE = "HearingRecordings";
     private static final String CREATE_CASE = "createCase";
     private static final String ADD_RECORDING_FILE = "manageFiles";
+    private final SecurityService securityService;
+    private final CaseDataContentCreator caseDataCreator;
+    private final CoreCaseDataApi coreCaseDataApi;
 
     public CcdDataStoreApiClient(SecurityService securityService,
                                  CaseDataContentCreator caseDataCreator,
@@ -61,7 +59,8 @@ public class CcdDataStoreApiClient {
         Map<String, String> tokens = securityService.getTokens();
 
         StartEventResponse startEventResponse = coreCaseDataApi.startEvent(tokens.get("user"), tokens.get("service"),
-                                                                           caseId.toString(), ADD_RECORDING_FILE);
+                                                                           caseId.toString(), ADD_RECORDING_FILE
+        );
 
         CaseDataContent caseData = CaseDataContent.builder()
             .event(Event.builder().id(startEventResponse.getEventId()).build())
@@ -70,11 +69,12 @@ public class CcdDataStoreApiClient {
                 startEventResponse.getCaseDetails().getData(), recordingId, hearingRecordingDto)
             ).build();
 
-        LOGGER.info("updating case({}) with new recording ({})",
-                                  caseId, hearingRecordingDto.getRecordingRef());
+        LOGGER.info("updating case({}) with new recording ({})", caseId, hearingRecordingDto.getRecordingRef());
+
         return coreCaseDataApi
             .submitEventForCaseWorker(tokens.get("user"), tokens.get("service"), tokens.get("userId"),
-                                      JURISDICTION, CASE_TYPE, caseId.toString(), false, caseData)
+                                      JURISDICTION, CASE_TYPE, caseId.toString(), false, caseData
+            )
             .getId();
     }
 }

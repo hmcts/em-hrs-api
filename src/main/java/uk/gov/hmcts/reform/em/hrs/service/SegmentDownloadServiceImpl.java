@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.exception.SegmentDownloadException;
@@ -25,6 +26,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#recordingId,'READ')")
     public void download(UUID recordingId, Integer segmentNo, HttpServletResponse response) {
 
         HearingRecordingSegment segment =

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestAzureStorageConfig;
-import uk.gov.hmcts.reform.em.hrs.helper.AzureOperations;
+import uk.gov.hmcts.reform.em.hrs.helper.AzureIntegrationTestOperations;
 
 import java.io.InputStream;
 import java.io.PipedInputStream;
@@ -19,25 +19,25 @@ import static org.awaitility.Awaitility.await;
 @SpringBootTest(classes = {
     TestAzureStorageConfig.class,
     BlobstoreClientImpl.class,
-    AzureOperations.class
+    AzureIntegrationTestOperations.class
 })
 class BlobstoreClientImplTest {
     private static final String ONE_ITEM_FOLDER = "one-item-folder";
     private static final String TEST_DATA = "Hello World!";
     @Autowired
-    private AzureOperations azureOperations;
+    private AzureIntegrationTestOperations azureIntegrationTestOperations;
     @Autowired
     private BlobstoreClientImpl underTest;
 
     @BeforeEach
     void setup() {
-        azureOperations.clearContainer();
+        azureIntegrationTestOperations.clearContainer();
     }
 
     @Test
     void testShouldDownloadFile() throws Exception {
         final String filePath = ONE_ITEM_FOLDER + "/" + UUID.randomUUID() + ".txt";
-        azureOperations.populateHrsContainer(filePath, TEST_DATA);
+        azureIntegrationTestOperations.populateHrsContainer(filePath, TEST_DATA);
 
         try (final PipedInputStream pipedInput = new PipedInputStream();
              final PipedOutputStream output = new PipedOutputStream(pipedInput)) {

@@ -10,6 +10,7 @@ spring:
         em-hrs-api.hrs-api-POSTGRES-PASS: SPRING_DATASOURCE_PASSWORD
         em-hrs-api.storage-account-primary-connection-string: STORAGEACCOUNT_PRIMARY_CONNECTION_STRING
         em-hrs-api.cvp-storage-connection-string: CVP_STORAGE_CONNECTION_STRING
+        em-hrs-api.cvp-storage-container-name: CVP_STORAGE_CONTAINER_NAME
         em-hrs-api.notification-api-key: NOTIFICATION_API_KEY
         em-hrs-api.idam-system-user-name: HRS_SYSTEM_USER
         em-hrs-api.idam-system-user-password: HRS_SYSTEM_USER_PASSWORD

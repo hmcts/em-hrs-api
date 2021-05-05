@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -22,10 +22,10 @@ public class CaseHearingRecording {
     @JsonProperty("hearingRoomRef")
     private String hearingRoomRef;
 
-    @JsonProperty("recordingDateTime")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime recordingDateTime;
+    @JsonProperty("recordingDate")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate recordingDate;
 
     @JsonProperty("recordingTimeOfDay")
     private String recordingTimeOfDay;

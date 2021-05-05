@@ -3,4 +3,14 @@
   <suppress>
     <cve>CVE-2018-1258</cve>
   </suppress>
+
+  <suppress>
+    <notes>
+      TODO - temporary inclusion to facilitate integration testing
+      Introduced with azure identity fails less than 1.2.4 but 1.2.4 conflicts with other azure libraries
+      with reactor libs.
+    </notes>
+    <cve>CVE-2017-1000190</cve>
+  </suppress>
+
 </suppressions>

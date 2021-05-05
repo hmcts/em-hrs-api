@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,8 +66,10 @@ public class IngestionServiceImpl implements IngestionService {
         });
 
         final CompletableFuture<Void> blobCopyFuture = CompletableFuture.runAsync(
-            () -> hearingRecordingStorage.copyRecording(hearingRecordingDto.getCvpFileUrl(),
-                                                        hearingRecordingDto.getFilename()));
+            () -> hearingRecordingStorage.copyRecording(
+                hearingRecordingDto.getCvpFileUrl(),
+                hearingRecordingDto.getFilename()
+            ));
 
         try {
             CompletableFuture.allOf(metadataFuture, blobCopyFuture).get();
@@ -80,7 +83,7 @@ public class IngestionServiceImpl implements IngestionService {
     }
 
     private void updateCase(final HearingRecording recording,
-                                                         final HearingRecordingDto recordingDto) {
+                            final HearingRecordingDto recordingDto) {
         if (recording.getCcdCaseId() == null) {
             LOGGER.info(
                 "Case still being created in CCD for recording ({}) to case({})",
@@ -93,9 +96,24 @@ public class IngestionServiceImpl implements IngestionService {
 
         LOGGER.info("adding  recording ({}) to case({})", recordingDto.getRecordingRef(), recording.getCcdCaseId());
 
+        //TODO - this does not guard against simultaneous segments being appended to a case and will result
+        //in duplicates in CCD.
+        //ideally the segment should be added in db first with an indicator that it has not been persisted in CCD
+        //and then updated (if using the database as a shared lock)
         ccdDataStoreApiClient.updateCaseData(recording.getCcdCaseId(), recording.getId(), recordingDto);
 
-        segmentRepository.save(createSegment(recording, recordingDto));
+        try {
+            HearingRecordingSegment segment = createSegment(recording, recordingDto);
+            segmentRepository.save(segment);
+
+        } catch (ConstraintViolationException e) {
+            LOGGER.info(
+                "segment already added to DB ({}) to case({})",
+                recordingDto.getRecordingRef(),
+                recording.getCcdCaseId()
+            );
+
+        }
     }
 
     private void createCaseinCcdAndPersist(final HearingRecordingDto recordingDto) {
@@ -112,16 +130,24 @@ public class IngestionServiceImpl implements IngestionService {
             .hearingSource(recordingDto.getRecordingSource())
             .jurisdictionCode(recordingDto.getJurisdictionCode())
             .serviceCode(recordingDto.getServiceCode())
-            .createdOn(recordingDto.getRecordingDateTime())//TODO: is this the correct time to set here
+            .createdOn(recordingDto.getRecordingDateTime())
             .build();
 
-        recording = recordingRepository.save(recording);
+        try {
+            recording = recordingRepository.save(recording);
+        } catch (ConstraintViolationException e) {
+            //the recording has already been persisted by another cluster - do not proceed as waiting for CCD id
+            LOGGER
+                .info("Hearing Recording already exists in database, not persisting recording, nor segment at this " +
+                          "time");
+        }
 
         final Long caseId = ccdDataStoreApiClient.createCase(recording.getId(), recordingDto);
         recording.setCcdCaseId(caseId);
         recording = recordingRepository.save(recording);
 
-        segmentRepository.save(createSegment(recording, recordingDto));
+        HearingRecordingSegment segment = createSegment(recording, recordingDto);
+        segmentRepository.save(segment);
     }
 
     private HearingRecordingSegment createSegment(final HearingRecording recording,

@@ -13,8 +13,8 @@ COMPOSE_FILE="-f docker-compose-dependencies.yml"
 IDAM_URI="http://localhost:5000"
 IDAM_USERNAME="idamOwner@hmcts.net"
 IDAM_PASSWORD="Ref0rmIsFun"
-SYSTEM_USER_NAME="em.hrs.api@hmcts.net.internal"
-SYSTEM_USER_PASSWORD="Passw0rd!"
+SYSTEM_USER_NAME="em.hrs.api@hmcts.net.local"
+SYSTEM_USER_PASSWORD="localPass0!"
 export DOCMOSIS_ACCESS_KEY=$1
 
 echo "****************************************************************************************************************"

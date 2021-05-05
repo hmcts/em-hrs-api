@@ -1,12 +1,15 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 import uk.gov.hmcts.reform.idam.client.models.UserDetails;
+import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import javax.inject.Inject;
@@ -36,6 +39,10 @@ class SecurityServiceImplTest {
     private static final UserDetails USER_DETAILS = UserDetails.builder()
         .id(USER_ID)
         .email(SHARER_EMAIL_ADDRESS)
+        .build();
+    private static final UserInfo USER_INFO = UserInfo.builder()
+        .uid(USER_ID)
+        .roles(Arrays.asList("caseworker-hrs"))
         .build();
 
     @Test
@@ -104,6 +111,15 @@ class SecurityServiceImplTest {
         assertThat(userEmail).isEqualTo(SHARER_EMAIL_ADDRESS);
         verify(idamClient, times(1)).getAccessToken(SYSTEM_USER, SYSTEM_USER_PASSWORD);
         verify(idamClient, times(1)).getUserDetails(AUTHORIZATION_TOKEN);
+    }
+
+    @Test
+    void testShouldDefaultGetUserInfo() {
+        doReturn(USER_INFO).when(idamClient).getUserInfo(AUTHORIZATION_TOKEN);
+
+        final UserInfo userInfo = underTest.getUserInfo(AUTHORIZATION_TOKEN);
+        Assert.assertEquals(1,userInfo.getRoles().size());
+        verify(idamClient, times(1)).getUserInfo(AUTHORIZATION_TOKEN);
     }
 
 }
