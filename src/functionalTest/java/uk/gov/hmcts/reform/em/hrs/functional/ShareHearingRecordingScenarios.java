@@ -50,7 +50,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
             .log().all()
             .statusCode(202);
 
-        TimeUnit.SECONDS.sleep(20);
+        TimeUnit.SECONDS.sleep(25);
 
         final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCcdByRecordingReference(fileName);
         assertTrue(optionalCaseDetails.isPresent());
