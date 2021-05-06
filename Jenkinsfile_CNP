@@ -27,18 +27,13 @@ def secrets = [
     secret('show-oauth2-token', 'IDAM_CLIENT_OAUTH_SECRET')
   ],
   'em-hrs-api-${env}': [
-<<<<<<< functional-tests-
     secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING'),
-    secret('storage-account-primary-connection-string', 'AAT_HRS_STORAGEACCOUNT_CONNECTION_STRING')
-  ]
-=======
-      secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING'),
-      secret('cvp-storage-container-name', 'CVP_STORAGE_CONTAINER_NAME'),
-      secret('notification-api-key', 'NOTIFICATION_API_KEY'),
-      secret('idam-system-user-name', 'HRS_SYSTEM_USER'),
-      secret('idam-system-user-password', 'HRS_SYSTEM_USER_PASSWORD')
+    secret('storage-account-primary-connection-string', 'AAT_HRS_STORAGEACCOUNT_CONNECTION_STRING'),
+    secret('cvp-storage-container-name', 'CVP_STORAGE_CONTAINER_NAME'),
+    secret('notification-api-key', 'NOTIFICATION_API_KEY'),
+    secret('idam-system-user-name', 'HRS_SYSTEM_USER'),
+    secret('idam-system-user-password', 'HRS_SYSTEM_USER_PASSWORD')
    ]
->>>>>>> master
 ]
 
 env.AAT_HRS_STORAGE_CONTAINER_NAME = 'recordings'
