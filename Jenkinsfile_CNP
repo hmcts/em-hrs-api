@@ -27,9 +27,18 @@ def secrets = [
     secret('show-oauth2-token', 'IDAM_CLIENT_OAUTH_SECRET')
   ],
   'em-hrs-api-${env}': [
+<<<<<<< functional-tests-
     secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING'),
     secret('storage-account-primary-connection-string', 'AAT_HRS_STORAGEACCOUNT_CONNECTION_STRING')
   ]
+=======
+      secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING'),
+      secret('cvp-storage-container-name', 'CVP_STORAGE_CONTAINER_NAME'),
+      secret('notification-api-key', 'NOTIFICATION_API_KEY'),
+      secret('idam-system-user-name', 'HRS_SYSTEM_USER'),
+      secret('idam-system-user-password', 'HRS_SYSTEM_USER_PASSWORD')
+   ]
+>>>>>>> master
 ]
 
 env.AAT_HRS_STORAGE_CONTAINER_NAME = 'recordings'
@@ -95,15 +104,6 @@ withPipeline(type, product, component) {
         allowMissing         : true,
         alwaysLinkToLastBuild: true,
         keepAll              : true,
-        reportDir            : "build/reports/checkstyle",
-        reportFiles          : "aat.html",
-        reportName           : "HRS API Checkstyle AAT Report"
-      ]
-
-      publishHTML target: [
-        allowMissing         : true,
-        alwaysLinkToLastBuild: true,
-        keepAll              : true,
         reportDir            : "build/reports/pmd",
         reportFiles          : "main.html",
         reportName           : "HRS API PMD Main Report"
@@ -150,7 +150,7 @@ withPipeline(type, product, component) {
         keepAll              : true,
         reportDir            : "build/reports/tests/smoke",
         reportFiles          : "index.html",
-        reportName           : "HRS Ingestor Smoke Test Report"
+        reportName           : "HRS API Smoke Test Report"
       ]
     }
 
@@ -175,7 +175,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/checkstyle",
       reportFiles          : "main.html",
-      reportName           : "HRS Ingestor Checkstyle Main Report"
+      reportName           : "HRS API Checkstyle Main Report"
     ]
 
     publishHTML target: [
@@ -184,16 +184,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/checkstyle",
       reportFiles          : "test.html",
-      reportName           : "HRS Ingestor Checkstyle Test Report"
-    ]
-
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/checkstyle",
-      reportFiles          : "aat.html",
-      reportName           : "HRS Ingestor Checkstyle AAT Report"
+      reportName           : "HRS API Checkstyle Test Report"
     ]
 
     publishHTML target: [
@@ -202,7 +193,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/pmd",
       reportFiles          : "main.html",
-      reportName           : "HRS Ingestor PMD Main Report"
+      reportName           : "HRS API PMD Main Report"
     ]
 
     publishHTML target: [
@@ -211,7 +202,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/pmd",
       reportFiles          : "test.html",
-      reportName           : "HRS Ingestor PMD Test Report"
+      reportName           : "HRS API PMD Test Report"
     ]
 
     publishHTML target: [
@@ -220,7 +211,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/tests/test",
       reportFiles          : "index.html",
-      reportName           : "HRS Ingestor Unit Tests Report"
+      reportName           : "HRS API Unit Tests Report"
     ]
 
   }
@@ -236,7 +227,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/tests/smoke",
       reportFiles          : "index.html",
-      reportName           : "HRS Ingestor Smoke Test Report"
+      reportName           : "HRS API Smoke Test Report"
     ]
   }
 
@@ -247,7 +238,7 @@ withPipeline(type, product, component) {
       keepAll              : true,
       reportDir            : "build/reports/tests/functional",
       reportFiles          : "index.html",
-      reportName           : "HRS Ingestor API Functional Test Report"
+      reportName           : "HRS API Functional Test Report"
     ]
     steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
   }
