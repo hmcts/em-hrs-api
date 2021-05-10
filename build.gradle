@@ -438,7 +438,7 @@ dependencies {
   testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.4', {
     exclude group: 'com.google.guava', module: 'guava'
   }
-  testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.0.3'
+  testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.1.0'
   testImplementation group :'info.solidsoft.gradle.pitest', name : 'gradle-pitest-plugin',version: '1.6.0'
   testImplementation group: 'org.pitest', name: 'pitest', version: '1.6.4'
   testImplementation group:'org.codehaus.sonar-plugins', name:'sonar-pitest-plugin', version: '0.5'
