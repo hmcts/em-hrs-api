@@ -301,7 +301,7 @@ def versions = [
   serenity           : '2.3.12',
   serenityRestAssured: '2.3.4',
   serenityreporter   : '2.3.12',
-  junit              : '5.7.0',
+  junit              : '5.7.2',
   junitPlatform      : '1.7.1',
   springSecurity     : '5.3.8.RELEASE'
 ]
@@ -476,10 +476,10 @@ dependencies {
   contractTestCompile group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.0.10'
   contractTestCompile group: 'au.com.dius', name: 'pact-jvm-provider-gradle', version: '4.0.10'
 
-  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.6.2"
+  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
   contractTestImplementation "org.junit.vintage:junit-vintage-engine:5.6.2"
   contractTestCompile("org.junit.jupiter:junit-jupiter-api:5.6.2")
-  contractTestRuntime("org.junit.jupiter:junit-jupiter-engine:5.6.2")
+  contractTestRuntime("org.junit.jupiter:junit-jupiter-engine:5.7.2")
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.2.0'
 
   contractTestCompileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
