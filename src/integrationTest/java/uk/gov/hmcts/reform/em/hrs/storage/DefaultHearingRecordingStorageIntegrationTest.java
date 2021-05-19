@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestApplicationConfig;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestAzureStorageConfig;
 import uk.gov.hmcts.reform.em.hrs.helper.AzureIntegrationTestOperations;
-import uk.gov.hmcts.reform.em.hrs.util.Snooper;
 
 import java.time.Duration;
 import java.util.Random;
@@ -20,8 +19,6 @@ import javax.inject.Inject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
 
 @SpringBootTest(classes = {
     TestAzureStorageConfig.class,
@@ -34,8 +31,7 @@ class DefaultHearingRecordingStorageIntegrationTest {
     private static final String EMPTY_FOLDER = "folder-0";
     private static final String ONE_ITEM_FOLDER = "folder-1";
     private static final String MANY_ITEMS_FOLDER = "folder-2";
-    @Inject
-    private Snooper snooper;
+
     @Inject
     private AzureIntegrationTestOperations azureIntegrationTestOperations;
     @Inject
@@ -115,7 +111,6 @@ class DefaultHearingRecordingStorageIntegrationTest {
 
         underTest.copyRecording(sourceUrl, file);
 
-        assertMessagesContain(String.format("File %s copied successfully", file));
     }
 
     @Test
@@ -125,18 +120,9 @@ class DefaultHearingRecordingStorageIntegrationTest {
 
         underTest.copyRecording(sourceUrl, file);
 
-        assertMessagesContain(String.format("File %s copied failed:: ", file));
     }
 
-    private void assertMessagesContain(final String message) {
-        await().atMost(TEN_SECONDS).untilAsserted(() -> {
-            verify(snooper, atLeastOnce()).snoop(snoopCaptor.capture());
 
-            assertThat(snoopCaptor.getAllValues())
-                .isNotEmpty()
-                .satisfies(x -> assertThat(x.stream().anyMatch(y -> y.startsWith(message))).isTrue());
-        });
-    }
 
     private Set<String> generateFilePaths() {
         final Random random = new Random();

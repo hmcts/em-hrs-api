@@ -45,6 +45,10 @@ public class ExtendedCcdHelper {
         importDefinitionFile();
     }
 
+    public String getCcdS2sToken() {
+        return ccdAuthTokenGenerator.generate();
+    }
+
     private void importDefinitionFile() throws IOException {
 
         createUserRole("caseworker");

@@ -47,6 +47,7 @@ public abstract class BaseTest {
 
     protected static final String JURISDICTION = "HRS";
     protected static final String CASE_TYPE = "HearingRecordings";
+    protected static final String BEARER = "Bearer ";
 
     protected String idamAuth;
     protected String s2sAuth;
@@ -57,6 +58,9 @@ public abstract class BaseTest {
 
     @Value("${test.url}")
     protected String testUrl;
+
+    @Value("${azure.storage.cvp.container-url}")
+    private String cvpContainerUrl;
 
     @Autowired
     protected IdamHelper idamHelper;
@@ -73,8 +77,8 @@ public abstract class BaseTest {
     @PostConstruct
     public void init() {
         SerenityRest.useRelaxedHTTPSValidation();
-        idamAuth = idamHelper.authenticateUser(HRS_TESTER);
-        s2sAuth = s2sHelper.getS2sToken();
+        idamAuth = BEARER + idamHelper.authenticateUser(HRS_TESTER);
+        s2sAuth = BEARER + s2sHelper.getS2sToken();
         userId = idamHelper.getUserId(HRS_TESTER);
     }
 
@@ -160,22 +164,25 @@ public abstract class BaseTest {
             .header("ServiceAuthorization", s2sAuth);
     }
 
-    protected JsonNode createRecordingSegment(String folder, String url, String filename, String fileExt,
-                                           int segment, String recordingTime) {
+    protected JsonNode createRecordingSegment(String folder,
+                                              String jurisdictionCode, String locationCode, String caseRef,
+                                              String recordingTime, int segment, String fileExt) {
+        String recordingRef = folder + "/" + jurisdictionCode + "-" + locationCode + "-" + caseRef + "_" + recordingTime;
+        String filename = recordingRef + "-UTC_" + segment + "." + fileExt;
         return JsonNodeFactory.instance.objectNode()
             .put("folder", folder)
-            .put("recording-ref", filename)
+            .put("recording-ref", recordingRef)
             .put("recording-source","CVP")
-            .put("court-location-code","London")
+            .put("court-location-code",locationCode)
             .put("service-code","PROBATE")
-            .put("hearing-room-ref","12")
-            .put("jurisdiction-code","HRS")
-            .put("case-ref","hearing-12-family-probate-morning")
-            .put("cvp-file-url", url)
+            .put("hearing-room-ref","London")
+            .put("jurisdiction-code",jurisdictionCode)
+            .put("case-ref",caseRef)
+            .put("cvp-file-url", cvpContainerUrl + filename)
             .put("filename", filename)
             .put("filename-extension", fileExt)
             .put("file-size", 226200L)
             .put("segment", segment)
-            .put("recording-date", recordingTime);
+            .put("recording-date-time", recordingTime);
     }
 }

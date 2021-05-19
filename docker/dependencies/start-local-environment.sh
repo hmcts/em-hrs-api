@@ -7,7 +7,6 @@ date
 ##
 ## Start local environment including idam client setup.
 
-
 # Set variables
 COMPOSE_FILE="-f docker-compose-dependencies.yml"
 IDAM_URI="http://localhost:5000"
@@ -52,7 +51,6 @@ echo "sleeping 10 seconds to allow db to be ready"
 sleep 10
 #read -p "Press enter to continue 0".
 
-
 echo "Starting IDAM(ForgeRock)..."
 docker-compose ${COMPOSE_FILE} up -d fr-am
 echo "sleeping 30 seconds to allow idam fr-AM to be ready"
@@ -64,7 +62,6 @@ echo "sleeping 5 seconds to allow idam fr-idm to be ready"
 sleep 5
 #read -p "Press enter to continue 1".
 
-
 echo "Starting IDAM API..."
 docker-compose ${COMPOSE_FILE} up -d idam-api
 echo "sleeping 30 seconds to allow idam API to be ready"
@@ -74,9 +71,9 @@ sleep 30
 echo "Testing IDAM Authentication..."
 token=$(./docker/dependencies/idam-authenticate.sh ${IDAM_URI} ${IDAM_USERNAME} ${IDAM_PASSWORD})
 while [ "_${token}" = "_" ]; do
-      sleep 10
-      echo "idam-api is not running! Check logs, you may need to restart..reattempting in 10 seconds"
-      token=$(./docker/dependencies/idam-authenticate.sh ${IDAM_URI} ${IDAM_USERNAME} ${IDAM_PASSWORD})
+  sleep 10
+  echo "idam-api is not running! Check logs, you may need to restart..reattempting in 10 seconds"
+  token=$(./docker/dependencies/idam-authenticate.sh ${IDAM_URI} ${IDAM_USERNAME} ${IDAM_PASSWORD})
 done
 #read -p "Press enter to continue"
 
@@ -90,20 +87,19 @@ echo "Setting up IDAM client..."
 (./docker/dependencies/idam-client-setup-roles.sh ${IDAM_URI} ${token} ccd-import)
 (./docker/dependencies/idam-create-hrs-system-user.sh ${IDAM_URI} ${SYSTEM_USER_NAME} ${SYSTEM_USER_PASSWORD})
 
-
 # Start all other images
 echo "Starting dependencies..."
 
 docker-compose ${COMPOSE_FILE} build
 docker-compose ${COMPOSE_FILE} up -d shared-database \
-                                     em-hrs-db \
-                                     service-auth-provider-api \
-                                     azure-storage-emulator-azurite \
-                                     ccd-user-profile-api \
-                                     ccd-definition-store-api \
-                                     ccd-data-store-api \
-                                     ccd-api-gateway \
-                                     smtp-server
+  em-hrs-db \
+  service-auth-provider-api \
+  azure-storage-emulator-azurite \
+  ccd-user-profile-api \
+  ccd-definition-store-api \
+  ccd-data-store-api \
+  ccd-api-gateway \
+  smtp-server
 
 echo "LOCAL ENVIRONMENT BOOT UP SUCCESSFULLY STARTED, about to tail logs whilst apps intialise. CCD Data API is the longest running to  initialise"
 
@@ -115,6 +111,6 @@ echo "ccd-data-store-api_1    | 2021-04-11T10:54:38.861 INFO  [main] o.s.d.r.c.D
 echo ""
 read -p "Press the ENTER key to continue"
 
+echo "uploading test file until this is done as part of the tests"
+
 docker-compose ${COMPOSE_FILE} logs -f
-
-

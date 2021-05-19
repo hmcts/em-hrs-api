@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.em.hrs.exception.DatabaseStorageException;
 import uk.gov.hmcts.reform.em.hrs.repository.FolderRepository;
+import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.JobInProgressRepository;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 
@@ -42,6 +43,10 @@ class FolderServiceImplTests {
     private JobInProgressRepository jobInProgressRepository;
     @Mock
     private HearingRecordingStorage hearingRecordingStorage;
+
+    @Mock
+    private HearingRecordingRepository hearingRecordingRepository;
+
 
     @InjectMocks
     private FolderServiceImpl underTest;

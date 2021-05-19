@@ -1,18 +1,16 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
@@ -23,17 +21,18 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import javax.inject.Inject;
 
 import static org.mockito.Mockito.when;
 
 @TestPropertySource(properties = "hrs.allowed-roles.value=[caseworker-hrs]")
-@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = {PermissionEvaluatorImpl.class})
 public class PermissionEvaluatorImplTest {
 
-    @Mock
+    @MockBean
     private SecurityService securityService;
 
-    @Mock
+    @MockBean
     private ShareesRepository shareesRepository;
 
     private JwtAuthenticationToken authentication;
@@ -51,10 +50,10 @@ public class PermissionEvaluatorImplTest {
     private String shareeEmail = "sharee@sharee.com";
     private List<HearingRecordingSharee> hearingRecordingSharees;
 
-    @InjectMocks
+    @Inject
     PermissionEvaluatorImpl permissionEvaluator;
 
-    @Before
+    @BeforeEach
     public void setup() {
         Jwt jwt = Jwt.withTokenValue("token")
             .header("alg", "none")

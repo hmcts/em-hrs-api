@@ -10,6 +10,10 @@ public enum IngestionQueue {
 
     private LinkedBlockingQueue<HearingRecordingDto> queue;
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     private void init(@Nonnull final Integer queueCapacity) {
         queue = new LinkedBlockingQueue<>(queueCapacity);
     }
@@ -28,10 +32,6 @@ public enum IngestionQueue {
 
     public int remainingCapacity() {
         return queue.remainingCapacity();
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     public static class Builder {

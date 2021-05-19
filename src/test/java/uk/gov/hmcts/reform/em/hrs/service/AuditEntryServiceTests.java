@@ -10,7 +10,10 @@ import uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingAuditEntry;
+import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
+import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegmentAuditEntry;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingAuditEntryRepository;
+import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentAuditEntryRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,13 +32,15 @@ public class AuditEntryServiceTests {
     @Mock
     private HearingRecordingAuditEntryRepository hearingRecordingAuditEntryRepository;
     @Mock
-    private SecurityUtilService securityUtilService;
+    private SecurityService securityService;
+    @Mock
+    private HearingRecordingSegmentAuditEntryRepository hearingRecordingSegmentAuditEntryRepository;
 
     @Test
     public void testCreateAndSaveEntryForHearingRecording() {
 
-        when(securityUtilService.getUserId()).thenReturn("x");
-        when(securityUtilService.getCurrentlyAuthenticatedServiceName()).thenReturn("s");
+        when(securityService.getAuditUserEmail()).thenReturn("x");
+        when(securityService.getCurrentlyAuthenticatedServiceName()).thenReturn("s");
 
         HearingRecordingAuditEntry entry = auditEntryService.createAndSaveEntry(
             new HearingRecording(),
@@ -56,5 +61,22 @@ public class AuditEntryServiceTests {
         List<HearingRecordingAuditEntry> entries =
             auditEntryService.findHearingRecordingAudits(TestUtil.HEARING_RECORDING);
         Assertions.assertEquals(1, entries.size());
+    }
+
+    @Test
+    public void testCreateAndSaveEntryForHearingRecordingSegment() {
+
+        when(securityService.getAuditUserEmail()).thenReturn("x");
+        when(securityService.getCurrentlyAuthenticatedServiceName()).thenReturn("s");
+
+        HearingRecordingSegmentAuditEntry entry = auditEntryService.createAndSaveEntry(
+            new HearingRecordingSegment(),
+            AuditActions.USER_DOWNLOAD_REQUESTED
+        );
+
+        Assertions.assertEquals("x", entry.getUsername());
+        Assertions.assertEquals("s", entry.getServiceName());
+
+        verify(hearingRecordingSegmentAuditEntryRepository, times(1)).save(any(HearingRecordingSegmentAuditEntry.class));
     }
 }

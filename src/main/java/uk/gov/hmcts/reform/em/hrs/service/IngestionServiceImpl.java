@@ -91,15 +91,11 @@ public class IngestionServiceImpl implements IngestionService {
                 recording.getCcdCaseId()
             );
             return;
-            //TODO clean down hearingRecordings where created < yesterday and ccdID is null as part of some process
         }
 
         LOGGER.info("adding  recording ({}) to case({})", recordingDto.getRecordingRef(), recording.getCcdCaseId());
 
-        //TODO - this does not guard against simultaneous segments being appended to a case and will result
-        //in duplicates in CCD.
-        //ideally the segment should be added in db first with an indicator that it has not been persisted in CCD
-        //and then updated (if using the database as a shared lock)
+
         ccdDataStoreApiClient.updateCaseData(recording.getCcdCaseId(), recording.getId(), recordingDto);
 
         try {
@@ -108,12 +104,20 @@ public class IngestionServiceImpl implements IngestionService {
 
         } catch (ConstraintViolationException e) {
             LOGGER.info(
-                "segment already added to DB ({}) to case({})",
+                "updateCase ConstraintViolationException segment already added to DB ({}) to case({})",
                 recordingDto.getRecordingRef(),
                 recording.getCcdCaseId()
             );
 
+        } catch (Exception e) {
+            LOGGER.info(
+                "updateCase Unhandled Exception segment already added to DB ({}) to case({})",
+                recordingDto.getRecordingRef(),
+                recording.getCcdCaseId()
+            );
         }
+
+        LOGGER.info("updateCase end");
     }
 
     private void createCaseinCcdAndPersist(final HearingRecordingDto recordingDto) {
@@ -135,12 +139,21 @@ public class IngestionServiceImpl implements IngestionService {
 
         try {
             recording = recordingRepository.save(recording);
+
         } catch (ConstraintViolationException e) {
             //the recording has already been persisted by another cluster - do not proceed as waiting for CCD id
             LOGGER
-                .info("Hearing Recording already exists in database, not persisting recording, nor segment at this " +
-                          "time");
+                .info(
+                    "create case Hearing Recording already exists in database, not persisting recording, nor segment "
+                        + "at this time");
+        } catch (Exception e) {
+            LOGGER.info(
+                "create case Unhandled Exception segment already added to DB ({}) to case({})",
+                recordingDto.getRecordingRef(),
+                recording.getCcdCaseId()
+            );
         }
+
 
         final Long caseId = ccdDataStoreApiClient.createCase(recording.getId(), recordingDto);
         recording.setCcdCaseId(caseId);

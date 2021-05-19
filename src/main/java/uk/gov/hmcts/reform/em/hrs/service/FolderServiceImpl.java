@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.JobInProgress;
 import uk.gov.hmcts.reform.em.hrs.exception.DatabaseStorageException;
 import uk.gov.hmcts.reform.em.hrs.repository.FolderRepository;
+import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.JobInProgressRepository;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 import uk.gov.hmcts.reform.em.hrs.util.SetUtils;
@@ -33,19 +34,23 @@ public class FolderServiceImpl implements FolderService {
     private final FolderRepository folderRepository;
     private final JobInProgressRepository jobInProgressRepository;
     private final HearingRecordingStorage hearingRecordingStorage;
+    private final HearingRecordingRepository hearingRecordingRepository;
 
     @Inject
     public FolderServiceImpl(FolderRepository folderRepository,
                              JobInProgressRepository jobInProgressRepository,
-                             HearingRecordingStorage hearingRecordingStorage) {
+                             HearingRecordingStorage hearingRecordingStorage,
+                             HearingRecordingRepository hearingRecordingRepository) {
         this.folderRepository = folderRepository;
         this.jobInProgressRepository = jobInProgressRepository;
         this.hearingRecordingStorage = hearingRecordingStorage;
+        this.hearingRecordingRepository = hearingRecordingRepository;
     }
 
     @Override
     public Set<String> getStoredFiles(String folderName) {
         deleteStaledJobs();
+        deleteStaleCcdUploadAttempts();
 
         Optional<Folder> optionalFolder = folderRepository.findByName(folderName);
 
@@ -56,6 +61,12 @@ public class FolderServiceImpl implements FolderService {
         }
 
         return getCompletedAndInProgressFiles(optionalFolder.get());
+    }
+
+    private void deleteStaleCcdUploadAttempts() {
+
+        LocalDateTime yesterday = LocalDateTime.now(Clock.systemUTC()).minusHours(24);
+        hearingRecordingRepository.deleteStaleRecordsWithNullCCD(yesterday);
     }
 
     @Override

@@ -18,4 +18,8 @@ public interface SecurityService {
     String getUserEmail(String userAuthorization);
 
     UserInfo getUserInfo(String jwtToken);
+
+    String getCurrentlyAuthenticatedServiceName();
+
+    String getAuditUserEmail();
 }

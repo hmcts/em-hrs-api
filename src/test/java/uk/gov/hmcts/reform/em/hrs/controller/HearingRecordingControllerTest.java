@@ -43,16 +43,13 @@ import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHAREE_EMAIL_AD
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.convertObjectToJsonString;
 
 class HearingRecordingControllerTest extends AbstractBaseTest {
+    private static final String TEST_FOLDER = "folder-1";
     @MockBean
     private FolderService folderService;
-
     @MockBean
     private ShareAndNotifyService shareAndNotifyService;
-
     @Inject
     private IngestionQueue ingestionQueue;
-
-    private static final String TEST_FOLDER = "folder-1";
 
     @Test
     void testWhenRequestedFolderDoesNotExistOrIsEmpty() throws Exception {
@@ -160,7 +157,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
     }
 
     private void clogJobQueue() {
-        IntStream.rangeClosed(1, INGESTION_QUEUE_SIZE)
+        IntStream.rangeClosed(1, INGESTION_QUEUE_SIZE + 10)
             .forEach(x -> {
                 final HearingRecordingDto dto = HearingRecordingDto.builder()
                     .caseRef("cr" + x)

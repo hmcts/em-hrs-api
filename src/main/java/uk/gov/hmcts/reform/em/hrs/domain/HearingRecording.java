@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -18,6 +19,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -25,13 +27,18 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 
 @Entity
 @Builder
 @Getter
 @Setter
-//@EntityListeners(AuditingEntityListener.class)
+@EntityListeners(AuditingEntityListener.class)
+@Table(uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"folder_id", "recordingRef"})
+})
 public class HearingRecording {
 
     @Id
@@ -77,7 +84,6 @@ public class HearingRecording {
     private Map<String, String> metadata;
 
     private LocalDateTime ttl;
-    @Column(unique = true)
     private String recordingRef;
     private String caseRef;
     private String hearingLocationCode;

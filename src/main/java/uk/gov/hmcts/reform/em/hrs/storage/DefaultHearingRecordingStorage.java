@@ -1,16 +1,31 @@
 package uk.gov.hmcts.reform.em.hrs.storage;
 
 import com.azure.core.http.rest.PagedIterable;
-import com.azure.storage.blob.BlobAsyncClient;
+import com.azure.core.util.polling.PollResponse;
+import com.azure.core.util.polling.SyncPoller;
+import com.azure.identity.DefaultAzureCredential;
+import com.azure.identity.DefaultAzureCredentialBuilder;
+import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobListDetails;
+import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.ListBlobsOptions;
-import com.azure.storage.blob.options.BlobBeginCopyOptions;
-import uk.gov.hmcts.reform.em.hrs.util.Snooper;
+import com.azure.storage.blob.models.UserDelegationKey;
+import com.azure.storage.blob.sas.BlobSasPermission;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
+import com.azure.storage.blob.specialized.BlockBlobClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import uk.gov.hmcts.reform.em.hrs.util.CvpConnectionResolver;
 
 import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -18,19 +33,25 @@ import javax.inject.Named;
 
 @Named
 public class DefaultHearingRecordingStorage implements HearingRecordingStorage {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHearingRecordingStorage.class);
+    private static final int BLOB_LIST_TIMEOUT = 5;
     private final BlobContainerAsyncClient hrsBlobContainerAsyncClient;
     private final BlobContainerClient hrsBlobContainerClient;
-    private final Snooper snooper;
+    private final BlobContainerClient cvpBlobContainerClient;
 
-    private static final int BLOB_LIST_TIMEOUT = 5;
+
+    private final String cvpConnectionString;
 
     @Inject
     public DefaultHearingRecordingStorage(final BlobContainerAsyncClient hrsContainerAsyncClient,
                                           final @Named("HrsBlobContainerClient") BlobContainerClient hrsContainerClient,
-                                          final Snooper snooper) {
+                                          final @Named("CvpBlobContainerClient") BlobContainerClient cvpContainerClient,
+
+                                          @Value("${azure.storage.cvp.connection-string}") String cvpConnectionString) {
         this.hrsBlobContainerAsyncClient = hrsContainerAsyncClient;
         this.hrsBlobContainerClient = hrsContainerClient;
-        this.snooper = snooper;
+        this.cvpBlobContainerClient = cvpContainerClient;
+        this.cvpConnectionString = cvpConnectionString;
     }
 
     @Override
@@ -51,16 +72,104 @@ public class DefaultHearingRecordingStorage implements HearingRecordingStorage {
     }
 
     @Override
-    public void copyRecording(final String sourceUri, final String filename) {
-        final BlobBeginCopyOptions blobBeginCopyOptions = new BlobBeginCopyOptions(sourceUri);
-        final BlobAsyncClient destBlobAsyncClient = hrsBlobContainerAsyncClient.getBlobAsyncClient(filename);
-        destBlobAsyncClient.beginCopy(blobBeginCopyOptions)
-            .subscribe(
-                x -> {
-                },
-                y -> snooper.snoop(String.format("File %s copied failed:: %s", filename, y.getMessage())),
-                () -> snooper.snoop(String.format("File %s copied successfully", filename))
-            );
+    public void copyRecording(String sourceUri, final String filename) {
+
+
+        LOGGER.info("**************************************");
+        LOGGER.info("Copying Recording");
+        LOGGER.info("Source URI:{}", sourceUri);
+        LOGGER.info("Filename:{}", filename);
+        LOGGER.info("**************************************");
+        LOGGER.info("cvpBlobContainerClient.getBlobContainerName():{}", cvpBlobContainerClient.getBlobContainerName());
+        LOGGER.info("hrsBlobContainerClient.getBlobContainerName():{}", hrsBlobContainerClient.getBlobContainerName());
+
+
+        copyViaUrl(sourceUri, filename);//may be limited to 256mb
+
+    }
+
+
+    private void copyViaUrl(String sourceUri, String filename) {
+        BlockBlobClient destinationBlobClient = hrsBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
+
+        LOGGER.info("############## Trying copy from URL for file {}", filename);
+
+        //TODO should we compare md5sum of destination as well or
+        // Or always overwrite (assume ingestor knows if it should be replaced or not, so md5 checksum done there)?
+        if (!destinationBlobClient.exists()) {
+            LOGGER.info("############## File does not exist in target blobstore {}", filename);
+
+            if (CvpConnectionResolver.isACvpEndpointUrl(cvpConnectionString)) {
+
+                LOGGER.info("Generating sasToken");
+                String sasToken = generateReadSASForCVP(filename);
+                sourceUri = sourceUri + "?" + sasToken;
+            }
+
+
+            try {
+
+                BlockBlobClient sourceBlob = cvpBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
+                LOGGER.info("sourceBlob.exists() {}", sourceBlob.exists());
+
+                SyncPoller<BlobCopyInfo, Void> poller = destinationBlobClient.beginCopy(sourceUri, null);
+                PollResponse<BlobCopyInfo> poll = poller.waitForCompletion();
+                LOGGER.info("File copy completed for {} with status {}", sourceUri, poll.getStatus());
+            } catch (BlobStorageException be) {
+                LOGGER.info("Blob Copy exception code {}, message{}", be.getErrorCode(), be.getMessage());
+            } catch (Exception e) {
+                LOGGER.info("Unhandled Blob Copy exception {}", e.getMessage());
+                //TODO should we try and clean up the destination blob? can it be partially present?
+            }
+
+
+        } else {
+            LOGGER.info("############## File already exists in target blobstore {}", filename);
+        }
+
+    }
+
+
+    private String generateReadSASForCVP(String fileName) {
+
+        LOGGER.info("Attempting to generate SAS for contaienr name {}", cvpBlobContainerClient.getBlobContainerName());
+
+        BlobServiceClient blobServiceClient = cvpBlobContainerClient.getServiceClient();
+
+        if (CvpConnectionResolver.isACvpEndpointUrl(cvpConnectionString)) {
+            LOGGER.info("Getting a fresh MI token for Blob Service Client");
+            BlobServiceClientBuilder builder = new BlobServiceClientBuilder();
+
+            DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
+
+            builder.endpoint(cvpConnectionString);
+            builder.credential(credential);
+            blobServiceClient = builder.buildClient();
+        }
+
+        // get User Delegation Key - TODO consider optimising user key delegation usage to be hourly or daily with a
+        //  lazy cache
+        LOGGER.info("Getting User Delegation Key using BlobServiceClient with long offset times");
+        OffsetDateTime delegationKeyStartTime = OffsetDateTime.now().minusMinutes(95);
+        OffsetDateTime delegationKeyExpiryTime = OffsetDateTime.now().plusMinutes(95);
+        UserDelegationKey
+            key = blobServiceClient.getUserDelegationKey(delegationKeyStartTime, delegationKeyExpiryTime);
+
+        //get SAS String for blobfile
+        LOGGER.info("get SAS String using BlobClient for blobfile: {}", fileName);
+
+        BlobClient sourceBlob = cvpBlobContainerClient.getBlobClient(fileName);
+        // generate sas token
+        OffsetDateTime expiryTime = OffsetDateTime.now().plusMinutes(95);
+        BlobSasPermission permission = new BlobSasPermission().setReadPermission(true).setListPermission(true);
+
+        BlobServiceSasSignatureValues myValues = new BlobServiceSasSignatureValues(expiryTime, permission)
+            .setStartTime(OffsetDateTime.now().minusMinutes(95));
+        String sas = sourceBlob.generateUserDelegationSas(myValues, key);
+
+        return sas;
+
+
     }
 
 }

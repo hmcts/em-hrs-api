@@ -1,10 +1,17 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
+import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 import uk.gov.hmcts.reform.idam.client.models.UserDetails;
 import uk.gov.hmcts.reform.idam.client.models.UserInfo;
@@ -29,6 +36,8 @@ class SecurityServiceImplTest {
     private IdamClient idamClient;
     @MockBean
     private AuthTokenGenerator authTokenGenerator;
+    @MockBean
+    private AuthTokenValidator authTokenValidator;
 
     @Inject
     private SecurityServiceImpl underTest;
@@ -44,6 +53,17 @@ class SecurityServiceImplTest {
         .uid(USER_ID)
         .roles(Arrays.asList("caseworker-hrs"))
         .build();
+    private static final String SERVICE_NAME = "TestService";
+    public static final String DUMMY_NAME = "dummyName";
+    public static final String HRS_INGESTOR = "hrsIngestor";
+
+    @Mock
+    MockHttpServletRequest request;
+
+    @BeforeEach
+    public void before() {
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    }
 
     @Test
     void testShouldGetUserId() {
@@ -122,4 +142,35 @@ class SecurityServiceImplTest {
         verify(idamClient, times(1)).getUserInfo(AUTHORIZATION_TOKEN);
     }
 
+    @Test
+    void testGetCurrentlyAuthenticatedServiceNameDummyName() {
+        Assert.assertEquals(SecurityServiceImpl.DUMMY_NAME, underTest.getCurrentlyAuthenticatedServiceName());
+    }
+
+    @Test
+    void testGetCurrentlyAuthenticatedServiceName() {
+        doReturn("Xxxxxxxxxxxxxxxxxx").when(request).getHeader(SecurityServiceImpl.SERVICE_AUTH);
+        doReturn(SERVICE_NAME).when(authTokenValidator).getServiceName(Mockito.anyString());
+        Assert.assertEquals(SERVICE_NAME, underTest.getCurrentlyAuthenticatedServiceName());
+    }
+
+    @Test
+    void testGetCurrentlyAuthenticatedServiceNameNullRequest() {
+        RequestContextHolder.setRequestAttributes(null);
+        Assert.assertEquals(DUMMY_NAME, underTest.getCurrentlyAuthenticatedServiceName());
+
+    }
+
+    @Test
+    void testGetAuditUserEmail() {
+        doReturn(AUTHORIZATION_TOKEN).when(request).getHeader(SecurityServiceImpl.USER_AUTH);
+        doReturn(USER_DETAILS).when(idamClient).getUserDetails(AUTHORIZATION_TOKEN);
+        Assert.assertEquals(SHARER_EMAIL_ADDRESS, underTest.getAuditUserEmail());
+    }
+
+    @Test
+    void testGetAuditUserEmailNullRequest() {
+        RequestContextHolder.setRequestAttributes(null);
+        Assert.assertEquals(HRS_INGESTOR, underTest.getAuditUserEmail());
+    }
 }
