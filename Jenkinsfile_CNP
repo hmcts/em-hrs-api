@@ -50,13 +50,12 @@ env.TEST_URL = 'https://em-hrs-api-perftest.service.core-compute-perftest.intern
 env.IDAM_API_BASE_URI = 'https://idam-api.perftest.platform.hmcts.net'
 env.OPEN_ID_API_BASE_URI = 'https://idam-web-public.perftest.platform.hmcts.net/o'
 env.S2S_BASE_URI = 'http://rpe-service-auth-provider-perftest.service.core-compute-perftest.internal'
-env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
+env.XUI_API_URL = 'https://manage-case.perftest.platform.hmcts.net'
 env.CCD_DATA_API_URL = 'http://ccd-data-store-api-perftest.service.core-compute-perftest.internal'
 env.CCD_DEF_API = 'http://ccd-definition-store-api-perftest.service.core-compute-perftest.internal'
 env.IDAM_REDIRECT_URI = 'https://em-hrs-api-perftest.service.core-compute-perftest.internal/oauth2/callback'
 env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
-env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/recordings/'
-//env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/em-hrs-api-aat/'
+env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/hrsperformancetest/'
 env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition_PERFTEST.xlsx'
 
 def vaultOverrides = [
