@@ -11,10 +11,10 @@ public class CaseUpdateScenarios extends BaseTest {
 
     private static final String FOLDER = "functionaltest001";
     private static final String JURISDICTION_CODE = "FT";
-    private static final String LOCATION_CODE = "0116";
+    private static final String LOCATION_CODE = "0111";
     private static final String CASE_REF = "functionalTestFile200M";
-    private static final String RECORDING_TIME = "2020-05-17-12.12.11.123";
-    //functionaltest001/FT-0111-functionalTestFile200M_2020-05-17-12.12.11.123-UTC_0.mp4
+    private static final String RECORDING_TIME = "2020-05-21-10.50.00.000";
+    //functionaltest001/FT-0111-functionalTestFile200M_2020-05-21-10.50.00.000-UTC_0.mp4
 
     @Test
     public void testCcdCaseUpdate() {
