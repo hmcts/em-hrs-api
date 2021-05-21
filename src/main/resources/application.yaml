@@ -55,7 +55,7 @@ spring:
 # service-auth-provider-client lib
 idam:
   client:
-    id: ${OAUTH_CLIENT_ID:webshow} #TODO: ask idam team to create hrs client for us (add to vault once created)
+    id: ${OAUTH_CLIENT_ID:webshow}
     secret: ${IDAM_CLIENT_OAUTH_SECRET:AAAAAAAAAAAAAAAA}
     redirect_uri: ${IDAM_REDIRECT_URI:http://localhost:8080/oauth2redirect}
     grant_type: password
@@ -63,8 +63,8 @@ idam:
   api:
     url: ${IDAM_API_BASE_URI:http://localhost:5000}
   system-user:
-    username: ${HRS_SYSTEM_USER:em.hrs.api@hmcts.net.internal} #TODO: need to create hrs systemUser for each environment
-    password: ${HRS_SYSTEM_USER_PASSWORD:Passw0rd!} #password only used locally with docker containers
+    username: ${HRS_SYSTEM_USER:em.hrs.api@hmcts.net.local}
+    password: ${HRS_SYSTEM_USER_PASSWORD:localPass0!} #password only used locally with docker containers
   s2s-auth:
     url: ${S2S_BASE_URI:http://localhost:4502}
     totp_secret: ${S2S_KEY:AAAAAAAAAAAAAAAA}
@@ -74,11 +74,15 @@ idam:
       client:
         baseUrl: ${S2S_BASE_URI:http://localhost:4502}
   s2s-authorised:
-    services: ${S2S_NAMES_WHITELIST:ccd_gw,em_gw,em_hrs_ingestor}
+    services: ${S2S_NAMES_WHITELIST:ccd_gw,em_gw,em_hrs_ingestor,xui_webapp,ccd,ccd_data}
 
 core_case_data:
   api:
     url: ${CCD_DATA_API_URL:http://localhost:4452}
+
+xui:
+  api:
+    url: ${XUI_API_URL:https://localhost:1337}
 
 azure:
   app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:true}
@@ -87,7 +91,7 @@ azure:
   storage:
     hrs:
       connection-string: ${STORAGEACCOUNT_PRIMARY_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
-      blob-container-reference: ${STORAGE_CONTAINER_DOCUMENT_CONTAINER_NAME:emhrstestcontainer}
+      blob-container-reference: ${HRS_STORAGE_CONTAINER_NAME:emhrstestcontainer}
     cvp:
       connection-string: ${CVP_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
       blob-container-reference: ${CVP_STORAGE_CONTAINER_NAME:cvptestcontainer}
@@ -99,7 +103,7 @@ app-insights:
 
 #Below values are examples and needs to updated with correct values
 notify:
-  apiKey: ${NOTIFICATION_API_KEY:test_key-86d79f79-5045-4df2-87d1-6b7d87b41f6b-a703ea6c-9869-42a7-aaa8-38c98a0cc044}
+  apiKey: ${NOTIFICATION_API_KEY:testsimulation-86d79f79-5045-4df2-87d1-6b7d87b41f6b-561aeb25-fb94-49ff-9a60-7864f19e3a4c}
   email.template: 1e10b560-4a3f-49a7-81f7-c3c6eceab455
 
 hrs:
@@ -109,6 +113,7 @@ hrs:
     max-size: 10
     queue-capacity: 100
   ingestion-frequency: 1 # how often to call ccd per second
+  allowed-roles: ${ALLOWED_ROLES:caseworker-hrs}
 
 auth:
   provider:

@@ -5,9 +5,9 @@ services:
   service-auth-provider-api:
     image: hmctspublic.azurecr.io/rpe/service-auth-provider:latest
     environment:
-      - jwtKey=wThK0f0/lh3FlxFcL4xUWDMI5C1J9KyQBgXV4wseh1e5J1uYJIjvTvArHxQDrYoHJ23xFxjHkOnvNbR5dXRoxA==
       - microserviceKeys_em_gw=AAAAAAAAAAAAAAAA
       - microserviceKeys_em_hrs_api=AAAAAAAAAAAAAAAA
+      - microserviceKeys_em_hrs_ingestor=AAAAAAAAAAAAAAAA
       - microserviceKeys_ccd_data=AAAAAAAAAAAAAAAA
       - microserviceKeys_ccd_gw=AAAAAAAAAAAAAAAA
       - microserviceKeys_ccd_definition=AAAAAAAAAAAAAAAA
@@ -117,7 +117,7 @@ services:
       - service-auth-provider-api
 
   ccd-data-store-api:
-    image: hmctspublic.azurecr.io/ccd/data-store-api:pr-1453-40b2d849
+    image: hmctspublic.azurecr.io/ccd/data-store-api:latest
     environment:
       DATA_STORE_DB_HOST: shared-database
       DATA_STORE_DB_PORT: 5432

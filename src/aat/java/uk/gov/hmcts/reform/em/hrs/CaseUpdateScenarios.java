@@ -3,56 +3,29 @@ package uk.gov.hmcts.reform.em.hrs;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
-import uk.gov.hmcts.reform.ccd.client.model.CaseDataContent;
-import uk.gov.hmcts.reform.ccd.client.model.Event;
-import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
-import uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper;
+import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 
-import java.util.Map;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper.HRS_TESTER;
 
 public class CaseUpdateScenarios extends BaseTest {
 
-    private static final String JURISDICTION = "HRS";
-    private static final String CASE_TYPE = "HearingRecordings";
-    private static final String SHARE_FILES = "shareFiles";
-
-    @Autowired
-    protected ExtendedCcdHelper extendedCcdHelper;
-
-    @Autowired
-    private CoreCaseDataApi coreCaseDataApi;
+    private static final String FOLDER = "functionaltest001";
+    private static final String JURISDICTION_CODE = "FT";
+    private static final String LOCATION_CODE = "0116";
+    private static final String CASE_REF = "functionalTestFile200M";
+    private static final String RECORDING_TIME = "2020-05-17-12.12.11.123";
+    //functionaltest001/FT-0111-functionalTestFile200M_2020-05-17-12.12.11.123-UTC_0.mp4
 
     @Test
     public void testCcdCaseUpdate() {
-
-        s2sAuthRequest()
-            .relaxedHTTPSValidation()
-            .baseUri(testUrl)
-            .contentType(APPLICATION_JSON_VALUE)
-            .when()
-            .get("/folders/audiostream01")
+        getFilenames(FOLDER)
             .then()
             .statusCode(200);
 
-        JsonNode reqBody = extendedCcdHelper.createRecordingSegment(
-            "audiostream01",
-            "http://localhost:10000/devstoreaccount1/cvptestcontainer/audiostream01/audio_test.m4a",
-            "audiostream01/audio_test.m4a",
-            "ma4",
-            0
-            );
+        JsonNode reqBody = createRecordingSegment(FOLDER, JURISDICTION_CODE, LOCATION_CODE, CASE_REF,
+                                                  RECORDING_TIME, 0, "mp4");
 
-        s2sAuthRequest()
-            .relaxedHTTPSValidation()
-            .baseUri(testUrl)
-            .contentType(APPLICATION_JSON_VALUE)
-            .body(reqBody)
-            .when()
-            .post("/segments")
+        postRecordingSegment(reqBody)
             .then()
             .statusCode(202);
     }
@@ -60,19 +33,20 @@ public class CaseUpdateScenarios extends BaseTest {
     @Ignore
     @Test
     public void testDocumentShare() {
-        Map<String, String> tokens = extendedCcdHelper.getTokens();
-        Long caseId = 1619005282012509L;
-        StartEventResponse startEventResponse = coreCaseDataApi.startEvent(tokens.get("user"), tokens.get("service"),
-                                                                           caseId.toString(), SHARE_FILES
-        );
+        CaseDetails caseDetails = searchForCase(CASE_REF).orElseThrow();
 
-        CaseDataContent caseData = CaseDataContent.builder()
-            .event(Event.builder().id(startEventResponse.getEventId()).build())
-            .eventToken(startEventResponse.getToken())
-            .data(extendedCcdHelper.getShareRequest()).build();
+        shareRecording("sharee@email.com", caseDetails)
+            .then()
+            .statusCode(200);
+    }
 
-        coreCaseDataApi
-            .submitEventForCaseWorker(tokens.get("user"), tokens.get("service"), tokens.get("userId"),
-                                      JURISDICTION, CASE_TYPE, caseId.toString(), false, caseData);
+    @Ignore
+    @Test
+    public void testRecordingDownload() {
+        CaseDetails caseDetails = searchForCase(CASE_REF).orElseThrow();
+
+        downloadRecording(HRS_TESTER, caseDetails.getData())
+            .then()
+            .statusCode(200);
     }
 }

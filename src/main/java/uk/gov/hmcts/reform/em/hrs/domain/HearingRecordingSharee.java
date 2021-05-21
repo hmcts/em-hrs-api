@@ -9,13 +9,16 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -42,6 +45,9 @@ public class HearingRecordingSharee {
     @CreatedDate
     private LocalDateTime sharedOn;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "hearingRecordingSharee")
+    private Set<HearingRecordingShareeAuditEntry> auditEntries;
+
     public HearingRecordingSharee() {
     }
 
@@ -49,12 +55,14 @@ public class HearingRecordingSharee {
                                   final HearingRecording hearingRecording,
                                   final @NotNull String shareeEmail,
                                   final String sharedByRef,
-                                  final LocalDateTime sharedOn) {
+                                  final LocalDateTime sharedOn,
+                                  final Set<HearingRecordingShareeAuditEntry> auditEntries) {
         this.hearingRecording = hearingRecording;
         this.id = id;
         this.shareeEmail = shareeEmail;
         this.sharedByRef = sharedByRef;
         this.sharedOn = sharedOn;
+        setAuditEntries(auditEntries);
     }
 
     public static class HearingRecordingShareeBuilder {

@@ -56,6 +56,7 @@ withNightlyPipeline(type, product, component) {
   env.DM_STORE_APP_URL = 'http://dm-store-aat.service.core-compute-aat.internal'
   env.CCD_DEF_API = 'http://ccd-definition-store-api-aat.service.core-compute-aat.internal'
   env.CCD_DATA_API_URL = 'http://ccd-data-store-api-aat.service.core-compute-aat.internal'
+  env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
 
   env.TEST_URL = "http://em-hrs-api-aat.service.core-compute-aat.internal/"
   overrideVaultEnvironments(vaultOverrides)

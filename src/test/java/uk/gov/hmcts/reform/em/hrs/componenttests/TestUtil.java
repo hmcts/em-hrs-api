@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class TestUtil {
-    private static final String DOWNLOAD_URL_PREFIX = "https://SOMEPREFIXTBD";
+    private static final String DOWNLOAD_URL_PREFIX = "https://xui/hearing-recordings/";
 
     public static final int INGESTION_QUEUE_SIZE = 2;
     public static final String FILE_1 = "file-1.mp4";
@@ -30,8 +30,8 @@ public class TestUtil {
     public static final String FILE_3 = "file-3.mp4";
     public static final String TEST_FOLDER_NAME = "folder-1";
     public static final UUID RANDOM_UUID = UUID.randomUUID();
-    public static final String AUTHORIZATION_TOKEN = "xxx";
-    public static final String SERVICE_AUTHORIZATION_TOKEN = "xxx";
+    public static final String AUTHORIZATION_TOKEN = "xxxxxxxxxxxxxxxxxxxx";
+    public static final String SERVICE_AUTHORIZATION_TOKEN = "xxxxxxxxxxxxxxxx";
     public static final Long CCD_CASE_ID = 1234L;
     public static final String SHAREE_EMAIL_ADDRESS = "sharee.tester@test.com";
     public static final String SHARER_EMAIL_ADDRESS = "sharer.tester@test.com";
@@ -151,10 +151,14 @@ public class TestUtil {
 
     public static final CaseRecordingFile CASE_RECORDING_FILE = CaseRecordingFile.builder()
         .caseDocument(
-            CaseDocument.builder().url("document-url").binaryUrl("document-url").filename("filename").build()
+            CaseDocument.builder()
+                .url("https://xui.domain/hearing-recordings/1234/segments/0")
+                .binaryUrl("https://xui.domain/hearing-recordings/1234/segments/0")
+                .filename("filename")
+                .build()
         )
         .fileSize(123456789L)
-        .segmentNumber(0)
+        .segmentNumber("0")
         .build();
 
     private TestUtil() {

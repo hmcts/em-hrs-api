@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,6 @@ import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 import uk.gov.hmcts.reform.em.hrs.util.Snooper;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 @Service
 @Transactional
@@ -51,51 +50,66 @@ public class IngestionServiceImpl implements IngestionService {
     @Async("HrsAsyncExecutor")
     public void ingest(final HearingRecordingDto hearingRecordingDto) {
 
-        final CompletableFuture<Void> metadataFuture = CompletableFuture.runAsync(() -> {
-            LOGGER.info("request to create/update case with new hearing recording");
+        hearingRecordingStorage
+            .copyRecording(hearingRecordingDto.getCvpFileUrl(), hearingRecordingDto.getFilename());
 
-            final Optional<HearingRecording> optionalHearingRecording = recordingRepository.findByRecordingRef(
-                hearingRecordingDto.getRecordingRef()
+        final Optional<HearingRecording> checkHearingRecording =
+            recordingRepository.findByRecordingRefAndFolderName(
+                hearingRecordingDto.getRecordingRef(), hearingRecordingDto.getFolder()
             );
 
-            optionalHearingRecording.ifPresentOrElse(
-                hearingRecording -> updateCase(hearingRecording, hearingRecordingDto),
-                () -> createCaseinCcdAndPersist(hearingRecordingDto)
-            );
-        });
-
-        final CompletableFuture<Void> blobCopyFuture = CompletableFuture.runAsync(
-            () -> hearingRecordingStorage.copyRecording(hearingRecordingDto.getCvpFileUrl(),
-                                                        hearingRecordingDto.getFilename()));
-
-        try {
-            CompletableFuture.allOf(metadataFuture, blobCopyFuture).get();
-        } catch (final ExecutionException e) {
-            snoop(hearingRecordingDto.getCvpFileUrl(), e);
-        } catch (final InterruptedException e) {
-            snoop(hearingRecordingDto.getCvpFileUrl(), e);
-            Thread.currentThread().interrupt();
-        }
+        checkHearingRecording.ifPresentOrElse(
+            hearingRecording -> updateCase(hearingRecording, hearingRecordingDto),
+            () -> createCaseinCcdAndPersist(hearingRecordingDto)
+        );
 
     }
 
     private void updateCase(final HearingRecording recording,
-                                                         final HearingRecordingDto recordingDto) {
+                            final HearingRecordingDto recordingDto) {
         if (recording.getCcdCaseId() == null) {
             LOGGER.info(
-                "Case still being created in CCD for recording ({}) to case({})",
+                "Recording Ref {} in folder {}, has no ccd id, case still being created in CCD or has been rejected",
+                recordingDto.getRecordingRef(),
+                recordingDto.getFolder()
+            );
+            return;
+        }
+
+        LOGGER.info(
+            "adding  recording (ref {}) in folder {} to case (ccdid {})",
+            recordingDto.getRecordingRef(),
+            recordingDto.getFolder(),
+            recording.getCcdCaseId()
+        );
+
+
+        Long caseDetailsId =
+            ccdDataStoreApiClient.updateCaseData(recording.getCcdCaseId(), recording.getId(), recordingDto);
+
+        LOGGER.info("Case Details (id {}) updated successfully", caseDetailsId);
+
+        try {
+            HearingRecordingSegment segment = createSegment(recording, recordingDto);
+            segmentRepository.save(segment);
+
+        } catch (ConstraintViolationException e) {
+            //TODO this is not caught as the sql is a multie step / tranasction so throws a batch exception which has
+            //potentially multiple exceptions. Consider catching these or improving the messaging.
+            LOGGER.info(
+                "updateCase ConstraintViolationException segment already added to DB (ref {}) to case(ccdid {})",
                 recordingDto.getRecordingRef(),
                 recording.getCcdCaseId()
             );
-            return;
-            //TODO clean down hearingRecordings where created < yesterday and ccdID is null as part of some process
+        } catch (Exception e) {
+            LOGGER.info(
+                "segment not added to database, probably duplicate entry (ref {}) to case(ccdid {})",
+                recordingDto.getRecordingRef(),
+                recording.getCcdCaseId()
+            );
         }
 
-        LOGGER.info("adding  recording ({}) to case({})", recordingDto.getRecordingRef(), recording.getCcdCaseId());
-
-        ccdDataStoreApiClient.updateCaseData(recording.getCcdCaseId(), recording.getId(), recordingDto);
-
-        segmentRepository.save(createSegment(recording, recordingDto));
+        LOGGER.info("updateCase end");
     }
 
     private void createCaseinCcdAndPersist(final HearingRecordingDto recordingDto) {
@@ -112,16 +126,33 @@ public class IngestionServiceImpl implements IngestionService {
             .hearingSource(recordingDto.getRecordingSource())
             .jurisdictionCode(recordingDto.getJurisdictionCode())
             .serviceCode(recordingDto.getServiceCode())
-            .createdOn(recordingDto.getRecordingDateTime())//TODO: is this the correct time to set here
+            .createdOn(recordingDto.getRecordingDateTime())
             .build();
 
-        recording = recordingRepository.save(recording);
+        try {
+            recording = recordingRepository.save(recording);
+
+        } catch (ConstraintViolationException e) {
+            //the recording has already been persisted by another cluster - do not proceed as waiting for CCD id
+            LOGGER
+                .info(
+                    "create case Hearing Recording already exists in database, not persisting recording, nor segment "
+                        + "at this time");
+        } catch (Exception e) {
+            LOGGER.info(
+                "create case Unhandled Exception whilst adding segment to DB (ref {}) to case(ccdid {})",
+                recordingDto.getRecordingRef(),
+                recording.getCcdCaseId()
+            );
+        }
+
 
         final Long caseId = ccdDataStoreApiClient.createCase(recording.getId(), recordingDto);
         recording.setCcdCaseId(caseId);
         recording = recordingRepository.save(recording);
 
-        segmentRepository.save(createSegment(recording, recordingDto));
+        HearingRecordingSegment segment = createSegment(recording, recordingDto);
+        segmentRepository.save(segment);
     }
 
     private HearingRecordingSegment createSegment(final HearingRecording recording,

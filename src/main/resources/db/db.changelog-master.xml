@@ -347,4 +347,18 @@
     <changeSet author="paul (generated)" id="1618337805634-1">
         <addUniqueConstraint columnNames="name" constraintName="UC_FOLDERNAME_COL" tableName="folder"/>
     </changeSet>
+    <changeSet author="yogeshhullatti (generated)" id="1620747888713-1">
+        <addColumn tableName="audit_entry">
+            <column name="hearing_recording_sharee_id" type="uuid"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="yogeshhullatti (generated)" id="1620747888713-2">
+        <addForeignKeyConstraint baseColumnNames="hearing_recording_sharee_id" baseTableName="audit_entry" constraintName="FK11roef3nv0wewk2yswnogf0nx" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="hearing_recording_sharee" validate="true"/>
+    </changeSet>
+    <changeSet author="paul (generated)" id="1621441343520-1">
+        <addUniqueConstraint columnNames="folder_id, recording_ref" constraintName="UKi1x8kh9td60heuhk1frv8gvck" tableName="hearing_recording"/>
+    </changeSet>
+    <changeSet author="paul (generated)" id="1621441343520-2">
+        <dropUniqueConstraint constraintName="uc_hearing_recordingrecording_ref_col" tableName="hearing_recording"/>
+    </changeSet>
 </databaseChangeLog>

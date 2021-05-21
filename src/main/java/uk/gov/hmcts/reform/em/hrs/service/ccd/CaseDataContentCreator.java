@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.em.hrs.service.ccd;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
@@ -9,15 +11,13 @@ import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 public class CaseDataContentCreator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CaseDataContentCreator.class);
 
     private final ObjectMapper objectMapper;
 
@@ -31,14 +31,17 @@ public class CaseDataContentCreator {
             .recordingFiles(Collections.singletonList(
                 Map.of("value", createSegment(hearingRecordingDto, recordingId))
             ))
-            .recordingDateTime(hearingRecordingDto.getRecordingDateTime())
-            .recordingTimeOfDay(getTimeOfDay(hearingRecordingDto.getRecordingDateTime()))
+            .recordingDate(
+                Optional.ofNullable(hearingRecordingDto.getRecordingDateTime())
+                    .map(LocalDateTime::toLocalDate).orElse(null)
+            )
+            .recordingTimeOfDay(getRecordingTimeOfDay(hearingRecordingDto))
             .hearingSource(hearingRecordingDto.getRecordingSource())
             .hearingRoomRef(hearingRecordingDto.getHearingRoomRef())
             .serviceCode(hearingRecordingDto.getServiceCode())
             .jurisdictionCode(hearingRecordingDto.getJurisdictionCode())
             .courtLocationCode(hearingRecordingDto.getCourtLocationCode())
-            .recordingReference(hearingRecordingDto.getRecordingRef())
+            .recordingReference(hearingRecordingDto.getCaseRef())
             .build();
         return objectMapper.convertValue(recording, JsonNode.class);
     }
@@ -79,6 +82,8 @@ public class CaseDataContentCreator {
                                            hearingRecordingDto.getUrlDomain(), recordingId,
                                            hearingRecordingDto.getSegment());
 
+        LOGGER.info("creating recording segment with url({})", documentUrl);
+
         CaseDocument recordingFile = CaseDocument.builder()
             .filename(hearingRecordingDto.getFilename())
             .url(documentUrl)
@@ -87,12 +92,14 @@ public class CaseDataContentCreator {
 
         return CaseRecordingFile.builder()
             .caseDocument(recordingFile)
-            .segmentNumber(hearingRecordingDto.getSegment())
+            .segmentNumber(String.valueOf(hearingRecordingDto.getSegment()))
             .fileSize(hearingRecordingDto.getFileSize())
             .build();
     }
 
-    private String getTimeOfDay(LocalDateTime dateTime) {
-        return dateTime != null ? dateTime.getHour() < 12 ? "AM" : "PM" : null;
+    private String getRecordingTimeOfDay(HearingRecordingDto hearingRecordingDto) {
+        LOGGER.info("setting time of day from recording time ({}))", hearingRecordingDto.getRecordingDateTime());
+        return Optional.ofNullable(hearingRecordingDto.getRecordingDateTime())
+            .map(dateTime -> dateTime.getHour() < 12 ? "AM" : "PM").orElse("");
     }
 }

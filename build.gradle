@@ -1,14 +1,11 @@
 plugins {
   id 'application'
   id 'checkstyle'
-  id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id 'org.springframework.boot' version '2.3.4.RELEASE'
   id 'uk.gov.hmcts.java' version '0.12.8'
   id 'com.github.ben-manes.versions' version '0.36.0'
-// NOTE version 0.38 is suspected to be the cause of
-  // the intermittant failure with module metadata. TO BE CONFIRMED!!
   id 'org.sonarqube' version '3.1.1'
   id 'org.liquibase.gradle' version '2.0.4'
   id 'groovy'
@@ -81,6 +78,9 @@ sourceSets {
 
     resources.srcDir file('src/smokeTest/resources')
   }
+  test {
+    java.srcDir 'src/test/java'
+  }
 }
 
 /***********************************************************************************************************************
@@ -150,31 +150,6 @@ runAndPublishConsumerPactTests.finalizedBy pactPublish
  * Code Checks
  **********************************************************************************************************************/
 
-checkstyle {
-  maxWarnings = 10
-  toolVersion = '8.29'
-  getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
-}
-
-pmd {
-  toolVersion = "6.30.0"
-  ignoreFailures = true
-  sourceSets = [sourceSets.main, sourceSets.test, sourceSets.functionalTest, sourceSets.integrationTest, sourceSets.smokeTest]
-  reportsDir = file("$project.buildDir/reports/pmd")
-  // https://github.com/pmd/pmd/issues/876
-  ruleSets = []
-  ruleSetFiles = files("config/pmd/ruleset.xml")
-}
-
-jacocoTestReport {
-  executionData(test, integration)
-  reports {
-    xml.enabled = true
-    csv.enabled = false
-    xml.destination file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
-  }
-}
-
 def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/Application*',
   '**uk/gov/hmcts/reform/em/hrs/appinsights/**',
@@ -184,10 +159,26 @@ def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/domain/**',
   '**uk/gov/hmcts/reform/em/hrs/exception/**',
   '**uk/gov/hmcts/reform/em/hrs/service/ccd/**',
-  '**uk/gov/hmcts/reform/em/hrs/appinsights/**'
+  '**uk/gov/hmcts/reform/em/hrs/service/IngestionServiceImpl*',
+  '**uk/gov/hmcts/reform/em/hrs/domain/**',
+  '**uk/gov/hmcts/reform/em/hrs/storage/**',//TODO implement tests after integration test passes for perf>stage copy
+
 ]
 
+checkstyle {
+  maxWarnings = 10
+  toolVersion = '8.29'
+  getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
+}
+
 jacocoTestReport {
+  executionData(test, integration)
+  reports {
+    xml.enabled = true
+    csv.enabled = false
+    xml.destination file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+  }
+
   afterEvaluate {
     classDirectories.setFrom(files(classDirectories.files.collect {
       fileTree(dir: it, exclude: coverageExclusionList)
@@ -289,7 +280,6 @@ dependencyManagement {
     dependencySet(group: 'commons-io', version: '2.8.0') {
       entry 'commons-io'
     }
-
   }
 }
 
@@ -301,11 +291,10 @@ repositories {
 }
 
 def versions = [
-  lombok             : '1.18.10',
-  reformLogging      : '5.1.5',
-  springBoot         : springBoot.class.package.implementationVersion,
+  lombok             : '1.18.20',
+  reformLogging      : '5.1.7',
   springfoxSwagger   : '2.9.2',
-  postgresql         : '42.2.13',
+  postgresql         : '42.2.20',
   pact_version       : '3.6.15',
   restAssured        : '4.2.0',
   serenity           : '2.3.12',
@@ -338,6 +327,11 @@ dependencies {
   compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
   compile group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
 
+  //for retry mechanism updatign ccd
+  compile "com.github.rholder:guava-retrying:2.0.0"
+
+  implementation group: "commons-validator", name: "commons-validator", version: "1.7"
+
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-client', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-web', version: versions.springSecurity
@@ -348,13 +342,7 @@ dependencies {
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
-// TODO springboot starter (deprecated) this excludes the following jars, but the spring boot template does not
-//  implementation ("uk.gov.hmcts.reform:properties-volume-spring-boot-starter:0.1.0"){
-//    exclude group: 'org.springframework.cloud' , module : 'spring-cloud-context'
-//    exclude group: 'org.springframework.boot' , module: 'spring-boot-starter-web'
-//  }
-
-  compileOnly 'org.projectlombok:lombok:1.18.20'
+  compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
   implementation "ch.qos.logback:logback-classic:1.2.3"
 
   implementation group: 'javax.inject', name: 'javax.inject', version: '1'
@@ -367,7 +355,6 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-security"
 
   implementation "uk.gov.hmcts.reform:properties-volume-spring-boot-starter:0.1.0"
-  //injects secret properties into container from azure vault TODO deprecated in favour of spring config tree
 
 //hmcts autho
   implementation group: 'uk.gov.hmcts.reform', name: 'idam-client', version: '1.5.5'
@@ -390,7 +377,7 @@ dependencies {
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.7.RELEASE'
 
 //gov notify email service
-  implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '3.17.0-RELEASE'
+  implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '3.17.2-RELEASE'
 
 //rest clients
   implementation "com.squareup.okhttp3:okhttp:4.9.1"
@@ -401,6 +388,7 @@ dependencies {
 
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.10.2'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.2.3'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
@@ -412,13 +400,13 @@ dependencies {
 
   implementation group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
   implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.4.30.Final'
-  implementation "org.liquibase:liquibase-core"
+  implementation "org.liquibase:liquibase-core:4.3.4"
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
   implementation "org.springframework.boot:spring-boot-starter-jdbc"
 
   liquibaseRuntime "com.h2database:h2"
-  liquibaseRuntime "org.liquibase.ext:liquibase-hibernate5:4.3.2"
-  liquibaseRuntime "org.liquibase:liquibase-core:4.3.2"
+  liquibaseRuntime "org.liquibase.ext:liquibase-hibernate5:4.3.3"
+  liquibaseRuntime "org.liquibase:liquibase-core:4.3.4"
   liquibaseRuntime "org.liquibase:liquibase-groovy-dsl:3.0.1"
   liquibaseRuntime group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
 
@@ -449,14 +437,14 @@ dependencies {
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.19.0'
   testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.25.0'
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.15.2'
-  testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.2'
+  testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.3'
   testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.4', {
     exclude group: 'com.google.guava', module: 'guava'
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.0.3'
-  testImplementation group :'info.solidsoft.gradle.pitest', name : 'gradle-pitest-plugin',version: '1.6.0'
+  testImplementation group: 'info.solidsoft.gradle.pitest', name: 'gradle-pitest-plugin', version: '1.6.0'
   testImplementation group: 'org.pitest', name: 'pitest', version: '1.6.4'
-  testImplementation group:'org.codehaus.sonar-plugins', name:'sonar-pitest-plugin', version: '0.5'
+  testImplementation group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
 
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
@@ -497,7 +485,7 @@ dependencies {
   contractTestRuntime("org.junit.jupiter:junit-jupiter-engine:5.6.2")
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.2.0'
 
-  contractTestCompileOnly 'org.projectlombok:lombok:1.18.12'
+  contractTestCompileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
   contractTestImplementation "ch.qos.logback:logback-classic:1.2.3"
 
   contractTestImplementation sourceSets.main.runtimeClasspath
@@ -509,7 +497,7 @@ dependencies {
  **********************************************************************************************************************/
 
 test {
-  failFast = true
+  useJUnitPlatform()
 }
 
 bootJar {

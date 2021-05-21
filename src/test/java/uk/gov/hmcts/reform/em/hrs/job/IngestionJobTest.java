@@ -7,8 +7,11 @@ import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.service.IngestionService;
 import uk.gov.hmcts.reform.em.hrs.util.IngestionQueue;
 
+import java.util.concurrent.RejectedExecutionException;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -19,16 +22,6 @@ import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.RECORDING_DATET
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.RECORDING_REFERENCE;
 
 class IngestionJobTest {
-    private final IngestionQueue ingestionQueue = IngestionQueue.builder()
-        .capacity(INGESTION_QUEUE_SIZE)
-        .build();
-
-    private final IngestionService ingestionService = mock(IngestionService.class);
-
-    private final JobExecutionContext context = mock(JobExecutionContext.class);
-
-    private final IngestionJob underTest = new IngestionJob(ingestionQueue, ingestionService);
-
     private static final HearingRecordingDto HEARING_RECORDING_DTO = HearingRecordingDto.builder()
         .caseRef(CASE_REFERENCE)
         .recordingSource("CVP")
@@ -44,6 +37,12 @@ class IngestionJobTest {
         .cvpFileUrl("recording-cvp-uri")
         .checkSum("erI2foA30B==")
         .build();
+    private final IngestionQueue ingestionQueue = IngestionQueue.builder()
+        .capacity(INGESTION_QUEUE_SIZE)
+        .build();
+    private final IngestionService ingestionService = mock(IngestionService.class);
+    private final JobExecutionContext context = mock(JobExecutionContext.class);
+    private final IngestionJob underTest = new IngestionJob(ingestionQueue, ingestionService);
 
     @BeforeEach
     void prepare() {
@@ -51,7 +50,7 @@ class IngestionJobTest {
     }
 
     @Test
-    void testShouldInvokeIngestionServiceWhenHearingRecordingIsPolled() throws Exception {
+    void testShouldInvokeIngestionServiceWhenHearingRecordingIsPolled() {
         ingestionQueue.offer(HEARING_RECORDING_DTO);
         doNothing().when(ingestionService).ingest(HEARING_RECORDING_DTO);
 
@@ -61,11 +60,32 @@ class IngestionJobTest {
     }
 
     @Test
-    void testShouldNotInvokeIngestionServiceWhenNullIsPolled() throws Exception {
+    void testShouldNotInvokeIngestionServiceWhenNullIsPolled() {
         doNothing().when(ingestionService).ingest(any(HearingRecordingDto.class));
 
         underTest.executeInternal(context);
 
         verify(ingestionService, never()).ingest(any(HearingRecordingDto.class));
     }
+
+    //TODO discuss with team...is this actually testing correctly...its ensuring code coverage is exercised and that
+    // no exceptions are
+    //thrown during exception handling, but it doesn't actually test the queue being full....
+    @Test
+    void testShouldHandleGracefullyWhenAysncQueueIsFull() {
+        ingestionQueue.offer(HEARING_RECORDING_DTO);
+        doThrow(RejectedExecutionException.class).when(ingestionService).ingest(any(HearingRecordingDto.class));
+        underTest.executeInternal(context);
+        verify(ingestionService, times(1)).ingest(any(HearingRecordingDto.class));
+    }
+
+    @Test
+    void testShouldHandleGracefullyWhenUnhandledError() {
+        ingestionQueue.offer(HEARING_RECORDING_DTO);
+        doThrow(RuntimeException.class).when(ingestionService).ingest(any(HearingRecordingDto.class));
+        underTest.executeInternal(context);
+        verify(ingestionService, times(1)).ingest(any(HearingRecordingDto.class));
+    }
+
+
 }

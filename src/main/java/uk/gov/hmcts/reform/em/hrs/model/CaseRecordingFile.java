@@ -17,8 +17,8 @@ public class CaseRecordingFile {
     @JsonProperty("documentLink")
     private CaseDocument caseDocument;
 
-    @JsonProperty("segmentNumber")
-    private Integer segmentNumber;
+    @JsonProperty("segmentNo")
+    private String segmentNumber;
 
     @JsonProperty("fileSize")
     private Long fileSize;

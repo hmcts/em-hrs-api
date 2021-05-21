@@ -90,7 +90,10 @@ public class HearingRecordingController {
         @ApiResponse(code = 500, message = "Internal Server Error")
     })
     public ResponseEntity<Void> createHearingRecording(@RequestBody final HearingRecordingDto hearingRecordingDto) {
-        LOGGER.info("received request to create hearing recording ({})", hearingRecordingDto.getRecordingRef());
+        LOGGER.info("received request to create hearing recording with ref {} in folder {}",
+                    hearingRecordingDto.getRecordingRef(),
+                    hearingRecordingDto.getFolder()
+        );
 
         hearingRecordingDto.setUrlDomain(ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString());
         final boolean accepted = ingestionQueue.offer(hearingRecordingDto);

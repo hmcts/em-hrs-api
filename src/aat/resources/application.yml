@@ -38,6 +38,7 @@ s2s:
     ccdGwServiceName: ${CCD_GW_SERVICE_NAME:ccd_gw}
 
 ccd-def:
+  file: ${CCD_DEFINITION_FILE:hrs_ccd_case_definition.xlsx}
   api:
     url: ${CCD_DEF_API:http://localhost:4451}
 
@@ -53,6 +54,9 @@ azure:
   app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:true}
   application-insights:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:d30268e8-8979-4579-8d58-010dbe03a1e6}
+  storage:
+    cvp:
+      container-url: ${CVP_CONTAINER_URL:http://localhost:10000/devstoreaccount1/cvptestcontainer/}
 
 app-insights:
   dev-mode: off

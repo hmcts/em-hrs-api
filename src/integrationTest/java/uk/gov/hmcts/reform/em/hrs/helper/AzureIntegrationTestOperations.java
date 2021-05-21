@@ -20,21 +20,16 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named
-public class AzureOperations {
+public class AzureIntegrationTestOperations {
+    private static final int BLOB_LIST_TIMEOUT = 5;
     private final BlobContainerClient hrsBlobContainerClient;
     private final BlobContainerClient cvpBlobContainerClient;
     private final Fairy fairy;
 
-    private static final int BLOB_LIST_TIMEOUT = 5;
-
-    private enum Container {
-        CVP,
-        HRS
-    }
-
     @Inject
-    public AzureOperations(final @Named("HrsBlobContainerClient") BlobContainerClient hrsBlobContainerClient,
-                           final @Named("CvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient) {
+    public AzureIntegrationTestOperations(
+        final @Named("HrsBlobContainerClient") BlobContainerClient hrsBlobContainerClient,
+        final @Named("CvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient) {
         this.hrsBlobContainerClient = hrsBlobContainerClient;
         this.cvpBlobContainerClient = cvpBlobContainerClient;
         fairy = Fairy.create();
@@ -60,14 +55,14 @@ public class AzureOperations {
         uploadToHrsContainer(blobName, content.getBytes(StandardCharsets.UTF_8));
     }
 
-    public void uploadToHrsContainer(final String blobName, final byte[] data) {
+    private void uploadToHrsContainer(final String blobName, final byte[] data) {
         final InputStream inStream = new ByteArrayInputStream(data);
 
         final BlobClient blobClient = hrsBlobContainerClient.getBlobClient(blobName);
         blobClient.upload(new BufferedInputStream(inStream), data.length);
     }
 
-    public void uploadToContainer(final Enum<Container> container, final String filePath) {
+    private void uploadToContainer(final Enum<Container> container, final String filePath) {
         final String content = fairy.textProducer().sentence();
         final InputStream data = new ByteArrayInputStream(content.getBytes());
 
@@ -101,5 +96,10 @@ public class AzureOperations {
     public void clearContainer() {
         hrsBlobContainerClient.listBlobs()
             .forEach(x -> x.setDeleted(true));
+    }
+
+    private enum Container {
+        CVP,
+        HRS
     }
 }

@@ -128,7 +128,7 @@ public class SecurityConfiguration {
                     .formLogin().disable()
                     .logout().disable()
                     .authorizeRequests()
-                    .antMatchers(HttpMethod.GET, "/documents/hearing-recordings/**").authenticated()
+                    .antMatchers(HttpMethod.GET, "/hearing-recordings/**").authenticated()
                     .antMatchers(HttpMethod.POST, "/sharees").authenticated()
                     .and()
                     .oauth2ResourceServer()

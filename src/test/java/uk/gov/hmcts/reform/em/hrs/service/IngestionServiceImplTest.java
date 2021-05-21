@@ -52,7 +52,8 @@ class IngestionServiceImplTest {
 
     @Test
     void testShouldIngestWhenHearingRecordingIsNew() {
-        doReturn(Optional.empty()).when(recordingRepository).findByRecordingRef(RECORDING_REFERENCE);
+        doReturn(Optional.empty()).when(recordingRepository)
+            .findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER.getName());
 
         doReturn(TEST_FOLDER).when(folderService).getFolderByName(TEST_FOLDER.getName());
         doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).createCase(HEARING_RECORDING.getId(), HEARING_RECORDING_DTO);
@@ -63,7 +64,7 @@ class IngestionServiceImplTest {
 
         underTest.ingest(HEARING_RECORDING_DTO);
 
-        verify(recordingRepository).findByRecordingRef(RECORDING_REFERENCE);
+        verify(recordingRepository).findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER.getName());
         verify(ccdDataStoreApiClient).createCase(HEARING_RECORDING.getId(), HEARING_RECORDING_DTO);
         verify(recordingRepository, times(2)).save(any(HearingRecording.class));
         verify(segmentRepository).save(any(HearingRecordingSegment.class));
@@ -75,7 +76,7 @@ class IngestionServiceImplTest {
     @Test
     void testShouldIngestWhenHearingRecordingExist() {
         doReturn(Optional.of(HEARING_RECORDING_WITH_SEGMENTS)).when(recordingRepository)
-            .findByRecordingRef(RECORDING_REFERENCE);
+            .findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER.getName());
         doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient)
             .updateCaseData(anyLong(), eq(HEARING_RECORDING_WITH_SEGMENTS.getId()), eq(HEARING_RECORDING_DTO));
         doReturn(SEGMENT_1).when(segmentRepository).save(any(HearingRecordingSegment.class));
@@ -84,7 +85,7 @@ class IngestionServiceImplTest {
 
         underTest.ingest(HEARING_RECORDING_DTO);
 
-        verify(recordingRepository).findByRecordingRef(RECORDING_REFERENCE);
+        verify(recordingRepository).findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER.getName());
         verify(ccdDataStoreApiClient)
             .updateCaseData(anyLong(), eq(HEARING_RECORDING_WITH_SEGMENTS.getId()), eq(HEARING_RECORDING_DTO));
         verify(ccdDataStoreApiClient, never())

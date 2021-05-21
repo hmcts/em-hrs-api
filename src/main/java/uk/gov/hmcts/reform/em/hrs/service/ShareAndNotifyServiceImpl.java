@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
@@ -22,16 +23,19 @@ public class ShareAndNotifyServiceImpl implements ShareAndNotifyService {
     private final ShareeService shareeService;
     private final NotificationService notificationService;
     private final CaseDataContentCreator caseDataCreator;
+    private final String xuiDomain;
 
     @Autowired
     public ShareAndNotifyServiceImpl(final HearingRecordingRepository hearingRecordingRepository,
                                      final ShareeService shareeService,
                                      final NotificationService notificationService,
-                                     final CaseDataContentCreator caseDataCreator) {
+                                     final CaseDataContentCreator caseDataCreator,
+                                     @Value("${xui.api.url}") final String xuiDomain) {
         this.hearingRecordingRepository = hearingRecordingRepository;
         this.shareeService = shareeService;
         this.notificationService = notificationService;
         this.caseDataCreator = caseDataCreator;
+        this.xuiDomain = xuiDomain;
     }
 
     @Override
@@ -46,6 +50,10 @@ public class ShareAndNotifyServiceImpl implements ShareAndNotifyService {
         List<String> segmentUrls = caseDataCreator.extractRecordingFiles(caseData).stream()
             .map(recordingFile -> recordingFile.getCaseDocument())
             .map(caseDocument ->  caseDocument.getBinaryUrl())
+            .map(url -> {
+                String downloadPath = url.substring(url.indexOf("/hearing-recordings"));
+                return xuiDomain + downloadPath;
+            })
             .collect(Collectors.toList());
 
         final HearingRecording hearingRecording = hearingRecordingRepository.findByCcdCaseId(caseId)
