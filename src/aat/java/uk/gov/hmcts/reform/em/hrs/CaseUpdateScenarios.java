@@ -19,7 +19,7 @@ public class CaseUpdateScenarios extends BaseTest {
     //functionaltest001/FT-0111-testfile200M_2020-01-01-11.11.11.123-UTC_0.mp4
 
     @Test
-    public void testCcdCaseUpdate() {
+    public void testCcdCaseUpdate() throws InterruptedException {
         getFilenames(FOLDER)
             .then()
             .statusCode(200);
@@ -30,6 +30,14 @@ public class CaseUpdateScenarios extends BaseTest {
         postRecordingSegment(reqBody)
             .then()
             .statusCode(202);
+
+        Thread.sleep(60000);
+
+        CaseDetails caseDetails = searchForCase(CASE_REF).orElseThrow();
+
+        downloadRecording(HRS_TESTER, caseDetails.getData())
+            .then()
+            .statusCode(200);
     }
 
     @Ignore
