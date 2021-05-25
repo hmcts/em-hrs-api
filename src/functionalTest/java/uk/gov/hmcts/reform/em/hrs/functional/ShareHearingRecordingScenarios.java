@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.functional.util.TestUtil;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -31,9 +30,8 @@ public class ShareHearingRecordingScenarios extends BaseTest {
         testUtil.deleteFileFromCvpContainer(FOLDER);
         testUtil.deleteFileFromHrsContainer(FOLDER);
 
-        final String id = UUID.randomUUID().toString();
-        FILE_NAME = String.format(FILE_NAME, id);
-        testUtil.uploadToCvpContainer(FILE_NAME);
+        fileName = String.format(fileName, counter.incrementAndGet());
+        testUtil.uploadToCvpContainer(fileName);
         createFolderIfDoesNotExistInHrsDB(FOLDER);
     }
 
@@ -45,7 +43,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
 
     @Test
     public void shouldAbleToShareHearingRecordingsToEmailAddressAndDownload() throws Exception {
-        final JsonNode segmentPayload = getSegmentPayload(FILE_NAME);
+        final JsonNode segmentPayload = getSegmentPayload(fileName);
 
         postRecordingSegment(segmentPayload)
             .then()
@@ -54,7 +52,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
 
         TimeUnit.SECONDS.sleep(20);
 
-        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCCDByRecordingReference(FILE_NAME);
+        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCcdByRecordingReference(fileName);
         assertTrue(optionalCaseDetails.isPresent());
 
         final CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
@@ -89,7 +87,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
 
     @Test
     public void shareeWithCitizenRoleShouldNotBeAbleToDownloadHearingRecordings() throws Exception {
-        final JsonNode segmentPayload = getSegmentPayload(FILE_NAME);
+        final JsonNode segmentPayload = getSegmentPayload(fileName);
 
         postRecordingSegment(segmentPayload)
             .then()
@@ -98,7 +96,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
 
         TimeUnit.SECONDS.sleep(20);
 
-        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCCDByRecordingReference(FILE_NAME);
+        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCcdByRecordingReference(fileName);
         assertTrue(optionalCaseDetails.isPresent());
 
         final CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
@@ -133,7 +131,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
 
     @Test
     public void shouldReturn400WhenShareHearingRecordingsToInvalidEmailAddress() throws Exception {
-        final JsonNode segmentPayload = getSegmentPayload(FILE_NAME);
+        final JsonNode segmentPayload = getSegmentPayload(fileName);
 
         postRecordingSegment(segmentPayload)
             .then()
@@ -142,7 +140,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
 
         TimeUnit.SECONDS.sleep(20);
 
-        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCCDByRecordingReference(FILE_NAME);
+        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCcdByRecordingReference(fileName);
         assertTrue(optionalCaseDetails.isPresent());
 
         CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
@@ -160,7 +158,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
 
     @Test
     public void shouldReturn404WhenShareHearingRecordingsToEmailAddressWithNonExistentCaseId() throws Exception {
-        final JsonNode segmentPayload = getSegmentPayload(FILE_NAME);
+        final JsonNode segmentPayload = getSegmentPayload(fileName);
 
         postRecordingSegment(segmentPayload)
             .then()
@@ -169,7 +167,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
 
         TimeUnit.SECONDS.sleep(20);
 
-        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCCDByRecordingReference(FILE_NAME);
+        final Optional<CaseDetails> optionalCaseDetails = findCaseDetailsInCcdByRecordingReference(fileName);
         assertTrue(optionalCaseDetails.isPresent());
 
         CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
@@ -185,4 +183,5 @@ public class ShareHearingRecordingScenarios extends BaseTest {
             .then().log().all()
             .assertThat().statusCode(404);
     }
+
 }
