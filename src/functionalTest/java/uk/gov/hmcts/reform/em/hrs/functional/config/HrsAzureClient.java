@@ -1,13 +1,18 @@
-package uk.gov.hmcts.reform.em.hrs.config;
+package uk.gov.hmcts.reform.em.hrs.functional.config;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 @Component
 public class HrsAzureClient {
+
+    private static final Logger LOGGER = getLogger(HrsAzureClient.class);
 
     @Value("${azure.storage.hrs.connection-string}")
     private String hrsConnectionString;
@@ -21,16 +26,18 @@ public class HrsAzureClient {
     @Value("${azure.storage.cvp.blob-container-reference}")
     private String cvpContainer;
 
-    @Bean
+    @Bean(name = "hrsBlobContainerClient")
     public BlobContainerClient hrsBlobContainerClient() {
+        LOGGER.info("HRS ConnectionString: {}, HRS Container: {} ",hrsConnectionString, hrsContainer);
         return new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
             .containerName(hrsContainer)
             .buildClient();
     }
 
-    @Bean
+    @Bean(name = "cvpBlobContainerClient")
     public BlobContainerClient cvpBlobContainerClient() {
+        LOGGER.info("CVP ConnectionString: {}, CVP Container: {} ",cvpConnectionString, cvpContainer);
         return new BlobContainerClientBuilder()
             .connectionString(cvpConnectionString)
             .containerName(cvpContainer)
