@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegmentAuditEntry;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobstoreClient;
 
-import java.io.IOException;
 import java.util.UUID;
 import javax.inject.Inject;
 import javax.servlet.ServletOutputStream;
@@ -59,7 +58,7 @@ class SegmentDownloadServiceImplTest {
     }
 
     @Test
-    void testDownload() throws IOException {
+    void testGetDownloadInfo() {
         BlobProperties blobProperties = new BlobProperties(
             null, null, null, 1234L, "video/mp4",null,
             null, null, null, null,null,
@@ -69,23 +68,33 @@ class SegmentDownloadServiceImplTest {
             null, null, null);
 
         doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndRecordingSegment(RECORDING_ID, SEGMENT_NO);
-        doReturn(outputStream).when(response).getOutputStream();
         doReturn(hearingRecordingSegmentAuditEntry)
             .when(auditEntryService).createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_REQUESTED);
-        doReturn(hearingRecordingSegmentAuditEntry)
-            .when(auditEntryService).createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
         doReturn(blobProperties).when(blobstoreClient).getBlobProperties(segment.getFilename());
-        doNothing().when(blobstoreClient).downloadFile(segment.getFilename(), outputStream);
 
-        segmentDownloadService.download(RECORDING_ID, SEGMENT_NO, response);
+        segmentDownloadService.getDownloadInfo(RECORDING_ID, SEGMENT_NO);
 
         verify(segmentRepository, times(1))
             .findByHearingRecordingIdAndRecordingSegment(RECORDING_ID, SEGMENT_NO);
         verify(auditEntryService, times(1))
             .createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_REQUESTED);
+        verify(blobstoreClient, times(1)).getBlobProperties(segment.getFilename());
+    }
+
+    @Test
+    void testDownload() {
+
+        doReturn(segment).when(segmentRepository).findByFilename(segment.getFilename());
+        doReturn(hearingRecordingSegmentAuditEntry)
+            .when(auditEntryService).createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
+        doNothing().when(blobstoreClient).downloadFile(segment.getFilename(), outputStream);
+
+        segmentDownloadService.download(segment.getFilename(), outputStream);
+
+        verify(segmentRepository, times(1))
+            .findByFilename(segment.getFilename());
         verify(blobstoreClient, times(1)).downloadFile(segment.getFilename(), outputStream);
         verify(auditEntryService, times(1))
             .createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
     }
-
 }

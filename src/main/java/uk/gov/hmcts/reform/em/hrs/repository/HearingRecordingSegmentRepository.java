@@ -15,4 +15,5 @@ public interface HearingRecordingSegmentRepository extends PagingAndSortingRepos
 
     HearingRecordingSegment findByHearingRecordingIdAndRecordingSegment(UUID recordingId, Integer segment);
 
+    HearingRecordingSegment findByFilename(String filename);
 }

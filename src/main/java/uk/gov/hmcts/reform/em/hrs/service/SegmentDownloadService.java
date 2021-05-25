@@ -1,9 +1,12 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
+import java.io.OutputStream;
+import java.util.Map;
 import java.util.UUID;
-import javax.servlet.http.HttpServletResponse;
 
 public interface SegmentDownloadService {
 
-    void download(UUID recordingId, Integer segment, HttpServletResponse response);
+    Map<String, String> getDownloadInfo(UUID recordingId, Integer segmentNo);
+
+    void download(String filename, OutputStream responseOutputStream);
 }

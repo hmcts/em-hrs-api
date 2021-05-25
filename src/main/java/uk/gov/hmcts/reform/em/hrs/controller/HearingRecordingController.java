@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,11 +21,14 @@ import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.dto.RecordingFilenameDto;
+import uk.gov.hmcts.reform.em.hrs.exception.SegmentDownloadException;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 import uk.gov.hmcts.reform.em.hrs.util.IngestionQueue;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletResponse;
 
@@ -144,8 +148,18 @@ public class HearingRecordingController {
 
         LOGGER.info("received request to download recording for case ({}) segment ({})", recordingId, segmentNo);
 
-        downloadService.download(recordingId, segmentNo, response);
+        Map<String, String> segmentDetails = downloadService.getDownloadInfo(recordingId, segmentNo);
+        response.setHeader(
+            HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%s", segmentDetails.get("filename"))
+        );
+        response.setHeader(HttpHeaders.CONTENT_TYPE, segmentDetails.get("contentType"));
+        response.setHeader(HttpHeaders.CONTENT_LENGTH, segmentDetails.get("contentLength"));
 
+        try {
+            downloadService.download(segmentDetails.get("filename"), response.getOutputStream());
+        } catch (IOException e) {
+            throw new SegmentDownloadException(e);
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
