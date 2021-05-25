@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.functional.util;
+package uk.gov.hmcts.reform.em.hrs.functional.config;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
@@ -61,5 +61,9 @@ public class TestUtil {
         final URL resource = TestUtil.class.getClassLoader().getResource("data/test_data.mp4");
         final File file = new File(Objects.requireNonNull(resource).toURI());
         return new FileInputStream(file);
+    }
+
+    public BlobContainerClient getCvpBlobContainerClient() {
+        return cvpBlobContainerClient;
     }
 }

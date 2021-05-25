@@ -8,7 +8,7 @@ import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGeneratorFactory;
 
 @Configuration
-public class AuthTokenGeneratorConfiguration {
+public class AuthTokenGeneratorConfig {
 
     @Bean
     public AuthTokenGenerator authTokenGenerator(

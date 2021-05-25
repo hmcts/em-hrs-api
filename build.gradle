@@ -1,3 +1,10 @@
+buildscript {
+  dependencies {
+    classpath("net.serenity-bdd:serenity-gradle-plugin:2.3.13")
+    classpath("net.serenity-bdd:serenity-single-page-report:2.3.13")
+  }
+}
+
 plugins {
   id 'application'
   id 'checkstyle'
@@ -14,6 +21,7 @@ plugins {
 }
 
 apply from: 'liquibase.gradle'
+apply plugin: 'net.serenity-bdd.aggregator'
 
 
 allprojects {
@@ -104,9 +112,11 @@ task functional(type: Test) {
   group = "Verification"
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
+  include "src/functionalTest/functional/**"
   environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
-  include "uk/gov/hmcts/reform/em/hrs/**"
+  failFast = true
 }
+
 
 task contract(type: Test) {
   description = "Runs contract tests"
@@ -297,9 +307,9 @@ def versions = [
   postgresql         : '42.2.20',
   pact_version       : '3.6.15',
   restAssured        : '4.2.0',
-  serenity           : '2.3.12',
+  serenity           : '2.3.13',
   serenityRestAssured: '2.3.4',
-  serenityreporter   : '2.3.12',
+  serenityreporter   : '2.3.13',
   junit              : '5.7.0',
   junitPlatform      : '1.7.1',
   springSecurity     : '5.3.8.RELEASE'
@@ -446,12 +456,45 @@ dependencies {
   testImplementation group: 'org.pitest', name: 'pitest', version: '1.6.4'
   testImplementation group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
 
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestCompile 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestCompile 'org.junit.jupiter:junit-jupiter-api:5.6.3'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
+
+  testCompile "org.junit.jupiter:junit-jupiter-api:5.6.3"
+  testRuntime "org.junit.jupiter:junit-jupiter-engine:5.6.3"
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.3"
+
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
+
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestCompile 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestCompile 'org.junit.jupiter:junit-jupiter-api:5.6.3'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
+
+  testCompile "org.junit.jupiter:junit-jupiter-api:5.6.3"
+  testRuntime "org.junit.jupiter:junit-jupiter-engine:5.6.3"
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.3"
+
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
+
+
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
   smokeTestImplementation "uk.gov.hmcts.reform:em-test-helper:1.18.1"
+
+  functionalTestCompile "uk.gov.hmcts.reform:em-test-helper:1.18.1", withoutStuff
 
 /***********************************************************************************************************************
  * TEST SOURCE SETS
@@ -560,4 +603,8 @@ pitest {
   timestampedReports = false
   failWhenNoMutations = false
   detectInlinedCode = true
+}
+
+serenity {
+  reports = ["single-page-html"]
 }
