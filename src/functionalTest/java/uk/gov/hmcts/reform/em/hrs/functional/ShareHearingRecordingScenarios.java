@@ -180,6 +180,6 @@ public class ShareHearingRecordingScenarios extends BaseTest {
 
         shareRecordingResponse
             .then().log().all()
-            .assertThat().statusCode(403); //FIXME should return 404
+            .assertThat().statusCode(404);
     }
 }
