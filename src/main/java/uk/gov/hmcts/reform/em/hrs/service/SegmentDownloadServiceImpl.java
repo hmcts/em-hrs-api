@@ -4,18 +4,16 @@ import com.azure.storage.blob.models.BlobProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
-import uk.gov.hmcts.reform.em.hrs.exception.SegmentDownloadException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobstoreClient;
 
-import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Map;
 import java.util.UUID;
-import javax.servlet.http.HttpServletResponse;
 
 @Service
 public class SegmentDownloadServiceImpl implements SegmentDownloadService {
@@ -36,7 +34,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
     @Override
     @PreAuthorize("hasPermission(#recordingId,'READ')")
-    public void download(UUID recordingId, Integer segmentNo, HttpServletResponse response) {
+    public Map<String, String> getDownloadInfo(UUID recordingId, Integer segmentNo) {
 
         HearingRecordingSegment segment =
             segmentRepository.findByHearingRecordingIdAndRecordingSegment(recordingId, segmentNo);
@@ -50,17 +48,20 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
             segment.getFilename(), blobProperties.getContentType(), blobProperties.getBlobSize()
         );
 
-        response.setHeader(
-            HttpHeaders.CONTENT_DISPOSITION,String.format("attachment; filename=%s", segment.getFilename())
+        return Map.of(
+            "filename", segment.getFilename(),
+            "contentType", blobProperties.getContentType(),
+            "contentLength", String.valueOf(blobProperties.getBlobSize())
         );
-        response.setHeader(HttpHeaders.CONTENT_TYPE, blobProperties.getContentType());
-        response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(blobProperties.getBlobSize()));
-        try {
-            blobstoreClient.downloadFile(segment.getFilename(), response.getOutputStream());
-        } catch (IOException e) {
-            auditEntryService.createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_FAIL);
-            throw new SegmentDownloadException(e);
-        }
+    }
+
+    @Override
+    @PreAuthorize("hasPermission(#recordingId,'READ')")
+    public void download(String filename, OutputStream responseOutputStream) {
+
+        blobstoreClient.downloadFile(filename, responseOutputStream);
+
+        HearingRecordingSegment segment = segmentRepository.findByFilename(filename);
 
         auditEntryService.createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
     }

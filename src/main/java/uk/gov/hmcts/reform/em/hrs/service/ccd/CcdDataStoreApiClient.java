@@ -90,7 +90,6 @@ public class CcdDataStoreApiClient {
 
         Long caseDetailsId = null;
 
-
         Callable<Long> callable = new Callable<Long>() {
             @Override
             public Long call() throws Exception {

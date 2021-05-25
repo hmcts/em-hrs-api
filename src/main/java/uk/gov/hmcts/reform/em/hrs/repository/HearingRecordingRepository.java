@@ -31,5 +31,5 @@ public interface HearingRecordingRepository extends PagingAndSortingRepository<H
 
     @Modifying
     @Query("delete from HearingRecording s where s.createdOn < :#{#createddate} and s.ccdCaseId is null")
-    void deleteStaleRecordsWithNullCCD(@Param("createddate") LocalDateTime createddate);
+    void deleteStaleRecordsWithNullCcdCaseId(@Param("createddate") LocalDateTime createddate);
 }
