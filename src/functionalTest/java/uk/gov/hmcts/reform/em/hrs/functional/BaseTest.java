@@ -64,8 +64,8 @@ public abstract class BaseTest {
     protected static final String EMAIL_ADDRESS = "testuser@email.com";
     protected static final String ERROR_SHAREE_EMAIL_ADDRESS = "sharee.testertest.com";
     protected static final int SEGMENT = 0;
-    protected static final String FOLDER = "audiostream123456";
-    protected String fileName = FOLDER + "/FM-0123-BV20D01_2020-11-04-14.56.32.819-UTC_%s.mp4";
+    protected static final String FOLDER = "functionaltest001"; // changed here
+    protected String fileName = FOLDER + "/FT-0111-functionalTestFile71Mb_2020-05-21-11.40.00.000-UTC_1.mp4";
     protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss.SSS");
     protected static List<String> CASE_WORKER_ROLE = List.of("caseworker");
     protected static List<String> CASE_WORKER_HRS_ROLE = List.of("caseworker-hrs");
