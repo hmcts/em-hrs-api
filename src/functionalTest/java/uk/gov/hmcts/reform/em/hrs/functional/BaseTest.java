@@ -20,11 +20,14 @@ import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.EmTestConfig;
+import uk.gov.hmcts.reform.em.hrs.functional.config.HrsAzureClient;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 import uk.gov.hmcts.reform.em.hrs.functional.config.AuthTokenGeneratorConfiguration;
 import uk.gov.hmcts.reform.em.hrs.functional.config.CcdAuthTokenGeneratorConfiguration;
+import uk.gov.hmcts.reform.em.hrs.functional.config.HrsAzureClient;
 import uk.gov.hmcts.reform.em.hrs.functional.util.ExtendedCcdHelper;
 import uk.gov.hmcts.reform.em.hrs.functional.util.TestUtil;
+import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
@@ -35,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.PostConstruct;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -54,6 +58,7 @@ import static uk.gov.hmcts.reform.em.hrs.functional.util.ExtendedCcdHelper.HRS_T
 @WithTags({@WithTag("testType:Functional")})
 public abstract class BaseTest {
 
+    protected AtomicInteger counter = new AtomicInteger(0);
     protected static final String JURISDICTION = "HRS";
     protected static final String CASE_TYPE = "HearingRecordings";
     protected static final String FILE_EXT = "mp4";
@@ -62,7 +67,7 @@ public abstract class BaseTest {
     protected static final String ERROR_SHAREE_EMAIL_ADDRESS = "sharee.testertest.com";
     protected static final int SEGMENT = 0;
     protected static final String FOLDER = "audiostream123456";
-    protected String fileName = "audiostream123456/FM-0123-BV20D01_2020-11-04-14.56.32.819-UTC_%s.mp4";
+    protected String fileName = FOLDER + "/FM-0123-BV20D01_2020-11-04-14.56.32.819-UTC_%s.mp4";
     protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss.SSS");
     protected static List<String> CASE_WORKER_ROLE = List.of("caseworker");
     protected static List<String> CASE_WORKER_HRS_ROLE = List.of("caseworker-hrs");
