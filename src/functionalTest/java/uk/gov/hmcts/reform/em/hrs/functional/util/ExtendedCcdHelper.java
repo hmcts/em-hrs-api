@@ -73,3 +73,5 @@ public class ExtendedCcdHelper {
                                          idamHelper.authenticateUser(HRS_TESTER), ccdAuthTokenGenerator.generate());
     }
 }
+
+
