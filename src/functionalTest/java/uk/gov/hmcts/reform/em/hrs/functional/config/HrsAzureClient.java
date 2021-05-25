@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.config;
+package uk.gov.hmcts.reform.em.hrs.functional.config;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
