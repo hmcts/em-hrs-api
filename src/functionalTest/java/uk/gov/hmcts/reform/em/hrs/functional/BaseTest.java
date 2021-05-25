@@ -20,7 +20,6 @@ import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.EmTestConfig;
-import uk.gov.hmcts.reform.em.hrs.functional.config.HrsAzureClient;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 import uk.gov.hmcts.reform.em.hrs.functional.config.AuthTokenGeneratorConfiguration;
 import uk.gov.hmcts.reform.em.hrs.functional.config.CcdAuthTokenGeneratorConfiguration;

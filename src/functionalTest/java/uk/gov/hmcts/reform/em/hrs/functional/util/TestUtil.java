@@ -62,4 +62,8 @@ public class TestUtil {
         final File file = new File(Objects.requireNonNull(resource).toURI());
         return new FileInputStream(file);
     }
+
+    public BlobContainerClient getCvpBlobContainerClient() {
+        return cvpBlobContainerClient;
+    }
 }
