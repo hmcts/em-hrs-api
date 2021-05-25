@@ -45,9 +45,9 @@ sourceSets {
     java {
       compileClasspath += main.output
       runtimeClasspath += main.output
-      srcDir file('src/functionalTest/functional/**')
+      srcDir file('src/functionalTest/functional/uk/gov/hmcts/reform/em/hrs/functional')
     }
-    resources.srcDir file('src/functionalTest/resources/**')
+    resources.srcDir file('src/functionalTest/resources')
   }
 
   //integrationTest typically tests with mocked external endpoints (so can run locally without dependencies)
@@ -112,7 +112,7 @@ task functional(type: Test) {
   group = "Verification"
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
-  include "src/functionalTest/functional/**"
+  include "src/functionalTest/functional/uk/gov/hmcts/reform/em/hrs/functional/**"
   environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
   failFast = true
 }
