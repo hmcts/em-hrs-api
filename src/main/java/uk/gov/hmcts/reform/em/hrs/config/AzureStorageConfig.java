@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import uk.gov.hmcts.reform.em.hrs.util.CvpConnectionResolver;
 
 import java.util.Optional;
 
@@ -22,15 +21,11 @@ public class AzureStorageConfig {
     @Value("${azure.storage.hrs.connection-string}")
     private String hrsConnectionString;
 
-    @Value("${azure.storage.hrs.blob-container-reference}")
-    private String hrsContainer;
-
     @Value("${azure.storage.cvp.connection-string}")
     private String cvpConnectionString;
 
-    @Value("${azure.storage.cvp.blob-container-reference}")
-    private String cvpContainer;
-
+    @Value("${azure.storage.hrs.blob-container-reference}")
+    private String hrsContainer;
 
     @Bean
     public BlobContainerAsyncClient provideBlobContainerAsyncClient() {
@@ -39,13 +34,27 @@ public class AzureStorageConfig {
             .connectionString(hrsConnectionString)
             .containerName(hrsContainer);
 
+        boolean isACvpEndpointUrl =
+            cvpConnectionString.contains("cvprecordings") && !cvpConnectionString.contains("AccountName");
 
-        LOGGER.info("****************************");
-        LOGGER.info("Container settings:");
-        LOGGER.info("hrsContainer: {}", hrsContainer);
-        LOGGER.info("cvpContainer: {}", cvpContainer);
+        if (isACvpEndpointUrl) {
+            LOGGER.info("****************************");
+            LOGGER.info("Using Managed Identity");
+            LOGGER.info("cvp end point: {}", cvpConnectionString);
+            LOGGER.info("cvp container name: n/a inferred from sourceUrl");
+            LOGGER.info(
+                "Building client with default credential builder / managed identity");
+            LOGGER.info("****************************");
 
-        LOGGER.info("****************************");
+            DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
+            blobContainerAsyncClientBuilder.credential(credential);
+        } else {
+            LOGGER.info("****************************");
+            LOGGER.info("Not a CVP endpoint - cvpConnectionString(60): {} ", StringUtils.left(cvpConnectionString, 60));
+            LOGGER.info("****************************");
+
+        }
+
 
         final BlobContainerAsyncClient blobContainerAsyncClient = blobContainerAsyncClientBuilder.buildAsyncClient();
 
@@ -62,48 +71,12 @@ public class AzureStorageConfig {
         return blobContainerAsyncClient;
     }
 
-
     @Bean("HrsBlobContainerClient")
     public BlobContainerClient provideBlobContainerClient() {
         return new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
             .containerName(hrsContainer)
             .buildClient();
-    }
-
-
-    @Bean("CvpBlobContainerClient")
-    public BlobContainerClient provideCvpBlobContainerClient() {
-        BlobContainerClientBuilder b = new BlobContainerClientBuilder();
-
-
-        if (CvpConnectionResolver.isACvpEndpointUrl(cvpConnectionString)) {
-            LOGGER.info("****************************");
-            LOGGER.info("Using Managed Identity For Cvp Blob Container Client (For SAS Token Generation)");
-            LOGGER.info("cvp end point: {}", cvpConnectionString);
-            LOGGER.info("cvp container: {}", cvpContainer);
-            LOGGER.info(
-                "Building client with default credential builder / managed identity");
-            LOGGER.info("****************************");
-
-            DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
-            b.endpoint(cvpConnectionString);
-            b.containerName(cvpContainer);
-            b.credential(credential);
-        } else {
-            b.connectionString(cvpConnectionString);
-            b.containerName(cvpContainer);
-            LOGGER.info("****************************");
-            LOGGER.info(
-                "This is not a real CVP endpoint - cvpConnectionString(60): {} ",
-                StringUtils.left(cvpConnectionString, 60)
-            );
-            LOGGER.info("****************************");
-
-        }
-
-
-        return b.buildClient();
     }
 
 }

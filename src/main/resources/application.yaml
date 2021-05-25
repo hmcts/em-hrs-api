@@ -19,6 +19,8 @@ management:
 spring:
   application:
     name: Hearing Recordings Service
+  config:
+    import: "optional:configtree:/mnt/secrets/em-hrs-api/,optional:configtree:/mnt/secrets/rpa/"
   jpa:
     database: postgresql
     show-sql: ${SHOW_SQL:true}
@@ -80,10 +82,6 @@ core_case_data:
   api:
     url: ${CCD_DATA_API_URL:http://localhost:4452}
 
-xui:
-  api:
-    url: ${XUI_API_URL:https://localhost:1337}
-
 azure:
   app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:true}
   application-insights:
@@ -91,7 +89,7 @@ azure:
   storage:
     hrs:
       connection-string: ${STORAGEACCOUNT_PRIMARY_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
-      blob-container-reference: ${HRS_STORAGE_CONTAINER_NAME:emhrstestcontainer}
+      blob-container-reference: ${STORAGE_CONTAINER_DOCUMENT_CONTAINER_NAME:emhrstestcontainer}
     cvp:
       connection-string: ${CVP_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
       blob-container-reference: ${CVP_STORAGE_CONTAINER_NAME:cvptestcontainer}
@@ -120,4 +118,3 @@ auth:
     service:
       client:
         baseUrl: ${S2S_BASE_URI:http://localhost:4502}
-
