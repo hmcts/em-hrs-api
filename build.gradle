@@ -37,9 +37,9 @@ sourceSets {
     java {
       compileClasspath += main.output
       runtimeClasspath += main.output
-      srcDir file('src/aat/java')
+      srcDir file('src/functionalTest/functional')
     }
-    resources.srcDir file('src/aat/resources')
+    resources.srcDir file('src/functionalTest/resources')
   }
 
   //integrationTest typically tests with mocked external endpoints (so can run locally without dependencies)

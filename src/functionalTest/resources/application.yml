@@ -1,0 +1,69 @@
+---
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  security:
+    oauth2:
+      client:
+        provider:
+          oidc:
+            issuer-uri: ${OPEN_ID_API_BASE_URI:http://localhost:5000/o}
+        registration:
+          oidc:
+            client-id: webshow #TODO: create proper idam client-id for hrs
+            client-secret: ${S2S_KEY:AAAAAAAAAAAAAAAA}
+
+test:
+  url: ${TEST_URL:http://localhost:8080}
+
+idam:
+  api:
+    url: ${IDAM_API_BASE_URI:http://localhost:5000}
+  client:
+    id: ${OAUTH_CLIENT_ID:webshow}
+    secret: ${IDAM_CLIENT_OAUTH_SECRET:AAAAAAAAAAAAAAAA}
+    redirect_uri: ${IDAM_REDIRECT_URI:http://localhost:8080/oauth2redirect}
+    grant_type: 'password'
+    scope: 'openid roles profile'
+
+s2s:
+  api:
+    url: ${S2S_BASE_URI:http://localhost:4502}
+    secret: ${FUNCTIONAL_TEST_CLIENT_S2S_TOKEN:AAAAAAAAAAAAAAAA}
+    serviceName: ${S2S_SERVICE_NAME:em_gw}
+    ccdGwSecret: ${FUNCTIONAL_TEST_CCD_GW_SERVICE_SECRET:AAAAAAAAAAAAAAAA}
+    ccdGwServiceName: ${CCD_GW_SERVICE_NAME:ccd_gw}
+
+ccd-def:
+  file: ${CCD_DEFINITION_FILE:hrs_ccd_case_definition.xlsx}
+  api:
+    url: ${CCD_DEF_API:http://localhost:4451}
+
+document_management:
+  url: ${DM_STORE_APP_URL:http://localhost:4603}
+  docker_url: http://dm-store:8080
+
+core_case_data:
+  api:
+    url: ${CCD_DATA_API_URL:http://localhost:4452}
+
+azure:
+  app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:true}
+  application-insights:
+    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:d30268e8-8979-4579-8d58-010dbe03a1e6}
+  storage:
+    cvp:
+      container-url: ${CVP_CONTAINER_URL:http://localhost:10000/devstoreaccount1/cvptestcontainer/}
+      connection-string: ${CVP_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
+      blob-container-reference: ${AAT_CVP_STORAGE_CONTAINER_NAME:cvptestcontainer}
+    hrs:
+      connection-string: ${AAT_HRS_STORAGEACCOUNT_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
+      blob-container-reference: ${AAT_HRS_STORAGE_CONTAINER_NAME:emhrstestcontainer}
+
+app-insights:
+  dev-mode: off
+  request-component: on
+  telemetry-component: on
