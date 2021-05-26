@@ -25,8 +25,8 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
         testUtil.deleteFileFromHrsContainer(FOLDER);
         testUtil.deleteFileFromCvpContainer(FOLDER);
         fileName = String.format(fileName, counter.incrementAndGet());
-        testUtil.uploadToCvpContainer(fileName);
         createFolderIfDoesNotExistInHrsDB(FOLDER);
+        testUtil.uploadToCvpContainer(FOLDER + "/" + fileName);
     }
 
     @After
@@ -37,7 +37,6 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
 
     @Test
     public void shouldCreateHearingRecordingSegment() throws Exception {
-        createFolderIfDoesNotExistInHrsDB(FOLDER);
         final JsonNode segmentPayload = getSegmentPayload(fileName);
 
         postRecordingSegment(segmentPayload)
