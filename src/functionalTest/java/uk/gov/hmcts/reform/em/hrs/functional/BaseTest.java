@@ -219,7 +219,7 @@ public abstract class BaseTest {
         final Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         return createRecordingSegmentPayload(
             FOLDER,
-            testUtil.getCvpBlobContainerClient().getBlobContainerUrl() + "/" + fileName,
+            testUtil.getCvpBlobContainerClient().getBlobContainerUrl() + "/" + FOLDER + "/" + fileName, // here
             this.fileName,
             FILE_EXT,
             SEGMENT,
