@@ -108,7 +108,7 @@ public abstract class BaseTest {
     protected ValidatableResponse getRecordingFileNames(String folder) {
         return authRequest()
             .when().log().all()
-            .get(String.format("/folders/%s", folder))
+            .get( "/" + FOLDER + "/" + fileName)
             .then();
     }
 
@@ -219,7 +219,7 @@ public abstract class BaseTest {
         final Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         return createRecordingSegmentPayload(
             FOLDER,
-            testUtil.getCvpBlobContainerClient().getBlobContainerUrl() + "/" + FOLDER + "/" + fileName, // here
+            testUtil.getCvpBlobContainerClient().getBlobContainerUrl() + "/" + FOLDER + "/" + fileName,
             this.fileName,
             FILE_EXT,
             SEGMENT,
