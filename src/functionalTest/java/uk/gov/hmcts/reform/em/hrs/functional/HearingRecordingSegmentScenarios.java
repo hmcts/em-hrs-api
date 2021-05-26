@@ -37,6 +37,7 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
 
     @Test
     public void shouldCreateHearingRecordingSegment() throws Exception {
+        createFolderIfDoesNotExistInHrsDB(FOLDER);
         final JsonNode segmentPayload = getSegmentPayload(fileName);
 
         postRecordingSegment(segmentPayload)
