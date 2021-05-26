@@ -274,7 +274,7 @@ dependencyManagement {
     }
 
     //CVE-2021-22112
-    dependencySet(group: 'org.springframework.security', version: '5.5.0') {
+    dependencySet(group: 'org.springframework.security', version: '5.4.4') {
       entry 'spring-security-config'
       entry 'spring-security-core'
       entry 'spring-security-crypto'
@@ -311,7 +311,7 @@ def versions = [
   serenityreporter   : '2.3.13',
   junit              : '5.7.0',
   junitPlatform      : '1.7.1',
-  springSecurity     : '5.5.0'
+  springSecurity     : '5.4.4'
 ]
 
 ext.libraries = [
