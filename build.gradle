@@ -311,7 +311,7 @@ def versions = [
   serenityreporter   : '2.3.13',
   junit              : '5.7.0',
   junitPlatform      : '1.7.1',
-  springSecurity     : '5.3.8.RELEASE'
+  springSecurity     : '5.5.0'
 ]
 
 ext.libraries = [
