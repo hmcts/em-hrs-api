@@ -5,7 +5,6 @@ import io.restassured.response.Response;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
@@ -42,7 +41,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
         testUtil.deleteFileFromCvpContainer(FOLDER);
     }
 
-    @Test @Ignore
+    @Test
     public void shouldAbleToShareHearingRecordingsToEmailAddressAndDownload() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
 
@@ -86,7 +85,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
         assertThat(actualFileSize, is(expectedFileSize));
     }
 
-    @Test @Ignore
+    @Test
     public void shareeWithCitizenRoleShouldNotBeAbleToDownloadHearingRecordings() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
 
@@ -130,7 +129,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
         assertThat(actualFileSize, is(expectedFileSize));
     }
 
-    @Test @Ignore
+    @Test
     public void shouldReturn400WhenShareHearingRecordingsToInvalidEmailAddress() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
 
@@ -157,7 +156,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
             .assertThat().statusCode(400);
     }
 
-    @Test @Ignore // just to see what's going on
+    @Test
     public void shouldReturn404WhenShareHearingRecordingsToEmailAddressWithNonExistentCaseId() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
 
