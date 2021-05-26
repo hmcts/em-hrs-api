@@ -11,10 +11,10 @@ import uk.gov.hmcts.reform.em.test.ccddefinition.CcdDefImportApi;
 import uk.gov.hmcts.reform.em.test.ccddefinition.CcdDefUserRoleApi;
 import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import javax.annotation.PostConstruct;
 
 @Service
 public class ExtendedCcdHelper {

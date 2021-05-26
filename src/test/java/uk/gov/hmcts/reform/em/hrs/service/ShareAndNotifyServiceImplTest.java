@@ -2,8 +2,6 @@ package uk.gov.hmcts.reform.em.hrs.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
@@ -14,8 +12,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.mockito.Mockito.*;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.AUTHORIZATION_TOKEN;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.CASE_RECORDING_FILE;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.CASE_REFERENCE;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.CCD_CASE_ID;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDING_SHAREE;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDING_WITH_SEGMENTS;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.RECORDING_DATETIME;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHAREE_EMAIL_ADDRESS;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHAREE_ID;
 
 @ExtendWith({MockitoExtension.class})
 class ShareAndNotifyServiceImplTest {
@@ -41,14 +51,17 @@ class ShareAndNotifyServiceImplTest {
             .when(shareeService).createAndSaveEntry(SHAREE_EMAIL_ADDRESS, HEARING_RECORDING_WITH_SEGMENTS);
         doNothing()
             .when(notificationService)
-            .sendEmailNotification(CASE_REFERENCE,
-                                   RECORDING_DATETIME,
-                                   List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0")),
-                                   SHAREE_ID,
-                                   SHAREE_EMAIL_ADDRESS);
+            .sendEmailNotification(
+                CASE_REFERENCE,
+                RECORDING_DATETIME,
+                List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0")),
+                SHAREE_ID,
+                SHAREE_EMAIL_ADDRESS
+            );
         final CaseDetails caseDetails = CaseDetails.builder()
             .data(Map.of("recipientEmailAddress", SHAREE_EMAIL_ADDRESS,
-                         "recordingFiles", Collections.singletonList(CASE_RECORDING_FILE)))
+                         "recordingFiles", Collections.singletonList(CASE_RECORDING_FILE)
+            ))
             .id(CCD_CASE_ID)
             .build();
         doReturn(Collections.singletonList(CASE_RECORDING_FILE))
@@ -60,12 +73,14 @@ class ShareAndNotifyServiceImplTest {
         verify(shareeService, times(1))
             .createAndSaveEntry(SHAREE_EMAIL_ADDRESS, HEARING_RECORDING_WITH_SEGMENTS);
         verify(notificationService, times(1))
-            .sendEmailNotification(CASE_REFERENCE,
-                                   RECORDING_DATETIME,
-                                   List.copyOf(
-                                       Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0")
-                                   ),
-                                   SHAREE_ID,
-                                   SHAREE_EMAIL_ADDRESS);
+            .sendEmailNotification(
+                CASE_REFERENCE,
+                RECORDING_DATETIME,
+                List.copyOf(
+                    Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0")
+                ),
+                SHAREE_ID,
+                SHAREE_EMAIL_ADDRESS
+            );
     }
 }

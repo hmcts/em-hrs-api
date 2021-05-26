@@ -9,15 +9,19 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.componenttests.AbstractBaseTest;
 import uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.exception.SegmentDownloadException;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
+import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 import uk.gov.hmcts.reform.em.hrs.util.IngestionQueue;
 
+import java.io.OutputStream;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.IntStream;
 import javax.inject.Inject;
 
@@ -25,8 +29,11 @@ import static java.util.Collections.emptySet;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.json;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -46,8 +53,13 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
     private static final String TEST_FOLDER = "folder-1";
     @MockBean
     private FolderService folderService;
+
     @MockBean
     private ShareAndNotifyService shareAndNotifyService;
+
+    @MockBean
+    private SegmentDownloadService downloadService;
+
     @Inject
     private IngestionQueue ingestionQueue;
 
@@ -153,6 +165,41 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
                             .content(convertObjectToJsonString(HEARING_RECORDING_DTO))
                             .contentType(APPLICATION_JSON_VALUE))
             .andExpect(status().isTooManyRequests())
+            .andReturn();
+    }
+
+    @Test
+    void testShouldDownloadSegment() throws Exception {
+        UUID recordingId = UUID.randomUUID();
+        String filename = "FT-0111-functionalTestFile5Mb_2020-05-19-16.45.11.123-UTC_0.mp4";
+        Map<String, String> downloadInfo = Map.of(
+            "filename", filename,
+            "contentLength", "123123",
+            "contentType", "video/mp4"
+        );
+        doReturn(downloadInfo).when(downloadService).getDownloadInfo(recordingId, 0);
+        doNothing().when(downloadService).download(eq(filename), any(OutputStream.class));
+
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0)))
+            .andExpect(status().isOk())
+            .andReturn();
+    }
+
+    @Test
+    void testShouldThrowSegmentDownloadException() throws Exception {
+        UUID recordingId = UUID.randomUUID();
+        String filename = "FT-0111-functionalTestFile5Mb_2020-05-19-16.45.11.123-UTC_0.mp4";
+        Map<String, String> downloadInfo = Map.of(
+            "filename", filename,
+            "contentLength", "123123",
+            "contentType", "video/mp4"
+        );
+        doReturn(downloadInfo).when(downloadService).getDownloadInfo(recordingId, 0);
+        doThrow(new SegmentDownloadException("failed download"))
+            .when(downloadService).download(eq(filename), any(OutputStream.class));
+
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0)))
+            .andExpect(status().isInternalServerError())
             .andReturn();
     }
 

@@ -158,8 +158,6 @@ def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/model/**',
   '**uk/gov/hmcts/reform/em/hrs/domain/**',
   '**uk/gov/hmcts/reform/em/hrs/exception/**',
-  '**uk/gov/hmcts/reform/em/hrs/service/ccd/**',
-  '**uk/gov/hmcts/reform/em/hrs/service/IngestionServiceImpl*',
   '**uk/gov/hmcts/reform/em/hrs/domain/**',
   '**uk/gov/hmcts/reform/em/hrs/storage/**',//TODO implement tests after integration test passes for perf>stage copy
 
@@ -326,6 +324,10 @@ dependencies {
 
   compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
   compile group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
+
+  //for retry mechanism updatign ccd
+  compile "com.github.rholder:guava-retrying:2.0.0"
+
   implementation group: "commons-validator", name: "commons-validator", version: "1.7"
 
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server', version: versions.springSecurity
@@ -438,9 +440,9 @@ dependencies {
     exclude group: 'com.google.guava', module: 'guava'
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.0.3'
-  testImplementation group :'info.solidsoft.gradle.pitest', name : 'gradle-pitest-plugin',version: '1.6.0'
+  testImplementation group: 'info.solidsoft.gradle.pitest', name: 'gradle-pitest-plugin', version: '1.6.0'
   testImplementation group: 'org.pitest', name: 'pitest', version: '1.6.4'
-  testImplementation group:'org.codehaus.sonar-plugins', name:'sonar-pitest-plugin', version: '0.5'
+  testImplementation group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
 
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity

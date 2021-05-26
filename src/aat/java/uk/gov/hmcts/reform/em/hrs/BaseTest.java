@@ -77,7 +77,7 @@ public abstract class BaseTest {
     @PostConstruct
     public void init() {
         SerenityRest.useRelaxedHTTPSValidation();
-        idamAuth = BEARER + idamHelper.authenticateUser(HRS_TESTER);
+        idamAuth = idamHelper.authenticateUser(HRS_TESTER);
         s2sAuth = BEARER + s2sHelper.getS2sToken();
         userId = idamHelper.getUserId(HRS_TESTER);
     }

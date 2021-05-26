@@ -37,15 +37,20 @@ data "azurerm_user_assigned_identity" "em-shared-identity" {
 }
 
 module "db" {
-  source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
-  product            = "${local.app_full_name}-postgres-v11-db"
-  location           = var.location
-  env                = var.env
-  postgresql_user    = var.postgresql_user
+  source = "git@github.com:hmcts/cnp-module-postgres?ref=master"
+  product = var.product
+  component = var.component
+  name = join("-", [
+    var.product,
+    var.component,
+    "postgres-v11-db"])
   postgresql_version = 11
-  database_name      = var.database_name
-  common_tags        = var.common_tags
-  subscription       = var.subscription
+  location = var.location
+  env = var.env
+  postgresql_user = var.postgresql_user
+  database_name = var.database_name
+  common_tags = var.common_tags
+  subscription = var.subscription
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {

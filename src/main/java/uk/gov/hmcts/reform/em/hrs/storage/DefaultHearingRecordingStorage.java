@@ -22,6 +22,7 @@ import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import uk.gov.hmcts.reform.em.hrs.exception.BlobCopyException;
 import uk.gov.hmcts.reform.em.hrs.util.CvpConnectionResolver;
 
 import java.time.Duration;
@@ -74,35 +75,15 @@ public class DefaultHearingRecordingStorage implements HearingRecordingStorage {
     @Override
     public void copyRecording(String sourceUri, final String filename) {
 
-
-        LOGGER.info("**************************************");
-        LOGGER.info("Copying Recording");
-        LOGGER.info("Source URI:{}", sourceUri);
-        LOGGER.info("Filename:{}", filename);
-        LOGGER.info("**************************************");
-        LOGGER.info("cvpBlobContainerClient.getBlobContainerName():{}", cvpBlobContainerClient.getBlobContainerName());
-        LOGGER.info("hrsBlobContainerClient.getBlobContainerName():{}", hrsBlobContainerClient.getBlobContainerName());
-
-
-        copyViaUrl(sourceUri, filename);//may be limited to 256mb
-
-    }
-
-
-    private void copyViaUrl(String sourceUri, String filename) {
         BlockBlobClient destinationBlobClient = hrsBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
 
-        LOGGER.info("############## Trying copy from URL for file {}", filename);
+        LOGGER.info("############## Trying copy from URL for sourceUri {}", sourceUri);
 
         //TODO should we compare md5sum of destination as well or
         // Or always overwrite (assume ingestor knows if it should be replaced or not, so md5 checksum done there)?
         if (!destinationBlobClient.exists()) {
-            LOGGER.info("############## File does not exist in target blobstore {}", filename);
-
             if (CvpConnectionResolver.isACvpEndpointUrl(cvpConnectionString)) {
-
-                LOGGER.info("Generating sasToken");
-                String sasToken = generateReadSASForCVP(filename);
+                String sasToken = generateReadSasForCvp(filename);
                 sourceUri = sourceUri + "?" + sasToken;
             }
 
@@ -110,29 +91,32 @@ public class DefaultHearingRecordingStorage implements HearingRecordingStorage {
             try {
 
                 BlockBlobClient sourceBlob = cvpBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
-                LOGGER.info("sourceBlob.exists() {}", sourceBlob.exists());
+                LOGGER.debug("sourceBlob.exists() {}", sourceBlob.exists());
 
                 SyncPoller<BlobCopyInfo, Void> poller = destinationBlobClient.beginCopy(sourceUri, null);
                 PollResponse<BlobCopyInfo> poll = poller.waitForCompletion();
                 LOGGER.info("File copy completed for {} with status {}", sourceUri, poll.getStatus());
             } catch (BlobStorageException be) {
-                LOGGER.info("Blob Copy exception code {}, message{}", be.getErrorCode(), be.getMessage());
+                LOGGER.info("Blob Copy BlobStorageException code {}, message{}", be.getErrorCode(), be.getMessage());
+                throw new BlobCopyException(be.getMessage(), be);
+                //TODO should we try and clean up the destination blob? can it be partially present?
             } catch (Exception e) {
-                LOGGER.info("Unhandled Blob Copy exception {}", e.getMessage());
+                LOGGER.info("Unhandled Exception during Blob Copy {}", e.getMessage());
+                throw new BlobCopyException(e.getMessage(), e);
                 //TODO should we try and clean up the destination blob? can it be partially present?
             }
 
 
         } else {
-            LOGGER.info("############## File already exists in target blobstore {}", filename);
+            LOGGER.info("############## target blobstore already has file: {}", filename);
         }
 
     }
 
 
-    private String generateReadSASForCVP(String fileName) {
+    private String generateReadSasForCvp(String fileName) {
 
-        LOGGER.info("Attempting to generate SAS for contaienr name {}", cvpBlobContainerClient.getBlobContainerName());
+        LOGGER.debug("Attempting to generate SAS for container name {}", cvpBlobContainerClient.getBlobContainerName());
 
         BlobServiceClient blobServiceClient = cvpBlobContainerClient.getServiceClient();
 

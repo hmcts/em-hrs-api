@@ -7,6 +7,7 @@ import org.mockito.Captor;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestApplicationConfig;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestAzureStorageConfig;
+import uk.gov.hmcts.reform.em.hrs.exception.BlobCopyException;
 import uk.gov.hmcts.reform.em.hrs.helper.AzureIntegrationTestOperations;
 
 import java.time.Duration;
@@ -18,6 +19,7 @@ import java.util.stream.IntStream;
 import javax.inject.Inject;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(classes = {
@@ -104,24 +106,11 @@ class DefaultHearingRecordingStorageIntegrationTest {
     }
 
     @Test
-    void testShouldEmitCopySuccessfulMessage() {
-        final String file = UUID.randomUUID().toString() + "/" + UUID.randomUUID().toString() + ".txt";
-        azureIntegrationTestOperations.uploadToCvpContainer(file);
-        final String sourceUrl = azureIntegrationTestOperations.getBlobUrl(file);
-
-        underTest.copyRecording(sourceUrl, file);
-
-    }
-
-    @Test
     void testShouldEmitCopyFailedMessage() {
         final String file = UUID.randomUUID().toString() + "/" + UUID.randomUUID().toString() + ".txt";
         final String sourceUrl = azureIntegrationTestOperations.getBlobUrl(file);
-
-        underTest.copyRecording(sourceUrl, file);
-
+        assertThatExceptionOfType(BlobCopyException.class).isThrownBy(() -> underTest.copyRecording(sourceUrl, file));
     }
-
 
 
     private Set<String> generateFilePaths() {

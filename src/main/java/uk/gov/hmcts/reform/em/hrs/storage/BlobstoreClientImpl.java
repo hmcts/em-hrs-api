@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.storage;
 
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,5 +23,10 @@ public class BlobstoreClientImpl implements BlobstoreClient {
     public void downloadFile(final String filename, final OutputStream output) {
         final BlockBlobClient blobClient = blobContainerClient.getBlobClient(filename).getBlockBlobClient();
         blobClient.download(output);
+    }
+
+    @Override
+    public BlobProperties getBlobProperties(final String filename) {
+        return blobContainerClient.getBlobClient(filename).getProperties();
     }
 }

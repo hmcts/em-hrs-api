@@ -21,7 +21,7 @@ public interface HearingRecordingRepository extends PagingAndSortingRepository<H
     @Query("select s from HearingRecording s where s.deleted = false and s.createdBy = :#{#creator}")
     Page<HearingRecording> findByCreatedBy(@Param("creator") String creator, @NonNull Pageable pageable);
 
-    Optional<HearingRecording> findByRecordingRef(String recordingReference);
+    Optional<HearingRecording> findByRecordingRefAndFolderName(String recordingReference, String folderName);
 
     Optional<HearingRecording> findByCcdCaseId(Long caseId);
 
@@ -31,5 +31,5 @@ public interface HearingRecordingRepository extends PagingAndSortingRepository<H
 
     @Modifying
     @Query("delete from HearingRecording s where s.createdOn < :#{#createddate} and s.ccdCaseId is null")
-    void deleteStaleRecordsWithNullCCD(@Param("createddate") LocalDateTime createddate);
+    void deleteStaleRecordsWithNullCcdCaseId(@Param("createddate") LocalDateTime createddate);
 }

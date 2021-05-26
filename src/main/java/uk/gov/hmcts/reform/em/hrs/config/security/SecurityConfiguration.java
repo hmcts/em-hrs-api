@@ -73,6 +73,7 @@ public class SecurityConfiguration {
         protected void configure(HttpSecurity http) {
             try {
                 serviceOnlyFilter.setAuthenticationManager(authenticationManager());
+                http.headers().cacheControl().disable();
                 http.addFilter(serviceOnlyFilter)
                     .csrf().disable()
                     .requestMatchers()
@@ -124,6 +125,7 @@ public class SecurityConfiguration {
         @Override
         protected void configure(HttpSecurity http) {
             try {
+                http.headers().cacheControl().disable();
                 http.sessionManagement().sessionCreationPolicy(STATELESS).and()
                     .formLogin().disable()
                     .logout().disable()
