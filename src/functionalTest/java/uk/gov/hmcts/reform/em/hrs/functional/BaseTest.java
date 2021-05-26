@@ -108,7 +108,7 @@ public abstract class BaseTest {
     protected ValidatableResponse getRecordingFileNames(String folder) {
         return authRequest()
             .when().log().all()
-            .get( "/" + FOLDER + "/" + fileName)
+            .get(testUtil.getCvpBlobContainerClient().getBlobContainerUrl() + "/" + FOLDER + "/" + fileName)
             .then();
     }
 
