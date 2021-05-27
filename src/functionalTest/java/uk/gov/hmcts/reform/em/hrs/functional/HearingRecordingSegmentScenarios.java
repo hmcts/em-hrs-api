@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.restassured.response.ValidatableResponse;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.em.hrs.functional.util.TestUtil;
+import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 
 import java.util.concurrent.TimeUnit;
 
@@ -18,6 +20,9 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
 
     @Autowired
     private TestUtil testUtil;
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(3);
 
 
     @Before
@@ -44,7 +49,7 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
             .log().all()
             .statusCode(202);
 
-        TimeUnit.SECONDS.sleep(120);
+        TimeUnit.SECONDS.sleep(30);
 
         final ValidatableResponse validatableResponse = getRecordingFileNames(FOLDER);
 
