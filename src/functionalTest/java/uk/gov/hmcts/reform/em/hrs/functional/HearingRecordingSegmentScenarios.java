@@ -44,7 +44,7 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
             .log().all()
             .statusCode(202);
 
-        TimeUnit.SECONDS.sleep(40);
+        TimeUnit.SECONDS.sleep(120);
 
         final ValidatableResponse validatableResponse = getRecordingFileNames(FOLDER);
 
@@ -54,7 +54,6 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
             .body("folder-name", equalTo(FOLDER))
             .body("filenames", hasSize(1))
             .body("filenames[0]", equalTo(fileName));
-
     }
 
 //    @Test
