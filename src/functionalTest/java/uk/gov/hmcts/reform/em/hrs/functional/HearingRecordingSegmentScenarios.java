@@ -29,42 +29,42 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
         testUtil.uploadToCvpContainer(FOLDER + "/" + fileName);
     }
 
-//    @After
-//    public void clear() {
-//        testUtil.deleteFileFromHrsContainer(FOLDER);
-//        testUtil.deleteFileFromCvpContainer(FOLDER);
-//    }
-
-    @Test
-    public void shouldCreateHearingRecordingSegment() throws Exception {
-        final JsonNode segmentPayload = getSegmentPayload(fileName);
-
-        postRecordingSegment(segmentPayload)
-            .then()
-            .log().all()
-            .statusCode(202);
-
-        TimeUnit.SECONDS.sleep(20);
-
-        final ValidatableResponse validatableResponse = getRecordingFileNames(FOLDER);
-
-        validatableResponse
-            .assertThat().log().all()
-            .statusCode(200)
-            .body("folder-name", equalTo("test"))
-            .body("filenames", hasSize(1))
-            .body("filenames[0]", equalTo(fileName));
-
+    @After
+    public void clear() {
+        testUtil.deleteFileFromHrsContainer(FOLDER);
+        testUtil.deleteFileFromCvpContainer(FOLDER);
     }
 
 //    @Test
-//    public void shouldCreateFolderWhenDoesNotExistAndReturnEmptyFileNames() {
-//        final String nonExistentFolder = "audiostream000000";
+//    public void shouldCreateHearingRecordingSegment() throws Exception {
+//        final JsonNode segmentPayload = getSegmentPayload(fileName);
 //
-//        getRecordingFileNames(nonExistentFolder)
+//        postRecordingSegment(segmentPayload)
+//            .then()
+//            .log().all()
+//            .statusCode(202);
+//
+//        TimeUnit.SECONDS.sleep(20);
+//
+//        final ValidatableResponse validatableResponse = getRecordingFileNames(FOLDER);
+//
+//        validatableResponse
 //            .assertThat().log().all()
 //            .statusCode(200)
-//            .body("folder-name", equalTo(nonExistentFolder))
-//            .body("filenames", empty());
+//            .body("folder-name", equalTo(FOLDER))
+//            .body("filenames", hasSize(1))
+//            .body("filenames[0]", equalTo(fileName));
+//
 //    }
+
+    @Test
+    public void shouldCreateFolderWhenDoesNotExistAndReturnEmptyFileNames() {
+        final String nonExistentFolder = "audiostream000000";
+
+        getRecordingFileNames(nonExistentFolder)
+            .assertThat().log().all()
+            .statusCode(200)
+            .body("folder-name", equalTo(nonExistentFolder))
+            .body("filenames", empty());
+    }
 }
