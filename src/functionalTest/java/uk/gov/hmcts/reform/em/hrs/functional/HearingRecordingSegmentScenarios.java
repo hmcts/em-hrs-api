@@ -21,9 +21,6 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
     @Autowired
     private TestUtil testUtil;
 
-    @Rule
-    public RetryRule retryRule = new RetryRule(3);
-
 
     @Before
     public void setup() throws Exception {
