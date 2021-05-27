@@ -37,14 +37,14 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
 
     @Test
     public void shouldCreateHearingRecordingSegment() throws Exception {
-//        final JsonNode segmentPayload = getSegmentPayload(fileName);
-//
-//        postRecordingSegment(segmentPayload)
-//            .then()
-//            .log().all()
-//            .statusCode(202);
-//
-//        TimeUnit.SECONDS.sleep(20);
+        final JsonNode segmentPayload = getSegmentPayload(fileName);
+
+        postRecordingSegment(segmentPayload)
+            .then()
+            .log().all()
+            .statusCode(202);
+
+        TimeUnit.SECONDS.sleep(20);
 
         final ValidatableResponse validatableResponse = getRecordingFileNames(FOLDER);
 

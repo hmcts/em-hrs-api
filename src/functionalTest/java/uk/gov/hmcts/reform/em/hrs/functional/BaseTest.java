@@ -108,7 +108,7 @@ public abstract class BaseTest {
     protected ValidatableResponse getRecordingFileNames(String folder) {
         return authRequest()
             .when().log().all()
-            .get(String.format("/folders/%s", FOLDER))
+            .get("/folders")
             .then();
     }
 
