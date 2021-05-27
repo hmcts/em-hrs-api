@@ -38,27 +38,27 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
         testUtil.deleteFileFromCvpContainer(FOLDER);
     }
 
-//    @Test
-//    public void shouldCreateHearingRecordingSegment() throws Exception {
-//        final JsonNode segmentPayload = getSegmentPayload(fileName);
-//
-//        postRecordingSegment(segmentPayload)
-//            .then()
-//            .log().all()
-//            .statusCode(202);
-//
-//        TimeUnit.SECONDS.sleep(30);
-//
-//        final ValidatableResponse validatableResponse = getRecordingFileNames(FOLDER);
-//
-//        validatableResponse
-//            .assertThat().log().all()
-//            .statusCode(200)
-//            .body("folder-name", equalTo(FOLDER))
-//            .body("filenames", hasSize(1))
-//            .body("filenames[0]", equalTo(fileName));
-//
-//    }
+    @Test
+    public void shouldCreateHearingRecordingSegment() throws Exception {
+        final JsonNode segmentPayload = getSegmentPayload(fileName);
+
+        postRecordingSegment(segmentPayload)
+            .then()
+            .log().all()
+            .statusCode(202);
+
+        TimeUnit.SECONDS.sleep(30);
+
+        final ValidatableResponse validatableResponse = getRecordingFileNames(FOLDER);
+
+        validatableResponse
+            .assertThat().log().all()
+            .statusCode(200)
+            .body("folder-name", equalTo(FOLDER))
+            .body("/filenames", hasSize(1))
+            .body("/filenames[0]", equalTo(fileName));
+
+    }
 
     @Test
     public void shouldCreateFolderWhenDoesNotExistAndReturnEmptyFileNames() {
