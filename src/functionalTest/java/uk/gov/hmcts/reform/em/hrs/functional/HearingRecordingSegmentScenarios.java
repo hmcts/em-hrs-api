@@ -22,6 +22,7 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
     private TestUtil testUtil;
 
 
+
     @Before
     public void setup() throws Exception {
         testUtil.deleteFileFromHrsContainer(FOLDER);
@@ -49,14 +50,14 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
         TimeUnit.SECONDS.sleep(30);
 
         final ValidatableResponse validatableResponse = getRecordingFileNames(FOLDER);
-
+        System.out.println(validatableResponse);
         validatableResponse
             .assertThat().log().all()
             .statusCode(200)
             .body("folder-name", equalTo(FOLDER))
-            .body("filenames[1]", equalTo(fileName))
-            .body("filenames[1]", equalTo("imlost"))
-            .body("filenames", hasSize(1));
+            .body("filenames", hasSize(1))
+            .body("filenames[0]", equalTo(fileName));
+
     }
 
 //    @Test
