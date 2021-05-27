@@ -51,9 +51,10 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
         validatableResponse
             .assertThat().log().all()
             .statusCode(200)
-            .body("folder-name", equalTo(FOLDER))
+            .body("folder-name", equalTo("test"))
             .body("filenames", hasSize(1))
             .body("filenames[0]", equalTo(fileName));
+
     }
 
 //    @Test
