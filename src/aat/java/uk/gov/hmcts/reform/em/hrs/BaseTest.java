@@ -56,7 +56,7 @@ public abstract class BaseTest {
     @Rule
     public RetryRule retryRule = new RetryRule(1);
 
-    protected String testUrl = "https://em-hrs-api-demo.service.core-compute-demo.internal";
+    protected String testUrl = "http://em-hrs-api-demo.service.core-compute-demo.internal";
 
     @Value("${azure.storage.cvp.container-url}")
     private String cvpContainerUrl;
