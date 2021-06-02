@@ -12,9 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.StandardCopyOption;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.empty;
-import static uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper.HRS_TESTER;
 
 public class CaseUpdateScenarios extends BaseTest {
 
@@ -52,7 +49,7 @@ public class CaseUpdateScenarios extends BaseTest {
             .statusCode(200);
     }
 
-   @Ignore
+    @Ignore
     @Test
     public void testRecordingDownload() throws IOException {
         CaseDetails caseDetails = searchForCase(CASE_REF).orElseThrow();

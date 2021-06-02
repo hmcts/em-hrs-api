@@ -65,7 +65,7 @@ public abstract class BaseTest {
     protected static final int random = Math.abs(rd.nextInt());
     protected static final String CASEREF = "FUNCTEST" + random;
     protected static final String TIME =  "2020-11-04-14.56.32.819";
-    protected String fileName = FOLDER + "/" + JURISDICTION+ "-" + LOCATION_CODE + "-" + CASEREF + "_" + TIME + "-UTC_"
+    protected String fileName = FOLDER + "/" + JURISDICTION + "-" + LOCATION_CODE + "-" + CASEREF + "_" + TIME + "-UTC_"
         + SEGMENT + ".mp4";
     protected static List<String> CASE_WORKER_ROLE = List.of("caseworker");
     protected static List<String> CASE_WORKER_HRS_ROLE = List.of("caseworker-hrs");
