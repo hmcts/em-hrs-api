@@ -221,7 +221,8 @@ public abstract class BaseTest {
     protected Optional<CaseDetails> searchForCase(String recordingRef) {
         Map<String, String> searchCriteria = Map.of("case.recordingReference", recordingRef);
         return coreCaseDataApi
-            .searchForCaseworker(idamAuth, s2sAuth, userId, JURISDICTION, CASE_TYPE, searchCriteria)
+            .searchForCaseworker(idamAuth, extendedCcdHelper.getCcdS2sToken(), userId,
+                                 JURISDICTION, CASE_TYPE, searchCriteria)
             .stream().findAny();
     }
 
