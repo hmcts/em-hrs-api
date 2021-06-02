@@ -33,15 +33,21 @@ public class CaseUpdateScenarios extends BaseTest {
 
         JsonNode reqBody = createRecordingSegment(FOLDER, JURISDICTION_CODE, LOCATION_CODE, CASE_REF,
                                                   RECORDING_TIME, SEGMENT, FILE_EXT);
-
         postRecordingSegment(reqBody)
             .then()
             .statusCode(202);
     }
 
-    @Ignore
     @Test
-    public void testDocumentShare() {
+    public void testDocumentShare() throws InterruptedException {
+        getFilenames(FOLDER).statusCode(200);
+
+        JsonNode reqBody = createRecordingSegment(FOLDER, JURISDICTION_CODE, LOCATION_CODE, CASE_REF,
+                                                  RECORDING_TIME, SEGMENT + 1, FILE_EXT);
+        postRecordingSegment(reqBody).then().statusCode(202);
+
+        Thread.sleep(300000);
+
         CaseDetails caseDetails = searchForCase(CASE_REF).orElseThrow();
         final CallbackRequest callbackRequest = getCallbackRequest(caseDetails, SHAREE_EMAIL_ADDRESS);
         shareRecording("sharee@email.com", CASE_WORKER_ROLE, callbackRequest)
