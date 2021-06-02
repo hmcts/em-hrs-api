@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.exception.GovNotifyErrorException;
 import uk.gov.hmcts.reform.em.hrs.exception.HearingRecordingNotFoundException;
 import uk.gov.hmcts.reform.em.hrs.exception.ValidationErrorException;
+import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.service.ccd.CaseDataContentCreator;
 import uk.gov.hmcts.reform.em.hrs.util.EmailValidator;
@@ -39,16 +40,15 @@ public class ShareAndNotifyServiceImpl implements ShareAndNotifyService {
     }
 
     @Override
-    public void shareAndNotify(final Long caseId, Map<String, Object> caseData, final String authorisationToken) {
+    public void shareAndNotify(final Long caseId, Map<String, Object> caseDataMap, final String authorisationToken) {
 
-        String shareeEmailAddress = caseData.get("recipientEmailAddress").toString();
+        CaseHearingRecording caseData = caseDataCreator.getCaseRecordingObject(caseDataMap);
 
-        if (!EmailValidator.isValid(shareeEmailAddress)) {
-            throw new ValidationErrorException(Map.of("recipientEmailAddress", shareeEmailAddress));
+        if (!EmailValidator.isValid(caseData.getShareeEmail())) {
+            throw new ValidationErrorException(Map.of("recipientEmailAddress", caseData.getShareeEmail()));
         }
 
-        List<String> segmentUrls = caseDataCreator.extractRecordingFiles(caseData).stream()
-            .map(recordingFile -> recordingFile.getCaseDocument())
+        List<String> segmentUrls = caseDataCreator.extractCaseDocuments(caseData).stream()
             .map(caseDocument ->  caseDocument.getBinaryUrl())
             .map(url -> {
                 String downloadPath = url.substring(url.indexOf("/hearing-recordings"));
@@ -56,22 +56,15 @@ public class ShareAndNotifyServiceImpl implements ShareAndNotifyService {
             })
             .collect(Collectors.toList());
 
-        final HearingRecording hearingRecording = hearingRecordingRepository.findByCcdCaseId(caseId)
+        final HearingRecording recording = hearingRecordingRepository.findByCcdCaseId(caseId)
             .orElseThrow(() -> new HearingRecordingNotFoundException(caseId));
 
-        final HearingRecordingSharee sharee = shareeService.createAndSaveEntry(
-            shareeEmailAddress,
-            hearingRecording
-        );
+        final HearingRecordingSharee sharee = shareeService.createAndSaveEntry(caseData.getShareeEmail(), recording);
 
         try {
-            notificationService.sendEmailNotification(
-                hearingRecording.getCaseRef(),
-                hearingRecording.getCreatedOn(),
-                List.copyOf(segmentUrls),
-                sharee.getId(),
-                shareeEmailAddress
-            );
+            notificationService.sendEmailNotification(recording.getCaseRef(), List.copyOf(segmentUrls),
+                                                      caseData.getRecordingDate(), caseData.getRecordingTimeOfDay(),
+                                                      sharee.getId(), caseData.getShareeEmail());
         } catch (NotificationClientException e) {
             throw new GovNotifyErrorException(e);
         }

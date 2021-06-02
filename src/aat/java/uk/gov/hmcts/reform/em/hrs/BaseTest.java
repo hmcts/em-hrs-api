@@ -193,7 +193,7 @@ public abstract class BaseTest {
             .put("cvp-file-url", cvpContainerUrl + filename)
             .put("filename", filename)
             .put("filename-extension", fileExt)
-            .put("file-size", 226200L)
+            .put("file-size", 200724364L)
             .put("segment", segment)
             .put("recording-date-time", recordingTime);
     }

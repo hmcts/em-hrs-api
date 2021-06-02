@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +39,8 @@ public class TestUtil {
     public static final UUID SHAREE_ID = UUID.randomUUID();
     public static final String CASE_REFERENCE = "hrs-grant-" + SHAREE_ID;
     public static final LocalDateTime RECORDING_DATETIME = LocalDateTime.now();
+    public static final LocalDate RECORDING_DATE = LocalDate.now();
+    public static final String RECORDING_TIMEOFDAY = RECORDING_DATETIME.getHour() > 12 ? "AM" : "PM";
     public static final String RECORDING_REFERENCE = "file-1";
     public static final Folder TEST_FOLDER = Folder.builder().name(TEST_FOLDER_NAME).build();
     public static final String SERVER_ERROR_MESSAGE = "We have detected a problem and our engineers are working on it."

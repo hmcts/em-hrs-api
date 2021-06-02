@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.service.notify.NotificationClientApi;
 import uk.gov.service.notify.NotificationClientException;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +14,7 @@ import java.util.UUID;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
+
     private final String templateId;
     private final NotificationClientApi notificationClient;
 
@@ -25,25 +26,23 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendEmailNotification(final String caseReference,
-                                      final LocalDateTime recordingDatetime,
-                                      final List<String> recordingSegmentDownloadUrls,
-                                      final UUID shareeId,
-                                      final String shareeEmailAddress) throws NotificationClientException {
-        notificationClient.sendEmail(
-            templateId,
-            shareeEmailAddress,
-            createPersonalisation(caseReference, recordingDatetime, recordingSegmentDownloadUrls),
-            String.format("hrs-grant-%s", shareeId)
-        );
+    public void sendEmailNotification(final String caseReference, final List<String> recordingSegmentDownloadUrls,
+                                      final LocalDate recordingDate, final String timeOfDay,
+                                      final UUID shareeId, final String shareeEmailAddress)
+        throws NotificationClientException {
+        notificationClient
+            .sendEmail(templateId,
+                       shareeEmailAddress,
+                       createPersonalisation(caseReference, recordingDate, timeOfDay, recordingSegmentDownloadUrls),
+                       String.format("hrs-grant-%s", shareeId));
     }
 
     private Map<String, Object> createPersonalisation(final String caseReference,
-                                                      final LocalDateTime recordingDatetime,
+                                                      final LocalDate recordingDate, final String timeOfDay,
                                                       final List<String> recordingSegmentDownloadUrls) {
-        final String pattern = "DD-MMM-YYYY HH-MM";
+        final String pattern = "dd-MMM-yyyy";
         final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
-        final String formattedRecordingDateTime = dateTimeFormatter.format(recordingDatetime);
+        final String formattedRecordingDateTime = dateTimeFormatter.format(recordingDate) + " " + timeOfDay;
 
         return Map.of("case_reference", caseReference,
                       "hearing_recording_datetime", formattedRecordingDateTime,

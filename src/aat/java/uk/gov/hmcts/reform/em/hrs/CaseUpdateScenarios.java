@@ -23,7 +23,6 @@ public class CaseUpdateScenarios extends BaseTest {
     private static final int SEGMENT = 0;
     private static final String FILE_EXT = "mp4";
     //functionaltest001/FT-0111-testfile200M_2020-01-01-11.11.11.123-UTC_0.mp4
-    //functionaltest001/FT-0111-testfile200M_2020-01-01-11.11.11.123-UTC_0.mp4
 
     @Ignore
     @Test

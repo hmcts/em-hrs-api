@@ -11,6 +11,7 @@
       with reactor libs.
     </notes>
     <cve>CVE-2017-1000190</cve>
+    <cve>CVE-2021-22112</cve>
   </suppress>
 
 </suppressions>
