@@ -42,6 +42,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
         testUtil.deleteFileFromCvpContainer(FOLDER);
     }
 
+    @Ignore
     @Test
     public void shouldAbleToShareHearingRecordingsToEmailAddressAndDownload() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
@@ -131,6 +132,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
         assertThat(actualFileSize, is(expectedFileSize));
     }
 
+    @Ignore
     @Test
     public void shouldReturn400WhenShareHearingRecordingsToInvalidEmailAddress() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
@@ -158,6 +160,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
             .assertThat().statusCode(400);
     }
 
+    @Ignore
     @Test
     public void shouldReturn404WhenShareHearingRecordingsToEmailAddressWithNonExistentCaseId() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
