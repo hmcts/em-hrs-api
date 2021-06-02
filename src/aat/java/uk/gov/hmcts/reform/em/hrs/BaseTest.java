@@ -5,7 +5,6 @@ package uk.gov.hmcts.reform.em.hrs;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
@@ -29,15 +28,13 @@ import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.PostConstruct;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper.HRS_TESTER;
-
+import static uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper.HRS_TESTER_ROLES;
 
 @SpringBootTest(classes = {
     ExtendedCcdHelper.class,
@@ -53,7 +50,7 @@ import static uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper.HRS_TESTER;
 @WithTags({@WithTag("testType:Functional")})
 public abstract class BaseTest {
 
-    protected static final String JURISDICTION = "FM";
+    protected static final String JURISDICTION = "HRS";
     protected static final String LOCATION_CODE = "0123";
     protected static final String CASE_TYPE = "HearingRecordings";
     protected static final String BEARER = "Bearer ";
@@ -65,16 +62,14 @@ public abstract class BaseTest {
     protected static final int SEGMENT = 0;
     protected static final String FOLDER = "audiostream123456";
     protected static final Random rd = new Random();
-    protected static final int random = rd.nextInt();
-    protected static final String CASEREF = "BV20D" + random;
+    protected static final int random = Math.abs(rd.nextInt());
+    protected static final String CASEREF = "FUNCTEST" + random;
     protected static final String TIME =  "2020-11-04-14.56.32.819";
     protected String fileName = FOLDER + "/" + JURISDICTION+ "-" + LOCATION_CODE + "-" + CASEREF + "_" + TIME + "-UTC_"
         + SEGMENT + ".mp4";
-    protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss.SSS");
     protected static List<String> CASE_WORKER_ROLE = List.of("caseworker");
     protected static List<String> CASE_WORKER_HRS_ROLE = List.of("caseworker-hrs");
     protected static List<String> CITIZEN_ROLE = List.of("citizen");
-    public static List<String> HRS_TESTER_ROLES = List.of("caseworker", "caseworker-hrs", "ccd-import");
 
     protected String idamAuth;
     protected String s2sAuth;
@@ -109,6 +104,32 @@ public abstract class BaseTest {
         userId = idamHelper.getUserId(HRS_TESTER);
     }
 
+
+    public RequestSpecification authRequest() {
+        return authRequest(HRS_TESTER, HRS_TESTER_ROLES);
+    }
+
+
+    private RequestSpecification authRequest(String username, List<String> roles) {
+        String userToken = idamAuth;
+        if (!HRS_TESTER.equals(username)) {
+            idamHelper.createUser(username, roles);
+            userToken = idamHelper.authenticateUser(username);
+        }
+        return SerenityRest
+            .given()
+            .baseUri(testUrl)
+            .contentType(APPLICATION_JSON_VALUE)
+            .header("Authorization", userToken)
+            .header("ServiceAuthorization", s2sAuth);
+    }
+
+    public RequestSpecification s2sAuthRequest() {
+        return SerenityRest
+            .given()
+            .header("ServiceAuthorization", s2sAuth);
+    }
+
     protected ValidatableResponse getFilenames(String folder) {
         return authRequest()
             .relaxedHTTPSValidation()
@@ -129,21 +150,14 @@ public abstract class BaseTest {
             .post("/segments");
     }
 
-    protected Response shareRecording(String email, CaseDetails caseDetails) {
-        caseDetails.getData().put("recipientEmailAddress", email);
-        CallbackRequest callbackRequest = CallbackRequest.builder()
-            .caseDetails(caseDetails)
-            .build();
-        return authRequest()
-            .relaxedHTTPSValidation()
-            .baseUri(testUrl)
-            .contentType(APPLICATION_JSON_VALUE)
+    protected Response shareRecording(String email, List<String> roles, CallbackRequest callbackRequest) {
+        return authRequest(email, roles)
             .body(callbackRequest)
-            .when()
+            .when().log().all()
             .post("/sharees");
     }
 
-    protected Response downloadRecording(String username, Map<String, Object> caseData) {
+    protected Response downloadRecording(String email, List<String> roles, Map<String, Object> caseData) {
         @SuppressWarnings("unchecked")
         List<Map> segmentNodes = (ArrayList) caseData.getOrDefault("recordingFiles", new ArrayList());
 
@@ -154,42 +168,12 @@ public abstract class BaseTest {
             .findFirst()
             .orElseThrow();
 
-        return authRequest(username)
+        return authRequest(email, roles)
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
-            .when()
+            .when().log().all()
             .get(recordingUrl);
-    }
-
-    protected Optional<CaseDetails> searchForCase(String recordingRef) {
-        Map<String, String> searchCriteria = Map.of("case.recordingReference", recordingRef);
-        return coreCaseDataApi
-            .searchForCaseworker(idamAuth, s2sAuth, userId, JURISDICTION, CASE_TYPE, searchCriteria)
-            .stream().findAny();
-    }
-
-    public RequestSpecification authRequest() {
-        return authRequest(HRS_TESTER);
-    }
-
-    private RequestSpecification authRequest(String username) {
-        String userToken = idamAuth;
-        if (!username.equals(HRS_TESTER)) {
-            idamHelper.createUser(username, List.of("caseworker"));
-            userToken = idamHelper.authenticateUser(username);
-        }
-        return s2sAuthRequest()
-            .baseUri(testUrl)
-            .contentType(APPLICATION_JSON_VALUE)
-            .header("Authorization", userToken);
-    }
-
-    public RequestSpecification s2sAuthRequest() {
-        return RestAssured.given()
-            .baseUri(testUrl)
-            .contentType(APPLICATION_JSON_VALUE)
-            .header("ServiceAuthorization", s2sAuth);
     }
 
     protected JsonNode createRecordingSegment(String folder,
@@ -232,6 +216,18 @@ public abstract class BaseTest {
             .log().all()
             .assertThat()
             .statusCode(200);
+    }
+
+    protected Optional<CaseDetails> searchForCase(String recordingRef) {
+        Map<String, String> searchCriteria = Map.of("case.recordingReference", recordingRef);
+        return coreCaseDataApi
+            .searchForCaseworker(idamAuth, s2sAuth, userId, JURISDICTION, CASE_TYPE, searchCriteria)
+            .stream().findAny();
+    }
+
+    protected CallbackRequest getCallbackRequest(final CaseDetails caseDetails, final String emailId) {
+        caseDetails.getData().put("recipientEmailAddress", emailId);
+        return CallbackRequest.builder().caseDetails(caseDetails).build();
     }
 
 }

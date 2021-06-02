@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
 import org.junit.Test;
+import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 
 import java.io.File;
@@ -40,30 +41,30 @@ public class CaseUpdateScenarios extends BaseTest {
             .statusCode(202);
     }
 
-    @Ignore
-    @Test
-    public void testDocumentShare() {
-        CaseDetails caseDetails = searchForCase(CASE_REF).orElseThrow();
+//    @Ignore
+//    @Test
+//    public void testDocumentShare() {
+//        CaseDetails caseDetails = searchForCase(CASE_REF).orElseThrow();
+//        final CallbackRequest callbackRequest = getCallbackRequest(caseDetails, SHAREE_EMAIL_ADDRESS);
+//        shareRecording("sharee@email.com", CASE_WORKER_ROLE, callbackRequest)
+//            .then()
+//            .statusCode(200);
+//    }
 
-        shareRecording("sharee@email.com", caseDetails)
-            .then()
-            .statusCode(200);
-    }
-
-    @Ignore
+   @Ignore
     @Test
     public void testRecordingDownload() throws IOException {
-        CaseDetails caseDetails = searchForCase(CASE_REF).orElseThrow();
-
-        InputStream downloadInputStream = downloadRecording(HRS_TESTER, caseDetails.getData()).asInputStream();
-
-        File targetFile = new File("FT-0111-testfile200M_2020-01-01-11.11.11.123-UTC_0.mp4");
-
-        java.nio.file.Files.copy(
-            downloadInputStream,
-            targetFile.toPath(),
-            StandardCopyOption.REPLACE_EXISTING);
-
-        IOUtils.close(downloadInputStream);
+//        CaseDetails caseDetails = searchForCase(CASE_REF).orElseThrow();
+//
+//        InputStream downloadInputStream = downloadRecording(caseDetails.getData()).asInputStream();
+//
+//        File targetFile = new File("FT-0111-testfile200M_2020-01-01-11.11.11.123-UTC_0.mp4");
+//
+//        java.nio.file.Files.copy(
+//            downloadInputStream,
+//            targetFile.toPath(),
+//            StandardCopyOption.REPLACE_EXISTING);
+//
+//        IOUtils.close(downloadInputStream);
     }
 }
