@@ -52,7 +52,7 @@ env.CCD_DATA_API_URL = 'http://ccd-data-store-api-aat.service.core-compute-aat.i
 env.CCD_DEF_API = 'http://ccd-definition-store-api-aat.service.core-compute-aat.internal'
 env.IDAM_REDIRECT_URI = 'https://em-hrs-api-aat.service.core-compute-aat.internal/oauth2/callback'
 env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
-env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/recordings/'
+env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/hrsperformancetest/'
 //env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/em-hrs-api-aat/'
 env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition_AAT.xlsx'
 
