@@ -39,6 +39,7 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
 //        testUtil.deleteFileFromCvpContainer(FOLDER);
 //    }
 
+    @Ignore
     @Test
     public void shouldCreateHearingRecordingSegment() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
@@ -71,6 +72,4 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
             .body("folder-name", equalTo(nonExistentFolder))
             .body("filenames", empty());
     }
-
-
 }
