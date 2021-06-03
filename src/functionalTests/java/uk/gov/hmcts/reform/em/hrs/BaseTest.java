@@ -13,6 +13,8 @@ import net.thucydides.core.annotations.WithTag;
 import net.thucydides.core.annotations.WithTags;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +30,11 @@ import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.PostConstruct;
 
@@ -49,6 +55,8 @@ import static uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper.HRS_TESTER_R
 @RunWith(SpringJUnit4ClassRunner.class)
 @WithTags({@WithTag("testType:Functional")})
 public abstract class BaseTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
 
     protected static final String JURISDICTION = "HRS";
     protected static final String LOCATION_CODE = "0123";
@@ -210,7 +218,6 @@ public abstract class BaseTest {
         );
     }
 
-
     protected void createFolderIfDoesNotExistInHrsDB(final String folderName) {
         getFilenames(folderName)
             .log().all()
@@ -220,8 +227,11 @@ public abstract class BaseTest {
 
     protected Optional<CaseDetails> searchForCase(String recordingRef) {
         Map<String, String> searchCriteria = Map.of("case.recordingReference", recordingRef);
+        String s2sToken = BEARER + extendedCcdHelper.getCcdS2sToken();
+        LOGGER.info("searching for case with userToken ({}) and serviceToken ({})",
+                    idamAuth.substring(0,12), s2sToken.substring(0, 12));
         return coreCaseDataApi
-            .searchForCaseworker(idamAuth, BEARER + extendedCcdHelper.getCcdS2sToken(), userId,
+            .searchForCaseworker(idamAuth, s2sToken, userId,
                                  JURISDICTION, CASE_TYPE, searchCriteria)
             .stream().findAny();
     }
