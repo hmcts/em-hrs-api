@@ -227,7 +227,7 @@ public abstract class BaseTest {
 
     protected Optional<CaseDetails> searchForCase(String recordingRef) {
         Map<String, String> searchCriteria = Map.of("case.recordingReference", recordingRef);
-        String s2sToken = BEARER + extendedCcdHelper.getCcdS2sToken();
+        String s2sToken = extendedCcdHelper.getCcdS2sToken();
         LOGGER.info("searching for case with userToken ({}) and serviceToken ({})",
                     idamAuth.substring(0,12), s2sToken.substring(0, 12));
         return coreCaseDataApi
