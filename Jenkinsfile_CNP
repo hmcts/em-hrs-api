@@ -33,7 +33,7 @@ def secrets = [
 ]
 
 env.AAT_HRS_STORAGE_CONTAINER_NAME = 'recordings'
-env.AAT_CVP_STORAGE_CONTAINER_NAME = 'cvpsimulatorrecordings'
+env.AAT_CVP_STORAGE_CONTAINER_NAME = 'hrsperformancetest'
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
   [$class     : 'AzureKeyVaultSecret',
