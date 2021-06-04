@@ -14,8 +14,7 @@ import uk.gov.hmcts.reform.em.hrs.testutil.TestUtil;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 
 
 public class HearingRecordingSegmentScenarios extends BaseTest {
@@ -51,14 +50,12 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
 
         TimeUnit.SECONDS.sleep(30);
 
-        final ValidatableResponse validatableResponse = getFilenames(FOLDER);
-
-        validatableResponse
+        getFilenames(FOLDER)
             .assertThat().log().all()
             .statusCode(200)
             .body("folder-name", equalTo(FOLDER))
             .body("filenames", hasSize(1))
-            .body("filenames[0]", equalTo(fileName));
+            .body("filenames", contains(fileName));
     }
 
     @Ignore

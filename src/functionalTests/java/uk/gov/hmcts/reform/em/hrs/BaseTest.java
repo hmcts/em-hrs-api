@@ -39,6 +39,8 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.PostConstruct;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper.HRS_TESTER;
 import static uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper.HRS_TESTER_ROLES;
@@ -164,6 +166,9 @@ public abstract class BaseTest {
 
     protected Response shareRecording(String email, List<String> roles, CallbackRequest callbackRequest) {
         return authRequest(email, roles)
+            .relaxedHTTPSValidation()
+            .baseUri(testUrl)
+            .contentType(APPLICATION_JSON_VALUE)
             .body(callbackRequest)
             .when().log().all()
             .post("/sharees");
@@ -241,6 +246,17 @@ public abstract class BaseTest {
             .searchForCaseworker(userToken, s2sToken, uid,
                                  JURISDICTION, CASE_TYPE, searchCriteria)
             .stream().findAny();
+    }
+
+    protected CaseDetails findCase() {
+        final Optional<CaseDetails> optionalCaseDetails = searchForCase(CASEREF);
+        assertTrue(optionalCaseDetails.isPresent());
+
+        final CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
+        assertNotNull(caseDetails);
+        assertNotNull(caseDetails.getId());
+        assertNotNull(caseDetails.getData());
+        return caseDetails;
     }
 
     protected CallbackRequest getCallbackRequest(final CaseDetails caseDetails, final String emailId) {

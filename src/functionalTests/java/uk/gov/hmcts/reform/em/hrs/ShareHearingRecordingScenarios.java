@@ -54,13 +54,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
 
         TimeUnit.SECONDS.sleep(30);
 
-        final Optional<CaseDetails> optionalCaseDetails = searchForCase(CASEREF);;
-        assertTrue(optionalCaseDetails.isPresent());
-
-        final CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
-        assertNotNull(caseDetails);
-        assertNotNull(caseDetails.getId());
-        assertNotNull(caseDetails.getData());
+        final CaseDetails caseDetails = findCase();
 
         final CallbackRequest callbackRequest = getCallbackRequest(caseDetails, SHAREE_EMAIL_ADDRESS);
         final Response shareRecordingResponse = shareRecording(SHAREE_EMAIL_ADDRESS, CASE_WORKER_ROLE, callbackRequest);
@@ -99,13 +93,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
 
         TimeUnit.SECONDS.sleep(30);
 
-        final Optional<CaseDetails> optionalCaseDetails = searchForCase(CASEREF);
-        assertTrue(optionalCaseDetails.isPresent());
-
-        final CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
-        assertNotNull(caseDetails);
-        assertNotNull(caseDetails.getId());
-        assertNotNull(caseDetails.getData());
+        final CaseDetails caseDetails = findCase();
 
         final CallbackRequest callbackRequest = getCallbackRequest(caseDetails, SHAREE_EMAIL_ADDRESS);
         final Response shareRecordingResponse = shareRecording(SHAREE_EMAIL_ADDRESS, CITIZEN_ROLE, callbackRequest);
@@ -144,13 +132,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
 
         TimeUnit.SECONDS.sleep(30);
 
-        final Optional<CaseDetails> optionalCaseDetails = searchForCase(CASEREF);
-        assertTrue(optionalCaseDetails.isPresent());
-
-        CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
-        assertNotNull(caseDetails);
-        assertNotNull(caseDetails.getId());
-        assertNotNull(caseDetails.getData());
+        final CaseDetails caseDetails = findCase();
 
         final CallbackRequest callbackRequest = getCallbackRequest(caseDetails, ERROR_SHAREE_EMAIL_ADDRESS);
         final Response shareRecordingResponse = shareRecording(SHAREE_EMAIL_ADDRESS, CASE_WORKER_ROLE, callbackRequest);
@@ -172,13 +154,7 @@ public class ShareHearingRecordingScenarios extends BaseTest {
 
         TimeUnit.SECONDS.sleep(30);
 
-        final Optional<CaseDetails> optionalCaseDetails = searchForCase(CASEREF);
-        assertTrue(optionalCaseDetails.isPresent());
-
-        CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
-        assertNotNull(caseDetails);
-        assertNotNull(caseDetails.getId());
-        assertNotNull(caseDetails.getData());
+        final CaseDetails caseDetails = findCase();
 
         caseDetails.setId(RandomUtils.nextLong());
         final CallbackRequest callbackRequest = getCallbackRequest(caseDetails, SHAREE_EMAIL_ADDRESS);

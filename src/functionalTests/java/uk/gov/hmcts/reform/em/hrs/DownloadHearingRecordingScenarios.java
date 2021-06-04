@@ -44,21 +44,11 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
     public void anUserWithCaseWorkerHrsRoleShouldBeAbleToDownloadHearingRecordings() throws Exception {
         final JsonNode segmentPayload = getSegmentPayload(fileName);
 
-        postRecordingSegment(segmentPayload)
-            .then()
-            .log().all()
-            .statusCode(202);
+        postRecordingSegment(segmentPayload).then().statusCode(202);
 
         TimeUnit.SECONDS.sleep(30);
 
-        final Optional<CaseDetails> optionalCaseDetails = searchForCase(CASEREF);
-        assertTrue(optionalCaseDetails.isPresent());
-
-        final CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
-
-        assertNotNull(caseDetails);
-        assertNotNull(caseDetails.getId());
-        assertNotNull(caseDetails.getData());
+        final CaseDetails caseDetails = findCase();
 
         final int expectedFileSize = testUtil.getTestFile().readAllBytes().length;
         assertThat(expectedFileSize, is(not(0)));
@@ -87,13 +77,7 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
 
         TimeUnit.SECONDS.sleep(30);
 
-        final Optional<CaseDetails> optionalCaseDetails = searchForCase(CASEREF);
-        assertTrue(optionalCaseDetails.isPresent());
-
-        final CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
-        assertNotNull(caseDetails);
-        assertNotNull(caseDetails.getId());
-        assertNotNull(caseDetails.getData());
+        final CaseDetails caseDetails = findCase();
 
         final int expectedFileSize = testUtil.getTestFile().readAllBytes().length;
         assertThat(expectedFileSize, is(not(0)));
@@ -123,13 +107,7 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
 
         TimeUnit.SECONDS.sleep(30);
 
-        final Optional<CaseDetails> optionalCaseDetails = searchForCase(CASEREF);
-        assertTrue(optionalCaseDetails.isPresent());
-
-        final CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
-        assertNotNull(caseDetails);
-        assertNotNull(caseDetails.getId());
-        assertNotNull(caseDetails.getData());
+        final CaseDetails caseDetails = findCase();
 
         final int expectedFileSize = testUtil.getTestFile().readAllBytes().length;
         assertThat(expectedFileSize, is(not(0)));
