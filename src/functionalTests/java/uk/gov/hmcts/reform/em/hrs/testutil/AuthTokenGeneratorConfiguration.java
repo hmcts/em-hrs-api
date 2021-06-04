@@ -1,13 +1,17 @@
 package uk.gov.hmcts.reform.em.hrs.testutil;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.authorisation.ServiceAuthorisationApi;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGeneratorFactory;
 
 @Configuration
+@ComponentScan(basePackages = {"uk.gov.hmcts.reform.idam.client"})
+@EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.idam.client"})
 public class AuthTokenGeneratorConfiguration {
 
     @Bean

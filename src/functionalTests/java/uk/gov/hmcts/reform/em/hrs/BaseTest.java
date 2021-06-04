@@ -29,6 +29,7 @@ import uk.gov.hmcts.reform.em.hrs.testutil.*;
 import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
+import uk.gov.hmcts.reform.idam.client.IdamClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +92,9 @@ public abstract class BaseTest {
 
     @Value("${azure.storage.cvp.container-url}")
     private String cvpContainerUrl;
+
+    @Autowired
+    protected IdamClient idamClient;
 
     @Autowired
     protected IdamHelper idamHelper;
@@ -228,10 +232,13 @@ public abstract class BaseTest {
     protected Optional<CaseDetails> searchForCase(String recordingRef) {
         Map<String, String> searchCriteria = Map.of("case.recordingReference", recordingRef);
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
+        String userToken = idamClient.getAccessToken(HRS_TESTER, "4590fgvhbfgbDdffm3lk4j");
+        String uid = idamClient.getUserInfo(userToken).getUid();
+
         LOGGER.info("searching for case with userToken ({}) and serviceToken ({})",
                     idamAuth.substring(0,12), s2sToken.substring(0, 12));
         return coreCaseDataApi
-            .searchForCaseworker(idamAuth, s2sToken, userId,
+            .searchForCaseworker(userToken, s2sToken, uid,
                                  JURISDICTION, CASE_TYPE, searchCriteria)
             .stream().findAny();
     }
