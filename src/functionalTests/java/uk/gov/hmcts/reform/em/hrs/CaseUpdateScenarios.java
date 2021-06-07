@@ -19,11 +19,11 @@ public class CaseUpdateScenarios extends BaseTest {
     private static final String FOLDER = "functionaltest001";
     private static final String JURISDICTION_CODE = "FT";
     private static final String LOCATION_CODE = "0111";
-    private static final String CASE_REF = "testfile200M";
-    private static final String RECORDING_TIME = "2020-01-01-11.11.11.123";
+    private static final String CASE_REF = "documentShareTest5Mb";
+    private static final String RECORDING_TIME = "2021-06-07-20.20.11.123";
     private static final int SEGMENT = 0;
-    private static final String FILE_EXT = "mp4";
-    //functionaltest001/FT-0111-testfile200M_2020-01-01-11.11.11.123-UTC_0.mp4
+    private static final String FILE_EXT = "mp3";
+    //functionaltest001/FT-0111-documentShareTest5Mb_2021-06-07-20.20.11.123-UTC_0.mp3
 
     @Ignore
     @Test
