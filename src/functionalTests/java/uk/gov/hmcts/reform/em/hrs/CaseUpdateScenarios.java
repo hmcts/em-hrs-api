@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.em.hrs;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
@@ -12,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.StandardCopyOption;
+import java.util.concurrent.TimeUnit;
 
 
 public class CaseUpdateScenarios extends BaseTest {
@@ -47,7 +47,7 @@ public class CaseUpdateScenarios extends BaseTest {
                                                   RECORDING_TIME, SEGMENT + 1, FILE_EXT);
         postRecordingSegment(reqBody).then().statusCode(202);
 
-        Thread.sleep(300000);
+        TimeUnit.MINUTES.wait(5);
 
         CaseDetails caseDetails = searchForCase(CASE_REF).orElseThrow();
         final CallbackRequest callbackRequest = getCallbackRequest(caseDetails, SHAREE_EMAIL_ADDRESS);

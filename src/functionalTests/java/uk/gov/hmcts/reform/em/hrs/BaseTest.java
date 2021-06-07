@@ -2,7 +2,6 @@
 
 package uk.gov.hmcts.reform.em.hrs;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -32,6 +31,9 @@ import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -75,10 +77,10 @@ public abstract class BaseTest {
     protected static final String FOLDER = "audiostream123456";
     protected static final Random rd = new Random();
     protected static final int random = Math.abs(rd.nextInt());
-    protected static final String CASEREF = "FUNCTEST" + random;
+    protected static final String RANDOM_CASEREF = "FUNCTEST" + random;
     protected static final String TIME =  "2020-11-04-14.56.32.819";
-    protected String fileName = FOLDER + "/" + JURISDICTION + "-" + LOCATION_CODE + "-" + CASEREF + "_" + TIME + "-UTC_"
-        + SEGMENT + ".mp4";
+    protected String fileName = FOLDER + "/" + JURISDICTION + "-" + LOCATION_CODE + "-" + RANDOM_CASEREF + "_" + TIME
+        + "-UTC_" + SEGMENT + ".mp4";
     protected static List<String> CASE_WORKER_ROLE = List.of("caseworker");
     protected static List<String> CASE_WORKER_HRS_ROLE = List.of("caseworker-hrs");
     protected static List<String> CITIZEN_ROLE = List.of("citizen");
@@ -222,7 +224,7 @@ public abstract class BaseTest {
             FOLDER,
             JURISDICTION,
             LOCATION_CODE,
-            CASEREF,
+            RANDOM_CASEREF,
             TIME,
             SEGMENT,
             FILE_EXT
@@ -251,7 +253,7 @@ public abstract class BaseTest {
     }
 
     protected CaseDetails findCase() {
-        final Optional<CaseDetails> optionalCaseDetails = searchForCase(CASEREF);
+        final Optional<CaseDetails> optionalCaseDetails = searchForCase(RANDOM_CASEREF);
         assertTrue(optionalCaseDetails.isPresent());
 
         final CaseDetails caseDetails = optionalCaseDetails.orElseGet(() -> CaseDetails.builder().build());
@@ -263,6 +265,8 @@ public abstract class BaseTest {
 
     protected CallbackRequest getCallbackRequest(final CaseDetails caseDetails, final String emailId) {
         caseDetails.getData().put("recipientEmailAddress", emailId);
+        caseDetails.setCreatedDate(null);
+        caseDetails.setLastModified(null);
         return CallbackRequest.builder().caseDetails(caseDetails).build();
     }
 
