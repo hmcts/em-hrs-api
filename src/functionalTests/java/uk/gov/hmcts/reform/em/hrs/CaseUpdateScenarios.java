@@ -47,7 +47,7 @@ public class CaseUpdateScenarios extends BaseTest {
                                                   RECORDING_TIME, SEGMENT + 1, FILE_EXT);
         postRecordingSegment(reqBody).then().statusCode(202);
 
-        TimeUnit.MINUTES.wait(5);
+        TimeUnit.MINUTES.sleep(5);
 
         CaseDetails caseDetails = searchForCase(CASE_REF).orElseThrow();
         final CallbackRequest callbackRequest = getCallbackRequest(caseDetails, SHAREE_EMAIL_ADDRESS);
