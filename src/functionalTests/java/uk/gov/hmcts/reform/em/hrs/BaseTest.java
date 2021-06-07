@@ -2,6 +2,7 @@
 
 package uk.gov.hmcts.reform.em.hrs;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -165,11 +166,12 @@ public abstract class BaseTest {
     }
 
     protected Response shareRecording(String email, List<String> roles, CallbackRequest callbackRequest) {
+        JsonNode reqBody = new ObjectMapper().convertValue(callbackRequest, JsonNode.class);
         return authRequest(email, roles)
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
-            .body(callbackRequest)
+            .body(reqBody)
             .when().log().all()
             .post("/sharees");
     }

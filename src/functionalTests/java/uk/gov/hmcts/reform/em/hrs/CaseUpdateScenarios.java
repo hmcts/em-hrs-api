@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
