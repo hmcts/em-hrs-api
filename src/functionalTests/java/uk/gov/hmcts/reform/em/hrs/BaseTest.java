@@ -33,8 +33,8 @@ import uk.gov.hmcts.reform.idam.client.IdamClient;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.PostConstruct;
