@@ -270,8 +270,17 @@ withPipeline(type, product, component) {
       reportFiles          : "index.html",
       reportName           : "HRS API Functional Test Report"
     ]
-
-    
     steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
+  }
+
+    after('contractTest:preview') {
+      publishHTML target: [
+        allowMissing         : true,
+        alwaysLinkToLastBuild: true,
+        keepAll              : true,
+        reportDir            : "build/reports/tests/contract",
+        reportFiles          : "index.html",
+        reportName           : "HRS API Contract Test Report"
+      ]
   }
 }
