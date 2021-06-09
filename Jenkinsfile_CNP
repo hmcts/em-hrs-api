@@ -138,9 +138,9 @@ withPipeline(type, product, component) {
 
     }
 
-//    enablePactAs([
-    //    AppPipelineDsl.PactRoles.CONSUMER
-    //   ])
+    enablePactAs([
+       AppPipelineDsl.PactRoles.CONSUMER])
+
 
     after('contractTest:aat') {
       publishHTML target: [
@@ -152,6 +152,7 @@ withPipeline(type, product, component) {
         reportName           : "HRS API Contract Test Report"
       ]
     }
+    
 
     after('smoketest:aat') {
       publishHTML target: [
