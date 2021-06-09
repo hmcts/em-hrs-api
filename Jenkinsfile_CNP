@@ -73,6 +73,7 @@ withPipeline(type, product, component) {
             sh ./publish-swagger-docs.sh
              '''
 
+
       publishHTML target: [
         allowMissing         : true,
         alwaysLinkToLastBuild: true,
@@ -127,6 +128,10 @@ withPipeline(type, product, component) {
         reportName           : "HRS API Unit Tests Report"
       ]
 
+      enablePactAs([
+        AppPipelineDsl.PactRoles.CONSUMER
+      ])
+
         publishHTML target: [
           allowMissing         : true,
           alwaysLinkToLastBuild: true,
@@ -138,21 +143,6 @@ withPipeline(type, product, component) {
 
     }
 
-    enablePactAs([
-       AppPipelineDsl.PactRoles.CONSUMER])
-
-
-    after('contractTest:aat') {
-      publishHTML target: [
-        allowMissing         : true,
-        alwaysLinkToLastBuild: true,
-        keepAll              : true,
-        reportDir            : "build/reports/tests/contract",
-        reportFiles          : "index.html",
-        reportName           : "HRS API Contract Test Report"
-      ]
-    }
-    
 
     after('smoketest:aat') {
       publishHTML target: [
