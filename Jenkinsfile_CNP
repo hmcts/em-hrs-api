@@ -169,109 +169,109 @@ withPipeline(type, product, component) {
     }
   }
 
-  after('test') {
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/checkstyle",
-      reportFiles          : "main.html",
-      reportName           : "HRS API Checkstyle Main Report"
-    ]
-
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/checkstyle",
-      reportFiles          : "test.html",
-      reportName           : "HRS API Checkstyle Test Report"
-    ]
-
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/checkstyle",
-      reportFiles          : "aat.html",
-      reportName           : "HRS API Checkstyle AAT Report"
-    ]
-
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/pmd",
-      reportFiles          : "main.html",
-      reportName           : "HRS API PMD Main Report"
-    ]
-
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/pmd",
-      reportFiles          : "test.html",
-      reportName           : "HRS API PMD Test Report"
-    ]
-
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/tests/test",
-      reportFiles          : "index.html",
-      reportName           : "HRS API Unit Tests Report"
-    ]
-
-
-      publishHTML target: [
-        allowMissing         : true,
-        alwaysLinkToLastBuild: true,
-        keepAll              : true,
-        reportDir            : "build/reports/tests/contract",
-        reportFiles          : "index.html",
-        reportName           : "HRS API Contract Test Report"
-      ]
-
-
-  }
-
-//  enablePactAs([
-//    AppPipelineDsl.PactRoles.CONSUMER
-//  ])
-
-  after('smoketest:preview') {
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/tests/smoke",
-      reportFiles          : "index.html",
-      reportName           : "HRS API Smoke Test Report"
-    ]
-  }
-
-  after('functionalTest:preview') {
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/tests/functional",
-      reportFiles          : "index.html",
-      reportName           : "HRS API Functional Test Report"
-    ]
-    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
-  }
-
-    after('contractTest:preview') {
-      publishHTML target: [
-        allowMissing         : true,
-        alwaysLinkToLastBuild: true,
-        keepAll              : true,
-        reportDir            : "build/reports/tests/contract",
-        reportFiles          : "index.html",
-        reportName           : "HRS API Contract Test Report"
-      ]
-  }
+//  after('test') {
+//    publishHTML target: [
+//      allowMissing         : true,
+//      alwaysLinkToLastBuild: true,
+//      keepAll              : true,
+//      reportDir            : "build/reports/checkstyle",
+//      reportFiles          : "main.html",
+//      reportName           : "HRS API Checkstyle Main Report"
+//    ]
+//
+//    publishHTML target: [
+//      allowMissing         : true,
+//      alwaysLinkToLastBuild: true,
+//      keepAll              : true,
+//      reportDir            : "build/reports/checkstyle",
+//      reportFiles          : "test.html",
+//      reportName           : "HRS API Checkstyle Test Report"
+//    ]
+//
+//    publishHTML target: [
+//      allowMissing         : true,
+//      alwaysLinkToLastBuild: true,
+//      keepAll              : true,
+//      reportDir            : "build/reports/checkstyle",
+//      reportFiles          : "aat.html",
+//      reportName           : "HRS API Checkstyle AAT Report"
+//    ]
+//
+//    publishHTML target: [
+//      allowMissing         : true,
+//      alwaysLinkToLastBuild: true,
+//      keepAll              : true,
+//      reportDir            : "build/reports/pmd",
+//      reportFiles          : "main.html",
+//      reportName           : "HRS API PMD Main Report"
+//    ]
+//
+//    publishHTML target: [
+//      allowMissing         : true,
+//      alwaysLinkToLastBuild: true,
+//      keepAll              : true,
+//      reportDir            : "build/reports/pmd",
+//      reportFiles          : "test.html",
+//      reportName           : "HRS API PMD Test Report"
+//    ]
+//
+//    publishHTML target: [
+//      allowMissing         : true,
+//      alwaysLinkToLastBuild: true,
+//      keepAll              : true,
+//      reportDir            : "build/reports/tests/test",
+//      reportFiles          : "index.html",
+//      reportName           : "HRS API Unit Tests Report"
+//    ]
+//
+//
+//      publishHTML target: [
+//        allowMissing         : true,
+//        alwaysLinkToLastBuild: true,
+//        keepAll              : true,
+//        reportDir            : "build/reports/tests/contract",
+//        reportFiles          : "index.html",
+//        reportName           : "HRS API Contract Test Report"
+//      ]
+//
+//
+//  }
+//
+////  enablePactAs([
+////    AppPipelineDsl.PactRoles.CONSUMER
+////  ])
+//
+//  after('smoketest:preview') {
+//    publishHTML target: [
+//      allowMissing         : true,
+//      alwaysLinkToLastBuild: true,
+//      keepAll              : true,
+//      reportDir            : "build/reports/tests/smoke",
+//      reportFiles          : "index.html",
+//      reportName           : "HRS API Smoke Test Report"
+//    ]
+//  }
+//
+//  after('functionalTest:preview') {
+//    publishHTML target: [
+//      allowMissing         : true,
+//      alwaysLinkToLastBuild: true,
+//      keepAll              : true,
+//      reportDir            : "build/reports/tests/functional",
+//      reportFiles          : "index.html",
+//      reportName           : "HRS API Functional Test Report"
+//    ]
+//    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
+//  }
+//
+//    after('contractTest:preview') {
+//      publishHTML target: [
+//        allowMissing         : true,
+//        alwaysLinkToLastBuild: true,
+//        keepAll              : true,
+//        reportDir            : "build/reports/tests/contract",
+//        reportFiles          : "index.html",
+//        reportName           : "HRS API Contract Test Report"
+//      ]
+//  }
 }
