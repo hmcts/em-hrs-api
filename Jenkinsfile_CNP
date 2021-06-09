@@ -227,7 +227,7 @@ withPipeline(type, product, component) {
     enablePactAs([
       AppPipelineDsl.PactRoles.CONSUMER
     ])
-    
+
     publishHTML target: [
       allowMissing         : true,
       alwaysLinkToLastBuild: true,
@@ -239,42 +239,42 @@ withPipeline(type, product, component) {
 
 
   }
-//
-////  enablePactAs([
-////    AppPipelineDsl.PactRoles.CONSUMER
-////  ])
-//
-//  after('smoketest:preview') {
-//    publishHTML target: [
-//      allowMissing         : true,
-//      alwaysLinkToLastBuild: true,
-//      keepAll              : true,
-//      reportDir            : "build/reports/tests/smoke",
-//      reportFiles          : "index.html",
-//      reportName           : "HRS API Smoke Test Report"
-//    ]
-//  }
-//
-//  after('functionalTest:preview') {
-//    publishHTML target: [
-//      allowMissing         : true,
-//      alwaysLinkToLastBuild: true,
-//      keepAll              : true,
-//      reportDir            : "build/reports/tests/functional",
-//      reportFiles          : "index.html",
-//      reportName           : "HRS API Functional Test Report"
-//    ]
-//    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
-//  }
-//
-//    after('contractTest:preview') {
-//      publishHTML target: [
-//        allowMissing         : true,
-//        alwaysLinkToLastBuild: true,
-//        keepAll              : true,
-//        reportDir            : "build/reports/tests/contract",
-//        reportFiles          : "index.html",
-//        reportName           : "HRS API Contract Test Report"
-//      ]
-//  }
+
+//  enablePactAs([
+//    AppPipelineDsl.PactRoles.CONSUMER
+//  ])
+
+  after('smoketest:preview') {
+    publishHTML target: [
+      allowMissing         : true,
+      alwaysLinkToLastBuild: true,
+      keepAll              : true,
+      reportDir            : "build/reports/tests/smoke",
+      reportFiles          : "index.html",
+      reportName           : "HRS API Smoke Test Report"
+    ]
+  }
+
+  after('functionalTest:preview') {
+    publishHTML target: [
+      allowMissing         : true,
+      alwaysLinkToLastBuild: true,
+      keepAll              : true,
+      reportDir            : "build/reports/tests/functional",
+      reportFiles          : "index.html",
+      reportName           : "HRS API Functional Test Report"
+    ]
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
+  }
+
+    after('contractTest:preview') {
+      publishHTML target: [
+        allowMissing         : true,
+        alwaysLinkToLastBuild: true,
+        keepAll              : true,
+        reportDir            : "build/reports/tests/contract",
+        reportFiles          : "index.html",
+        reportName           : "HRS API Contract Test Report"
+      ]
+  }
 }
