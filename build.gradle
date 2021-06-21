@@ -448,7 +448,7 @@ dependencies {
   functionalTestImplementation 'com.github.hmcts:em-test-helper:1.18.2'
   functionalTestImplementation 'net.serenity-bdd:serenity-rest-assured:2.3.4', withoutStuff
 
-  testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.19.0'
+  testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.20.2'
   testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.25.0'
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.15.2'
   testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.3'
