@@ -33,7 +33,7 @@ public class DownloadHearingRecordingScenarios extends BaseTest {
         postRecordingSegment(caseRef).then().statusCode(202);
 
         int count = 0;
-        while (testUtil.checkIfUploadedToCVP(FOLDER) <= 0 && testUtil.checkIfUploadedToHRS(FOLDER) <= 0) {
+        while (testUtil.checkIfUploadedToCvp(FOLDER) <= 0 && testUtil.checkIfUploadedToHrs(FOLDER) <= 0) {
             TimeUnit.SECONDS.sleep(30);
             count++;
 
