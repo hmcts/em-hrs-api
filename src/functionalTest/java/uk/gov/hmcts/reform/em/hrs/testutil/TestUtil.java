@@ -43,7 +43,15 @@ public class TestUtil {
             });
     }
 
-    public int checkIfUploaded(final String folderName) {
+    public int checkIfUploadedToCVP(final String folderName) {
+        LOGGER.info("cvpBlobContainerClient.getBlobContainerUrl() ~{}" , cvpBlobContainerClient.getBlobContainerUrl());
+        int count = (int) cvpBlobContainerClient.listBlobs()
+            .stream()
+            .filter(blobItem -> blobItem.getName().startsWith(folderName)).count();
+        return count;
+    }
+
+    public int checkIfUploadedToHRS(final String folderName) {
         LOGGER.info("hrsBlobContainerClient.getBlobContainerUrl() ~{}" , hrsBlobContainerClient.getBlobContainerUrl());
         int count = (int) hrsBlobContainerClient.listBlobs()
             .stream()
