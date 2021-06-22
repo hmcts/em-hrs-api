@@ -51,15 +51,15 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
             .log().all()
             .statusCode(202);
 
-        int count = 0;
-        while (testUtil.checkIfUploadedToHrs(FOLDER) <= 0) {
-            TimeUnit.SECONDS.sleep(30);
-            count++;
-
-            if (count > 10) {
-                throw new IllegalStateException("could not find files within test");
-            }
-        }
+//        int count = 0;
+//        while (testUtil.checkIfUploadedToHrs(FOLDER) <= 0) {
+//            TimeUnit.SECONDS.sleep(30);
+//            count++;
+//
+//            if (count > 10) {
+//                throw new IllegalStateException("could not find files within test");
+//            }
+//        }
 
         getFilenames(FOLDER)
             .assertThat().log().all()

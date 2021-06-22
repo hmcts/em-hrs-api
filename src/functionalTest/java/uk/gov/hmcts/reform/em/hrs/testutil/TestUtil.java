@@ -51,13 +51,13 @@ public class TestUtil {
         return count;
     }
 
-    public int checkIfUploadedToHrs(final String folderName) {
-        LOGGER.info("hrsBlobContainerClient.getBlobContainerUrl() ~{}", hrsBlobContainerClient.getBlobContainerUrl());
-        int count = (int) hrsBlobContainerClient.listBlobs()
-            .stream()
-            .filter(blobItem -> blobItem.getName().startsWith(folderName)).count();
-        return count;
-    }
+//    public int checkIfUploadedToHrs(final String folderName) {
+//        LOGGER.info("hrsBlobContainerClient.getBlobContainerUrl() ~{}", hrsBlobContainerClient.getBlobContainerUrl());
+//        int count = (int) hrsBlobContainerClient.listBlobs()
+//            .stream()
+//            .filter(blobItem -> blobItem.getName().startsWith(folderName)).count();
+//        return count;
+//    }
 
     public void deleteFileFromCvpContainer(final String folderName) {
         cvpBlobContainerClient.listBlobs()
