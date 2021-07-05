@@ -3,17 +3,24 @@ package uk.gov.hmcts.reform.em.hrs.service;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
+import uk.gov.hmcts.reform.em.hrs.exception.GovNotifyErrorException;
+import uk.gov.hmcts.reform.em.hrs.exception.ValidationErrorException;
+import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
+import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.service.ccd.CaseDataContentCreator;
+import uk.gov.service.notify.NotificationClientException;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,7 +30,9 @@ import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.CASE_REFERENCE;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.CCD_CASE_ID;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDING_SHAREE;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDING_WITH_SEGMENTS;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.RECORDING_DATETIME;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.RECORDING_DATE;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.RECORDING_TIMEOFDAY;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHAREE_BAD_EMAIL_ADDRESS;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHAREE_EMAIL_ADDRESS;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHAREE_ID;
 
@@ -34,17 +43,29 @@ class ShareAndNotifyServiceImplTest {
     private final HearingRecordingRepository hearingRecordingRepository = mock(HearingRecordingRepository.class);
     private final CaseDataContentCreator caseDataCreator = mock(CaseDataContentCreator.class);
     private final NotificationService notificationService = mock(NotificationService.class);
+    private final AuditEntryService auditEntryService = mock(AuditEntryService.class);
 
     private final ShareAndNotifyServiceImpl underTest = new ShareAndNotifyServiceImpl(
         hearingRecordingRepository,
         shareeService,
         notificationService,
         caseDataCreator,
-        "https://xui.domain"
+        "https://xui.domain",
+        auditEntryService
     );
 
     @Test
-    void testShouldSendNotificationSuccessfully() throws Exception {
+    void testShouldSendNotificationSuccessfullyForDuplicatedShare() throws Exception {
+        CaseHearingRecording caseData = CaseHearingRecording.builder()
+            .shareeEmail(SHAREE_EMAIL_ADDRESS)
+            .recordingReference(CASE_REFERENCE)
+            .recordingDate(RECORDING_DATE)
+            .recordingTimeOfDay(RECORDING_TIMEOFDAY)
+            .recordingFiles(Collections.singletonList(Map.of("value", CASE_RECORDING_FILE))).build();
+        doReturn(caseData).when(caseDataCreator).getCaseRecordingObject(Map.of("case", "data"));
+        doReturn(List.of(
+            CaseDocument.builder().binaryUrl("http://em-hrs-api.com/hearing-recordings/1234/segments/0").build()
+        )).when(caseDataCreator).extractCaseDocuments(caseData);
         doReturn(Optional.of(HEARING_RECORDING_WITH_SEGMENTS))
             .when(hearingRecordingRepository).findByCcdCaseId(CCD_CASE_ID);
         doReturn(HEARING_RECORDING_SHAREE)
@@ -52,22 +73,98 @@ class ShareAndNotifyServiceImplTest {
         doNothing()
             .when(notificationService)
             .sendEmailNotification(
-                CASE_REFERENCE,
-                RECORDING_DATETIME,
-                List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0")),
-                SHAREE_ID,
-                SHAREE_EMAIL_ADDRESS
+                CASE_REFERENCE, List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0")),
+                RECORDING_DATE, RECORDING_TIMEOFDAY,
+                SHAREE_ID, SHAREE_EMAIL_ADDRESS
             );
-        final CaseDetails caseDetails = CaseDetails.builder()
-            .data(Map.of("recipientEmailAddress", SHAREE_EMAIL_ADDRESS,
-                         "recordingFiles", Collections.singletonList(CASE_RECORDING_FILE)
-            ))
-            .id(CCD_CASE_ID)
-            .build();
-        doReturn(Collections.singletonList(CASE_RECORDING_FILE))
-            .when(caseDataCreator).extractRecordingFiles(caseDetails.getData());
 
-        underTest.shareAndNotify(CCD_CASE_ID, caseDetails.getData(), AUTHORIZATION_TOKEN);
+        underTest.shareAndNotify(CCD_CASE_ID, Map.of("case", "data"), AUTHORIZATION_TOKEN);
+        underTest.shareAndNotify(CCD_CASE_ID, Map.of("case", "data"), AUTHORIZATION_TOKEN);
+
+        verify(hearingRecordingRepository, times(2)).findByCcdCaseId(CCD_CASE_ID);
+        verify(shareeService, times(2))
+            .createAndSaveEntry(SHAREE_EMAIL_ADDRESS, HEARING_RECORDING_WITH_SEGMENTS);
+        verify(notificationService, times(2))
+            .sendEmailNotification(
+                CASE_REFERENCE,
+                List.copyOf(Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0")),
+                RECORDING_DATE, RECORDING_TIMEOFDAY,
+                SHAREE_ID, SHAREE_EMAIL_ADDRESS
+            );
+    }
+
+    @Test
+    void testShouldHandleBadEmailAddressCorrectly() throws Exception {
+        CaseHearingRecording caseData = CaseHearingRecording.builder()
+            .shareeEmail(SHAREE_BAD_EMAIL_ADDRESS)
+            .recordingReference(CASE_REFERENCE)
+            .recordingDate(RECORDING_DATE)
+            .recordingTimeOfDay(RECORDING_TIMEOFDAY)
+            .recordingFiles(Collections.singletonList(Map.of("value", CASE_RECORDING_FILE))).build();
+        doReturn(caseData).when(caseDataCreator).getCaseRecordingObject(Map.of("case", "data"));
+        doReturn(List.of(
+            CaseDocument.builder().binaryUrl("http://em-hrs-api.com/hearing-recordings/1234/segments/0").build()
+        )).when(caseDataCreator).extractCaseDocuments(caseData);
+        doReturn(Optional.of(HEARING_RECORDING_WITH_SEGMENTS))
+            .when(hearingRecordingRepository).findByCcdCaseId(CCD_CASE_ID);
+        doReturn(HEARING_RECORDING_SHAREE)
+            .when(shareeService).createAndSaveEntry(SHAREE_EMAIL_ADDRESS, HEARING_RECORDING_WITH_SEGMENTS);
+        doNothing()
+            .when(notificationService)
+            .sendEmailNotification(
+                CASE_REFERENCE, List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0")),
+                RECORDING_DATE, RECORDING_TIMEOFDAY,
+                SHAREE_ID, SHAREE_EMAIL_ADDRESS
+            );
+
+
+        assertThatExceptionOfType(ValidationErrorException.class)
+            .isThrownBy(() -> underTest.shareAndNotify(CCD_CASE_ID, Map.of("case", "data"), AUTHORIZATION_TOKEN));
+
+
+        verify(hearingRecordingRepository, times(0)).findByCcdCaseId(CCD_CASE_ID);
+        verify(shareeService, times(0))
+            .createAndSaveEntry(SHAREE_EMAIL_ADDRESS, HEARING_RECORDING_WITH_SEGMENTS);
+        verify(notificationService, times(0))
+            .sendEmailNotification(
+                CASE_REFERENCE,
+                List.copyOf(Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0")),
+                RECORDING_DATE, RECORDING_TIMEOFDAY,
+                SHAREE_ID, SHAREE_BAD_EMAIL_ADDRESS
+            );
+    }
+
+
+    @Test
+    void testShouldHandleGovNotifyIssueSuccessfully() throws Exception {
+        CaseHearingRecording caseData = CaseHearingRecording.builder()
+            .shareeEmail(SHAREE_EMAIL_ADDRESS)
+            .recordingReference(CASE_REFERENCE)
+            .recordingDate(RECORDING_DATE)
+            .recordingTimeOfDay(RECORDING_TIMEOFDAY)
+            .recordingFiles(Collections.singletonList(Map.of("value", CASE_RECORDING_FILE))).build();
+        doReturn(caseData).when(caseDataCreator).getCaseRecordingObject(Map.of("case", "data"));
+        doReturn(List.of(
+            CaseDocument.builder().binaryUrl("http://em-hrs-api.com/hearing-recordings/1234/segments/0").build()
+        )).when(caseDataCreator).extractCaseDocuments(caseData);
+        doReturn(Optional.of(HEARING_RECORDING_WITH_SEGMENTS))
+            .when(hearingRecordingRepository).findByCcdCaseId(CCD_CASE_ID);
+        doReturn(HEARING_RECORDING_SHAREE)
+            .when(shareeService).createAndSaveEntry(SHAREE_EMAIL_ADDRESS, HEARING_RECORDING_WITH_SEGMENTS);
+        doNothing()
+            .when(notificationService)
+            .sendEmailNotification(
+                CASE_REFERENCE, List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0")),
+                RECORDING_DATE, RECORDING_TIMEOFDAY,
+                SHAREE_ID, SHAREE_EMAIL_ADDRESS
+            );
+
+        doThrow(NotificationClientException.class).when(notificationService)
+            .sendEmailNotification(any(), any(), any(), any(), any(), any());
+
+        assertThatExceptionOfType(GovNotifyErrorException.class)
+            .isThrownBy(() -> underTest.shareAndNotify(CCD_CASE_ID, Map.of("case", "data"), AUTHORIZATION_TOKEN));
+
 
         verify(hearingRecordingRepository, times(1)).findByCcdCaseId(CCD_CASE_ID);
         verify(shareeService, times(1))
@@ -75,12 +172,11 @@ class ShareAndNotifyServiceImplTest {
         verify(notificationService, times(1))
             .sendEmailNotification(
                 CASE_REFERENCE,
-                RECORDING_DATETIME,
-                List.copyOf(
-                    Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0")
-                ),
-                SHAREE_ID,
-                SHAREE_EMAIL_ADDRESS
+                List.copyOf(Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0")),
+                RECORDING_DATE, RECORDING_TIMEOFDAY,
+                SHAREE_ID, SHAREE_EMAIL_ADDRESS
             );
     }
+
+
 }

@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,7 @@ public class CaseDataContentCreator {
 
     public JsonNode createCaseStartData(final HearingRecordingDto hearingRecordingDto, final UUID recordingId) {
 
-        CaseHearingRecording recording = CaseHearingRecording.builder()
+        CaseHearingRecording caseRecording = CaseHearingRecording.builder()
             .recordingFiles(Collections.singletonList(
                 Map.of("value", createSegment(hearingRecordingDto, recordingId))
             ))
@@ -48,38 +47,35 @@ public class CaseDataContentCreator {
             .courtLocationCode(hearingRecordingDto.getCourtLocationCode())
             .recordingReference(hearingRecordingDto.getCaseRef())
             .build();
-        return objectMapper.convertValue(recording, JsonNode.class);
+        return objectMapper.convertValue(caseRecording, JsonNode.class);
     }
 
-    public Map<String, Object> createCaseUpdateData(final Map<String, Object> caseData, final UUID recordingId,
+    public JsonNode createCaseUpdateData(final Map<String, Object> caseData, final UUID recordingId,
                                                     final HearingRecordingDto hearingRecordingDto) {
 
-        List<CaseRecordingFile> recordingFiles = extractRecordingFiles(caseData);
+        CaseHearingRecording caseRecording = getCaseRecordingObject(caseData);
 
-        boolean segmentNotYetAdded = extractRecordingFiles(caseData).stream()
-            .map(recordingFile -> recordingFile.getCaseDocument())
+        boolean segmentNotYetAdded = extractCaseDocuments(caseRecording).stream()
             .noneMatch(caseDocument -> caseDocument.getFilename().equals(hearingRecordingDto.getFilename()));
 
         if (segmentNotYetAdded) {
-            recordingFiles.add(createSegment(hearingRecordingDto, recordingId));
-
-            caseData.put("recordingFiles", recordingFiles.stream()
-                .map(recordingFile -> Map.of("value", recordingFile))
-                .collect(Collectors.toList())
-            );
+            caseRecording.addRecordingFile(createSegment(hearingRecordingDto, recordingId));
         }
-        return caseData;
+        return objectMapper.convertValue(caseRecording, JsonNode.class);
     }
 
-    public List<CaseRecordingFile> extractRecordingFiles(final Map<String, Object> caseData) {
+    public CaseHearingRecording getCaseRecordingObject(final Map<String, Object> caseData) {
+        return objectMapper.convertValue(caseData, CaseHearingRecording.class);
+    }
 
-        @SuppressWarnings("unchecked")
-        List<Map> segmentNodes = (ArrayList) caseData.getOrDefault("recordingFiles", new ArrayList());
-
-        return segmentNodes.stream()
-            .map(segmentNode -> objectMapper.convertValue(segmentNode.get("value"), CaseRecordingFile.class))
+    public List<CaseDocument> extractCaseDocuments(final CaseHearingRecording caseData) {
+        return caseData.getRecordingFiles().stream()
+            .map(mapItem -> mapItem.get("value"))
+            .map(value -> objectMapper.convertValue(value, CaseRecordingFile.class))
+            .map(recordingFile -> recordingFile.getCaseDocument())
             .collect(Collectors.toList());
     }
+
 
     private CaseRecordingFile createSegment(HearingRecordingDto hearingRecordingDto, UUID recordingId) {
 

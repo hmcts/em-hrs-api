@@ -22,4 +22,6 @@ public interface SecurityService {
     String getCurrentlyAuthenticatedServiceName();
 
     String getAuditUserEmail();
+
+    String getClientIp();
 }

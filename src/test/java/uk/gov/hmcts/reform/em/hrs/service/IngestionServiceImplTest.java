@@ -51,7 +51,7 @@ class IngestionServiceImplTest {
     private IngestionServiceImpl underTest;
 
     @Test
-    void testShouldIngestWhenHearingRecordingIsNew() {
+    void testShouldCreateNewCaseInCcdAndPersistToPostgresAndAzureStorageWhenHearingRecordingIsNew() {
         doReturn(Optional.empty()).when(recordingRepository)
             .findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER.getName());
 
@@ -74,7 +74,7 @@ class IngestionServiceImplTest {
     }
 
     @Test
-    void testShouldIngestWhenHearingRecordingExist() {
+    void testShouldUpdateCaseInCcdAndPersistToPostgresAndAzureStorageWhenHearingRecordingExist() {
         doReturn(Optional.of(HEARING_RECORDING_WITH_SEGMENTS)).when(recordingRepository)
             .findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER.getName());
         doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient)

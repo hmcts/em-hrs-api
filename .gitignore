@@ -24,3 +24,5 @@ src/main/generated/
 bin/test/
 target/
 *.log
+pacts/hrs_api-Idam_api.json
+pacts/hrs_api-Idam_api.json

@@ -152,8 +152,29 @@ public class DefaultHearingRecordingStorage implements HearingRecordingStorage {
         String sas = sourceBlob.generateUserDelegationSas(myValues, key);
 
         return sas;
-
-
     }
+
+    @Override
+    public synchronized String getStorageReport() {
+
+        final BlobListDetails blobListDetails = new BlobListDetails()
+            .setRetrieveDeletedBlobs(false)
+            .setRetrieveSnapshots(false);
+        final ListBlobsOptions options = new ListBlobsOptions()
+            .setDetails(blobListDetails);
+        final Duration duration = Duration.ofMinutes(BLOB_LIST_TIMEOUT);
+
+        final PagedIterable<BlobItem> cvpBlobItems = cvpBlobContainerClient.listBlobs(options, duration);
+        long cvpItemCount = cvpBlobItems.streamByPage().count();
+
+
+        final PagedIterable<BlobItem> hrsBlobItems = hrsBlobContainerClient.listBlobs(options, duration);
+        long hrsItemCount = cvpBlobItems.streamByPage().count();
+
+        String report = "CVP Count = " + cvpItemCount;
+        report += "\nHRS Count = " + hrsItemCount;
+        return report;
+    }
+
 
 }

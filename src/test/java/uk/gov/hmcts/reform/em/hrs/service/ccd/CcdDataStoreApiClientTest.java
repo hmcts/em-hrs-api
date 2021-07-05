@@ -82,9 +82,10 @@ class CcdDataStoreApiClientTest {
             USER_TOKEN, SERVICE_TOKEN, String.valueOf(CASE_ID), ADD_RECORDING_FILE
         );
         CaseDetails caseDetails = CaseDetails.builder().id(CASE_ID).build();
-        doReturn(Map.of("case", "data")).when(caseDataContentCreator)
+        JsonNode data = JsonNodeFactory.instance.objectNode();
+        doReturn(data).when(caseDataContentCreator)
             .createCaseUpdateData(startEventResponse.getCaseDetails().getData(), RECORDING_ID, HEARING_RECORDING_DTO);
-        CaseDataContent caseData = CaseDataContent.builder().data(Map.of("case", "data"))
+        CaseDataContent caseData = CaseDataContent.builder().data(data)
             .event(Event.builder().build()).build();
         doReturn(caseDetails).when(coreCaseDataApi).submitEventForCaseWorker(
             USER_TOKEN, SERVICE_TOKEN, USER_ID,

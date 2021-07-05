@@ -184,22 +184,3 @@ resource "azurerm_key_vault_secret" "local_s2s_key" {
   value        = data.azurerm_key_vault_secret.s2s_key.value
   key_vault_id = module.key-vault.key_vault_id
 }
-
-# Load AppInsights key from common EM vault - aka "rpa vault"
-data "azurerm_key_vault" "rpa_vault" {
-  name                = "rpa-${var.env}"
-  resource_group_name = "rpa-${var.env}"
-}
-
-
-data "azurerm_key_vault_secret" "app_insights_key" {
-  name = "AppInsightsInstrumentationKey"
-  key_vault_id = data.azurerm_key_vault.rpa_vault.id
-}
-
-#copy AppInsights key to "local vault" as that's where kubernetes injects secrets from
-resource "azurerm_key_vault_secret" "local_app_insights_key" {
-  name         = "AppInsightsInstrumentationKey"
-  value        = data.azurerm_key_vault_secret.app_insights_key.value
-  key_vault_id = module.key-vault.key_vault_id
-}

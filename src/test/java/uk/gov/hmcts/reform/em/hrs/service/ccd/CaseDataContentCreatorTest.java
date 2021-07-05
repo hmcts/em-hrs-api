@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
+import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 
 import java.time.LocalDateTime;
@@ -48,6 +49,22 @@ class CaseDataContentCreatorTest {
     }
 
     @Test
+    void testConvertCaseDataMapToCaseHearingRecordingObject() {
+        Map<String, Object> caseData = new HashMap<>();
+        caseData.put("hearingSource", "CVP");
+        caseData.put("hearingRoomRef", "001");
+        caseData.put("recordingTimeOfDay", "AM");
+        caseData.put("serviceCode", "CVP");
+        caseData.put("jurisdictionCode", "TRB");
+        caseData.put("courtLocationCode", "CRY");
+        caseData.put("recordingReference", "testFile200Mb");
+
+        CaseHearingRecording caseHearingRecording = underTest.getCaseRecordingObject(caseData);
+
+        assertEquals("001", caseHearingRecording.getHearingRoomRef());
+    }
+
+    @Test
     void createCaseStartData() {
 
         JsonNode actual = underTest.createCaseStartData(hearingRecordingDto, RECORDING_ID);
@@ -74,7 +91,7 @@ class CaseDataContentCreatorTest {
         Map<String, Object> caseData = new HashMap<>();
         caseData.put("recordingFiles", segmentList);
 
-        Map<String, Object> actual = underTest.createCaseUpdateData(caseData, RECORDING_ID, hearingRecordingDto);
+        JsonNode actual = underTest.createCaseUpdateData(caseData, RECORDING_ID, hearingRecordingDto);
 
         JsonNode resultNode = objectMapper.convertValue(actual, JsonNode.class);
 

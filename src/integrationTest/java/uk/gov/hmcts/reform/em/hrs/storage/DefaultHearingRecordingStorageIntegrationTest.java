@@ -48,6 +48,12 @@ class DefaultHearingRecordingStorageIntegrationTest {
     }
 
     @Test
+    void testStorageReport() {
+        final String report = underTest.getStorageReport();
+        assertThat(report).startsWith("CVP Count");
+    }
+
+    @Test
     void testShouldReturnEmptySetWhenFolderDoesNotExist() {
         final Set<String> files = underTest.findByFolder(EMPTY_FOLDER);
 

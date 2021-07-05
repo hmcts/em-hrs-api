@@ -1,6 +1,6 @@
 # Hearing Recording Service
 
-Pre-requisites:
+## Pre-requisites:
 
 To be able to run the applicaiton locally, you will need to be able to run the docker images
 for CCD and other services.
@@ -10,6 +10,53 @@ az acr login --name hmctspublic && az acr login --name hmctsprivate
 
 So standard az cli tools are needed, as well as @hmcts.net log in with appropriate roles
 
+## Setup
+
+Simply run the following script to start all application dependencies.
+
+```bash
+  ./docker/dependencies/start-local-environment.sh
+```
+### Building the application
+
+To build the project execute the following command:
+
+```bash
+  ./gradlew build
+```
+### Running the application
+
+Create the image of the application by executing the following command:
+
+```bash
+  ./gradlew assemble
+```
+
+Create docker image:
+
+```bash
+  docker-compose build
+```
+
+Run the application in docker by executing the following command:
+
+```bash
+  docker-compose up
+```
+
+This will start the API container exposing the application's port [8080]
+
+In order to test if the application is up, you can call its health endpoint:
+
+```bash
+  curl http://localhost:8080/health
+```
+
+You should get a response similar to this:
+
+```
+  {"status":"UP","diskSpace":{"status":"UP","total":249644974080,"free":137188298752,"threshold":10485760}}
+```
 
 #Gotchas:
 
@@ -78,59 +125,6 @@ Import the checkstyle code scheme into the java code settings
 
 Reverse the import layout settings / modify until the checkstyle passes
 Uncheck "Comment at first column"
-
-
-## Setup
-
-Simply run the following script to start all application dependencies.
-
-```bash
-  ./docker/dependencies/start-local-environment.sh
-```
-
-## Building and deploying the application
-
-### Building the application
-
-To build the project execute the following command:
-
-```bash
-  ./gradlew build
-```
-
-### Running the application
-
-Create the image of the application by executing the following command:
-
-```bash
-  ./gradlew assemble
-```
-
-Create docker image:
-
-```bash
-  docker-compose build
-```
-
-Run the application in docker by executing the following command:
-
-```bash
-  docker-compose up
-```
-
-This will start the API container exposing the application's port [8080]
-
-In order to test if the application is up, you can call its health endpoint:
-
-```bash
-  curl http://localhost:8080/health
-```
-
-You should get a response similar to this:
-
-```
-  {"status":"UP","diskSpace":{"status":"UP","total":249644974080,"free":137188298752,"threshold":10485760}}
-```
 
 ## License
 
