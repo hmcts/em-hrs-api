@@ -2,9 +2,6 @@ package uk.gov.hmcts.reform.em.hrs.domain;
 
 public enum AuditActions {
 
-
-
-
     PERSIST_FILE_STORE_OK,
     PERSIST_FILE_STORE_FAIL,
 
@@ -45,5 +42,6 @@ public enum AuditActions {
 
 
     TTL_UPDATED_OK,
-    TTL_UPDATED_FAIL;
+    TTL_UPDATED_FAIL
+
 }

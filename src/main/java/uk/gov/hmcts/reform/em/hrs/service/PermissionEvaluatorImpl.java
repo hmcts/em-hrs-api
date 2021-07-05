@@ -10,6 +10,7 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
 
@@ -17,6 +18,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 
 @Component
@@ -35,7 +37,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
     @Override
     public boolean hasPermission(@NotNull Authentication authentication,
-                                 @NotNull Object targetDomainObject,
+                                 @NotNull Object segment,
                                  @NotNull Object permissionString) {
 
         var jwtAuthenticationToken = (JwtAuthenticationToken) authentication;
@@ -43,24 +45,35 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
         var userInfo = securityService.getUserInfo(token);
 
+        LOGGER.info("User with roles ({}) attempting to access recording", userInfo.getRoles());
+
         if (CollectionUtils.isNotEmpty(userInfo.getRoles())) {
             Optional<String> userRole = userInfo.getRoles().stream()
-                                            .filter(role -> allowedRoles.contains(role))
-                                            .findFirst();
+                .filter(role -> allowedRoles.contains(role))
+                .findFirst();
             if (userRole.isPresent()) {
+                LOGGER.info("User granted access with allowed role ({})", userRole);
                 return true;
             }
         }
 
-        if (targetDomainObject instanceof UUID) {
-            var recordingId = (UUID) targetDomainObject;
+        if (segment instanceof HearingRecordingSegment) {
+            UUID recordingId = ((HearingRecordingSegment) segment).getHearingRecording().getId();
             String shareeEmail = securityService.getUserEmail(token);
+            LOGGER.info("User attempting to access recording with email ({})", shareeEmail);
             List<HearingRecordingSharee> sharedRecordings = shareesRepository.findByShareeEmail(shareeEmail);
+            LOGGER.info(
+                "recordings that are shared with the user: ({})",
+                sharedRecordings.stream()
+                    .map(sharedRecording -> sharedRecording.getHearingRecording().getCaseRef())
+                    .collect(Collectors.toList())
+            );
             if (CollectionUtils.isNotEmpty(sharedRecordings)) {
                 Optional<HearingRecordingSharee> hearingRecording = sharedRecordings.stream()
-                    .filter(hearingRecordingSharee -> hearingRecordingSharee.getHearingRecording().getId().equals(recordingId))
+                    .filter(sharedRecording -> sharedRecording.getHearingRecording().getId().equals(recordingId))
                     .findFirst();
                 if (hearingRecording.isPresent()) {
+                    LOGGER.info("User granted access through shared email ({})", shareeEmail);
                     return true;
                 }
             }

@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.hmcts.reform.em.hrs.domain.Folder;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
@@ -15,7 +14,6 @@ import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 import uk.gov.hmcts.reform.em.hrs.service.ccd.CcdDataStoreApiClient;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
-import uk.gov.hmcts.reform.em.hrs.util.Snooper;
 
 import java.util.Optional;
 
@@ -28,7 +26,6 @@ public class IngestionServiceImpl implements IngestionService {
     private final HearingRecordingRepository recordingRepository;
     private final HearingRecordingSegmentRepository segmentRepository;
     private final HearingRecordingStorage hearingRecordingStorage;
-    private final Snooper snooper;
     private final FolderService folderService;
 
     @Autowired
@@ -36,13 +33,12 @@ public class IngestionServiceImpl implements IngestionService {
                                 final HearingRecordingRepository recordingRepository,
                                 final HearingRecordingSegmentRepository segmentRepository,
                                 final HearingRecordingStorage hearingRecordingStorage,
-                                final Snooper snooper,
                                 final FolderService folderService) {
         this.ccdDataStoreApiClient = ccdDataStoreApiClient;
         this.recordingRepository = recordingRepository;
         this.segmentRepository = segmentRepository;
         this.hearingRecordingStorage = hearingRecordingStorage;
-        this.snooper = snooper;
+
         this.folderService = folderService;
     }
 
@@ -77,7 +73,7 @@ public class IngestionServiceImpl implements IngestionService {
         }
 
         LOGGER.info(
-            "adding  recording (ref {}) in folder {} to case (ccdid {})",
+            "adding  recording (ref {}) in folder {} to case (ccdId {})",
             recordingDto.getRecordingRef(),
             recordingDto.getFolder(),
             recording.getCcdCaseId()
@@ -93,17 +89,9 @@ public class IngestionServiceImpl implements IngestionService {
             HearingRecordingSegment segment = createSegment(recording, recordingDto);
             segmentRepository.save(segment);
 
-        } catch (ConstraintViolationException e) {
-            //TODO this is not caught as the sql is a multie step / tranasction so throws a batch exception which has
-            //potentially multiple exceptions. Consider catching these or improving the messaging.
-            LOGGER.info(
-                "updateCase ConstraintViolationException segment already added to DB (ref {}) to case(ccdid {})",
-                recordingDto.getRecordingRef(),
-                recording.getCcdCaseId()
-            );
         } catch (Exception e) {
             LOGGER.info(
-                "segment not added to database, probably duplicate entry (ref {}) to case(ccdid {})",
+                "segment not added to database, probably duplicate entry (ref {}) to case(ccdId {})",
                 recordingDto.getRecordingRef(),
                 recording.getCcdCaseId()
             );
@@ -115,7 +103,7 @@ public class IngestionServiceImpl implements IngestionService {
     private void createCaseinCcdAndPersist(final HearingRecordingDto recordingDto) {
         LOGGER.info("creating a new case for recording: {}", recordingDto.getRecordingRef());
 
-        final Folder folder = folderService.getFolderByName(recordingDto.getFolder());
+        var folder = folderService.getFolderByName(recordingDto.getFolder());
 
         HearingRecording recording = HearingRecording.builder()
             .folder(folder)
@@ -140,7 +128,7 @@ public class IngestionServiceImpl implements IngestionService {
                         + "at this time");
         } catch (Exception e) {
             LOGGER.info(
-                "create case Unhandled Exception whilst adding segment to DB (ref {}) to case(ccdid {})",
+                "create case Unhandled Exception whilst adding segment to DB (ref {}) to case(ccdId {})",
                 recordingDto.getRecordingRef(),
                 recording.getCcdCaseId()
             );
@@ -168,9 +156,5 @@ public class IngestionServiceImpl implements IngestionService {
             .build();
     }
 
-    private void snoop(final String file, final Throwable throwable) {
-        final String message = String.format("An error occurred ingesting file '%s'", file);
-        snooper.snoop(message, throwable);
-    }
 
 }

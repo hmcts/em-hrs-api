@@ -37,15 +37,20 @@ data "azurerm_user_assigned_identity" "em-shared-identity" {
 }
 
 module "db" {
-  source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
-  product            = "${local.app_full_name}-postgres-v11-db"
-  location           = var.location
-  env                = var.env
-  postgresql_user    = var.postgresql_user
+  source = "git@github.com:hmcts/cnp-module-postgres?ref=master"
+  product = var.product
+  component = var.component
+  name = join("-", [
+    var.product,
+    var.component,
+    "postgres-v11-db"])
   postgresql_version = 11
-  database_name      = var.database_name
-  common_tags        = var.common_tags
-  subscription       = var.subscription
+  location = var.location
+  env = var.env
+  postgresql_user = var.postgresql_user
+  database_name = var.database_name
+  common_tags = var.common_tags
+  subscription = var.subscription
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
@@ -177,24 +182,5 @@ data "azurerm_key_vault_secret" "s2s_key" {
 resource "azurerm_key_vault_secret" "local_s2s_key" {
   name         = "microservicekey-em-hrs-api"
   value        = data.azurerm_key_vault_secret.s2s_key.value
-  key_vault_id = module.key-vault.key_vault_id
-}
-
-# Load AppInsights key from common EM vault - aka "rpa vault"
-data "azurerm_key_vault" "rpa_vault" {
-  name                = "rpa-${var.env}"
-  resource_group_name = "rpa-${var.env}"
-}
-
-
-data "azurerm_key_vault_secret" "app_insights_key" {
-  name = "AppInsightsInstrumentationKey"
-  key_vault_id = data.azurerm_key_vault.rpa_vault.id
-}
-
-#copy AppInsights key to "local vault" as that's where kubernetes injects secrets from
-resource "azurerm_key_vault_secret" "local_app_insights_key" {
-  name         = "AppInsightsInstrumentationKey"
-  value        = data.azurerm_key_vault_secret.app_insights_key.value
   key_vault_id = module.key-vault.key_vault_id
 }

@@ -47,6 +47,8 @@ public abstract class AuditEntry {
     @Temporal(TemporalType.TIMESTAMP)
     private Date eventDateTime;
 
+    private Long caseId;
+
     public Date getEventDateTime() {
         if (eventDateTime == null) {
             return null;

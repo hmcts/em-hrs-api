@@ -1,5 +1,9 @@
 package uk.gov.hmcts.reform.em.hrs.service.ccd;
 
+//import com.github.rholder.retry.Retryer;
+//import com.github.rholder.retry.RetryerBuilder;
+//import com.github.rholder.retry.StopStrategies;
+//import com.github.rholder.retry.WaitStrategies;
 import com.github.rholder.retry.Retryer;
 import com.github.rholder.retry.RetryerBuilder;
 import com.github.rholder.retry.StopStrategies;
@@ -7,6 +11,7 @@ import com.github.rholder.retry.WaitStrategies;
 import com.google.common.base.Predicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDataContent;
@@ -28,6 +33,9 @@ public class CcdDataStoreApiClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CcdDataStoreApiClient.class);
     private static final String JURISDICTION = "HRS";
+    private static final String SERVICE = "service";
+    private static final String USER = "user";
+    private static final String USER_ID = "userId";
     private static final String CASE_TYPE = "HearingRecordings";
     private static final String CREATE_CASE = "createCase";
     private static final String ADD_RECORDING_FILE = "manageFiles";
@@ -47,7 +55,7 @@ public class CcdDataStoreApiClient {
         Map<String, String> tokens = securityService.getTokens();
 
         StartEventResponse startEventResponse =
-            coreCaseDataApi.startCase(tokens.get("user"), tokens.get("service"), CASE_TYPE, CREATE_CASE);
+            coreCaseDataApi.startCase(tokens.get(USER), tokens.get(SERVICE), CASE_TYPE, CREATE_CASE);
 
         CaseDataContent caseData = CaseDataContent.builder()
             .event(Event.builder().id(startEventResponse.getEventId()).build())
@@ -56,7 +64,7 @@ public class CcdDataStoreApiClient {
             .build();
 
         CaseDetails caseDetails = coreCaseDataApi
-            .submitForCaseworker(tokens.get("user"), tokens.get("service"), tokens.get("userId"),
+            .submitForCaseworker(tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
                                  JURISDICTION, CASE_TYPE, false, caseData
             );
 
@@ -71,7 +79,7 @@ public class CcdDataStoreApiClient {
                                             final HearingRecordingDto hearingRecordingDto) {
         Map<String, String> tokens = securityService.getTokens();
 
-        StartEventResponse startEventResponse = coreCaseDataApi.startEvent(tokens.get("user"), tokens.get("service"),
+        StartEventResponse startEventResponse = coreCaseDataApi.startEvent(tokens.get(USER), tokens.get(SERVICE),
                                                                            caseId.toString(), ADD_RECORDING_FILE
         );
 
@@ -90,12 +98,11 @@ public class CcdDataStoreApiClient {
 
         Long caseDetailsId = null;
 
-
         Callable<Long> callable = new Callable<Long>() {
             @Override
             public Long call() throws Exception {
                 return coreCaseDataApi
-                    .submitEventForCaseWorker(tokens.get("user"), tokens.get("service"), tokens.get("userId"),
+                    .submitEventForCaseWorker(tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
                                               JURISDICTION, CASE_TYPE, caseId.toString(), false, caseData
                     )
                     .getId();

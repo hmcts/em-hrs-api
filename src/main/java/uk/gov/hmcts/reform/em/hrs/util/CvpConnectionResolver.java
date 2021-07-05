@@ -7,6 +7,4 @@ public class CvpConnectionResolver {
             cvpConnectionString.contains("cvprecordings") && !cvpConnectionString.contains("AccountName");
         return isACvpEndpointUrl;
     }
-
-
 }

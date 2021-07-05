@@ -7,5 +7,6 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegmentAuditEntry;
 import java.util.UUID;
 
 @Repository
-public interface HearingRecordingSegmentAuditEntryRepository extends PagingAndSortingRepository<HearingRecordingSegmentAuditEntry, UUID> {
+public interface HearingRecordingSegmentAuditEntryRepository
+    extends PagingAndSortingRepository<HearingRecordingSegmentAuditEntry, UUID> {
 }

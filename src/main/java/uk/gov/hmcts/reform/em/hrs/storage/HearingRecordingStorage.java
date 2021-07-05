@@ -6,4 +6,6 @@ public interface HearingRecordingStorage {
     Set<String> findByFolder(String folderName);
 
     void copyRecording(String sourceUri, String filename);
+
+    String getStorageReport();
 }

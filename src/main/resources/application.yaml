@@ -21,7 +21,7 @@ spring:
     name: Hearing Recordings Service
   jpa:
     database: postgresql
-    show-sql: ${SHOW_SQL:true}
+    show-sql: ${SHOW_SQL:false}
     hibernate:
       ddl-auto: none
     database-platform: org.hibernate.dialect.PostgreSQL95Dialect
@@ -121,3 +121,22 @@ auth:
       client:
         baseUrl: ${S2S_BASE_URI:http://localhost:4502}
 
+logging:
+  level:
+    root: INFO
+    org:
+      springframework:
+        web:
+          filter:
+            CommonsRequestLoggingFilter: INFO
+        beans:
+          factory:
+            support: INFO
+      quartz: INFO
+    uk:
+      gov:
+        hmcts:
+          reform:
+            logging:
+              filters:
+                RequestStatusLoggingFilter: WARN

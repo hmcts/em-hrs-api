@@ -361,4 +361,9 @@
     <changeSet author="paul (generated)" id="1621441343520-2">
         <dropUniqueConstraint constraintName="uc_hearing_recordingrecording_ref_col" tableName="hearing_recording"/>
     </changeSet>
+    <changeSet author="paul (generated)" id="1623165126857-1">
+        <addColumn tableName="audit_entry">
+            <column name="case_id" type="int8"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

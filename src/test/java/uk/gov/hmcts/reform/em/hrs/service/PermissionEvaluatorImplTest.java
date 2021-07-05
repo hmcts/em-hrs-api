@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
+import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
 import uk.gov.hmcts.reform.idam.client.models.UserInfo;
@@ -46,7 +47,10 @@ public class PermissionEvaluatorImplTest {
         .uid(USER_ID)
         .roles(Arrays.asList("sharee"))
         .build();
-    private UUID recordingId = UUID.randomUUID();
+    private static final UUID recordingId = UUID.randomUUID();
+    private static final HearingRecordingSegment segment = HearingRecordingSegment.builder()
+        .hearingRecording(HearingRecording.builder().id(recordingId).build())
+        .build();
     private String shareeEmail = "sharee@sharee.com";
     private List<HearingRecordingSharee> hearingRecordingSharees;
 
@@ -74,7 +78,7 @@ public class PermissionEvaluatorImplTest {
         when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_USER_INFO);
         ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker-hrs"));
 
-        Assert.assertTrue(permissionEvaluator.hasPermission(authentication, "", "READ"));
+        Assert.assertTrue(permissionEvaluator.hasPermission(authentication, null, "READ"));
     }
 
     @Test
@@ -82,7 +86,7 @@ public class PermissionEvaluatorImplTest {
         when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_USER_INFO);
         ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker"));
 
-        Assert.assertFalse(permissionEvaluator.hasPermission(authentication, "", "READ"));
+        Assert.assertFalse(permissionEvaluator.hasPermission(authentication, null, "READ"));
     }
 
     @Test
@@ -91,7 +95,7 @@ public class PermissionEvaluatorImplTest {
         ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker-hrs"));
         when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
         when(shareesRepository.findByShareeEmail(Mockito.anyString())).thenReturn(hearingRecordingSharees);
-        Assert.assertTrue(permissionEvaluator.hasPermission(authentication, recordingId, "READ"));
+        Assert.assertTrue(permissionEvaluator.hasPermission(authentication, segment, "READ"));
     }
 
     @Test
@@ -100,12 +104,12 @@ public class PermissionEvaluatorImplTest {
         ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker-hrs"));
         when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
         when(shareesRepository.findByShareeEmail(Mockito.anyString())).thenReturn(hearingRecordingSharees);
-        Assert.assertFalse(permissionEvaluator.hasPermission(authentication, UUID.randomUUID(), "READ"));
+        Assert.assertFalse(permissionEvaluator.hasPermission(authentication, null, "READ"));
     }
 
     @Test
     public void testPermissionOnDownloadFailure() {
-        Assert.assertFalse(permissionEvaluator.hasPermission(authentication, UUID.randomUUID(),
+        Assert.assertFalse(permissionEvaluator.hasPermission(authentication, null,
             "uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadServiceImpl","READ"));
     }
 }

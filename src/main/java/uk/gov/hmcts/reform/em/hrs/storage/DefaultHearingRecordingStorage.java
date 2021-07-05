@@ -83,7 +83,7 @@ public class DefaultHearingRecordingStorage implements HearingRecordingStorage {
         // Or always overwrite (assume ingestor knows if it should be replaced or not, so md5 checksum done there)?
         if (!destinationBlobClient.exists()) {
             if (CvpConnectionResolver.isACvpEndpointUrl(cvpConnectionString)) {
-                String sasToken = generateReadSASForCVP(filename);
+                String sasToken = generateReadSasForCvp(filename);
                 sourceUri = sourceUri + "?" + sasToken;
             }
 
@@ -114,7 +114,7 @@ public class DefaultHearingRecordingStorage implements HearingRecordingStorage {
     }
 
 
-    private String generateReadSASForCVP(String fileName) {
+    private String generateReadSasForCvp(String fileName) {
 
         LOGGER.debug("Attempting to generate SAS for container name {}", cvpBlobContainerClient.getBlobContainerName());
 
@@ -152,8 +152,29 @@ public class DefaultHearingRecordingStorage implements HearingRecordingStorage {
         String sas = sourceBlob.generateUserDelegationSas(myValues, key);
 
         return sas;
-
-
     }
+
+    @Override
+    public synchronized String getStorageReport() {
+
+        final BlobListDetails blobListDetails = new BlobListDetails()
+            .setRetrieveDeletedBlobs(false)
+            .setRetrieveSnapshots(false);
+        final ListBlobsOptions options = new ListBlobsOptions()
+            .setDetails(blobListDetails);
+        final Duration duration = Duration.ofMinutes(BLOB_LIST_TIMEOUT);
+
+        final PagedIterable<BlobItem> cvpBlobItems = cvpBlobContainerClient.listBlobs(options, duration);
+        long cvpItemCount = cvpBlobItems.streamByPage().count();
+
+
+        final PagedIterable<BlobItem> hrsBlobItems = hrsBlobContainerClient.listBlobs(options, duration);
+        long hrsItemCount = cvpBlobItems.streamByPage().count();
+
+        String report = "CVP Count = " + cvpItemCount;
+        report += "\nHRS Count = " + hrsItemCount;
+        return report;
+    }
+
 
 }

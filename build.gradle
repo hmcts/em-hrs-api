@@ -1,3 +1,10 @@
+buildscript {
+  dependencies {
+    classpath("net.serenity-bdd:serenity-gradle-plugin:2.3.13")
+    classpath("net.serenity-bdd:serenity-single-page-report:2.3.13")
+  }
+}
+
 plugins {
   id 'application'
   id 'checkstyle'
@@ -14,6 +21,10 @@ plugins {
 }
 
 apply from: 'liquibase.gradle'
+apply plugin: 'net.serenity-bdd.aggregator'
+
+apply plugin : 'java'
+
 
 
 allprojects {
@@ -30,16 +41,16 @@ mainClassName = 'uk.gov.hmcts.reform.em.hrs.Application'
  **********************************************************************************************************************/
 
 sourceSets {
-  //functionalTests typically run on AAT environment only. Includes tests to real external endpoints.
+  //functional tests typically run on AAT environment only. Includes tests to real external endpoints.
   //if running locally, need the relevant docker containers to test against
   //if need to run any locally, then the specific test(s) should be specified
   functionalTest {
     java {
       compileClasspath += main.output
       runtimeClasspath += main.output
-      srcDir file('src/aat/java')
+      srcDir file('src/functionalTest/java')
     }
-    resources.srcDir file('src/aat/resources')
+    resources.srcDir file('src/functionalTest/resources')
   }
 
   //integrationTest typically tests with mocked external endpoints (so can run locally without dependencies)
@@ -100,24 +111,21 @@ tasks.withType(Test) {
 }
 
 task functional(type: Test) {
+  testLogging {
+    events = ["passed", "failed", "skipped"]
+    showStandardStreams = true
+  }
   description = "Runs functional tests"
   group = "Verification"
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
   environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
   include "uk/gov/hmcts/reform/em/hrs/**"
+  logger.info("Functional tests info:")
+  logger.info('A {} log message', 'info')
 }
 
-task contract(type: Test) {
-  description = "Runs contract tests"
-  group = "Verification"
-  testClassesDirs = sourceSets.contractTest.output.classesDirs
-  classpath = sourceSets.contractTest.runtimeClasspath
-  include "uk/gov/hmcts/reform/em/hrs/consumer/**"
-  systemProperty 'pact.rootDir', "pacts"
-  environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
-  failFast = true
-}
+
 
 task integration(type: Test) {
   description = "Runs integration tests"
@@ -137,15 +145,6 @@ task smoke(type: Test) {
 
 }
 
-task runAndPublishConsumerPactTests(type: Test) {
-  logger.lifecycle("Runs pact Tests")
-  testClassesDirs = sourceSets.contractTest.output.classesDirs
-  classpath = sourceSets.contractTest.runtimeClasspath
-}
-
-runAndPublishConsumerPactTests.dependsOn contract
-runAndPublishConsumerPactTests.finalizedBy pactPublish
-
 /***********************************************************************************************************************
  * Code Checks
  **********************************************************************************************************************/
@@ -157,12 +156,10 @@ def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/dto/**',
   '**uk/gov/hmcts/reform/em/hrs/model/**',
   '**uk/gov/hmcts/reform/em/hrs/domain/**',
+  '**uk/gov/hmcts/reform/em/hrs/listener/**',
   '**uk/gov/hmcts/reform/em/hrs/exception/**',
-  '**uk/gov/hmcts/reform/em/hrs/service/ccd/**',
-  '**uk/gov/hmcts/reform/em/hrs/service/IngestionServiceImpl*',
   '**uk/gov/hmcts/reform/em/hrs/domain/**',
-  '**uk/gov/hmcts/reform/em/hrs/storage/**',//TODO implement tests after integration test passes for perf>stage copy
-
+  '**uk/gov/hmcts/reform/em/hrs/util/debug/**',
 ]
 
 checkstyle {
@@ -237,6 +234,7 @@ dependencyManagement {
       entry 'guava'
     }
 
+
     //CVE-2020-15824, CVE-2020-29582
     dependencySet(group: 'org.jetbrains.kotlin', version: '1.5.0-M1') {
       entry 'kotlin'
@@ -280,17 +278,37 @@ dependencyManagement {
     dependencySet(group: 'commons-io', version: '2.8.0') {
       entry 'commons-io'
     }
+
+    //CVE-2021-22118
+    dependencySet(group: 'org.springframework', version: '5.2.15.RELEASE') {
+      entry 'spring-aop'
+      entry 'spring-aspects'
+      entry 'spring-beans'
+      entry 'spring-context'
+      entry 'spring-context-support'
+      entry 'spring-core'
+      entry 'spring-expression'
+      entry 'spring-jcl'
+      entry 'spring-jdbc'
+      entry 'spring-orm'
+      entry 'spring-tx'
+      entry 'spring-web'
+      entry 'spring-webmvc'
+    }
   }
 }
 
 repositories {
-  maven { url "https://dl.bintray.com/hmcts/hmcts-maven" }
   //TODO confirm this should be the primary maven repo (it is in dm store and em stictching)
   mavenCentral()
   jcenter()
+  maven { url 'https://jitpack.io' }
 }
 
 def versions = [
+  serenity           : '2.3.13',
+  serenityreporter   : '2.3.13',
+  serenityRestAssured : '2.3.4',
   lombok             : '1.18.20',
   reformLogging      : '5.1.7',
   springfoxSwagger   : '2.9.2',
@@ -303,6 +321,7 @@ def versions = [
   junit              : '5.7.0',
   junitPlatform      : '1.7.1',
   springSecurity     : '5.3.8.RELEASE'
+
 ]
 
 ext.libraries = [
@@ -347,6 +366,7 @@ dependencies {
 
   implementation group: 'javax.inject', name: 'javax.inject', version: '1'
 
+//  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.0.2'
   implementation "org.springframework.boot:spring-boot-starter-actuator"
   implementation "org.springframework.boot:spring-boot-starter-aop"
   implementation "org.springframework.boot:spring-boot-starter-json"
@@ -372,6 +392,7 @@ dependencies {
   implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: '2.14.1'
   implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
+  implementation group: 'uk.gov.hmcts.reform', name: 'logging-spring', version: versions.reformLogging
 
 //hmcts resilience
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.7.RELEASE'
@@ -413,6 +434,12 @@ dependencies {
   liquibaseRuntime sourceSets.main.compileClasspath
   liquibaseRuntime sourceSets.main.output
 
+  testCompile group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
+  testCompile group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
+  testCompile group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
+  testCompile group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+  testCompile group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
+
 /***********************************************************************************************************************
  * TEST DEPENDENCIES
  **********************************************************************************************************************/
@@ -431,7 +458,7 @@ dependencies {
     exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
 
-  functionalTestImplementation 'uk.gov.hmcts.reform:em-test-helper:1.18.1', withoutStuff
+  functionalTestImplementation 'com.github.hmcts:em-test-helper:1.18.2'
   functionalTestImplementation 'net.serenity-bdd:serenity-rest-assured:2.3.4', withoutStuff
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.19.0'
@@ -446,12 +473,29 @@ dependencies {
   testImplementation group: 'org.pitest', name: 'pitest', version: '1.6.4'
   testImplementation group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
 
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestCompile 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestCompile 'org.junit.jupiter:junit-jupiter-api:5.6.3'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
+
+  testCompile "org.junit.jupiter:junit-jupiter-api:5.6.3"
+  testRuntime "org.junit.jupiter:junit-jupiter-engine:5.6.3"
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.3"
+
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
+
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation "uk.gov.hmcts.reform:em-test-helper:1.18.1"
+  smokeTestImplementation 'com.github.hmcts:em-test-helper:1.18.2'
+
+  //functionalTestCompile "uk.gov.hmcts.reform:em-test-helper:1.18.1", withoutStuff
 
 /***********************************************************************************************************************
  * TEST SOURCE SETS
@@ -490,12 +534,14 @@ dependencies {
 
   contractTestImplementation sourceSets.main.runtimeClasspath
   contractTestImplementation sourceSets.test.runtimeClasspath
+
+  contractTestCompile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+  contractTestCompile group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
 }
 
 /***********************************************************************************************************************
  * Adhoc
  **********************************************************************************************************************/
-
 test {
   useJUnitPlatform()
 }
@@ -514,6 +560,28 @@ wrapper {
   distributionType = Wrapper.DistributionType.ALL
 }
 
+task contract(type: Test) {
+  group = 'Delivery pipeline'
+  description = 'Runs the consumer Pact tests'
+  useJUnitPlatform()
+  testClassesDirs = sourceSets.contractTest.output.classesDirs
+  classpath = sourceSets.contractTest.runtimeClasspath
+  include "uk/gov/hmcts/reform/em/hrs/consumer/**"
+  systemProperty 'pact.rootDir', "pacts"
+  environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
+}
+
+task runAndPublishConsumerPactTests(type: Test){
+  logger.lifecycle("Runs pact Tests")
+  testClassesDirs = sourceSets.contractTest.output.classesDirs
+  classpath = sourceSets.contractTest.runtimeClasspath
+
+}
+
+runAndPublishConsumerPactTests.dependsOn contract
+
+runAndPublishConsumerPactTests.finalizedBy pactPublish
+
 project.ext {
   pactVersion = getCheckedOutGitCommitHash()
 }
@@ -522,22 +590,19 @@ def getCheckedOutGitCommitHash() {
   'git rev-parse --verify --short HEAD'.execute().text.trim()
 }
 
+serenity {
+  reports = ["single-page-html"]
+}
+
 pact {
-
-  reports {
-    defaultReports() // adds the standard console output
-
-    markdown // report in markdown format
-    json // report in json format
-  }
-
   publish {
     pactDirectory = 'pacts'
     pactBrokerUrl = System.getenv("PACT_BROKER_FULL_URL") ?: 'http://localhost:80'
-    tags = [System.getenv("PACT_BRANCH_NAME") ?: 'Dev']
     version = project.pactVersion
   }
 }
+
+compileJava.dependsOn processResources
 
 pitest {
   targetClasses = ['uk.gov.hmcts.reform.em.hrs.util.*', 'uk.gov.hmcts.reform.em.hrs.service.*', 'uk.gov.hmcts.reform.em.hrs.controller.*', 'uk.gov.hmcts.reform.em.hrs.repository.*', 'uk.gov.hmcts.reform.em.hrs.storage.*']
