@@ -67,7 +67,7 @@ public class HearingRecordingSegmentScenarios extends BaseTest {
 
     @Test
     public void shouldCreateFolderWhenDoesNotExistAndReturnEmptyFileNames() {
-        final String nonExistentFolder = "audiostream000000";
+        final String nonExistentFolder = "dummyaudiostream000000";
 
         getFilenames(nonExistentFolder)
             .assertThat().log().all()
