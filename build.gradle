@@ -467,7 +467,7 @@ dependencies {
     exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
 
-  functionalTestImplementation 'com.github.hmcts:em-test-helper:1.18.2'
+  functionalTestImplementation 'com.github.hmcts:em-test-helper:1.20.0'
   functionalTestImplementation 'net.serenity-bdd:serenity-rest-assured:2.3.4', withoutStuff
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.19.0'
