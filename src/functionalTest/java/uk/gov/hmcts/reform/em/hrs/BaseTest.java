@@ -245,6 +245,7 @@ public abstract class BaseTest {
     }
 
     protected CaseDetails findCase(String caseRef) throws InterruptedException {
+        LOGGER.info("CaseRef {},", caseRef);
         Optional<CaseDetails> optionalCaseDetails = searchForCase(caseRef);
 
         int count = 0;
