@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 
@@ -265,7 +266,8 @@ public abstract class BaseTest {
     }
 
     protected Optional<CaseDetails> searchForCase(String caseRef) {
-        Map<String, String> searchCriteria = Map.of("case.recordingReference", caseRef);
+        var uuid = UUID.randomUUID().toString();
+        Map<String, String> searchCriteria = Map.of("case.recordingReference", caseRef, "id", uuid);
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
         String userToken = idamClient.getAccessToken(HRS_TESTER, "4590fgvhbfgbDdffm3lk4j");
         String uid = idamClient.getUserInfo(userToken).getUid();
