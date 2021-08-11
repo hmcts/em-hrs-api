@@ -5,6 +5,7 @@ package uk.gov.hmcts.reform.em.hrs.service.ccd;
 //import com.github.rholder.retry.StopStrategies;
 //import com.github.rholder.retry.WaitStrategies;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.rholder.retry.Retryer;
 import com.github.rholder.retry.RetryerBuilder;
 import com.github.rholder.retry.StopStrategies;
@@ -62,7 +63,12 @@ public class CcdDataStoreApiClient {
             .eventToken(startEventResponse.getToken())
             .data(caseDataCreator.createCaseStartData(hearingRecordingDto, recordingId))
             .build();
-
+        try {
+            caseDataCreator.printCaseData(caseData);
+        } catch (JsonProcessingException e) {
+            LOGGER.info("JsonProcessingException:: ", e);
+        }
+        LOGGER.info("CaseData {} ", caseData);
         CaseDetails caseDetails = coreCaseDataApi
             .submitForCaseworker(tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
                                  JURISDICTION, CASE_TYPE, false, caseData
