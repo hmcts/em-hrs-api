@@ -81,18 +81,20 @@ public class CaseDataContentCreator {
 
     private CaseRecordingFile createSegment(HearingRecordingDto hearingRecordingDto, UUID recordingId) {
 
-        String documentUrl = String.format("%s/hearing-recordings/%s/segments/%d",
-                                           hearingRecordingDto.getUrlDomain(), recordingId,
-                                           hearingRecordingDto.getSegment());
+
+        var documentUrl = "http://dm-store-aat.service.core-compute-aat" +
+            ".internal/documents/"+recordingId;
+        var documentBinaryUrl = "http://dm-store-aat.service.core-compute-aat" +
+            ".internal/documents/"+recordingId+"binary";
 
         LOGGER.info("creating recording segment with url({})", documentUrl);
 
         CaseDocument recordingFile = CaseDocument.builder()
             .filename(hearingRecordingDto.getFilename())
             .url(documentUrl)
-            .binaryUrl(documentUrl)
+            .binaryUrl(documentBinaryUrl)
             .build();
-
+        LOGGER.info("creating recordingFile ({})", recordingFile);
         return CaseRecordingFile.builder()
             .caseDocument(recordingFile)
             .segmentNumber(String.valueOf(hearingRecordingDto.getSegment()))
