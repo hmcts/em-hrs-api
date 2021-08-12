@@ -164,6 +164,7 @@ public abstract class BaseTest {
     }
 
     protected Response postRecordingSegment(JsonNode segmentPayload) {
+        LOGGER.info("BaseTest testUrl: ={}=", testUrl);
         return s2sAuthRequest()
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
@@ -266,8 +267,7 @@ public abstract class BaseTest {
     }
 
     protected Optional<CaseDetails> searchForCase(String caseRef) {
-        var uuid = UUID.randomUUID().toString();
-        Map<String, String> searchCriteria = Map.of("case.recordingReference", caseRef, "id", uuid);
+        Map<String, String> searchCriteria = Map.of("case.recordingReference", caseRef);
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
         String userToken = idamClient.getAccessToken(HRS_TESTER, "4590fgvhbfgbDdffm3lk4j");
         String uid = idamClient.getUserInfo(userToken).getUid();
