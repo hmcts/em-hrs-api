@@ -479,7 +479,7 @@ dependencies {
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.0.3'
   testImplementation group: 'info.solidsoft.gradle.pitest', name: 'gradle-pitest-plugin', version: '1.6.0'
-  testImplementation group: 'org.pitest', name: 'pitest', version: '1.6.8'
+  testImplementation group: 'org.pitest', name: 'pitest', version: '1.6.9'
   testImplementation group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
 
   functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
