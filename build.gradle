@@ -48,9 +48,7 @@ sourceSets {
     java {
       compileClasspath += main.output
       runtimeClasspath += main.output
-      srcDir file('src/functionalTest/java')
     }
-    resources.srcDir file('src/functionalTest/resources')
   }
 
   //integrationTest typically tests with mocked external endpoints (so can run locally without dependencies)
@@ -58,9 +56,7 @@ sourceSets {
     java {
       compileClasspath += main.output
       runtimeClasspath += main.output
-      srcDir file('src/integrationTest/java')
     }
-    resources.srcDir file('src/integrationTest/resources')
   }
 
   //contractTest typically tests with PACT broker
@@ -68,9 +64,7 @@ sourceSets {
     java {
       compileClasspath += main.output
       runtimeClasspath += main.output
-      srcDir file('src/contractTest/java')
     }
-    resources.srcDir file('src/contractTest/resources')
   }
 
   //smokeTest should include helloworld & healthcheck. Ideally will also include downstream healthchecks
@@ -79,15 +73,11 @@ sourceSets {
     java {
       compileClasspath += main.output
       runtimeClasspath += main.output
-      srcDir file('src/smokeTest/java')
     }
     groovy {
       compileClasspath += main.output + test.output
       runtimeClasspath += main.output + test.output
-      srcDir('src/smokeTest/groovy')
     }
-
-    resources.srcDir file('src/smokeTest/resources')
   }
 
   test {
@@ -352,11 +342,11 @@ dependencies {
     exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
   }
 
-  compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
-  compile group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
+  implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+  implementation group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
 
   //for retry mechanism updatign ccd
-  compile "com.github.rholder:guava-retrying:2.0.0"
+  implementation "com.github.rholder:guava-retrying:2.0.0"
 
   implementation group: "commons-validator", name: "commons-validator", version: "1.7"
 
@@ -370,7 +360,7 @@ dependencies {
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
-  compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+  implementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
   implementation "ch.qos.logback:logback-classic:1.2.5"
 
   implementation group: 'javax.inject', name: 'javax.inject', version: '1'
@@ -435,7 +425,7 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-jdbc"
 
   liquibaseRuntime "com.h2database:h2"
-  liquibaseRuntime "org.liquibase.ext:liquibase-hibernate5:4.4.2"
+  liquibaseRuntime "org.liquibase.ext:liquibase-hibernate5:4.4.3"
   liquibaseRuntime "org.liquibase:liquibase-core:4.3.4"
   liquibaseRuntime "org.liquibase:liquibase-groovy-dsl:3.0.1"
   liquibaseRuntime group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
@@ -443,11 +433,11 @@ dependencies {
   liquibaseRuntime sourceSets.main.compileClasspath
   liquibaseRuntime sourceSets.main.output
 
-  testCompile group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
-  testCompile group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
-  testCompile group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
-  testCompile group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  testCompile group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
 
 /***********************************************************************************************************************
  * TEST DEPENDENCIES
@@ -483,19 +473,20 @@ dependencies {
   testImplementation group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
 
   functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
-  functionalTestCompile 'org.junit.vintage:junit-vintage-engine:5.6.3'
-  functionalTestCompile 'org.junit.jupiter:junit-jupiter-api:5.6.3'
+  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
   functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
 
-  testCompile "org.junit.jupiter:junit-jupiter-api:5.6.3"
-  testRuntime "org.junit.jupiter:junit-jupiter-engine:5.6.3"
-  testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.3"
 
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  functionalTestCompile group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
+
+
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
 
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
@@ -529,25 +520,36 @@ dependencies {
   contractTestImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-junit5_2.12', version: versions.pact_version
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-java8_2.12', version: versions.pact_version
-  contractTestCompile group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.0.10'
-  contractTestCompile group: 'au.com.dius', name: 'pact-jvm-provider-gradle', version: '4.0.10'
+  contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.0.10'
+  contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-gradle', version: '4.0.10'
 
   contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.6.2"
   contractTestImplementation "org.junit.vintage:junit-vintage-engine:5.6.2"
-  contractTestCompile("org.junit.jupiter:junit-jupiter-api:5.6.2")
-  contractTestRuntime("org.junit.jupiter:junit-jupiter-engine:5.6.2")
+  contractTestImplementation("org.junit.jupiter:junit-jupiter-api:5.6.2")
+  contractTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.2")
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.2.0'
 
-  contractTestCompileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+  contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
   contractTestImplementation "ch.qos.logback:logback-classic:1.2.3"
 
   contractTestImplementation sourceSets.main.runtimeClasspath
   contractTestImplementation sourceSets.test.runtimeClasspath
 
-  contractTestCompile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
-  contractTestCompile group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
+  contractTestImplementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+  contractTestImplementation group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
 }
 
+processFunctionalTestResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+processIntegrationTestResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+processTestResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
 /***********************************************************************************************************************
  * Adhoc
  **********************************************************************************************************************/
@@ -595,7 +597,7 @@ project.ext {
   pactVersion = getCheckedOutGitCommitHash()
 }
 
-def getCheckedOutGitCommitHash() {
+static def getCheckedOutGitCommitHash() {
   'git rev-parse --verify --short HEAD'.execute().text.trim()
 }
 
