@@ -472,7 +472,7 @@ dependencies {
   testImplementation group: 'org.pitest', name: 'pitest', version: '1.7.0'
   testImplementation group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
 
-  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.8.0'
   functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.6.3'
   functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
   functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
@@ -524,7 +524,7 @@ dependencies {
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-gradle', version: '4.0.10'
 
   contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.6.2"
-  contractTestImplementation "org.junit.vintage:junit-vintage-engine:5.6.2"
+  contractTestImplementation "org.junit.vintage:junit-vintage-engine:5.8.0"
   contractTestImplementation("org.junit.jupiter:junit-jupiter-api:5.6.2")
   contractTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.2")
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.2.0'
