@@ -16,6 +16,18 @@ spring:
             client-id: webshow #TODO: create proper idam client-id for hrs
             client-secret: ${S2S_KEY:AAAAAAAAAAAAAAAA}
 
+management:
+  endpoint:
+    health:
+      show-details: "always"
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: health, info
+
 test:
   url: ${TEST_URL:http://localhost:8080}
 
