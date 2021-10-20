@@ -74,7 +74,7 @@ class CaseDataContentCreatorTest {
 
         assertEquals("FM", actual.get("jurisdictionCode").asText());
         assertEquals(RECORDING_REF, actual.get("recordingReference").asText());
-        LocalDate date = LocalDate.parse(actual.get ("recordingDate").asText());
+        LocalDate date = LocalDate.parse(actual.get("recordingDate").asText());
         assertEquals("JULY", date.getMonth().name());
         assertEquals(1962, date.getYear());
         assertEquals("AM", actual.get("recordingTimeOfDay").asText());

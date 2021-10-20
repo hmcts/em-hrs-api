@@ -20,7 +20,6 @@ import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
-import javax.inject.Inject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
