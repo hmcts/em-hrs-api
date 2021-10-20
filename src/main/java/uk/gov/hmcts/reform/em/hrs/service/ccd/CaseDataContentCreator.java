@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.service.ccd;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ public class CaseDataContentCreator {
     private final ObjectMapper objectMapper;
 
     public CaseDataContentCreator(ObjectMapper objectMapper) {
+        objectMapper.registerModule(new JavaTimeModule());
         this.objectMapper = objectMapper;
     }
 
@@ -72,7 +74,7 @@ public class CaseDataContentCreator {
         return caseData.getRecordingFiles().stream()
             .map(mapItem -> mapItem.get("value"))
             .map(value -> objectMapper.convertValue(value, CaseRecordingFile.class))
-            .map(recordingFile -> recordingFile.getCaseDocument())
+            .map(CaseRecordingFile::getCaseDocument)
             .collect(Collectors.toList());
     }
 
