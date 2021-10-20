@@ -318,7 +318,7 @@ def versions = [
   restAssured        : '4.2.0',
   junit              : '5.8.1',
   junitPlatform      : '1.8.1',
-  springSecurity     : '5.3.8.RELEASE'
+  springSecurity     : '5.5.2'
 
 ]
 
