@@ -166,9 +166,9 @@ checkstyle {
 jacocoTestReport {
   executionData(test, integration)
   reports {
-    xml.enabled = true
-    csv.enabled = false
-    xml.destination file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+    xml.required = true
+    csv.required = false
+    xml.outputLocation = file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
   }
 
   afterEvaluate {
@@ -301,8 +301,8 @@ dependencyManagement {
 }
 
 repositories {
+  mavenLocal()
   mavenCentral()
-  jcenter()
   maven { url 'https://jitpack.io' }
 }
 
@@ -341,7 +341,7 @@ dependencies {
     exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
     exclude group: 'com.vaadin.external.google', module: 'android-json'
     exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
-    exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
+    exclude group: 'com.github.hmcts.java-logging', module: 'logging-spring'
   }
 
   implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
@@ -372,25 +372,25 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-web"
   implementation "org.springframework.boot:spring-boot-starter-security"
 
-  implementation "uk.gov.hmcts.reform:properties-volume-spring-boot-starter:0.1.0"
+  implementation 'com.github.hmcts:properties-volume-spring-boot-starter:0.1.1'
 
 //hmcts autho
-  implementation group: 'uk.gov.hmcts.reform', name: 'idam-client', version: '1.5.5'
-  implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.4'
-  implementation(group: 'uk.gov.hmcts.reform.auth', name: 'auth-checker-lib', version: '2.1.4') {
+  implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '2.0.1'
+  implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '4.0.2'
+  implementation group: 'com.github.hmcts', name: 'auth-checker-lib', version: '2.1.5', {
     exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
   }
 
 
 //hmcts ccd
-  implementation group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: '4.7.5'
+  implementation group: 'com.github.hmcts', name: 'ccd-client', version: '4.7.7'
 
 //hmcts logging
   implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
   implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: '2.14.1'
-  implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
-  implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
-  implementation group: 'uk.gov.hmcts.reform', name: 'logging-spring', version: versions.reformLogging
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging-spring', version: versions.reformLogging
 
 //hmcts resilience
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.9.RELEASE'
@@ -456,7 +456,7 @@ dependencies {
     exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
 
-  functionalTestImplementation 'com.github.hmcts:em-test-helper:1.18.2'
+  functionalTestImplementation 'com.github.hmcts:em-test-helper:1.20.3'
   functionalTestImplementation 'net.serenity-bdd:serenity-rest-assured:2.3.4', withoutStuff
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.21.0'
@@ -492,7 +492,7 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation 'com.github.hmcts:em-test-helper:1.18.2'
+  smokeTestImplementation 'com.github.hmcts:em-test-helper:1.20.3'
 
 
 
