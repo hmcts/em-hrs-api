@@ -1,7 +1,7 @@
 buildscript {
   dependencies {
-    classpath("net.serenity-bdd:serenity-gradle-plugin:2.6.0")
-    classpath("net.serenity-bdd:serenity-single-page-report:2.6.0")
+    classpath("net.serenity-bdd:serenity-gradle-plugin:2.3.13")
+    classpath("net.serenity-bdd:serenity-single-page-report:2.3.13")
   }
 }
 
@@ -10,13 +10,13 @@ plugins {
   id 'checkstyle'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-  id 'org.springframework.boot' version '2.5.5'
+  id 'org.springframework.boot' version '2.3.4.RELEASE'
   id 'uk.gov.hmcts.java' version '0.12.8'
   id 'com.github.ben-manes.versions' version '0.36.0'
   id 'org.sonarqube' version '3.1.1'
   id 'org.liquibase.gradle' version '2.0.4'
   id 'groovy'
-  id 'au.com.dius.pact' version '4.2.14'
+  id 'au.com.dius.pact' version '4.2.11'
   id "info.solidsoft.pitest" version '1.6.0'
 }
 
@@ -282,7 +282,7 @@ dependencyManagement {
     }
 
     //CVE-2021-22118
-    dependencySet(group: 'org.springframework', version: '5.3.12') {
+    dependencySet(group: 'org.springframework', version: '5.2.15.RELEASE') {
       entry 'spring-aop'
       entry 'spring-aspects'
       entry 'spring-beans'
@@ -307,9 +307,9 @@ repositories {
 }
 
 def versions = [
-  serenity           : '2.6.0',
-  serenityreporter   : '2.6.0',
-  serenityRestAssured : '2.6.0',
+  serenity           : '2.3.13',
+  serenityreporter   : '2.3.13',
+  serenityRestAssured : '2.3.4',
   lombok             : '1.18.20',
   reformLogging      : '5.1.7',
   springfoxSwagger   : '2.9.2',
@@ -471,10 +471,10 @@ dependencies {
   testImplementation group: 'org.pitest', name: 'pitest', version: '1.7.0'
   testImplementation group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
 
-  functionalTestRuntimeOnly group: 'org.junit.vintage', name : 'junit-vintage-engine', version: '5.7.1'
-  functionalTestImplementation group: 'org.junit.vintage', name: 'junit-vintage-engine', version:'5.8.1'
-  functionalTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.1'
-  functionalTestRuntimeOnly group: 'org.junit.jupiter', name:'junit-jupiter-engine', version: '5.8.1'
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
 
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
@@ -522,14 +522,14 @@ dependencies {
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.0.10'
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-gradle', version: '4.0.10'
 
-  contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.1'
-  contractTestImplementation group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.6.2'
-  contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
-  contractTestRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version :'5.8.1'
+  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
+  contractTestImplementation "org.junit.vintage:junit-vintage-engine:5.6.2"
+  contractTestImplementation("org.junit.jupiter:junit-jupiter-api:5.6.2")
+  contractTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.2.0'
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-  contractTestImplementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.6'
+  contractTestImplementation "ch.qos.logback:logback-classic:1.2.6"
 
   contractTestImplementation sourceSets.main.runtimeClasspath
   contractTestImplementation sourceSets.test.runtimeClasspath
