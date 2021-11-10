@@ -282,7 +282,7 @@ dependencyManagement {
     }
 
     //CVE-2021-22118
-    dependencySet(group: 'org.springframework', version: '5.2.15.RELEASE') {
+    dependencySet(group: 'org.springframework', version: '5.3.12') {
       entry 'spring-aop'
       entry 'spring-aspects'
       entry 'spring-beans'
@@ -307,9 +307,6 @@ repositories {
 }
 
 def versions = [
-  serenity           : '2.6.0',
-  serenityreporter   : '2.6.0',
-  serenityRestAssured : '2.6.0',
   lombok             : '1.18.20',
   reformLogging      : '5.1.7',
   springfoxSwagger   : '2.9.2',
@@ -321,7 +318,7 @@ def versions = [
   serenityreporter   : '2.3.12',
   junit              : '5.8.1',
   junitPlatform      : '1.8.1',
-  springSecurity     : '5.3.8.RELEASE'
+  springSecurity     : '5.5.3'
 
 ]
 
@@ -330,6 +327,7 @@ ext.libraries = [
     "org.junit.jupiter:junit-jupiter-api:${versions.junit}",
     "org.junit.jupiter:junit-jupiter-engine:${versions.junit}",
     "org.junit.jupiter:junit-jupiter-params:${versions.junit}",
+    "org.junit.jupiter:junit-jupiter:${versions.junit}",
     "org.junit.platform:junit-platform-commons:${versions.junitPlatform}",
     "org.junit.platform:junit-platform-engine:${versions.junitPlatform}"
   ]
@@ -346,6 +344,10 @@ dependencies {
 
   implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
   implementation group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
+
+  implementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
+
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.0.4'
 
   //for retry mechanism updatign ccd
   implementation "com.github.rholder:guava-retrying:2.0.0"
@@ -365,12 +367,12 @@ dependencies {
   implementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
   implementation "ch.qos.logback:logback-classic:1.2.6"
 
-  implementation 'org.springframework.boot:spring-boot-starter-actuator:2.5.6'
-  implementation 'org.springframework.boot:spring-boot-starter-aop:2.5.6'
-  implementation 'org.springframework.boot:spring-boot-starter-json:2.5.6'
-  implementation 'org.springframework.boot:spring-boot-starter-validation:2.5.6'
-  implementation 'org.springframework.boot:spring-boot-starter-web:2.5.6'
-  implementation 'org.springframework.boot:spring-boot-starter-security:2.5.6'
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'org.springframework.boot:spring-boot-starter-aop'
+  implementation 'org.springframework.boot:spring-boot-starter-json'
+  implementation 'org.springframework.boot:spring-boot-starter-validation'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
 
   implementation "uk.gov.hmcts.reform:properties-volume-spring-boot-starter:0.1.0"
 
@@ -420,7 +422,7 @@ dependencies {
   implementation group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
   implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.5.7.Final'
   implementation "org.liquibase:liquibase-core:4.4.2"
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.5.6'
   implementation "org.springframework.boot:spring-boot-starter-jdbc"
 
   liquibaseRuntime "com.h2database:h2"
@@ -444,6 +446,8 @@ dependencies {
 
   testImplementation libraries.junit5
 
+  testImplementation group: 'org.springframework', name: 'spring-test', version: '5.3.12'
+
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
@@ -461,7 +465,7 @@ dependencies {
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.21.0'
   testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.25.0'
-  testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.16.0'
+  testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.16.2'
   testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.3'
   testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.4', {
     exclude group: 'com.google.guava', module: 'guava'
@@ -473,12 +477,12 @@ dependencies {
 
   functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.7.1'
   functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.6.3'
-  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
-  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.1'
+  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
 
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
-  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.1'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
 
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
@@ -522,10 +526,10 @@ dependencies {
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.0.10'
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-gradle', version: '4.0.10'
 
-  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.7.1"
+  contractTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
   contractTestImplementation "org.junit.vintage:junit-vintage-engine:5.6.2"
-  contractTestImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
-  contractTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+  contractTestImplementation('org.junit.jupiter:junit-jupiter-api:5.8.1')
+  contractTestRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.8.1')
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.2.0'
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
