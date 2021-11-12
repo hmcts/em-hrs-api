@@ -267,8 +267,8 @@ dependencyManagement {
       entry 'netty-handler-proxy'
     }
 
-    //CVE-2021-22112
-    dependencySet(group: 'org.springframework.security', version: '5.5.2') {
+    //CVE-2021-22112, CVE-2021-22119
+    dependencySet(group: 'org.springframework.security', version: '5.5.3') {
       entry 'spring-security-config'
       entry 'spring-security-core'
       entry 'spring-security-crypto'
@@ -299,6 +299,13 @@ dependencyManagement {
       entry 'spring-web'
       entry 'spring-webmvc'
     }
+
+    //CVE-2021-22044
+    dependencySet(group: 'org.springframework.cloud', version: '3.0.5') {
+      entry 'spring-cloud-openfeign-core'
+      entry 'spring-cloud-starter-openfeign'
+      entry 'spring-cloud-starter-bootstrap'
+    }
   }
 }
 
@@ -320,7 +327,7 @@ def versions = [
   restAssured        : '4.2.0',
   junit              : '5.8.1',
   junitPlatform      : '1.8.1',
-  springSecurity     : '5.3.8.RELEASE'
+  springSecurity     : '5.5.3'
 
 ]
 
@@ -347,12 +354,13 @@ dependencies {
   implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
   implementation group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.0.2'
-
   //for retry mechanism updating ccd
   implementation "com.github.rholder:guava-retrying:2.0.0"
 
   implementation group: "commons-validator", name: "commons-validator", version: "1.7"
+
+  //CVE-2020-15522
+  implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.69'
 
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-client', version: versions.springSecurity
