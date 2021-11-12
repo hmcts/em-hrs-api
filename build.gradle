@@ -1,7 +1,7 @@
 buildscript {
   dependencies {
-    classpath("net.serenity-bdd:serenity-gradle-plugin:2.3.13")
-    classpath("net.serenity-bdd:serenity-single-page-report:2.3.13")
+    classpath("net.serenity-bdd:serenity-gradle-plugin:2.6.0")
+    classpath("net.serenity-bdd:serenity-single-page-report:2.6.0")
   }
 }
 
@@ -10,8 +10,8 @@ plugins {
   id 'checkstyle'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-  id 'org.springframework.boot' version '2.3.4.RELEASE'
-  id 'uk.gov.hmcts.java' version '0.12.8'
+  id 'org.springframework.boot' version '2.3.12.RELEASE'
+  id 'uk.gov.hmcts.java' version '0.12.15'
   id 'com.github.ben-manes.versions' version '0.36.0'
   id 'org.sonarqube' version '3.1.1'
   id 'org.liquibase.gradle' version '2.0.4'
@@ -265,7 +265,7 @@ dependencyManagement {
     }
 
     //CVE-2021-22112
-    dependencySet(group: 'org.springframework.security', version: '5.3.8.RELEASE') {
+    dependencySet(group: 'org.springframework.security', version: '5.5.2') {
       entry 'spring-security-config'
       entry 'spring-security-core'
       entry 'spring-security-crypto'
@@ -282,7 +282,7 @@ dependencyManagement {
     }
 
     //CVE-2021-22118
-    dependencySet(group: 'org.springframework', version: '5.2.15.RELEASE') {
+    dependencySet(group: 'org.springframework', version: '5.3.0') {
       entry 'spring-aop'
       entry 'spring-aspects'
       entry 'spring-beans'
@@ -316,9 +316,6 @@ def versions = [
   postgresql         : '42.2.20',
   pact_version       : '3.6.15',
   restAssured        : '4.2.0',
-  serenity           : '2.3.12',
-  serenityRestAssured: '2.3.4',
-  serenityreporter   : '2.3.12',
   junit              : '5.8.1',
   junitPlatform      : '1.8.1',
   springSecurity     : '5.3.8.RELEASE'
@@ -340,10 +337,11 @@ dependencies {
   def withoutStuff = {
     exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
     exclude group: 'com.vaadin.external.google', module: 'android-json'
-    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
+//    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
     exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
   }
 
+  implementation group: 'org.json', name: 'json', version: '20210307'
   implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
   implementation group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
 
@@ -371,6 +369,7 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-validation"
   implementation "org.springframework.boot:spring-boot-starter-web"
   implementation "org.springframework.boot:spring-boot-starter-security"
+//  implementation "org.springframework.boot:spring-boot-starter-test"
 
   implementation "uk.gov.hmcts.reform:properties-volume-spring-boot-starter:0.1.0"
 
@@ -456,7 +455,7 @@ dependencies {
     exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
 
-  functionalTestImplementation 'com.github.hmcts:em-test-helper:1.18.2'
+  functionalTestImplementation 'com.github.hmcts:em-test-helper:1.20.0'
   functionalTestImplementation 'net.serenity-bdd:serenity-rest-assured:2.3.4', withoutStuff
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.21.0'
@@ -471,13 +470,13 @@ dependencies {
   testImplementation group: 'org.pitest', name: 'pitest', version: '1.7.0'
   testImplementation group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
 
-  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
-  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.8.1'
+  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.8.1'
   functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
   functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
 
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
   testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
 
 
@@ -523,7 +522,7 @@ dependencies {
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-gradle', version: '4.0.10'
 
   contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
-  contractTestImplementation "org.junit.vintage:junit-vintage-engine:5.6.2"
+  contractTestImplementation 'org.junit.vintage:junit-vintage-engine:5.8.1'
   contractTestImplementation("org.junit.jupiter:junit-jupiter-api:5.6.2")
   contractTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.2.0'
