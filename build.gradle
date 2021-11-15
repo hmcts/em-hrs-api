@@ -482,6 +482,10 @@ dependencies {
   functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.8.1'
   functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
   functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+  functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
+  functionalTestImplementation group: 'io.rest-assured', name: 'json-schema-validator', version: versions.restAssured
+  functionalTestImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
+  functionalTestImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
 
 
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
