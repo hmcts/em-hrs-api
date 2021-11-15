@@ -48,7 +48,6 @@ import javax.annotation.PostConstruct;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper.HRS_TESTER;
 
 @SpringBootTest(classes = {
     ExtendedCcdHelper.class,
@@ -71,18 +70,20 @@ public abstract class BaseTest {
     protected static final String CASE_TYPE = "HearingRecordings";
     protected static final String BEARER = "Bearer ";
     protected static final String FILE_EXT = "mp4";
-    protected static final String USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS = "em-test-caseworker-hrs@test.email";
-    protected static final String USER_WITH_REQUESTOR_ROLE__CASEWORKER = "em-test-caseworker@test.email";
-    protected static final String USER_WITH_NONACCESS_ROLE__CITIZEN = "em-test-citizen@test.email";
+    protected static final String USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS = "em-test-caseworker-hrs@test.internal";
+    protected static final String USER_WITH_REQUESTOR_ROLE__CASEWORKER = "em-test-caseworker@test.internal";
+    protected static final String USER_WITH_NONACCESS_ROLE__CITIZEN = "em-test-citizen@test.internal";
     protected static final String EMAIL_ADDRESS_INVALID_FORMAT = "invalid@emailaddress";
-    protected static final int SEGMENT = 0;
     protected static final String FOLDER = "audiostream123455";
     protected static final String TIME = "2020-11-04-14.56.32.819";
     public static final String CASEREF_PREFIX = "FUNCTEST_";
     protected static List<String> CASE_WORKER_ROLE = List.of("caseworker");
-    protected static List<String> CASE_WORKER_HRS_ROLE = List.of("caseworker-hrs");
+    protected static List<String> CASE_WORKER_HRS_ROLE = List.of("caseworker", "caseworker-hrs");
     protected static List<String> CITIZEN_ROLE = List.of("citizen");
     protected static final String CLOSE_CASE = "closeCase";
+
+    public static String HRS_TESTER = "hrs.test.user@hmcts.net";
+    public static List<String> HRS_TESTER_ROLES = List.of("caseworker", "caseworker-hrs", "ccd-import");
 
     int FIND_CASE_TIMEOUT = 30;
 
@@ -119,24 +120,41 @@ public abstract class BaseTest {
     @Autowired
     protected ExtendedCcdHelper extendedCcdHelper;
 
-
     @PostConstruct
     public void init() {
         SerenityRest.useRelaxedHTTPSValidation();
+
+        createUserIfNotExists(HRS_TESTER, HRS_TESTER_ROLES);
+        createUserIfNotExists(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, CASE_WORKER_HRS_ROLE);
+        createUserIfNotExists(USER_WITH_REQUESTOR_ROLE__CASEWORKER, CASE_WORKER_ROLE);
+        createUserIfNotExists(USER_WITH_NONACCESS_ROLE__CITIZEN, CITIZEN_ROLE);
+
         idamAuth_hrs_tester = idamHelper.authenticateUser(HRS_TESTER);
         s2sAuth = BEARER + s2sHelper.getS2sToken();
         userId_hrs_tester = idamHelper.getUserId(HRS_TESTER);
 
 
-        LOGGER.info("creating user: {}", USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS);
-        idamHelper.createUser(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, CASE_WORKER_HRS_ROLE);
+    }
 
-        LOGGER.info("creating user: {}", USER_WITH_REQUESTOR_ROLE__CASEWORKER);
-        idamHelper.createUser(USER_WITH_REQUESTOR_ROLE__CASEWORKER, CASE_WORKER_ROLE);
+    private void createUserIfNotExists(String email, List<String> roles) {
+        /* in some cases, there were conflicts between PR branches being built
+        due to users being deleted / recreated
 
-        LOGGER.info("creating user: {}", USER_WITH_NONACCESS_ROLE__CITIZEN);
-        idamHelper.createUser(USER_WITH_NONACCESS_ROLE__CITIZEN, CITIZEN_ROLE);
+        as the roles are static they do not need to be deleted each time
+        should the roles change for users, then the recreateUsers flag will need to be true before merging to master
+         */
 
+        boolean recreateUsers = false;
+
+        if (recreateUsers) {
+            idamHelper.createUser(email, roles);
+        } else {
+            try {
+                idamHelper.getUserId(email);
+            } catch (Exception e) {//if user does not exist
+                idamHelper.createUser(email, roles);
+            }
+        }
     }
 
 

@@ -13,8 +13,9 @@ import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import javax.annotation.PostConstruct;
+
+import static uk.gov.hmcts.reform.em.hrs.BaseTest.HRS_TESTER;
 
 @Service
 public class ExtendedCcdHelper {
@@ -36,12 +37,9 @@ public class ExtendedCcdHelper {
     protected String ccdDefinitionFile;
 
 
-    public static String HRS_TESTER = "hrs.test.user@hmcts.net";
-    public static List<String> HRS_TESTER_ROLES = List.of("caseworker", "caseworker-hrs", "ccd-import");
-
     @PostConstruct
     public void init() throws Exception {
-        idamHelper.createUser(HRS_TESTER, HRS_TESTER_ROLES);
+
         importDefinitionFile();
     }
 
@@ -58,10 +56,12 @@ public class ExtendedCcdHelper {
             "x",
             "x",
             "application/octet-stream",
-            getHrsDefinitionFile());
+            getHrsDefinitionFile()
+        );
 
         ccdDefImportApi.importCaseDefinition(idamHelper.authenticateUser(HRS_TESTER),
-                                             ccdAuthTokenGenerator.generate(), multipartFile);
+                                             ccdAuthTokenGenerator.generate(), multipartFile
+        );
     }
 
     private InputStream getHrsDefinitionFile() {
@@ -70,6 +70,7 @@ public class ExtendedCcdHelper {
 
     private void createUserRole(String userRole) {
         ccdDefUserRoleApi.createUserRole(new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
-                                         idamHelper.authenticateUser(HRS_TESTER), ccdAuthTokenGenerator.generate());
+                                         idamHelper.authenticateUser(HRS_TESTER), ccdAuthTokenGenerator.generate()
+        );
     }
 }
