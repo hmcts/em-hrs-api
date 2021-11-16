@@ -151,6 +151,7 @@ def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/domain/**',
   '**uk/gov/hmcts/reform/em/hrs/dto/**',
   '**uk/gov/hmcts/reform/em/hrs/exception/**',
+  '**uk/gov/hmcts/reform/em/hrs/job/*Scheduler.java',
   '**uk/gov/hmcts/reform/em/hrs/listener/**',
   '**uk/gov/hmcts/reform/em/hrs/model/**',
   '**uk/gov/hmcts/reform/em/hrs/storage/**',
@@ -189,6 +190,7 @@ sonarqube {
     property "sonar.host.url", "https://sonar.reform.hmcts.net/"
     property "sonar.pitest.mode", "reuseReport"
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
+    property "sonar.cpd.exclusions", "**/*Scheduler.java"
   }
 }
 

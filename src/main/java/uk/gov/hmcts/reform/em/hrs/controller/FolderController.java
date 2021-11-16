@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.em.hrs.dto.RecordingFilenameDto;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
-import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
-import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
-import uk.gov.hmcts.reform.em.hrs.util.IngestionQueue;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -29,10 +26,7 @@ public class FolderController {
 
 
     @Autowired
-    public FolderController(final FolderService folderService,
-                            final ShareAndNotifyService shareAndNotifyService,
-                            final IngestionQueue ingestionQueue,
-                            SegmentDownloadService segmentDownloadService) {
+    public FolderController(final FolderService folderService) {
         this.folderService = folderService;
     }
 

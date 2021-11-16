@@ -13,9 +13,8 @@ import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import javax.annotation.PostConstruct;
 
-import static uk.gov.hmcts.reform.em.hrs.BaseTest.HRS_TESTER;
+import static uk.gov.hmcts.reform.em.hrs.BaseTest.SYSUSER_HRSAPI_USER;
 
 @Service
 public class ExtendedCcdHelper {
@@ -37,20 +36,14 @@ public class ExtendedCcdHelper {
     protected String ccdDefinitionFile;
 
 
-    @PostConstruct
-    public void init() throws Exception {
-
-        importDefinitionFile();
-    }
-
     public String getCcdS2sToken() {
         return ccdAuthTokenGenerator.generate();
     }
 
-    private void importDefinitionFile() throws IOException {
+    public void importDefinitionFile() throws IOException {
 
-        createUserRole("caseworker");
-        createUserRole("caseworker-hrs");
+        createCcdUserRole("caseworker");
+        createCcdUserRole("caseworker-hrs");
 
         MultipartFile multipartFile = new MockMultipartFile(
             "x",
@@ -59,7 +52,7 @@ public class ExtendedCcdHelper {
             getHrsDefinitionFile()
         );
 
-        ccdDefImportApi.importCaseDefinition(idamHelper.authenticateUser(HRS_TESTER),
+        ccdDefImportApi.importCaseDefinition(idamHelper.authenticateUser(SYSUSER_HRSAPI_USER),
                                              ccdAuthTokenGenerator.generate(), multipartFile
         );
     }
@@ -68,9 +61,11 @@ public class ExtendedCcdHelper {
         return ClassLoader.getSystemResourceAsStream(ccdDefinitionFile);
     }
 
-    private void createUserRole(String userRole) {
-        ccdDefUserRoleApi.createUserRole(new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
-                                         idamHelper.authenticateUser(HRS_TESTER), ccdAuthTokenGenerator.generate()
+    private void createCcdUserRole(String userRole) {
+        ccdDefUserRoleApi.createUserRole(
+            new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
+            idamHelper.authenticateUser(SYSUSER_HRSAPI_USER),
+            ccdAuthTokenGenerator.generate()
         );
     }
 }

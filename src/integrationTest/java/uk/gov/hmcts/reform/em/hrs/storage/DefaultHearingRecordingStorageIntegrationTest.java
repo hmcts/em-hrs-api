@@ -25,7 +25,7 @@ import static org.awaitility.Awaitility.await;
 @SpringBootTest(classes = {
     TestAzureStorageConfig.class,
     TestApplicationConfig.class,
-    DefaultHearingRecordingStorage.class,
+    HearingRecordingStorageImpl.class,
     AzureIntegrationTestOperations.class}
 )
 class DefaultHearingRecordingStorageIntegrationTest {
@@ -37,7 +37,7 @@ class DefaultHearingRecordingStorageIntegrationTest {
     @Autowired
     private AzureIntegrationTestOperations azureIntegrationTestOperations;
     @Autowired
-    private DefaultHearingRecordingStorage underTest;
+    private HearingRecordingStorageImpl underTest;
     @Captor
     private ArgumentCaptor<String> snoopCaptor;
 

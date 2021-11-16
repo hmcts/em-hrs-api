@@ -107,7 +107,7 @@ public class TestUtil {
         .jobsInProgress(Collections.emptyList())
         .build();
 
-    public static final Folder FOLDER_WITH_SEGMENTS_1_2_3 = Folder.builder()
+    public static final Folder FOLDER_WITH_SEGMENTS_1_2_3_AND_NO_JOBS_IN_PROGRESS = Folder.builder()
         .id(RANDOM_UUID)
         .name(TEST_FOLDER_1_NAME)
         .hearingRecordings(List.of(HearingRecording.builder()
@@ -117,7 +117,7 @@ public class TestUtil {
         .jobsInProgress(Collections.emptyList())
         .build();
 
-    public static final Folder FOLDER_WITH_JOBS_IN_PROGRESS = Folder.builder()
+    public static final Folder FOLDER_WITH_2_JOBS_IN_PROGRESS = Folder.builder()
         .id(RANDOM_UUID)
         .name(TEST_FOLDER_1_NAME)
         .hearingRecordings(Collections.emptyList())
@@ -127,7 +127,7 @@ public class TestUtil {
         ))
         .build();
 
-    public static final Folder FOLDER_WITH_SEGMENT_AND_IN_PROGRESS = Folder.builder()
+    public static final Folder FOLDER_WITH_SEGMENTS_1_2_AND_1_JOB_IN_PROGRESS = Folder.builder()
         .id(RANDOM_UUID)
         .name(TEST_FOLDER_1_NAME)
         .hearingRecordings(List.of(HearingRecording.builder()
@@ -138,11 +138,14 @@ public class TestUtil {
         .build();
 
 
-    public static final HearingRecording HEARING_RECORDING = HearingRecording.builder()
-        .id(RANDOM_UUID)
-        .folder(TEST_FOLDER_1)
-        .segments(Collections.emptySet())
-        .build();
+    public static final HearingRecording HEARING_RECORDING_WITH_NO_DATA_BUILDER() {
+
+        return HearingRecording.builder()
+            .id(RANDOM_UUID)
+            .folder(TEST_FOLDER_1)
+            .segments(Collections.emptySet())
+            .build();
+    }
 
     public static final HearingRecording HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3 = HearingRecording.builder()
         .id(RANDOM_UUID)

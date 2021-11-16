@@ -2,10 +2,15 @@ package uk.gov.hmcts.reform.em.hrs;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -14,30 +19,35 @@ import static org.hamcrest.Matchers.not;
 public class ShareScenarios extends BaseTest {
 
     @Autowired
-    private BlobUtil testUtil;
+    private BlobUtil blobUtil;
 
     private String caseRef;
     private String filename;
+    private Set<String> filenames = new HashSet<String>();
     private CaseDetails caseDetails;
     private int expectedFileSize;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShareScenarios.class);
+
     @Before
     public void setup() throws Exception {
+        LOGGER.info("SETTING UP SHARE RECORDING SCENARIOS....");
+
         createFolderIfDoesNotExistInHrsDB(FOLDER);
         caseRef = timebasedCaseRef();
-        filename = filename(caseRef,0);
+        filename = filename(caseRef, 0);
+        filenames.add(filename);
 
-        int cvpExistingBlobCount = testUtil.getBlobCount(testUtil.cvpBlobContainerClient, FOLDER);
-        testUtil.uploadToCvpContainer(filename);
-        testUtil.checkIfBlobUploadedToCvp(FOLDER, cvpExistingBlobCount);
+        blobUtil.uploadToCvpContainer(filename);
+        blobUtil.checkIfUploadedToStore(filenames, blobUtil.cvpBlobContainerClient);
 
-        int hrsExistingBlobCount = testUtil.getBlobCount(testUtil.hrsBlobContainerClient, FOLDER);
         postRecordingSegment(caseRef, 0).then().statusCode(202);
-        testUtil.checkIfUploadedToHrsStorage(FOLDER, hrsExistingBlobCount);
+        blobUtil.checkIfUploadedToStore(filenames, blobUtil.hrsBlobContainerClient);
 
         caseDetails = findCaseWithAutoRetry(caseRef);
 
-        expectedFileSize = testUtil.getTestFile().readAllBytes().length;
+        //used in tests to verify file is fully downloaded
+        expectedFileSize = blobUtil.getTestFile().readAllBytes().length;
         assertThat(expectedFileSize, is(not(0)));
     }
 
@@ -121,10 +131,15 @@ public class ShareScenarios extends BaseTest {
 
     @Test
     public void shouldReturn404WhenShareHearingRecordingsToEmailAddressWithNonExistentCaseId() {
-        caseDetails.setId(0L);
+        Long randomCcdId = Long.valueOf(generateUid());
+        caseDetails.setId(randomCcdId);
         final CallbackRequest callbackRequest =
             addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_REQUESTOR_ROLE__CASEWORKER);
-
+        LOGGER.info(
+            "Sharing case with new timebased random ccd id {}, by user {}",
+            randomCcdId,
+            USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS
+        );
         shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
             .then().log().all()
             .statusCode(404);

@@ -31,9 +31,9 @@ import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.FILENAME_1;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.FILENAME_2;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.FILENAME_3;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.FOLDER;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.FOLDER_WITH_JOBS_IN_PROGRESS;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.FOLDER_WITH_SEGMENTS_1_2_3;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.FOLDER_WITH_SEGMENT_AND_IN_PROGRESS;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.FOLDER_WITH_2_JOBS_IN_PROGRESS;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.FOLDER_WITH_SEGMENTS_1_2_3_AND_NO_JOBS_IN_PROGRESS;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.FOLDER_WITH_SEGMENTS_1_2_AND_1_JOB_IN_PROGRESS;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SEGMENT_1;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SEGMENT_2;
@@ -43,12 +43,12 @@ import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.TEST_FOLDER_1_N
 
 @ExtendWith(MockitoExtension.class)
 class FolderServiceImplTests {
+
     @Mock
     private FolderRepository folderRepository;
 
     @Mock
     private HearingRecordingRepository hearingRecordingRepository;
-
 
     @Mock
     private HearingRecordingSegmentRepository segmentRepository;
@@ -107,7 +107,8 @@ class FolderServiceImplTests {
     @Test
     @DisplayName("Test when files are recorded in the database and the blobstore and no files in progress")
     void testShouldReturnCompletedFilesOnly() {
-        doReturn(Optional.of(FOLDER_WITH_SEGMENTS_1_2_3)).when(folderRepository).findByName(TEST_FOLDER_1_NAME);
+        doReturn(Optional.of(FOLDER_WITH_SEGMENTS_1_2_3_AND_NO_JOBS_IN_PROGRESS)).when(folderRepository)
+            .findByName(TEST_FOLDER_1_NAME);
 
         doReturn(Set.of(FILENAME_1, FILENAME_2, FILENAME_3)).when(blobStorage)
             .findByFolderName(FOLDER.getName());
@@ -126,7 +127,7 @@ class FolderServiceImplTests {
     void testShouldReturnBothCompletedAndInProgressFiles() {
 
 
-        doReturn(Optional.of(FOLDER_WITH_SEGMENT_AND_IN_PROGRESS)).when(folderRepository)
+        doReturn(Optional.of(FOLDER_WITH_SEGMENTS_1_2_AND_1_JOB_IN_PROGRESS)).when(folderRepository)
             .findByName(TEST_FOLDER_1_NAME);
         doReturn(Set.of(FILENAME_1, FILENAME_2)).when(blobStorage).findByFolderName(FOLDER.getName());
         doReturn(Set.of(SEGMENT_1, SEGMENT_2, SEGMENT_3)).when(segmentRepository)
@@ -141,7 +142,7 @@ class FolderServiceImplTests {
     @Test
     @DisplayName("Test when files are recorded in the database but not in the blobstore and no files in progress")
     void testShouldExcludeWhenFileIsInDatabaseButNotInBlobstore() {
-        doReturn(Optional.of(FOLDER_WITH_SEGMENT_AND_IN_PROGRESS)).when(folderRepository)
+        doReturn(Optional.of(FOLDER_WITH_SEGMENTS_1_2_AND_1_JOB_IN_PROGRESS)).when(folderRepository)
             .findByName(TEST_FOLDER_1_NAME);
         doReturn(Collections.emptySet()).when(blobStorage).findByFolderName(FOLDER.getName());
 
@@ -157,7 +158,7 @@ class FolderServiceImplTests {
     void testShouldReturnInProgressFilesOnly() {
 
 
-        doReturn(Optional.of(FOLDER_WITH_JOBS_IN_PROGRESS)).when(folderRepository).findByName(TEST_FOLDER_1_NAME);
+        doReturn(Optional.of(FOLDER_WITH_2_JOBS_IN_PROGRESS)).when(folderRepository).findByName(TEST_FOLDER_1_NAME);
 
         doReturn(Set.of(SEGMENT_1, SEGMENT_2)).when(segmentRepository)
             .findByHearingRecordingFolderName(TEST_FOLDER_1_NAME);
