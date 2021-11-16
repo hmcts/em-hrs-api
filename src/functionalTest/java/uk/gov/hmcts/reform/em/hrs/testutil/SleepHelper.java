@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.concurrent.TimeUnit;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SleepHelper {
     public static void sleepForSeconds(int seconds) {

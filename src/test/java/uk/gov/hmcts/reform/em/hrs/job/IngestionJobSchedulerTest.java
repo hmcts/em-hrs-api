@@ -15,28 +15,24 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-class JobOrchestratorTest {
+class IngestionJobSchedulerTest {
     private final Scheduler scheduler = mock(Scheduler.class);
 
-    private final int rate = 1;
+    private final int intervalInSeconds = 4;
 
-    private final JobOrchestrator underTest = new JobOrchestrator(scheduler, rate);
+    private final IngestionJobScheduler underTest = new IngestionJobScheduler(scheduler, intervalInSeconds);
 
     @Test
     void testShouldStartTheScheduler() throws Exception {
         doReturn(new Date()).when(scheduler).scheduleJob(any(JobDetail.class), any(Trigger.class));
-
         underTest.start();
-
         verify(scheduler, times(1)).scheduleJob(any(JobDetail.class), any(Trigger.class));
     }
 
     @Test
     void testShouldStopTheScheduler() throws Exception {
         doNothing().when(scheduler).shutdown(anyBoolean());
-
         underTest.stop();
-
         verify(scheduler, times(1)).shutdown(anyBoolean());
     }
 }

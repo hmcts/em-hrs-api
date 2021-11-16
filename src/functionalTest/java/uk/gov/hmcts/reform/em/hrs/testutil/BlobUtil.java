@@ -17,13 +17,15 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper.sleepForSeconds;
 
 @Component
 public class BlobUtil {
 
-    public static final int FIND_BLOB_TIMEOUT = 3;
+    public static final int FIND_BLOB_TIMEOUT = 10;
     public final BlobContainerClient hrsBlobContainerClient;
     public final BlobContainerClient cvpBlobContainerClient;
 
@@ -47,8 +49,8 @@ public class BlobUtil {
         containerClient.listBlobs()
             .stream()
             .filter(blobItem ->
-                        blobItem.getName().startsWith(folderName) &&
-                            !blobItem.getName().startsWith(pathPrefix)
+                        blobItem.getName().startsWith(folderName)
+                            && !blobItem.getName().startsWith(pathPrefix)
             )
             .forEach(blobItem -> {
                 LOGGER.info("Deleting old blob: {}", blobItem.getName());
@@ -58,40 +60,32 @@ public class BlobUtil {
             });
     }
 
-    public void checkIfBlobUploadedToCvp(final String folderName, int originalBlobCount) {
-        checkIfUploadedToStore(folderName, originalBlobCount, 1, cvpBlobContainerClient);
-    }
 
-    public void checkIfUploadedToHrsStorage(final String folderName, int blobCount) {
-        checkIfUploadedToStore(folderName, blobCount, 1, hrsBlobContainerClient);
-    }
-
-
-    public void checkIfUploadedToStore(final String folderName, int originalBlobCount, int expectedNewBlobs,
+    public void checkIfUploadedToStore(Set<String> fileNames,
                                        BlobContainerClient containerClient) {
-        int expectedTotalBlobs = originalBlobCount + expectedNewBlobs;
+
         int retryCount = 0;
-        int currentBlobCount = originalBlobCount;
-        while (retryCount <= 20 && currentBlobCount < expectedTotalBlobs) {
+        int filesFound = 0;
+        int filesToCheckCount = fileNames.size();
+        while (retryCount <= 30 && filesFound < filesToCheckCount) {
             sleepForSeconds(FIND_BLOB_TIMEOUT);
-            LOGGER.debug(
-                "hrsBlobContainerClient.getBlobContainerUrl() ~{}",
-                containerClient.getBlobContainerUrl()
-            );
-            currentBlobCount = getBlobCount(containerClient, folderName);
+            filesFound = getBlobCount(containerClient, fileNames);
+            LOGGER.info("checked for upload of {} files...{} found", filesToCheckCount, filesFound);
             retryCount++;
         }
-        if (retryCount > 20) {
+        if (retryCount > 30) {
             throw new IllegalStateException(
-                "Could not find files within test.\nOriginal count =" + originalBlobCount + ", Expected Total = " +
-                    expectedTotalBlobs + ", Last Count=" + currentBlobCount);
+                "Could not find files within test.\nActual count =" + filesFound + ", Expected Total = "
+                    + filesToCheckCount);
         }
     }
 
-    public int getBlobCount(BlobContainerClient client, String folderName) {
+
+    private int getBlobCount(BlobContainerClient client, Set<String> fileNames) {
         return (int) client.listBlobs()
             .stream()
-            .filter(blobItem -> blobItem.getName().startsWith(folderName)).count();
+            .filter(c -> fileNames.contains(c.getName()))
+            .collect(Collectors.toList()).stream().count();
     }
 
 

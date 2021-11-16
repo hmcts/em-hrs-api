@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.controller;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -12,7 +11,6 @@ import uk.gov.hmcts.reform.em.hrs.exception.EmailNotificationException;
 import uk.gov.hmcts.reform.em.hrs.exception.HearingRecordingNotFoundException;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
-import uk.gov.hmcts.reform.em.hrs.util.IngestionQueue;
 
 import java.util.Map;
 
@@ -35,9 +33,6 @@ class GlobalExceptionHandlerTest extends AbstractBaseTest {
 
     @MockBean
     private ShareAndNotifyService shareService;
-
-    @Autowired
-    private IngestionQueue ingestionQueue;
 
     @Test
     void testShouldReturnNotFoundWithMessageWhenHearingRecordingNotFoundExceptionIsRaised() throws Exception {

@@ -13,8 +13,8 @@ import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import javax.annotation.PostConstruct;
+
+import static uk.gov.hmcts.reform.em.hrs.BaseTest.SYSUSER_HRSAPI_USER;
 
 @Service
 public class ExtendedCcdHelper {
@@ -36,40 +36,36 @@ public class ExtendedCcdHelper {
     protected String ccdDefinitionFile;
 
 
-    public static String HRS_TESTER = "hrs.test.user@hmcts.net";
-    public static List<String> HRS_TESTER_ROLES = List.of("caseworker", "caseworker-hrs", "ccd-import");
-
-    @PostConstruct
-    public void init() throws Exception {
-        idamHelper.createUser(HRS_TESTER, HRS_TESTER_ROLES);
-        importDefinitionFile();
-    }
-
     public String getCcdS2sToken() {
         return ccdAuthTokenGenerator.generate();
     }
 
-    private void importDefinitionFile() throws IOException {
+    public void importDefinitionFile() throws IOException {
 
-        createUserRole("caseworker");
-        createUserRole("caseworker-hrs");
+        createCcdUserRole("caseworker");
+        createCcdUserRole("caseworker-hrs");
 
         MultipartFile multipartFile = new MockMultipartFile(
             "x",
             "x",
             "application/octet-stream",
-            getHrsDefinitionFile());
+            getHrsDefinitionFile()
+        );
 
-        ccdDefImportApi.importCaseDefinition(idamHelper.authenticateUser(HRS_TESTER),
-                                             ccdAuthTokenGenerator.generate(), multipartFile);
+        ccdDefImportApi.importCaseDefinition(idamHelper.authenticateUser(SYSUSER_HRSAPI_USER),
+                                             ccdAuthTokenGenerator.generate(), multipartFile
+        );
     }
 
     private InputStream getHrsDefinitionFile() {
         return ClassLoader.getSystemResourceAsStream(ccdDefinitionFile);
     }
 
-    private void createUserRole(String userRole) {
-        ccdDefUserRoleApi.createUserRole(new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
-                                         idamHelper.authenticateUser(HRS_TESTER), ccdAuthTokenGenerator.generate());
+    private void createCcdUserRole(String userRole) {
+        ccdDefUserRoleApi.createUserRole(
+            new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
+            idamHelper.authenticateUser(SYSUSER_HRSAPI_USER),
+            ccdAuthTokenGenerator.generate()
+        );
     }
 }

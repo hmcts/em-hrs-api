@@ -37,9 +37,10 @@ import java.util.stream.Collectors;
 
 import static uk.gov.hmcts.reform.em.hrs.util.CvpConnectionResolver.extractAccountFromUrl;
 
+
 @Component
-public class DefaultHearingRecordingStorage implements HearingRecordingStorage {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHearingRecordingStorage.class);
+public class HearingRecordingStorageImpl implements HearingRecordingStorage {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HearingRecordingStorageImpl.class);
     private static final int BLOB_LIST_TIMEOUT = 5;
     private final BlobContainerClient hrsBlobContainerClient;
     private final BlobContainerClient cvpBlobContainerClient;
@@ -48,11 +49,12 @@ public class DefaultHearingRecordingStorage implements HearingRecordingStorage {
     private final String cvpConnectionString;
 
     @Autowired
-    public DefaultHearingRecordingStorage(final BlobContainerAsyncClient hrsContainerAsyncClient,
-                                          final @Qualifier("HrsBlobContainerClient") BlobContainerClient hrsContainerClient,
-                                          final @Qualifier("CvpBlobContainerClient") BlobContainerClient cvpContainerClient,
-
-                                          @Value("${azure.storage.cvp.connection-string}") String cvpConnectionString) {
+    public HearingRecordingStorageImpl(final BlobContainerAsyncClient hrsContainerAsyncClient,
+                                       final @Qualifier("HrsBlobContainerClient")
+                                           BlobContainerClient hrsContainerClient,
+                                       final @Qualifier("CvpBlobContainerClient")
+                                           BlobContainerClient cvpContainerClient,
+                                       @Value("${azure.storage.cvp.connection-string}") String cvpConnectionString) {
         this.hrsBlobContainerClient = hrsContainerClient;
         this.cvpBlobContainerClient = cvpContainerClient;
         this.cvpConnectionString = cvpConnectionString;

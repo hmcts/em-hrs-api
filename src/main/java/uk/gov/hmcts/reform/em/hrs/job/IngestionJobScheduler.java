@@ -15,29 +15,29 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 @Component
-public class JobOrchestrator {
+public class IngestionJobScheduler {
     private final Scheduler scheduler;
-    private final int rate;
+    private final int intervalInSeconds;
 
     @Autowired
-    public JobOrchestrator(final Scheduler scheduler, @Value("${hrs.ingestion-frequency}") final int rate) {
+    public IngestionJobScheduler(final Scheduler scheduler, @Value("${hrs.ingestion-interval-in-seconds}") final int intervalInSeconds) {
         this.scheduler = scheduler;
-        this.rate = rate;
+        this.intervalInSeconds = intervalInSeconds;
     }
 
     @PostConstruct
     public void start() throws SchedulerException {
-        final String nameElement = "CVP-Hearing-Recording";
+        final String nameElement = "Initial-Storage-Ingestion";
         final String groupElement = "HRS-Ingestion-Jobs";
         final JobDetail jobDetail = JobBuilder.newJob(IngestionJob.class)
             .withIdentity(nameElement, groupElement)
-            .withDescription("Ingests hearing recordings from CVP into HRS")
+            .withDescription("Ingests hearing recordings from CVP into HRS storage")
             .build();
 
         final Trigger trigger = TriggerBuilder.newTrigger()
             .withSchedule(
                 SimpleScheduleBuilder.simpleSchedule()
-                    .withIntervalInSeconds(rate)
+                    .withIntervalInSeconds(intervalInSeconds)
                     .withMisfireHandlingInstructionIgnoreMisfires()
                     .repeatForever()
             ).build();

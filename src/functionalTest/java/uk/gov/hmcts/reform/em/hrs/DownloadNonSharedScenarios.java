@@ -2,9 +2,14 @@ package uk.gov.hmcts.reform.em.hrs;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -12,8 +17,10 @@ import static org.hamcrest.Matchers.not;
 
 public class DownloadNonSharedScenarios extends BaseTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadNonSharedScenarios.class);
 
     private String filename;
+    private Set<String> filenames = new HashSet<String>();
     @Autowired
     private BlobUtil blobUtil;
     private String caseRef;
@@ -26,17 +33,19 @@ public class DownloadNonSharedScenarios extends BaseTest {
         caseRef = timebasedCaseRef();
         filename = filename(caseRef, 0);
 
-        int cvpBlobCount = blobUtil.getBlobCount(blobUtil.cvpBlobContainerClient, FOLDER);
+        LOGGER.info("Priming CVP Container");
         blobUtil.uploadToCvpContainer(filename);
-        blobUtil.checkIfBlobUploadedToCvp(FOLDER, cvpBlobCount);
+        blobUtil.checkIfUploadedToStore(filenames, blobUtil.cvpBlobContainerClient);
 
-
-        int hrsBlobCount = blobUtil.getBlobCount(blobUtil.hrsBlobContainerClient, FOLDER);
+        LOGGER.info("Priming HRS API With Posted Segments");
         postRecordingSegment(caseRef, 0).then().statusCode(202);
-        blobUtil.checkIfUploadedToHrsStorage(FOLDER, hrsBlobCount);
+        blobUtil.checkIfUploadedToStore(filenames, blobUtil.hrsBlobContainerClient);
 
+
+        LOGGER.info("Checking CCD and populating default caseDetails");
         caseDetails = findCaseWithAutoRetry(caseRef);
 
+        //used in tests to verify file is fully downloaded
         expectedFileSize = blobUtil.getTestFile().readAllBytes().length;
         assertThat(expectedFileSize, is(not(0)));
     }

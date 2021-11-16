@@ -37,6 +37,8 @@ import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 
+import java.io.IOException;
+import java.security.SecureRandom;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -48,7 +50,7 @@ import javax.annotation.PostConstruct;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper.HRS_TESTER;
+
 
 @SpringBootTest(classes = {
     ExtendedCcdHelper.class,
@@ -64,31 +66,35 @@ import static uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper.HRS_TESTER;
 @WithTags({@WithTag("testType:Functional")})
 public abstract class BaseTest {
 
-    static final Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
 
     protected static final String JURISDICTION = "HRS";
     protected static final String LOCATION_CODE = "0123";
     protected static final String CASE_TYPE = "HearingRecordings";
     protected static final String BEARER = "Bearer ";
     protected static final String FILE_EXT = "mp4";
-    protected static final String USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS = "em-test-caseworker-hrs@test.email";
-    protected static final String USER_WITH_REQUESTOR_ROLE__CASEWORKER = "em-test-caseworker@test.email";
-    protected static final String USER_WITH_NONACCESS_ROLE__CITIZEN = "em-test-citizen@test.email";
+
+    public static String SYSUSER_HRSAPI_USER = "emhrsapi@test.internal";
+    public static List<String> SYSUSER_HRSAPI_USER_ROLES = List.of("caseworker", "caseworker-hrs", "ccd-import");
+
+    protected static final String USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS = "em-test-caseworker-hrs@test.internal";
+    protected static final String USER_WITH_REQUESTOR_ROLE__CASEWORKER = "em-test-caseworker@test.internal";
+    protected static final String USER_WITH_NONACCESS_ROLE__CITIZEN = "em-test-citizen@test.internal";
     protected static final String EMAIL_ADDRESS_INVALID_FORMAT = "invalid@emailaddress";
-    protected static final int SEGMENT = 0;
+
     protected static final String FOLDER = "audiostream123455";
     protected static final String TIME = "2020-11-04-14.56.32.819";
     public static final String CASEREF_PREFIX = "FUNCTEST_";
     protected static List<String> CASE_WORKER_ROLE = List.of("caseworker");
-    protected static List<String> CASE_WORKER_HRS_ROLE = List.of("caseworker-hrs");
+    protected static List<String> CASE_WORKER_HRS_ROLE = List.of("caseworker", "caseworker-hrs");
     protected static List<String> CITIZEN_ROLE = List.of("citizen");
     protected static final String CLOSE_CASE = "closeCase";
 
     int FIND_CASE_TIMEOUT = 30;
 
-    protected String idamAuth_hrs_tester;
+    protected String idamAuthHrsTester;
     protected String s2sAuth;
-    protected String userId_hrs_tester;
+    protected String userIdHrsTester;
 
 
     //yyyy-MM-dd---HH-MM-ss---SSS=07-30-2021---16-07-35---485
@@ -96,7 +102,8 @@ public abstract class BaseTest {
     DateTimeFormatter timePartFormatter = DateTimeFormatter.ofPattern("HH-MM-ss---SSS");
 
     @Rule
-    public RetryRule retryRule = new RetryRule(3);
+    public RetryRule retryRule = new RetryRule(3);//3 is standard across hmcts projects
+
 
     @Value("${test.url}")
     protected String testUrl;
@@ -119,35 +126,59 @@ public abstract class BaseTest {
     @Autowired
     protected ExtendedCcdHelper extendedCcdHelper;
 
-
     @PostConstruct
     public void init() {
+        LOGGER.info("BASE TEST POST CONSTRUCT INITIALISATIONS....");
         SerenityRest.useRelaxedHTTPSValidation();
-        idamAuth_hrs_tester = idamHelper.authenticateUser(HRS_TESTER);
+
+        createUserIfNotExists(SYSUSER_HRSAPI_USER, SYSUSER_HRSAPI_USER_ROLES);
+
+        createUserIfNotExists(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, CASE_WORKER_HRS_ROLE);
+        createUserIfNotExists(USER_WITH_REQUESTOR_ROLE__CASEWORKER, CASE_WORKER_ROLE);
+        createUserIfNotExists(USER_WITH_NONACCESS_ROLE__CITIZEN, CITIZEN_ROLE);
+
+        idamAuthHrsTester = idamHelper.authenticateUser(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS);
         s2sAuth = BEARER + s2sHelper.getS2sToken();
-        userId_hrs_tester = idamHelper.getUserId(HRS_TESTER);
+        userIdHrsTester = idamHelper.getUserId(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS);
 
+        try {
+            extendedCcdHelper.importDefinitionFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        LOGGER.info("creating user: {}", USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS);
-        idamHelper.createUser(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, CASE_WORKER_HRS_ROLE);
+    }
 
-        LOGGER.info("creating user: {}", USER_WITH_REQUESTOR_ROLE__CASEWORKER);
-        idamHelper.createUser(USER_WITH_REQUESTOR_ROLE__CASEWORKER, CASE_WORKER_ROLE);
+    private void createUserIfNotExists(String email, List<String> roles) {
+        /* in some cases, there were conflicts between PR branches being built
+        due to users being deleted / recreated
 
-        LOGGER.info("creating user: {}", USER_WITH_NONACCESS_ROLE__CITIZEN);
-        idamHelper.createUser(USER_WITH_NONACCESS_ROLE__CITIZEN, CITIZEN_ROLE);
+        as the roles are static they do not need to be deleted each time
+        should the roles change for users, then the recreateUsers flag will need to be true before merging to master
+         */
 
+        boolean recreateUsers = false;
+
+        if (recreateUsers) {
+            idamHelper.createUser(email, roles);
+        } else {
+            try {
+                idamHelper.getUserId(email);
+            } catch (Exception e) {//if user does not exist
+                idamHelper.createUser(email, roles);
+            }
+        }
     }
 
 
     public RequestSpecification authRequest() {
-        return authRequest(HRS_TESTER);
+        return authRequest(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS);
     }
 
 
     private RequestSpecification authRequest(String username) {
-        String userToken = idamAuth_hrs_tester;
-        if (!HRS_TESTER.equals(username)) {
+        String userToken = idamAuthHrsTester;
+        if (!USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS.equals(username)) {
             userToken = idamHelper.authenticateUser(username);
         }
 
@@ -165,7 +196,7 @@ public abstract class BaseTest {
             .header("ServiceAuthorization", s2sAuth);
     }
 
-    protected ValidatableResponse getFilenames(String folder) {
+    protected ValidatableResponse getFilenamesCompletedOrInProgress(String folder) {
         return authRequest()
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
@@ -256,7 +287,7 @@ public abstract class BaseTest {
     }
 
     protected void createFolderIfDoesNotExistInHrsDB(final String folderName) {
-        getFilenames(folderName)
+        getFilenamesCompletedOrInProgress(folderName)
             .log().all()
             .assertThat()
             .statusCode(200);
@@ -278,17 +309,19 @@ public abstract class BaseTest {
         assertNotNull(caseDetails);
         assertNotNull(caseDetails.getId());
         assertNotNull(caseDetails.getData());
+
+        LOGGER.info("Found case - id: {}", caseDetails.getId());
         return caseDetails;
     }
 
     protected Optional<CaseDetails> searchForCase(String caseRef) {
         Map<String, String> searchCriteria = Map.of("case.recordingReference", caseRef);
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
-        String userToken = idamClient.getAccessToken(HRS_TESTER, "4590fgvhbfgbDdffm3lk4j");
+        String userToken = idamClient.getAccessToken(SYSUSER_HRSAPI_USER, "4590fgvhbfgbDdffm3lk4j");
         String uid = idamClient.getUserInfo(userToken).getUid();
 
         LOGGER.info("searching for case by ref ({}) with userToken ({}) and serviceToken ({})",
-                    caseRef, idamAuth_hrs_tester.substring(0, 12), s2sToken.substring(0, 12)
+                    caseRef, idamAuthHrsTester.substring(0, 12), s2sToken.substring(0, 12)
         );
         return coreCaseDataApi
             .searchForCaseworker(userToken, s2sToken, uid,
@@ -323,7 +356,7 @@ public abstract class BaseTest {
     public String closeCase(final String caseRef, CaseDetails caseDetails) {
 
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
-        String userToken = idamClient.getAccessToken(HRS_TESTER, "4590fgvhbfgbDdffm3lk4j");
+        String userToken = idamClient.getAccessToken(SYSUSER_HRSAPI_USER, "4590fgvhbfgbDdffm3lk4j");
         String uid = idamClient.getUserInfo(userToken).getUid();
 
         StartEventResponse startEventResponse =
@@ -353,4 +386,63 @@ public abstract class BaseTest {
     }
 
 
+    /**
+     * below three methods denerate a random valid UID.
+     * ripped from uk.gov.hmcts.ccd.domain.service.common TODO consider importing this as a library if it exists
+     *
+     * @return A randomly generated, valid, UID.
+     */
+    public String generateUid() {
+        SecureRandom random = new SecureRandom();
+        String currentTime10OfSeconds = String.valueOf(System.currentTimeMillis()).substring(0, 11);
+        StringBuilder builder = new StringBuilder(currentTime10OfSeconds);
+        for (int i = 0; i < 4; i++) {
+            int digit = random.nextInt(10);
+            builder.append(digit);
+        }
+        // Do the Luhn algorithm to generate the check digit.
+        int checkDigit = checkSum(builder.toString(), true);
+        builder.append(checkDigit);
+
+        return builder.toString();
+    }
+
+    /**
+     * Generate check digit for a number string.
+     *
+     * @param numberString number string to process
+     * @param noCheckDigit Whether check digit is present or not. True if no check Digit
+     *                     is appended.
+     * @return
+     */
+    public int checkSum(String numberString, boolean noCheckDigit) {
+        int sum = 0;
+        int checkDigit = 0;
+
+        if (!noCheckDigit) {
+            numberString = numberString.substring(0, numberString.length() - 1);
+        }
+
+        boolean isDouble = true;
+        for (int i = numberString.length() - 1; i >= 0; i--) {
+            int k = Integer.parseInt(String.valueOf(numberString.charAt(i)));
+            sum += sumToSingleDigit((k * (isDouble ? 2 : 1)));
+            isDouble = !isDouble;
+        }
+
+        if ((sum % 10) > 0) {
+            checkDigit = (10 - (sum % 10));
+        }
+
+        return checkDigit;
+    }
+
+
+    private int sumToSingleDigit(int k) {
+        if (k < 10) {
+            return k;
+        }
+
+        return sumToSingleDigit(k / 10) + (k % 10);
+    }
 }
