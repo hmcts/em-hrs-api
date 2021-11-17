@@ -19,16 +19,16 @@ def product = "em"
 def component = "hrs-api"
 
 def secrets = [
-  's2s-${env}': [
+  's2s-ithc': [
     secret('microservicekey-em-hrs-api', 'S2S_KEY'),
     secret('microservicekey-ccd-gw', 'FUNCTIONAL_TEST_CCD_GW_SERVICE_SECRET'),
     secret('microservicekey-em-gw', 'FUNCTIONAL_TEST_CLIENT_S2S_TOKEN')
   ],
-  'rpa-${env}': [
+  'rpa-ithc': [
     secret('oauth2-client-id', 'OAUTH_CLIENT_ID'),
     secret('show-oauth2-token', 'IDAM_CLIENT_OAUTH_SECRET')
   ],
-  'em-hrs-api-${env}': [
+  'em-hrs-api-ithc': [
       secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING'),
       secret('cvp-storage-container-name', 'CVP_STORAGE_CONTAINER_NAME'),
       secret('storage-account-primary-connection-string', 'HRS_STORAGEACCOUNT_CONNECTION_STRING'),
@@ -62,7 +62,7 @@ env.CVP_CONTAINER_URL = 'https://emhrsapiithc.blob.core.windows.net/hrsperforman
 env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition_ithc.xlsx'
 
 
-env.TEST_URL = "http://em-hrs-aat.service.core-compute-ithc.internal"
+env.TEST_URL = "http://em-hrs-api-ithc.service.core-compute-ithc.internal"
 
 def vaultOverrides = [
   'preview' : 'ithc',
