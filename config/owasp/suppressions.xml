@@ -45,4 +45,10 @@
     </notes>
     <cve>CVE-2021-22096</cve>
   </suppress>
+  <suppress>
+    <cve>CVE-2021-22044</cve>
+  </suppress>
+  <suppress>
+    <cve>CVE-2021-22119</cve>
+  </suppress>
 </suppressions>
