@@ -62,7 +62,7 @@ env.IDAM_REDIRECT_URI = 'https://em-hrs-api-aat.service.core-compute-aat.interna
 env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
 env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/hrsperformancetest/'
 //env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/em-hrs-api-aat/'
-env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition_AAT.xlsx'
+env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition_v0.3.xlsx'
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
   [$class     : 'AzureKeyVaultSecret',
