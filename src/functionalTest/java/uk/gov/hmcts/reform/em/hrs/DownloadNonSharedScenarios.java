@@ -11,6 +11,8 @@ import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
@@ -27,7 +29,7 @@ public class DownloadNonSharedScenarios extends BaseTest {
     private CaseDetails caseDetails;
     private int expectedFileSize;
 
-    @BeforeClass
+    @PostConstruct
     public void setup() throws Exception {
         createFolderIfDoesNotExistInHrsDB(FOLDER);
         caseRef = timebasedCaseRef();

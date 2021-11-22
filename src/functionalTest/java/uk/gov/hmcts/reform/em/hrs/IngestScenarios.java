@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 
@@ -33,10 +35,9 @@ public class IngestScenarios extends BaseTest {
     private BlobUtil testUtil;
 
 
-    @BeforeClass
+    @PostConstruct
     public void setup() throws Exception {
         createFolderIfDoesNotExistInHrsDB(FOLDER);
-
     }
 
 
