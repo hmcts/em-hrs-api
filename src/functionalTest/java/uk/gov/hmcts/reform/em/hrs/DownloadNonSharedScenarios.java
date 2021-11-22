@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ public class DownloadNonSharedScenarios extends BaseTest {
     private CaseDetails caseDetails;
     private int expectedFileSize;
 
-    @Before
+    @BeforeClass
     public void setup() throws Exception {
         createFolderIfDoesNotExistInHrsDB(FOLDER);
         caseRef = timebasedCaseRef();

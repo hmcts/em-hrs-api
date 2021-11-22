@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs;
 
-
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,7 @@ public class IngestScenarios extends BaseTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestScenarios.class);
 
-    public static final int SEGMENT_COUNT = 2;//TODO set this 10 11 to test CCD validation changes
+    public static final int SEGMENT_COUNT = 1;//TODO set this 10 11 to test CCD validation changes
     public static final int CCD_UPLOAD_WAIT_PER_SEGMENT_IN_SECONDS = 15;
     public static final int CCD_UPLOAD_WAIT_MARGIN_IN_SECONDS = 35;
     //AAT averages at 8/second if evenly spread across servers - 30 seconds if they all were served by 1 server
@@ -34,7 +33,7 @@ public class IngestScenarios extends BaseTest {
     private BlobUtil testUtil;
 
 
-    @Before
+    @BeforeClass
     public void setup() throws Exception {
         createFolderIfDoesNotExistInHrsDB(FOLDER);
 
@@ -43,7 +42,7 @@ public class IngestScenarios extends BaseTest {
 
     @Test
     public void shouldCreateHearingRecordingSegments() throws Exception {
-        String caseRef= timebasedCaseRef();
+        String caseRef = timebasedCaseRef();
         Set<String> filenames = new HashSet<>();
 
         ZonedDateTime now = ZonedDateTime.now();
@@ -68,8 +67,6 @@ public class IngestScenarios extends BaseTest {
             testUtil.hrsBlobContainerClient,
             fileNamePrefixToNotDelete
         );
-
-
 
 
         for (int segmentIndex = 0; segmentIndex < SEGMENT_COUNT; segmentIndex++) {
@@ -97,11 +94,12 @@ public class IngestScenarios extends BaseTest {
         //giving it 10 secs per segment, plus an additional segment
         int secondsToWaitForCcdUploadsToComplete =
             (SEGMENT_COUNT * CCD_UPLOAD_WAIT_PER_SEGMENT_IN_SECONDS) + CCD_UPLOAD_WAIT_MARGIN_IN_SECONDS;
-        LOGGER.info("************* Sleeping for {} seconds to allow CCD uploads to complete **********",
-                    secondsToWaitForCcdUploadsToComplete);
+        LOGGER.info(
+            "************* Sleeping for {} seconds to allow CCD uploads to complete **********",
+            secondsToWaitForCcdUploadsToComplete
+        );
         SleepHelper.sleepForSeconds(secondsToWaitForCcdUploadsToComplete);
 
-        //not yet in hrs at this point, so test is failing
 
         LOGGER.info("************* CHECKING HRS HAS IT IN DATABASE AND RETURNS EXPECTED FILES VIA API**********");
         getFilenamesCompletedOrInProgress(FOLDER)
