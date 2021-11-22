@@ -25,7 +25,7 @@ import static uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper.sleepForSeconds;
 @Component
 public class BlobUtil {
 
-    public static final int FIND_BLOB_TIMEOUT = 10;
+    public static final int FIND_BLOB_TIMEOUT = 30;
     public final BlobContainerClient hrsBlobContainerClient;
     public final BlobContainerClient cvpBlobContainerClient;
 
