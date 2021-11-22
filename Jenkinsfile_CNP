@@ -59,7 +59,7 @@ env.IDAM_REDIRECT_URI = 'https://em-hrs-api-ithc.service.core-compute-ithc.inter
 env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
 env.CVP_CONTAINER_URL = 'https://emhrsapiithc.blob.core.windows.net/hrsperformancetest/'
 //env.CVP_CONTAINER_URL = 'https://emhrsapiithc.blob.core.windows.net/em-hrs-api-ithc/'
-env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition.xlsx'
+env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition.v0.3.xlsx'
 
 
 env.TEST_URL = "http://em-hrs-api-ithc.service.core-compute-ithc.internal"
