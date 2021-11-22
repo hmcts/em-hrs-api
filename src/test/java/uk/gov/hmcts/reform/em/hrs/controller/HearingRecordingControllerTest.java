@@ -173,7 +173,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
     }
 
     private void clogJobQueue() {
-        IntStream.rangeClosed(1, INGESTION_QUEUE_SIZE + 30)
+        IntStream.rangeClosed(1, INGESTION_QUEUE_SIZE + 300)
             .forEach(x -> {
                 final HearingRecordingDto dto = HearingRecordingDto.builder()
                     .caseRef("cr" + x)
