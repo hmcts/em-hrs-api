@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 @Sql({"/data/create-folder.sql"})
+
 class FolderRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest {
     private static final String EMPTY_FOLDER = "folder-0";
     private static final String TEST_FOLDER = "folder-1";
