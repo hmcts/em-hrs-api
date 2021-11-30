@@ -10,7 +10,7 @@ plugins {
   id 'checkstyle'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-  id 'org.springframework.boot' version '2.4.5'
+  id 'org.springframework.boot' version '2.6.1'
   id 'uk.gov.hmcts.java' version '0.12.16'
   id 'com.github.ben-manes.versions' version '0.39.0'
   id 'org.sonarqube' version '3.1.1'
@@ -269,44 +269,47 @@ dependencyManagement {
       entry 'netty-handler-proxy'
     }
 
-    //CVE-2021-22112, CVE-2021-22119
-    dependencySet(group: 'org.springframework.security', version: '5.5.3') {
-      entry 'spring-security-config'
-      entry 'spring-security-core'
-      entry 'spring-security-crypto'
-      entry 'spring-security-oauth2-client'
-      entry 'spring-security-oauth2-core'
-      entry 'spring-security-oauth2-jose'
-      entry 'spring-security-oauth2-resource-server'
-      entry 'spring-security-web'
-    }
 
-    //CVE-2021-29425
-    dependencySet(group: 'commons-io', version: '2.11.0') {
-      entry 'commons-io'
-    }
-
-    //CVE-2021-22118
-    dependencySet(group: 'org.springframework', version: '5.3.12') {
-      entry 'spring-aop'
-      entry 'spring-aspects'
-      entry 'spring-beans'
-      entry 'spring-context'
-      entry 'spring-core'
-      entry 'spring-expression'
-      entry 'spring-jcl'
-      entry 'spring-jdbc'
-      entry 'spring-orm'
-      entry 'spring-tx'
-      entry 'spring-web'
-      entry 'spring-webmvc'
-    }
-
-    //CVE-2021-22044
-    dependencySet(group: 'org.springframework.cloud', version: '3.0.5') {
-      entry 'spring-cloud-openfeign-core'
-      entry 'spring-cloud-starter-openfeign'
-    }
+//    //CVE-2021-29425
+//    dependencySet(group: 'commons-io', version: '2.11.0') {
+//      entry 'commons-io'
+//    }
+//
+//
+//    //CVE-2021-22112, CVE-2021-22119
+//    dependencySet(group: 'org.springframework.security', version: '5.5.3') {
+//      entry 'spring-security-config'
+//      entry 'spring-security-core'
+//      entry 'spring-security-crypto'
+//      entry 'spring-security-oauth2-client'
+//      entry 'spring-security-oauth2-core'
+//      entry 'spring-security-oauth2-jose'
+//      entry 'spring-security-oauth2-resource-server'
+//      entry 'spring-security-web'
+//    }
+//
+//
+//    //CVE-2021-22118
+//    dependencySet(group: 'org.springframework', version: '5.3.12') {
+//      entry 'spring-aop'
+//      entry 'spring-aspects'
+//      entry 'spring-beans'
+//      entry 'spring-context'
+//      entry 'spring-core'
+//      entry 'spring-expression'
+//      entry 'spring-jcl'
+//      entry 'spring-jdbc'
+//      entry 'spring-orm'
+//      entry 'spring-tx'
+//      entry 'spring-web'
+//      entry 'spring-webmvc'
+//    }
+//
+//    //CVE-2021-22044
+//    dependencySet(group: 'org.springframework.cloud', version: '3.0.5') {
+//      entry 'spring-cloud-openfeign-core'
+//      entry 'spring-cloud-starter-openfeign'
+//    }
   }
 }
 
