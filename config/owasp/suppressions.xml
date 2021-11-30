@@ -24,6 +24,8 @@
       likely upgrade to be using version 5.5 (required greater than 5.4.4)
     </notes>
     <cve>CVE-2021-22112</cve>
+
+    <cve>CVE-2021-22047</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
