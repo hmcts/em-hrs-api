@@ -43,7 +43,7 @@ public class ExtendedCcdHelper {
     public void importDefinitionFile() throws IOException {
 
         createCcdUserRole("caseworker");
-        createCcdUserRole("caseworker-hrs");
+        createCcdUserRole("caseworker-hrs-searcher");
 
         MultipartFile multipartFile = new MockMultipartFile(
             "x",

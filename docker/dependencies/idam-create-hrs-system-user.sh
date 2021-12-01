@@ -9,7 +9,7 @@ IDAM_URI=$1
 USERNAME=$2
 PASSWORD=$3
 
-DATA='{"email":"'${USERNAME}'", "password":"'${PASSWORD}'", "surname":"system" , "forename":"user", "roles":[{"code":"caseworker"},{"code":"caseworker-hrs"}]}'
+DATA='{"email":"'${USERNAME}'", "password":"'${PASSWORD}'", "surname":"system" , "forename":"user", "roles":[{"code":"caseworker"},{"code":"caseworker-hrs-searcher"}]}'
 
 curl -XPOST "${IDAM_URI}/testing-support/accounts" \
      -H "Content-Type: application/json" \

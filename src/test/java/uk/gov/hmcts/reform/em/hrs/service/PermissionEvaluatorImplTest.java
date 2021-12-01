@@ -26,7 +26,7 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.when;
 
-@TestPropertySource(properties = "hrs.allowed-roles.value=[caseworker-hrs]")
+@TestPropertySource(properties = "hrs.allowed-roles.value=[caseworker-hrs-searcher]")
 @SpringBootTest(classes = {PermissionEvaluatorImpl.class})
 public class PermissionEvaluatorImplTest {
 
@@ -41,7 +41,7 @@ public class PermissionEvaluatorImplTest {
     private static final String USER_ID = UUID.randomUUID().toString();
     private static final UserInfo HRS_USER_INFO = UserInfo.builder()
         .uid(USER_ID)
-        .roles(Arrays.asList("caseworker-hrs"))
+        .roles(Arrays.asList("caseworker-hrs-searcher"))
         .build();
     private static final UserInfo NON_HRS_USER_INFO = UserInfo.builder()
         .uid(USER_ID)
@@ -76,7 +76,7 @@ public class PermissionEvaluatorImplTest {
     @Test
     public void testPermissionOnDownloadCaseWorkerSuccess() {
         when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_USER_INFO);
-        ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker-hrs"));
+        ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker-hrs-searcher"));
 
         Assert.assertTrue(permissionEvaluator.hasPermission(authentication, null, "READ"));
     }
@@ -92,7 +92,7 @@ public class PermissionEvaluatorImplTest {
     @Test
     public void testPermissionOnDownloadShareeSuccess() {
         when(securityService.getUserInfo(Mockito.anyString())).thenReturn(NON_HRS_USER_INFO);
-        ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker-hrs"));
+        ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker-hrs-searcher"));
         when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
         when(shareesRepository.findByShareeEmail(Mockito.anyString())).thenReturn(hearingRecordingSharees);
         Assert.assertTrue(permissionEvaluator.hasPermission(authentication, segment, "READ"));
@@ -101,7 +101,7 @@ public class PermissionEvaluatorImplTest {
     @Test
     public void testPermissionOnDownloadShareeFailure() {
         when(securityService.getUserInfo(Mockito.anyString())).thenReturn(NON_HRS_USER_INFO);
-        ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker-hrs"));
+        ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker-hrs-searcher"));
         when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
         when(shareesRepository.findByShareeEmail(Mockito.anyString())).thenReturn(hearingRecordingSharees);
         Assert.assertFalse(permissionEvaluator.hasPermission(authentication, null, "READ"));

@@ -123,7 +123,7 @@ hrs:
     queue-capacity: 100
   ingestion-interval-in-seconds: 1 # how long between each fired job (per server: 4 servers at 1 seconds = 4 per second)
   ccdupload-interval-in-seconds: 30 # how long between each upload (per server: 4 servers at 30 seconds = 8 per minute)
-  allowed-roles: ${ALLOWED_ROLES:caseworker-hrs}
+  allowed-roles: ${ALLOWED_ROLES:caseworker-hrs-searcher}
 
 auth:
   provider:

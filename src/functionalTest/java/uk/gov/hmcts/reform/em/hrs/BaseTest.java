@@ -75,9 +75,9 @@ public abstract class BaseTest {
     protected static final String FILE_EXT = "mp4";
 
     public static String SYSUSER_HRSAPI_USER = "emhrsapi@test.internal";
-    public static List<String> SYSUSER_HRSAPI_USER_ROLES = List.of("caseworker", "caseworker-hrs", "ccd-import");
+    public static List<String> SYSUSER_HRSAPI_USER_ROLES = List.of("caseworker", "caseworker-hrs-searcher", "ccd-import");
 
-    protected static final String USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS = "em-test-caseworker-hrs@test.internal";
+    protected static final String USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS = "em-test-caseworker-hrs-searcher@test.internal";
     protected static final String USER_WITH_REQUESTOR_ROLE__CASEWORKER = "em-test-caseworker@test.internal";
     protected static final String USER_WITH_NONACCESS_ROLE__CITIZEN = "em-test-citizen@test.internal";
     protected static final String EMAIL_ADDRESS_INVALID_FORMAT = "invalid@emailaddress";
@@ -86,7 +86,7 @@ public abstract class BaseTest {
     protected static final String TIME = "2020-11-04-14.56.32.819";
     public static final String CASEREF_PREFIX = "FUNCTEST_";
     protected static List<String> CASE_WORKER_ROLE = List.of("caseworker");
-    protected static List<String> CASE_WORKER_HRS_ROLE = List.of("caseworker", "caseworker-hrs");
+    protected static List<String> CASE_WORKER_HRS_ROLE = List.of("caseworker", "caseworker-hrs-searcher");
     protected static List<String> CITIZEN_ROLE = List.of("citizen");
     protected static final String CLOSE_CASE = "closeCase";
 

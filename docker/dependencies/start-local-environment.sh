@@ -83,7 +83,7 @@ echo "Setting up IDAM client..."
 (./docker/dependencies/idam-client-setup.sh ${IDAM_URI} services ${token} '{"description": "em", "label": "em", "oauth2ClientId": "webshow", "oauth2ClientSecret": "AAAAAAAAAAAAAAAA", "oauth2RedirectUris": ["http://localhost:8080/oauth2redirect"], "selfRegistrationAllowed": true}')
 (./docker/dependencies/idam-client-setup.sh ${IDAM_URI} services ${token} '{"description": "ccd gateway", "label": "ccd gateway", "oauth2ClientId": "ccd_gateway", "oauth2ClientSecret": "AAAAAAAAAAAAAAAA", "oauth2RedirectUris": ["http://localhost:3451/oauth2redirect"], "selfRegistrationAllowed": true}')
 (./docker/dependencies/idam-client-setup-roles.sh ${IDAM_URI} ${token} caseworker)
-(./docker/dependencies/idam-client-setup-roles.sh ${IDAM_URI} ${token} caseworker-hrs)
+(./docker/dependencies/idam-client-setup-roles.sh ${IDAM_URI} ${token} caseworker-hrs-searcher)
 (./docker/dependencies/idam-client-setup-roles.sh ${IDAM_URI} ${token} ccd-import)
 (./docker/dependencies/idam-create-hrs-system-user.sh ${IDAM_URI} ${SYSTEM_USER_NAME} ${SYSTEM_USER_PASSWORD})
 
