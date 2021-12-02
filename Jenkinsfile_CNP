@@ -49,17 +49,17 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 }
 
 // Vars for Kubernetes Endpoints
-env.IDAM_API_BASE_URI = 'https://idam-api.ithc.platform.hmcts.net'
-env.OPEN_ID_API_BASE_URI = 'https://idam-web-public.ithc.platform.hmcts.net/o'
-env.S2S_BASE_URI = 'http://rpe-service-auth-provider-ithc.service.core-compute-ithc.internal'
-env.CCD_DATA_API_URL = 'http://ccd-data-store-api-ithc.service.core-compute-ithc.internal'
-env.XUI_API_URL = 'https://manage-case.ithc.platform.hmcts.net'
-env.CCD_DEF_API = 'http://ccd-definition-store-api-ithc.service.core-compute-ithc.internal'
-env.IDAM_REDIRECT_URI = 'https://em-hrs-api-ithc.service.core-compute-ithc.internal/oauth2/callback'
-env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
-env.CVP_CONTAINER_URL = 'https://emhrsapiithc.blob.core.windows.net/hrsperformancetest/'
 //env.CVP_CONTAINER_URL = 'https://emhrsapiithc.blob.core.windows.net/em-hrs-api-ithc/'
+env.CCD_DATA_API_URL = 'http://ccd-data-store-api-ithc.service.core-compute-ithc.internal'
 env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition_v0.3_ITHC.xlsx'
+env.CCD_DEF_API = 'http://ccd-definition-store-api-ithc.service.core-compute-ithc.internal'
+env.CVP_CONTAINER_URL = 'https://emhrsapiithc.blob.core.windows.net/hrsperformancetest/'
+env.IDAM_API_BASE_URI = 'https://idam-api.ithc.platform.hmcts.net'
+env.IDAM_REDIRECT_URI = 'https://em-hrs-api-ithc.service.core-compute-ithc.internal/oauth2/callback'
+env.OPEN_ID_API_BASE_URI = 'https://idam-web-public.ithc.platform.hmcts.net/o'
+env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
+env.S2S_BASE_URI = 'http://rpe-service-auth-provider-ithc.service.core-compute-ithc.internal'
+env.XUI_API_URL = 'https://manage-case.ithc.platform.hmcts.net'
 
 
 env.TEST_URL = "http://em-hrs-api-ithc.service.core-compute-ithc.internal"
