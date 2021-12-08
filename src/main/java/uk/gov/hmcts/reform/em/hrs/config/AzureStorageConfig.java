@@ -63,6 +63,12 @@ public class AzureStorageConfig {
 
     @Bean("HrsBlobContainerClient")
     public BlobContainerClient provideBlobContainerClient() {
+        LOGGER.info(
+            "HRS endpoint - hrsConnectionString(60): {} ",
+            StringUtils.left(hrsConnectionString, 60)
+        );
+        LOGGER.info("HRS container: {}", hrsContainer);
+
         return new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
             .containerName(hrsContainer)
@@ -96,6 +102,7 @@ public class AzureStorageConfig {
                 "This is not a real CVP endpoint - cvpConnectionString(60): {} ",
                 StringUtils.left(cvpConnectionString, 60)
             );
+            LOGGER.info("cvp container: {}", cvpContainer);
             LOGGER.info("****************************");
 
         }

@@ -28,7 +28,7 @@ public class CheckEndPointsApplicationReadyListener implements ApplicationListen
 
         LOGGER.info("Application is Ready!");
 
-        LOGGER.info("Cluser Name: {}",clusterName);
+        LOGGER.info("Cluster Name: {}",clusterName);
 
         try {
             LOGGER.info("Sleeping 10 secs to allow token gen:");
