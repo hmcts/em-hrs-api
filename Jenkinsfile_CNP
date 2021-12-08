@@ -64,8 +64,8 @@ env.XUI_API_URL = 'https://manage-case.demo.platform.hmcts.net'
 env.TEST_URL = "http://em-hrs-api-demo.service.core-compute-demo.internal"
 
 def vaultOverrides = [
-  'preview' : 'demo',
-  'spreview': 'demo'
+  'preview' : 'aat',
+  'spreview': 'aat'
 ]
 
 withPipeline(type, product, component) {
