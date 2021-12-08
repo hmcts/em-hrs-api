@@ -52,7 +52,7 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 env.CCD_DATA_API_URL = 'http://ccd-data-store-api-demo.service.core-compute-demo.internal'
 env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition_v0.3_DEMO.xlsx'
 env.CCD_DEF_API = 'http://ccd-definition-store-api-demo.service.core-compute-demo.internal'
-env.CVP_CONTAINER_URL = 'https://emhrsapidemo.blob.core.windows.net/cvpsimulatorrecordings/'
+env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/cvpsimulatorrecordings/'
 env.IDAM_API_BASE_URI = 'https://idam-api.demo.platform.hmcts.net'
 env.IDAM_REDIRECT_URI = 'https://em-hrs-api-demo.service.core-compute-demo.internal/oauth2/callback'
 env.OPEN_ID_API_BASE_URI = 'https://idam-web-public.demo.platform.hmcts.net/o'
