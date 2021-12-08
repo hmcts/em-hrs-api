@@ -69,10 +69,20 @@ public class AzureStorageConfig {
         );
         LOGGER.info("HRS container: {}", hrsContainer);
 
-        return new BlobContainerClientBuilder()
+        BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
             .containerName(hrsContainer)
             .buildClient();
+
+
+        final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
+            .orElse(false);
+
+        if (!containerExists) {
+            blobContainerClient.create();
+        }
+
+        return blobContainerClient;
     }
 
 
@@ -108,7 +118,18 @@ public class AzureStorageConfig {
         }
 
 
-        return b.buildClient();
+        BlobContainerClient blobContainerClient = b.buildClient();
+
+
+
+        final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
+            .orElse(false);
+
+        if (!containerExists) {
+            blobContainerClient.create();
+        }
+
+        return blobContainerClient;
     }
 
 }
