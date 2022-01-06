@@ -145,7 +145,7 @@ module "cvp_storage_account_simulator" {
   location = var.location
   account_kind = "StorageV2"
   account_tier = "Standard"
-  account_replication_type = "ZRS"
+  account_replication_type = "LRS"
   access_tier = "Hot"
 
   enable_https_traffic_only = true
