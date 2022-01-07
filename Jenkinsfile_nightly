@@ -3,8 +3,8 @@
 properties([
   [
     $class       : 'GithubProjectProperty',
-    displayName  : 'Evidence Management HRS API',
-    projectUrlStr: 'https://github.com/hmcts/em-annotation-app'
+    displayName  : 'Hearing Recording Service',
+    projectUrlStr: 'https://github.com/hmcts/em-hrs-api'
   ],
   // H allow predefined but random minute see https://en.wikipedia.org/wiki/Cron#Non-standard_characters
   pipelineTriggers([cron('H 05 * * *')]),
@@ -51,18 +51,21 @@ def secrets = [
     ]
   ]
 
+
+
+
 // Vars for Kubernetes Endpoints
-env.IDAM_API_BASE_URI = 'https://idam-api.aat.platform.hmcts.net'
-env.OPEN_ID_API_BASE_URI = 'https://idam-web-public.aat.platform.hmcts.net/o'
-env.S2S_BASE_URI = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
 env.CCD_DATA_API_URL = 'http://ccd-data-store-api-aat.service.core-compute-aat.internal'
-env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
+env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition_v0.3_AAT.xlsx'
 env.CCD_DEF_API = 'http://ccd-definition-store-api-aat.service.core-compute-aat.internal'
+env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/cvpsimulator/'
+env.IDAM_API_BASE_URI = 'https://idam-api.aat.platform.hmcts.net'
 env.IDAM_REDIRECT_URI = 'https://em-hrs-api-aat.service.core-compute-aat.internal/oauth2/callback'
+env.OPEN_ID_API_BASE_URI = 'https://idam-web-public.aat.platform.hmcts.net/o'
 env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
-env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/hrsperformancetest/'
-//env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/em-hrs-api-aat/'
-env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition_AAT.xlsx'
+env.S2S_BASE_URI = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
+env.TEST_URL = "http://em-hrs-api-aat.service.core-compute-aat.internal/"
+env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
   [$class     : 'AzureKeyVaultSecret',
@@ -78,23 +81,6 @@ def vaultOverrides = [
   'spreview': 'saat'
 ]
 
-// Vars for Kubernetes
-env.IDAM_API_BASE_URI = 'https://idam-api.aat.platform.hmcts.net'
-env.OPEN_ID_API_BASE_URI = 'https://idam-web-public.aat.platform.hmcts.net/o'
-env.S2S_BASE_URI = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
-env.IDAM_REDIRECT_URI = 'https://em-hrs-aat.service.core-compute-aat.internal/oauth2/callback'
-env.DM_STORE_APP_URL = 'http://dm-store-aat.service.core-compute-aat.internal'
-env.CCD_DEF_API = 'http://ccd-definition-store-api-aat.service.core-compute-aat.internal'
-env.CCD_DATA_API_URL = 'http://ccd-data-store-api-aat.service.core-compute-aat.internal'
-env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
-env.CCD_DATA_API_URL = 'http://ccd-data-store-api-aat.service.core-compute-aat.internal'
-env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
-env.CCD_DEF_API = 'http://ccd-definition-store-api-aat.service.core-compute-aat.internal'
-env.IDAM_REDIRECT_URI = 'https://em-hrs-api-aat.service.core-compute-aat.internal/oauth2/callback'
-env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
-env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/hrsperformancetest/'
-env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition_AAT.xlsx'
-env.TEST_URL = "http://em-hrs-api-aat.service.core-compute-aat.internal/"
 
 
 withNightlyPipeline(type, product, component) {
