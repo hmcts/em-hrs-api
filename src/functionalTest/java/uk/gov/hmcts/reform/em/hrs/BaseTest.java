@@ -10,7 +10,6 @@ import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
 import net.serenitybdd.rest.SerenityRest;
 import net.thucydides.core.annotations.WithTag;
 import net.thucydides.core.annotations.WithTags;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -20,10 +19,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
-import uk.gov.hmcts.reform.ccd.client.model.*;
+import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
+import uk.gov.hmcts.reform.ccd.client.model.CaseDataContent;
+import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
+import uk.gov.hmcts.reform.ccd.client.model.Event;
+import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
 import uk.gov.hmcts.reform.em.EmTestConfig;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
-import uk.gov.hmcts.reform.em.hrs.testutil.*;
+import uk.gov.hmcts.reform.em.hrs.testutil.AuthTokenGeneratorConfiguration;
+import uk.gov.hmcts.reform.em.hrs.testutil.AzureStorageContainerClientBeans;
+import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
+import uk.gov.hmcts.reform.em.hrs.testutil.CcdAuthTokenGeneratorConfiguration;
+import uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper;
+import uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper;
 import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
@@ -37,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.PostConstruct;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -117,7 +126,7 @@ public abstract class BaseTest {
     @Autowired
     protected ExtendedCcdHelper extendedCcdHelper;
 
-    @Before
+    @PostConstruct
     public void init() {
         LOGGER.info("BASE TEST POST CONSTRUCT INITIALISATIONS....");
         SerenityRest.useRelaxedHTTPSValidation();
