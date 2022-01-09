@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CaseDataContentCreatorTest {
 
     private static final UUID RECORDING_ID = UUID.randomUUID();
-    private static final String RECORDING_REF = "FT-0555-testfile";
+    private static final String RECORDING_REF = "FT-0111-testfile200M";
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     HearingRecordingDto hearingRecordingDto;
