@@ -411,7 +411,7 @@ dependencies {
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
 
 //azure components
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.10.2'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.14.3'
   implementation group: 'com.azure', name: 'azure-identity', version: '1.2.3'
 
   // Job scheduling
@@ -531,7 +531,7 @@ dependencies {
   contractTestImplementation "org.junit.vintage:junit-vintage-engine:5.8.1"
   contractTestImplementation("org.junit.jupiter:junit-jupiter-api:5.6.2")
   contractTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
-  contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.2.0'
+  contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.8.2'
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
   contractTestImplementation "ch.qos.logback:logback-classic:1.2.6"
