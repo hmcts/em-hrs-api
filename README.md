@@ -136,3 +136,5 @@ Uncheck "Comment at first column"
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 Refresh staging pod
+
+Checking PR build
