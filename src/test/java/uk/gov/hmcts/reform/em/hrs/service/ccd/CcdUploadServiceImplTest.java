@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
@@ -41,6 +42,11 @@ class CcdUploadServiceImplTest {
     @Mock
     private FolderService folderService;
 
+    @Mock
+    private CaseDataContentCreator caseDataCreator;
+    @Mock
+    private CoreCaseDataApi coreCaseDataApi;
+
     @InjectMocks
     private CcdUploadServiceImpl underTest;
 
@@ -63,6 +69,7 @@ class CcdUploadServiceImplTest {
         verify(segmentRepository).save(any(HearingRecordingSegment.class));
     }
 
+
     @Test
     void testShouldUpdateCaseInCcdAndPersistSegmentToPostgresWhenHearingRecordingReferenceExistsInDatabase() {
         doReturn(Optional.of(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3)).when(recordingRepository)
@@ -72,7 +79,7 @@ class CcdUploadServiceImplTest {
                 anyLong(),
                 eq(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3.getId()),
                 eq(HEARING_RECORDING_DTO)
-        );
+            );
         doReturn(SEGMENT_1).when(segmentRepository).save(any(HearingRecordingSegment.class));
 
         underTest.upload(HEARING_RECORDING_DTO);
@@ -83,7 +90,7 @@ class CcdUploadServiceImplTest {
                 anyLong(),
                 eq(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3.getId()),
                 eq(HEARING_RECORDING_DTO)
-        );
+            );
         verify(ccdDataStoreApiClient, never())
             .createCase(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3.getId(), HEARING_RECORDING_DTO);
         verify(recordingRepository, never()).save(any(HearingRecording.class));

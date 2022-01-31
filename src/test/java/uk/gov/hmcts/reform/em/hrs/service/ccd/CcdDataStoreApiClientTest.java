@@ -57,14 +57,21 @@ class CcdDataStoreApiClientTest {
                         "userId", USER_ID,
                         "service", SERVICE_TOKEN
         )).when(securityService).getTokens();
+
         StartEventResponse startEventResponse = StartEventResponse.builder().build();
+
         doReturn(startEventResponse).when(coreCaseDataApi)
             .startCase(USER_TOKEN, SERVICE_TOKEN, CASE_TYPE, CREATE_CASE);
+
         CaseDetails caseDetails = CaseDetails.builder().id(CASE_ID).build();
+
         JsonNode data = JsonNodeFactory.instance.objectNode();
+
         doReturn(data).when(caseDataContentCreator).createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID);
+
         CaseDataContent caseData = CaseDataContent.builder().data(data)
             .event(Event.builder().build()).build();
+
         doReturn(caseDetails).when(coreCaseDataApi).submitForCaseworker(
             USER_TOKEN, SERVICE_TOKEN, USER_ID, JURISDICTION, CASE_TYPE, false, caseData
         );
@@ -75,23 +82,111 @@ class CcdDataStoreApiClientTest {
     }
 
     @Test
+    void shouldThrowCcdUploadExceptionDuringCreateCaseGetTokens() {
+        doThrow(CcdUploadException.class).when(securityService).getTokens();
+
+        assertThatExceptionOfType(CcdUploadException.class).isThrownBy(() -> underTest.createCase(
+            RECORDING_ID,
+            HEARING_RECORDING_DTO
+        ));
+    }
+
+    @Test
+    void shouldThrowCcdUploadExceptionDuringStartCase() {
+        doReturn(Map.of("user", USER_TOKEN,
+                        "userId", USER_ID,
+                        "service", SERVICE_TOKEN
+        )).when(securityService).getTokens();
+
+        doThrow(CcdUploadException.class).when(coreCaseDataApi)
+            .startCase(USER_TOKEN, SERVICE_TOKEN, CASE_TYPE, CREATE_CASE);
+
+        assertThatExceptionOfType(CcdUploadException.class).isThrownBy(() -> underTest.createCase(
+            RECORDING_ID,
+            HEARING_RECORDING_DTO
+        ));
+    }
+
+
+    @Test
+    void shouldThrowCcdUploadExceptionDuringCreateCaseCreateData() {
+        doReturn(Map.of("user", USER_TOKEN,
+                        "userId", USER_ID,
+                        "service", SERVICE_TOKEN
+        )).when(securityService).getTokens();
+
+        StartEventResponse startEventResponse = StartEventResponse.builder().build();
+
+        doReturn(startEventResponse).when(coreCaseDataApi)
+            .startCase(USER_TOKEN, SERVICE_TOKEN, CASE_TYPE, CREATE_CASE);
+
+        doThrow(CcdUploadException.class).when(caseDataContentCreator)
+            .createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID);
+
+        assertThatExceptionOfType(CcdUploadException.class).isThrownBy(() -> underTest.createCase(
+            RECORDING_ID,
+            HEARING_RECORDING_DTO
+        ));
+    }
+
+
+    @Test
+    void shouldThrowCcdUploadExceptionDuringCreateCaseSubmitForCaseworker() {
+        doReturn(Map.of("user", USER_TOKEN,
+                        "userId", USER_ID,
+                        "service", SERVICE_TOKEN
+        )).when(securityService).getTokens();
+
+        StartEventResponse startEventResponse = StartEventResponse.builder().build();
+
+        doReturn(startEventResponse).when(coreCaseDataApi)
+            .startCase(USER_TOKEN, SERVICE_TOKEN, CASE_TYPE, CREATE_CASE);
+
+        JsonNode data = JsonNodeFactory.instance.objectNode();
+
+        doReturn(data).when(caseDataContentCreator).createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID);
+
+        CaseDataContent caseData = CaseDataContent.builder().data(data)
+            .event(Event.builder().build()).build();
+
+        doThrow(CcdUploadException.class).when(coreCaseDataApi).submitForCaseworker(
+            USER_TOKEN, SERVICE_TOKEN, USER_ID, JURISDICTION, CASE_TYPE, false, caseData
+        );
+
+
+        assertThatExceptionOfType(CcdUploadException.class).isThrownBy(() -> underTest.createCase(
+            RECORDING_ID,
+            HEARING_RECORDING_DTO
+        ));
+
+
+    }
+
+
+    @Test
     void shouldUpdateCase() {
         doReturn(Map.of("user", USER_TOKEN,
                         "userId", USER_ID,
                         "service", SERVICE_TOKEN
         )).when(securityService).getTokens();
+
         StartEventResponse startEventResponse = StartEventResponse.builder()
             .caseDetails(CaseDetails.builder().id(CASE_ID).build())
             .build();
+
         doReturn(startEventResponse).when(coreCaseDataApi).startEvent(
             USER_TOKEN, SERVICE_TOKEN, String.valueOf(CASE_ID), ADD_RECORDING_FILE
         );
         CaseDetails caseDetails = CaseDetails.builder().id(CASE_ID).build();
+
         JsonNode data = JsonNodeFactory.instance.objectNode();
+
         doReturn(data).when(caseDataContentCreator)
             .createCaseUpdateData(startEventResponse.getCaseDetails().getData(), RECORDING_ID, HEARING_RECORDING_DTO);
+
         CaseDataContent caseData = CaseDataContent.builder().data(data)
             .event(Event.builder().build()).build();
+
         doReturn(caseDetails).when(coreCaseDataApi).submitEventForCaseWorker(
             USER_TOKEN, SERVICE_TOKEN, USER_ID,
             JURISDICTION, CASE_TYPE, String.valueOf(CASE_ID), false, caseData
@@ -109,16 +204,21 @@ class CcdDataStoreApiClientTest {
                         "userId", USER_ID,
                         "service", SERVICE_TOKEN
         )).when(securityService).getTokens();
+
         StartEventResponse startEventResponse = StartEventResponse.builder()
             .caseDetails(CaseDetails.builder().id(CASE_ID).build())
             .build();
+
         doReturn(startEventResponse).when(coreCaseDataApi).startEvent(
             USER_TOKEN, SERVICE_TOKEN, String.valueOf(CASE_ID), ADD_RECORDING_FILE
         );
         CaseDetails caseDetails = CaseDetails.builder().id(CASE_ID).build();
+
         JsonNode data = JsonNodeFactory.instance.objectNode();
+
         doReturn(data).when(caseDataContentCreator)
             .createCaseUpdateData(startEventResponse.getCaseDetails().getData(), RECORDING_ID, HEARING_RECORDING_DTO);
+
         CaseDataContent caseData = CaseDataContent.builder().data(data)
             .event(Event.builder().build()).build();
 

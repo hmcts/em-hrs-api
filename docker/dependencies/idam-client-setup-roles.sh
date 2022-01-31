@@ -13,4 +13,5 @@ IDAM_URI=$1
 token=$2
 role=$3
 
-(./docker/dependencies/idam-client-setup.sh ${IDAM_URI} roles ${token} '{"description": "'${role}'", "id": "'${role}'", "name": "'${role}'"}')
+echo "Creating IDAM ROLE: ${role}"
+./docker/dependencies/idam-client-setup.sh ${IDAM_URI} roles ${token} '{"description": "'${role}'", "id": "'${role}'", "name": "'${role}'"}'

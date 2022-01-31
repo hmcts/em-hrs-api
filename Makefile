@@ -15,19 +15,16 @@ liquibase-apply-change-log:
 
 #applies database changes if required, and runs spring bootapp
 app-run:
-	./gradlew migratePostgresDatabase bootRun
+	./gradlew clean migratePostgresDatabase bootRun
 
 app-run-with-ai:
 	sudo mkdir -p /opt/app/;sudo chown $$USER /opt/app/;cp lib/* /opt/app/;./gradlew bootRun -i -DJAVA_TOOL_OPTIONS=-javaagent:/opt/app/applicationinsights-agent-2.5.1.jar
-
-app-clean-run:
-	./gradlew clean bootRun
 
 app-smoke-test:
 	./gradlew smoke -i
 
 test-functional:
-	./gradlew functional -i
+	./gradlew clean functional -i
 
 test-integration:
 	./gradlew integration -i

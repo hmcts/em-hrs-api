@@ -5,5 +5,6 @@ import uk.gov.hmcts.reform.em.hrs.exception.DatabaseStorageException;
 
 public interface JobInProgressService {
     void register(HearingRecordingDto hearingRecordingDto) throws DatabaseStorageException;
+
     void deRegister(HearingRecordingDto hearingRecordingDto);
 }

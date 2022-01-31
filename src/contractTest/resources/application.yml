@@ -7,7 +7,7 @@ spring:
       client:
         provider:
           oidc:
-            issuer-uri: ${OPEN_ID_API_BASE_URI:http://localhost:5000/o}
+            issuer-uri: ${OPEN_ID_API_BASE_URI:http://localhost:5001/o}
         registration:
           oidc:
             client-id: webshow
@@ -16,7 +16,7 @@ test:
   url: ${TEST_URL:http://localhost:8080}
 idam:
   api:
-    url: ${IDAM_API_BASE_URI:http://localhost:5000}
+    url: ${IDAM_API_BASE_URI:http://localhost:5001}
   client:
     id: ${OAUTH_CLIENT_ID:webshow}
     secret: ${IDAM_CLIENT_OAUTH_SECRET:AAAAAAAAAAAAAAAA}

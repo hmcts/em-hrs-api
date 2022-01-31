@@ -46,13 +46,12 @@ public class CcdUploadJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(final JobExecutionContext context) {
-        LOGGER.info("executing job");
         Optional.ofNullable(ccdUploadQueue.poll())
             .ifPresent(this::uploadGracefully);
     }
 
     private void uploadGracefully(HearingRecordingDto hrDto) {
-        LOGGER.info("attempting to upload gracefully");
+        LOGGER.info("attempting to create/update case in ccd gracefully");
         try {
             ccdUploadService.upload(hrDto);
         } catch (Exception e) {

@@ -9,8 +9,23 @@ IDAM_URI=$1
 USERNAME=$2
 PASSWORD=$3
 
-DATA='{"email":"'${USERNAME}'", "password":"'${PASSWORD}'", "surname":"system" , "forename":"user", "roles":[{"code":"caseworker"},{"code":"caseworker-hrs"}]}'
+ROLES='[{"code":"caseworker"},{"code":"caseworker-hrs"},{"code":"caseworker-hrs-searcher"},{"code":"ccd-import"}]'
 
-curl -XPOST "${IDAM_URI}/testing-support/accounts" \
+echo "Creating User:"
+echo "IDAM_URI: $IDAM_URI"
+echo "USERNAME: $USERNAME"
+echo "PASSWORD: $PASSWORD"
+echo "ROLES: $ROLES"
+
+
+
+DATA='{"email":"'${USERNAME}'", "password":"'${PASSWORD}'", "surname":"system" , "forename":"user", "roles":'${ROLES}'}'
+
+echo "JSON DATA: $DATA"
+
+curl -XPOST  "${IDAM_URI}/testing-support/accounts" \
+     -H "accept: */*" \
      -H "Content-Type: application/json" \
      -d "${DATA}"
+
+echo "    *****   "

@@ -7,7 +7,6 @@ import com.azure.core.util.polling.SyncPoller;
 import com.azure.identity.DefaultAzureCredential;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
@@ -49,8 +48,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private final String cvpConnectionString;
 
     @Autowired
-    public HearingRecordingStorageImpl(final BlobContainerAsyncClient hrsContainerAsyncClient,
-                                       final @Qualifier("HrsBlobContainerClient")
+    public HearingRecordingStorageImpl(final @Qualifier("HrsBlobContainerClient")
                                            BlobContainerClient hrsContainerClient,
                                        final @Qualifier("CvpBlobContainerClient")
                                            BlobContainerClient cvpContainerClient,
@@ -182,14 +180,14 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         final Duration duration = Duration.ofMinutes(BLOB_LIST_TIMEOUT);
 
         final PagedIterable<BlobItem> cvpBlobItems = cvpBlobContainerClient.listBlobs(options, duration);
-        long cvpItemCount = cvpBlobItems.streamByPage().count();
+        long cvpItemCount = cvpBlobItems.stream().count();
 
 
         final PagedIterable<BlobItem> hrsBlobItems = hrsBlobContainerClient.listBlobs(options, duration);
-        long hrsItemCount = cvpBlobItems.stream().count();
+        long hrsItemCount = hrsBlobItems.stream().count();
 
         String report = "CVP Count = " + cvpItemCount;
-        report += "\nHRS Count = " + hrsItemCount;
+        report += " vs HRS Count = " + hrsItemCount;
         return report;
     }
 

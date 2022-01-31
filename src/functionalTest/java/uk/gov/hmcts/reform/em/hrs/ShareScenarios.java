@@ -10,7 +10,6 @@ import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.annotation.PostConstruct;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -39,21 +38,29 @@ public class ShareScenarios extends BaseTest {
         filename = filename(caseRef, 0);
         filenames.add(filename);
 
+
+        LOGGER.info("SET UP: UPLOADING TO CVP");
         blobUtil.uploadToCvpContainer(filename);
         blobUtil.checkIfUploadedToStore(filenames, blobUtil.cvpBlobContainerClient);
 
+        LOGGER.info("SET UP: POSTING TO HRS");
         postRecordingSegment(caseRef, 0).then().statusCode(202);
         blobUtil.checkIfUploadedToStore(filenames, blobUtil.hrsBlobContainerClient);
 
-        caseDetails = findCaseWithAutoRetry(caseRef);
+        LOGGER.info("SET UP: CHECKING CASE IN CCD");
+        caseDetails = findCaseWithAutoRetryWithUserWithSearcherRole(caseRef);
 
         //used in tests to verify file is fully downloaded
+        LOGGER.info("SET UP: CHECKING FILE SIZE UPLOADED TO CVP");
         expectedFileSize = blobUtil.getTestFile().readAllBytes().length;
         assertThat(expectedFileSize, is(not(0)));
+
+        LOGGER.info("SET UP: SCENARIO DATA READY FOR TESTING");
+
     }
 
     @Test
-    public void shareeWithCaseworkerHrsRoleShouldBeAbleToDownloadRecordings() {
+    public void shareeWithCaseworkerHrsSearcherRoleShouldBeAbleToDownloadRecordings() {
         final CallbackRequest callbackRequest = addEmailRecipientToCaseDetailsCallBack(
             caseDetails,
             USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS
@@ -76,9 +83,9 @@ public class ShareScenarios extends BaseTest {
     }
 
     @Test
-    public void shareeWithCaseworkerRoleShouldBeAbleToDownloadRecordings() {
+    public void shareeWithOnlyCaseworkerRoleShouldBeAbleToDownloadRecordings() {
         final CallbackRequest callbackRequest =
-            addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_REQUESTOR_ROLE__CASEWORKER);
+            addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY);
         shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
             .then()
             .log().all()
@@ -86,7 +93,7 @@ public class ShareScenarios extends BaseTest {
             .statusCode(200);
 
         final byte[] downloadedFileBytes =
-            downloadRecording(USER_WITH_REQUESTOR_ROLE__CASEWORKER, caseDetails.getData())
+            downloadRecording(USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY, caseDetails.getData())
                 .then()
                 .statusCode(200)
                 .extract().response()
@@ -135,7 +142,7 @@ public class ShareScenarios extends BaseTest {
         Long randomCcdId = Long.valueOf(generateUid());
         caseDetails.setId(randomCcdId);
         final CallbackRequest callbackRequest =
-            addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_REQUESTOR_ROLE__CASEWORKER);
+            addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY);
         LOGGER.info(
             "Sharing case with new timebased random ccd id {}, by user {}",
             randomCcdId,

@@ -39,33 +39,8 @@ def secrets = [
     secret('notification-api-key', 'NOTIFICATION_API_KEY'),
     secret('idam-system-user-name', 'HRS_SYSTEM_USER'),
     secret('idam-system-user-password', 'HRS_SYSTEM_USER_PASSWORD')
-    ],
-    'em-hrs-api-${env}': [
-      secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING'),
-      secret('cvp-storage-container-name', 'CVP_STORAGE_CONTAINER_NAME'),
-      secret('storage-account-primary-connection-string', 'HRS_STORAGEACCOUNT_CONNECTION_STRING'),
-      secret('hrs-storage-container-name', 'HRS_STORAGE_CONTAINER_NAME'),
-      secret('notification-api-key', 'NOTIFICATION_API_KEY'),
-      secret('idam-system-user-name', 'HRS_SYSTEM_USER'),
-      secret('idam-system-user-password', 'HRS_SYSTEM_USER_PASSWORD')
     ]
   ]
-
-
-
-
-// Vars for Kubernetes Endpoints
-env.CCD_DATA_API_URL = 'http://ccd-data-store-api-aat.service.core-compute-aat.internal'
-env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition_v0.3_AAT.xlsx'
-env.CCD_DEF_API = 'http://ccd-definition-store-api-aat.service.core-compute-aat.internal'
-env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/cvpsimulator/'
-env.IDAM_API_BASE_URI = 'https://idam-api.aat.platform.hmcts.net'
-env.IDAM_REDIRECT_URI = 'https://em-hrs-api-aat.service.core-compute-aat.internal/oauth2/callback'
-env.OPEN_ID_API_BASE_URI = 'https://idam-web-public.aat.platform.hmcts.net/o'
-env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
-env.S2S_BASE_URI = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
-env.TEST_URL = "http://em-hrs-api-aat.service.core-compute-aat.internal/"
-env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
   [$class     : 'AzureKeyVaultSecret',
@@ -75,6 +50,19 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
    envVariable: envVar
   ]
 }
+
+// Vars for Kubernetes Endpoints
+env.CCD_DATA_API_URL = 'http://ccd-data-store-api-aat.service.core-compute-aat.internal'
+env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition_v1.0_AAT.xlsx'
+env.CCD_DEF_API = 'http://ccd-definition-store-api-aat.service.core-compute-aat.internal'
+env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/cvpsimulator/'
+env.IDAM_API_BASE_URI = 'https://idam-api.aat.platform.hmcts.net'
+env.IDAM_REDIRECT_URI = 'https://em-hrs-api-aat.service.core-compute-aat.internal/oauth2/callback'
+env.OPEN_ID_API_BASE_URI = 'https://idam-web-public.aat.platform.hmcts.net/o'
+env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
+env.S2S_BASE_URI = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
+env.TEST_URL = "http://em-hrs-api-aat.service.core-compute-aat.internal/"
+env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
 
 def vaultOverrides = [
   'preview' : 'aat',

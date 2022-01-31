@@ -45,7 +45,7 @@ class SecurityServiceImplTest {
         .build();
     private static final UserInfo USER_INFO = UserInfo.builder()
         .uid(USER_ID)
-        .roles(Arrays.asList("caseworker-hrs"))
+        .roles(Arrays.asList("caseworker-hrs-searcher"))
         .build();
     private static final String SERVICE_NAME = "TestService";
 

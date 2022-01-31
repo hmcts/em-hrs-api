@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.PostConstruct;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -115,7 +114,7 @@ public class IngestScenarios extends BaseTest {
         LOGGER.info("*****************************");
 
 
-        CaseDetails caseDetails = findCaseWithAutoRetry(caseRef);
+        CaseDetails caseDetails = findCaseWithAutoRetryWithUserWithSearcherRole(caseRef);
 
 
         Map<String, Object> data = caseDetails.getData();

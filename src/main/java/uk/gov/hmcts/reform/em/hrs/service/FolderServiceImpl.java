@@ -68,8 +68,8 @@ public class FolderServiceImpl implements FolderService {
     }
 
     private void deleteStaleCcdUploadAttempts() {
-        LocalDateTime one_hour_ago = LocalDateTime.now(Clock.systemUTC()).minusHours(1);
-        hearingRecordingRepository.deleteStaleRecordsWithNullCcdCaseId(one_hour_ago);
+        LocalDateTime oneHourAgo = LocalDateTime.now(Clock.systemUTC()).minusHours(1);
+        hearingRecordingRepository.deleteStaleRecordsWithNullCcdCaseId(oneHourAgo);
     }
 
     @Override

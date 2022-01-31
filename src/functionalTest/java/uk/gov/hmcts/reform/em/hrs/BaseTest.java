@@ -74,30 +74,37 @@ public abstract class BaseTest {
     protected static final String BEARER = "Bearer ";
     protected static final String FILE_EXT = "mp4";
 
-    public static String SYSUSER_HRSAPI_USER = "emhrsapi@test.internal";
-    public static List<String> SYSUSER_HRSAPI_USER_ROLES = List.of("caseworker", "caseworker-hrs", "ccd-import");
+    public static String SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION =
+        "hrs.functional.system.user@hmcts.net";
 
-    protected static final String USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS = "em-test-searcher@test.internal";
-    protected static final String USER_WITH_REQUESTOR_ROLE__CASEWORKER = "em-test-requestor@test.internal";
-    protected static final String USER_WITH_NONACCESS_ROLE__CITIZEN = "em-test-citizen@test.internal";
+    public static List<String>
+        SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION_ROLES =
+        List.of("caseworker", "caseworker-hrs", "caseworker-hrs-searcher", "ccd-import");
+
+
+    protected static final String USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS = "em-test-searcher@test.hmcts.net";
+    protected static final String USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY = "em-test-requestor@test.hmcts.net";
+    protected static final String USER_WITH_NONACCESS_ROLE__CITIZEN = "em-test-citizen@test.hmcts.net";
+    protected static final String USER_DEFAULT_PASSWORD = "4590fgvhbfgbDdffm3lk4j";//USED ONLY FOR TESTS in IDAM HELPER
     protected static final String EMAIL_ADDRESS_INVALID_FORMAT = "invalid@emailaddress";
 
     protected static final String FOLDER = "audiostream123455";
     protected static final String TIME = "2020-11-04-14.56.32.819";
     public static final String CASEREF_PREFIX = "FUNCTEST_";
     protected static List<String> CASE_WORKER_ROLE = List.of("caseworker");
-    protected static List<String> CASE_WORKER_HRS_SEARCHER_ROLE = List.of("caseworker", "caseworker-hrs");
+    protected static List<String> CASE_WORKER_HRS_SEARCHER_ROLE =
+        List.of("caseworker", "caseworker-hrs", "caseworker-hrs-searcher");
     protected static List<String> CITIZEN_ROLE = List.of("citizen");
     protected static final String CLOSE_CASE = "closeCase";
 
-    int FIND_CASE_TIMEOUT = 30;
+    protected static int FIND_CASE_TIMEOUT = 30;
 
-    protected String idamAuthHrsTester;
-    protected String s2sAuth;
-    protected String userIdHrsTester;
+    static int createUsersBaseTestRunCount = 0;
+
+    protected String hrsS2sAuth;
 
 
-    //yyyy-MM-dd---HH-MM-ss---SSS=07-30-2021---16-07-35---485
+    //The format "yyyy-MM-dd---HH-MM-ss---SSS" will render "07-30-2021---16-07-35---485"
     DateTimeFormatter datePartFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     DateTimeFormatter timePartFormatter = DateTimeFormatter.ofPattern("HH-MM-ss---SSS");
 
@@ -128,76 +135,102 @@ public abstract class BaseTest {
 
     @PostConstruct
     public void init() {
-        LOGGER.info("BASE TEST POST CONSTRUCT INITIALISATIONS....");
-        SerenityRest.useRelaxedHTTPSValidation();
+        int maxRuns = 1;
 
-        createUserIfNotExists(SYSUSER_HRSAPI_USER, SYSUSER_HRSAPI_USER_ROLES);
+        if (createUsersBaseTestRunCount < maxRuns) {
 
-        createUserIfNotExists(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, CASE_WORKER_HRS_SEARCHER_ROLE);
-        createUserIfNotExists(USER_WITH_REQUESTOR_ROLE__CASEWORKER, CASE_WORKER_ROLE);
-        createUserIfNotExists(USER_WITH_NONACCESS_ROLE__CITIZEN, CITIZEN_ROLE);
+            LOGGER.info("BASE TEST POST CONSTRUCT INITIALISATIONS....");
+            SerenityRest.useRelaxedHTTPSValidation();
 
-        idamAuthHrsTester = idamHelper.authenticateUser(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS);
-        s2sAuth = BEARER + s2sHelper.getS2sToken();
-        userIdHrsTester = idamHelper.getUserId(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS);
 
-        try {
-            extendedCcdHelper.importDefinitionFile();
-        } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.info("CREATING HRS FUNCTIONAL TEST SYSTEM USER");
+            createIDAMUserIfNotExists(
+                SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION,
+                SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION_ROLES
+            );
+
+            LOGGER.info("CREATING REGULAR TEST USERS");
+
+            createIDAMUserIfNotExists(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, CASE_WORKER_HRS_SEARCHER_ROLE);
+            createIDAMUserIfNotExists(USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY, CASE_WORKER_ROLE);
+            createIDAMUserIfNotExists(USER_WITH_NONACCESS_ROLE__CITIZEN, CITIZEN_ROLE);
+
+            LOGGER.info("IMPORTING CCD DEFINITION");
+
+            try {
+                extendedCcdHelper.importDefinitionFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            createUsersBaseTestRunCount++;
+
         }
-
+        LOGGER.info("AUTHENTICATING TEST USER FOR CCD CALLS");
+        hrsS2sAuth = BEARER + s2sHelper.getS2sToken();
     }
 
-    private void createUserIfNotExists(String email, List<String> roles) {
-        /* in some cases, there were conflicts between PR branches being built
-        due to users being deleted / recreated
+    private void createIDAMUserIfNotExists(String email, List<String> roles) {
+        /*
 
-        as the roles are static they do not need to be deleted each time
-        should the roles change for users, then the recreateUsers flag will need to be true before merging to master
+        if multiple PR branches are triggered, then it means the user token cache used by em-test-helper
+        will become stale
+
+        potential for conflict with hrs-api using the hrs.tester@hmcts.net system user
+        probably these tests should not use that user, however many issues arose when
+        trying to refactor this logic and there was not enough time to see it through.
+
+        good to have set to true for local environments, when testing role changes etc
+
+        TODO make recreateUsers an environment value so that it is true for local dev, and false for AAT
          */
-
-        boolean recreateUsers = false;
+        boolean recreateUsers = true;
 
         if (recreateUsers) {
+            LOGGER.info("CREATING USER {} with roles {}", email, roles);
             idamHelper.createUser(email, roles);
         } else {
             try {
-                idamHelper.getUserId(email);
+                String userId = idamHelper.getUserId(email);
+                LOGGER.info("User {} already exists: id={}", email, userId);
             } catch (Exception e) {//if user does not exist
+                LOGGER.info(
+                    "Exception thrown, likely user does not exist so will create. Ignore the above Exception:{}",
+                    e.getMessage()
+                );
+                LOGGER.info("CREATING USER {} with roles {}", email, roles);
                 idamHelper.createUser(email, roles);
             }
         }
+
     }
 
 
-    public RequestSpecification authRequest() {
-        return authRequest(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS);
+    public RequestSpecification authRequestForSearcherRole() {
+        return authRequestForUsername(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS);
     }
 
 
-    private RequestSpecification authRequest(String username) {
-        String userToken = idamAuthHrsTester;
-        if (!USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS.equals(username)) {
-            userToken = idamHelper.authenticateUser(username);
-        }
+    private RequestSpecification authRequestForUsername(String username) {
+        String userToken = idamHelper.authenticateUser(username);
+
 
         return SerenityRest
             .given()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .header("Authorization", userToken)
-            .header("ServiceAuthorization", s2sAuth);
+            .header("ServiceAuthorization", hrsS2sAuth);
     }
 
     public RequestSpecification s2sAuthRequest() {
         return SerenityRest
             .given()
-            .header("ServiceAuthorization", s2sAuth);
+            .header("ServiceAuthorization", hrsS2sAuth);
     }
 
     protected ValidatableResponse getFilenamesCompletedOrInProgress(String folder) {
-        return authRequest()
+        return authRequestForSearcherRole() //TODO this is something ingestor would call not searcher
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
@@ -221,9 +254,9 @@ public abstract class BaseTest {
             .post("/segments");
     }
 
-    protected Response shareRecording(String email, CallbackRequest callbackRequest) {
+    protected Response shareRecording(String sharerUserName, CallbackRequest callbackRequest) {
         JsonNode reqBody = new ObjectMapper().convertValue(callbackRequest, JsonNode.class);
-        return authRequest(email)
+        return authRequestForUsername(sharerUserName)
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
@@ -232,7 +265,7 @@ public abstract class BaseTest {
             .post("/sharees");
     }
 
-    protected Response downloadRecording(String email, Map<String, Object> caseData) {
+    protected Response downloadRecording(String userName, Map<String, Object> caseData) {
         @SuppressWarnings("unchecked")
         List<Map> segmentNodes = (ArrayList) caseData.getOrDefault("recordingFiles", new ArrayList());
 
@@ -243,7 +276,7 @@ public abstract class BaseTest {
             .findFirst()
             .orElseThrow();
 
-        return authRequest(email)
+        return authRequestForUsername(userName)
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
@@ -293,13 +326,14 @@ public abstract class BaseTest {
             .statusCode(200);
     }
 
-    CaseDetails findCaseWithAutoRetry(String caseRef) {
-        Optional<CaseDetails> optionalCaseDetails = searchForCase(caseRef);
+    CaseDetails findCaseWithAutoRetryWithUserWithSearcherRole(String caseRef) {
+        Optional<CaseDetails> optionalCaseDetails = searchForCaseWithUserWithSearcherRole(caseRef);
 
         int count = 0;
         while (count <= 10 && optionalCaseDetails.isEmpty()) {
             SleepHelper.sleepForSeconds(FIND_CASE_TIMEOUT);
-            optionalCaseDetails = searchForCase(caseRef);
+            LOGGER.info("Search attempt # {}", count);
+            optionalCaseDetails = searchForCaseWithUserWithSearcherRole(caseRef);
             count++;
         }
 
@@ -314,15 +348,14 @@ public abstract class BaseTest {
         return caseDetails;
     }
 
-    protected Optional<CaseDetails> searchForCase(String caseRef) {
+    protected Optional<CaseDetails> searchForCaseWithUserWithSearcherRole(String caseRef) {
         Map<String, String> searchCriteria = Map.of("case.recordingReference", caseRef);
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
-        String userToken = idamClient.getAccessToken(SYSUSER_HRSAPI_USER, "4590fgvhbfgbDdffm3lk4j");
+        String userToken = idamClient.getAccessToken(
+            USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, USER_DEFAULT_PASSWORD);
         String uid = idamClient.getUserInfo(userToken).getUid();
 
-        LOGGER.info("searching for case by ref ({}) with userToken ({}) and serviceToken ({})",
-                    caseRef, idamAuthHrsTester.substring(0, 12), s2sToken.substring(0, 12)
-        );
+        LOGGER.info("with Jurisdiction {} and casetype {}", JURISDICTION, CASE_TYPE);
         return coreCaseDataApi
             .searchForCaseworker(userToken, s2sToken, uid,
                                  JURISDICTION, CASE_TYPE, searchCriteria
@@ -353,10 +386,11 @@ public abstract class BaseTest {
             + "-UTC_" + segment + ".mp4";
     }
 
-    public String closeCase(final String caseRef, CaseDetails caseDetails) {
+    public String closeCaseWithSystemUser(final String caseRef, CaseDetails caseDetails) {
 
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
-        String userToken = idamClient.getAccessToken(SYSUSER_HRSAPI_USER, "4590fgvhbfgbDdffm3lk4j");
+        String userToken = idamClient.getAccessToken(
+            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, USER_DEFAULT_PASSWORD);
         String uid = idamClient.getUserInfo(userToken).getUid();
 
         StartEventResponse startEventResponse =

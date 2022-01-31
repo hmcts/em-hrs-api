@@ -1,8 +1,10 @@
 ---
 spring:
   main:
+    debug: false
     allow-bean-definition-overriding: true
   autoconfigure:
+    debug: false
     exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   security:
@@ -10,18 +12,26 @@ spring:
       client:
         provider:
           oidc:
-            issuer-uri: ${OPEN_ID_API_BASE_URI:http://localhost:5000/o}
+            issuer-uri: ${OPEN_ID_API_BASE_URI:http://localhost:5001/o}
         registration:
           oidc:
             client-id: webshow #TODO: create proper idam client-id for hrs
             client-secret: ${S2S_KEY:AAAAAAAAAAAAAAAA}
+
+logging:
+  level:
+    org:
+      springframework:
+        boot:
+          autoconfigure:
+            logging: INFO
 
 test:
   url: ${TEST_URL:http://localhost:8080}
 
 idam:
   api:
-    url: ${IDAM_API_BASE_URI:http://localhost:5000}
+    url: ${IDAM_API_BASE_URI:http://localhost:5001}
   client:
     id: ${OAUTH_CLIENT_ID:webshow}
     secret: ${IDAM_CLIENT_OAUTH_SECRET:AAAAAAAAAAAAAAAA}
@@ -38,7 +48,7 @@ s2s:
     ccdGwServiceName: ${CCD_GW_SERVICE_NAME:ccd_gw}
 
 ccd-def:
-  file: ${CCD_DEFINITION_FILE:hrs_ccd_case_definition_v0.3_LOCAL.xlsx}
+  file: ${CCD_DEFINITION_FILE:hrs_ccd_case_definition_v1.0_AAT.xlsx}
   api:
     url: ${CCD_DEF_API:http://localhost:4451}
 

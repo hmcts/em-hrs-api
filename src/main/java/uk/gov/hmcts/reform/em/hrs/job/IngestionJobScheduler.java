@@ -20,7 +20,8 @@ public class IngestionJobScheduler {
     private final int intervalInSeconds;
 
     @Autowired
-    public IngestionJobScheduler(final Scheduler scheduler, @Value("${hrs.ingestion-interval-in-seconds}") final int intervalInSeconds) {
+    public IngestionJobScheduler(final Scheduler scheduler,
+                                 @Value("${hrs.ingestion-interval-in-seconds}") final int intervalInSeconds) {
         this.scheduler = scheduler;
         this.intervalInSeconds = intervalInSeconds;
     }

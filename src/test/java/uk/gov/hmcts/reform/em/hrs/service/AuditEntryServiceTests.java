@@ -83,19 +83,19 @@ public class AuditEntryServiceTests {
     }
 
 
-    @Test
-    public void testCreateAndSaveEntryForHearingRecording() {
-        prepareMockSecurityService();
-
-        HearingRecordingAuditEntry entry = auditEntryService.createAndSaveEntry(
-            hearingRecording,
-            AuditActions.DATA_LIFECYCLE_CREATED
-        );
-
-        assertSecurityServiceValues(entry);
-        assertLogFormatterInvoked();
-        verify(hearingRecordingAuditEntryRepository, times(1)).save(any(HearingRecordingAuditEntry.class));
-    }
+//    @Test
+//    public void testCreateAndSaveEntryForHearingRecording() {
+//        prepareMockSecurityService();
+//
+//        HearingRecordingAuditEntry entry = auditEntryService.createAndSaveEntry(
+//            hearingRecording,
+//            AuditActions.
+//        );
+//
+//        assertSecurityServiceValues(entry);
+//        assertLogFormatterInvoked();
+//        verify(hearingRecordingAuditEntryRepository, times(1)).save(any(HearingRecordingAuditEntry.class));
+//    }
 
 
     @Test

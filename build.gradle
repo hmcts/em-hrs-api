@@ -428,8 +428,8 @@ dependencies {
   implementation group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: '4.7.5'
 
 //hmcts logging
-  implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: versions.log4JVersion
-  implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: versions.log4JVersion
+// no log4j impl needed if over slf4 used
+  implementation group: 'org.slf4j', name: 'log4j-over-slf4j', version: '1.7.32'
   implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-spring', version: versions.reformLogging
@@ -570,7 +570,7 @@ dependencies {
   contractTestImplementation 'org.junit.vintage:junit-vintage-engine:5.8.1'
   contractTestImplementation("org.junit.jupiter:junit-jupiter-api:5.6.2")
   contractTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
-  contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.2.0'
+  contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.8.2'
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
   contractTestImplementation "ch.qos.logback:logback-classic:1.2.6"

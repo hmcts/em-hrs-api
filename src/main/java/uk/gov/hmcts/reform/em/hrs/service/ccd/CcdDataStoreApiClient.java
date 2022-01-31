@@ -41,84 +41,117 @@ public class CcdDataStoreApiClient {
     }
 
     public Long createCase(final UUID recordingId, final HearingRecordingDto hearingRecordingDto) {
-        Map<String, String> tokens = securityService.getTokens();
+        CaseDataContent caseData = null;
+        try {
+            LOGGER.info("Starting Case Event");
+            Map<String, String> tokens = securityService.getTokens();
+            StartEventResponse startEventResponse =
+                coreCaseDataApi.startCase(tokens.get(USER), tokens.get(SERVICE), CASE_TYPE, EVENT_CREATE_CASE);
 
-        StartEventResponse startEventResponse =
-            coreCaseDataApi.startCase(tokens.get(USER), tokens.get(SERVICE), CASE_TYPE, EVENT_CREATE_CASE);
+            caseData = CaseDataContent.builder()
+                .event(Event.builder().id(startEventResponse.getEventId()).build())
+                .eventToken(startEventResponse.getToken())
+                .data(caseDataCreator.createCaseStartData(hearingRecordingDto, recordingId))
+                .build();
 
-        CaseDataContent caseData = CaseDataContent.builder()
-            .event(Event.builder().id(startEventResponse.getEventId()).build())
-            .eventToken(startEventResponse.getToken())
-            .data(caseDataCreator.createCaseStartData(hearingRecordingDto, recordingId))
-            .build();
+            CaseDetails caseDetails = coreCaseDataApi
+                .submitForCaseworker(tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
+                                     JURISDICTION, CASE_TYPE, false, caseData
+                );
 
-        CaseDetails caseDetails = coreCaseDataApi
-            .submitForCaseworker(tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
-                                 JURISDICTION, CASE_TYPE, false, caseData
+            LOGGER.info(
+                "created a new case({}) for recording ({})",
+                caseDetails.getId(),
+                hearingRecordingDto.getRecordingRef()
             );
+            return caseDetails.getId();
 
-        LOGGER.info("created a new case({}) for recording ({})",
-                    caseDetails.getId(), hearingRecordingDto.getRecordingRef()
-        );
-        return caseDetails.getId();
+        } catch (Exception e) {
+            //CCD has rejected, so log payload to assist with debugging (no sensitive information is exposed)
+            if (caseData != null) {
+                logCaseDataError(caseData);
+            } else {
+                LOGGER.error(
+                    "caseReference: {}, eventSummary: {}",
+                    hearingRecordingDto.getCaseRef(),
+                    "Create New Case"
+                );
+            }
+
+            throw new CcdUploadException("Error Creating Case", e);
+        }
     }
 
 
     public synchronized Long updateCaseData(final Long caseId, final UUID recordingId,
                                             final HearingRecordingDto hearingRecordingDto) {
-        Map<String, String> tokens = securityService.getTokens();
-
-        StartEventResponse startEventResponse = coreCaseDataApi.startEvent(tokens.get(USER), tokens.get(SERVICE),
-                                                                           caseId.toString(), EVENT_MANAGE_FILES
-        );
-
-        CaseDataContent caseData = CaseDataContent.builder()
-            .event(Event.builder().id(startEventResponse.getEventId()).build())
-            .eventToken(startEventResponse.getToken())
-            .data(caseDataCreator.createCaseUpdateData(
-                startEventResponse.getCaseDetails().getData(), recordingId, hearingRecordingDto)
-            ).build();
-
-
-        LOGGER.info(
-            "updating ccd case (id {}) with new recording (ref {})",
-            caseId,
-            hearingRecordingDto.getRecordingRef()
-        );
+        CaseDataContent caseData = null;
 
         try {
+            Map<String, String> tokens = securityService.getTokens();
+            StartEventResponse startEventResponse =
+                coreCaseDataApi.startEvent(tokens.get(USER), tokens.get(SERVICE), caseId.toString(), EVENT_MANAGE_FILES);
+
+            caseData = CaseDataContent.builder()
+                .event(Event.builder().id(startEventResponse.getEventId()).build())
+                .eventToken(startEventResponse.getToken())
+                .data(caseDataCreator.createCaseUpdateData(
+                    startEventResponse.getCaseDetails().getData(), recordingId, hearingRecordingDto)
+                ).build();
+
+            LOGGER.info(
+                "updating ccd case (id {}) with new recording (ref {})",
+                caseId,
+                hearingRecordingDto.getRecordingRef()
+            );
+
             CaseDetails caseDetails =
                 coreCaseDataApi.submitEventForCaseWorker(tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
                                                          JURISDICTION, CASE_TYPE, caseId.toString(), false, caseData
                 );
 
             return caseDetails.getId();
+
         } catch (Exception e) {
             //CCD has rejected, so log payload to assist with debugging (no sensitive information is exposed)
-            String caseReference = caseData.getCaseReference();
-            Event event = caseData.getEvent();
-            String eventDescription = event.getDescription();
-            String eventId = event.getId();
-            String eventSummary = event.getSummary();
-
-            LOGGER.info(
-                "caseReference: {}, eventId: {}, eventDescription: {}, eventSummary: {}",
-                caseReference,
-                eventId,
-                eventDescription,
-                eventSummary
-            );
-            Object jsonData = caseData.getData();
-            LOGGER.info("caseData Raw: " + jsonData.toString());
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            String jsonOutput = gson.toJson(jsonData);
-            LOGGER.info("caseData Pretty: " + jsonOutput);
-
-
+            if (caseData != null) {
+                logCaseDataError(caseData);
+            } else {
+                LOGGER.error(
+                    "caseReference: {}, filename: {}, eventSummary: {}",
+                    hearingRecordingDto.getCaseRef(),
+                    hearingRecordingDto.getFilename(),
+                    "Add Segment to Case"
+                );
+            }
             throw new CcdUploadException("Error Uploading Segment", e);
         }
 
     }
+
+
+    private void logCaseDataError(CaseDataContent caseData) {
+        String caseReference = caseData.getCaseReference();
+        Event event = caseData.getEvent();
+        String eventDescription = event.getDescription();
+        String eventId = event.getId();
+        String eventSummary = event.getSummary();
+
+        LOGGER.error(
+            "caseReference: {}, eventId: {}, eventDescription: {}, eventSummary: {}",
+            caseReference,
+            eventId,
+            eventDescription,
+            eventSummary
+        );
+        Object jsonData = caseData.getData();
+        LOGGER.info("caseData Raw: " + String.valueOf(jsonData));
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String jsonOutput = gson.toJson(jsonData);
+        LOGGER.info("caseData Pretty: " + jsonOutput);
+    }
+
+
 }
 
 

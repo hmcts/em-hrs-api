@@ -13,20 +13,25 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
+import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
 import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@TestPropertySource(properties = "hrs.allowed-roles.value=[caseworker-hrs]")
+@TestPropertySource(properties = "hrs.allowed-roles.value=[caseworker-hrs-searcher]")
 @SpringBootTest(classes = {PermissionEvaluatorImpl.class})
 public class PermissionEvaluatorImplTest {
 
@@ -36,23 +41,27 @@ public class PermissionEvaluatorImplTest {
     @MockBean
     private ShareesRepository shareesRepository;
 
+    @MockBean
+    private AuditEntryService auditEntryService;
+
     private JwtAuthenticationToken authentication;
 
     private static final String USER_ID = UUID.randomUUID().toString();
-    private static final UserInfo HRS_USER_INFO = UserInfo.builder()
+    private static final UserInfo HRS_SEARCHER_INFO = UserInfo.builder()
         .uid(USER_ID)
-        .roles(Arrays.asList("caseworker-hrs"))
+        .roles(Arrays.asList("caseworker-hrs-searcher"))
         .build();
-    private static final UserInfo NON_HRS_USER_INFO = UserInfo.builder()
+    private static final UserInfo HRS_SHAREE_INFO = UserInfo.builder()
         .uid(USER_ID)
-        .roles(Arrays.asList("sharee"))
+        .roles(Arrays.asList("caseworker"))
         .build();
     private static final UUID recordingId = UUID.randomUUID();
     private static final HearingRecordingSegment segment = HearingRecordingSegment.builder()
         .hearingRecording(HearingRecording.builder().id(recordingId).build())
         .build();
     private String shareeEmail = "sharee@sharee.com";
-    private List<HearingRecordingSharee> hearingRecordingSharees;
+    private List<HearingRecordingSharee> hearingRecordingWithSharee;
+    private List<HearingRecordingSharee> hearingRecordingWithNoSharees = new ArrayList<>();
 
     @Autowired
     PermissionEvaluatorImpl permissionEvaluator;
@@ -70,46 +79,59 @@ public class PermissionEvaluatorImplTest {
         HearingRecording hearingRecording = new HearingRecording();
         hearingRecording.setId(recordingId);
         hearingRecordingSharee.setHearingRecording(hearingRecording);
-        hearingRecordingSharees = Arrays.asList(hearingRecordingSharee);
+        hearingRecordingWithSharee = Arrays.asList(hearingRecordingSharee);
+        setRolesAllowedToDownloadByDefaultToBeCaseworkerHrsSearcher();
+
     }
 
     @Test
-    public void testPermissionOnDownloadCaseWorkerSuccess() {
-        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_USER_INFO);
-        ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker-hrs"));
-
+    public void testPermissionOnDownloadWithSearcherRoleSuccess() {
+        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_SEARCHER_INFO);
         Assert.assertTrue(permissionEvaluator.hasPermission(authentication, null, "READ"));
     }
 
-    @Test
-    public void testPermissionOnDownloadCaseWorkerFailure() {
-        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_USER_INFO);
-        ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker"));
 
+    @Test
+    public void testPermissionOnDownloadWithCaseWorkerRoleAndNoEmailShareGrantFailure() {
+        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_SHAREE_INFO);
         Assert.assertFalse(permissionEvaluator.hasPermission(authentication, null, "READ"));
     }
 
     @Test
     public void testPermissionOnDownloadShareeSuccess() {
-        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(NON_HRS_USER_INFO);
-        ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker-hrs"));
+        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_SHAREE_INFO);
         when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
-        when(shareesRepository.findByShareeEmail(Mockito.anyString())).thenReturn(hearingRecordingSharees);
+        when(shareesRepository.findByShareeEmail(Mockito.anyString())).thenReturn(hearingRecordingWithSharee);
         Assert.assertTrue(permissionEvaluator.hasPermission(authentication, segment, "READ"));
     }
 
     @Test
     public void testPermissionOnDownloadShareeFailure() {
-        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(NON_HRS_USER_INFO);
-        ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker-hrs"));
+        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_SHAREE_INFO);
         when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
-        when(shareesRepository.findByShareeEmail(Mockito.anyString())).thenReturn(hearingRecordingSharees);
-        Assert.assertFalse(permissionEvaluator.hasPermission(authentication, null, "READ"));
+        when(shareesRepository.findByShareeEmail(Mockito.anyString())).thenReturn(hearingRecordingWithNoSharees);
+        boolean permissionResult = permissionEvaluator.hasPermission(authentication, segment, "READ");
+        Assert.assertFalse(permissionResult);
+        verify(auditEntryService, times(1)).createAndSaveEntry(
+            any(HearingRecordingSegment.class),
+            any(AuditActions.class)
+        );
     }
 
     @Test
     public void testPermissionOnDownloadFailure() {
-        Assert.assertFalse(permissionEvaluator.hasPermission(authentication, null,
-            "uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadServiceImpl","READ"));
+        Assert.assertFalse(permissionEvaluator.hasPermission(
+            authentication,
+            null,
+            "uk.gov.hmcts.reform.em.hrs.service"
+                + ".SegmentDownloadServiceImpl",
+            "READ"
+        ));
     }
+
+
+    private void setRolesAllowedToDownloadByDefaultToBeCaseworkerHrsSearcher() {
+        ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", Arrays.asList("caseworker-hrs-searcher"));
+    }
+
 }

@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.em.hrs.componenttests.config;
 
-import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import org.slf4j.Logger;
@@ -12,6 +11,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
+import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -55,30 +55,24 @@ public class TestAzureStorageConfig {
         connectionString = String.format(AZURITE_CREDENTIALS, ACCOUNT_NAME, ACCOUNT_KEY, blobServiceUrl);
     }
 
-    @Bean
-    @Primary
-    public BlobContainerAsyncClient provideBlobContainerAsyncClient() {
-        final BlobContainerAsyncClient blobContainerAsyncClient = new BlobContainerClientBuilder()
-            .connectionString(connectionString)
-            .containerName(HRS_CONTAINER)
-            .buildAsyncClient();
-
-        blobContainerAsyncClient.create()
-            .subscribe(
-                response -> LOGGER.info("Create {} container completed", HRS_CONTAINER),
-                error -> LOGGER.error("Error while creating container {}::: ", HRS_CONTAINER, error)
-            );
-
-        return blobContainerAsyncClient;
-    }
-
     @Primary
     @Bean("HrsBlobContainerClient")
     public BlobContainerClient provideHrsBlobContainerClient() {
-        return new BlobContainerClientBuilder()
+        BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
             .connectionString(connectionString)
             .containerName(HRS_CONTAINER)
             .buildClient();
+
+
+        final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
+            .orElse(false);
+
+        if (!containerExists) {
+            LOGGER.info("Creating container {} in HRS Storage", HRS_CONTAINER);
+            blobContainerClient.create();
+        }
+        return blobContainerClient;
+
     }
 
     @Primary

@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.em.hrs.config;
 
 import com.azure.identity.DefaultAzureCredential;
 import com.azure.identity.DefaultAzureCredentialBuilder;
-import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -31,42 +30,25 @@ public class AzureStorageConfig {
     @Value("${azure.storage.cvp.blob-container-reference}")
     private String cvpContainer;
 
-
-    @Bean
-    public BlobContainerAsyncClient provideBlobContainerAsyncClient() {
-
-        BlobContainerClientBuilder blobContainerAsyncClientBuilder = new BlobContainerClientBuilder()
-            .connectionString(hrsConnectionString)
-            .containerName(hrsContainer);
-
-        LOGGER.info("Container settings:");
-        LOGGER.info("hrsContainer: {}", hrsContainer);
-        LOGGER.info("cvpContainer: {}", cvpContainer);
-
-        LOGGER.info("****************************");
-
-        final BlobContainerAsyncClient blobContainerAsyncClient = blobContainerAsyncClientBuilder.buildAsyncClient();
-
-        final boolean containerExists = Optional.ofNullable(blobContainerAsyncClient.exists().block())
-            .orElse(false);
-
-        if (!containerExists) {
-            blobContainerAsyncClient.create()
-                .subscribe(
-                    response -> LOGGER.info("Create {} container completed", hrsContainer),
-                    error -> LOGGER.error("Error while creating container {}::: ", hrsContainer, error)
-                );
-        }
-        return blobContainerAsyncClient;
-    }
-
-
     @Bean("HrsBlobContainerClient")
     public BlobContainerClient provideBlobContainerClient() {
-        return new BlobContainerClientBuilder()
+        BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
             .containerName(hrsContainer)
             .buildClient();
+
+
+
+
+        final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
+            .orElse(false);
+
+        if (!containerExists) {
+            LOGGER.info("Creating container {} in HRS Storage",hrsContainer);
+            blobContainerClient.create();
+       }
+        return blobContainerClient;
+
     }
 
 
