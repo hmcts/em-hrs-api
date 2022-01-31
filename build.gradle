@@ -318,24 +318,24 @@ dependencyManagement {
 
     // Do not change - START
     // Changing below will break Serenity Report generation
-    dependencySet(group: 'junit', version: '4.13') {
-      entry 'junit'
-    }
-
-    dependencySet(group: 'org.junit.jupiter', version: '5.8.2') {
-      entry 'junit-jupiter'
-      entry 'junit-jupiter-api'
-      entry 'junit-jupiter-params'
-    }
-
-    dependencySet(group: 'org.junit.vintage', version: '5.8.2') {
-      entry 'junit-vintage-engine'
-    }
-
-    dependencySet(group: 'net.bytebuddy', version: '1.12.3') {
-      entry 'byte-buddy'
-      entry 'byte-buddy-agent'
-    }
+//    dependencySet(group: 'junit', version: '4.13') {
+//      entry 'junit'
+//    }
+//
+//    dependencySet(group: 'org.junit.jupiter', version: '5.8.2') {
+//      entry 'junit-jupiter'
+//      entry 'junit-jupiter-api'
+//      entry 'junit-jupiter-params'
+//    }
+//
+//    dependencySet(group: 'org.junit.vintage', version: '5.8.2') {
+//      entry 'junit-vintage-engine'
+//    }
+//
+//    dependencySet(group: 'net.bytebuddy', version: '1.12.3') {
+//      entry 'byte-buddy'
+//      entry 'byte-buddy-agent'
+//    }
     // Do not change - END
   }
 }
