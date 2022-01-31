@@ -242,10 +242,6 @@ dependencyManagement {
       entry 'guava'
     }
 
-    dependencySet(group: 'com.google.inject', version: '4.2.0') {
-      entry 'guice'
-    }
-
     //CVE-2020-15824, CVE-2020-29582
     dependencySet(group: 'org.jetbrains.kotlin', version: '1.5.0-M1') {
       entry 'kotlin'
@@ -359,7 +355,8 @@ def versions = [
   restAssured        : '4.2.0',
   junit              : '5.8.1',
   junitPlatform      : '1.8.1',
-  springSecurity     : '5.5.3'
+  springSecurity     : '5.5.3',
+  emTestHelper       : '1.20.0'
 
 ]
 
@@ -377,7 +374,6 @@ dependencies {
 
   def withoutStuff = {
     exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
-    exclude group: 'com.vaadin.external.google', module: 'android-json'
     exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
     exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
   }
@@ -487,17 +483,14 @@ dependencies {
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
 
   functionalTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    exclude group: 'com.vaadin.external.google', module: 'android-json'
   }
 
-  functionalTestImplementation 'com.github.hmcts:em-test-helper:1.20.0'
-//  functionalTestImplementation 'net.serenity-bdd:serenity-rest-assured:2.3.4', withoutStuff
+  functionalTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: versions.emTestHelper
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.21.0'
@@ -537,7 +530,7 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation 'com.github.hmcts:em-test-helper:1.20.0'
+  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: versions.emTestHelper
 
 
 
@@ -599,8 +592,6 @@ processTestResources {
  **********************************************************************************************************************/
 test {
   useJUnitPlatform()
-  failFast = true
-  logging.captureStandardOutput LogLevel.DEBUG
 }
 
 bootJar {
