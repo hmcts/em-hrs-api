@@ -509,17 +509,17 @@ dependencies {
   testImplementation group: 'org.pitest', name: 'pitest', version: '1.7.0'
   testImplementation group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
 
-  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.7.2'
-  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.7.2'
-  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
-  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
   functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
   functionalTestImplementation group: 'io.rest-assured', name: 'json-schema-validator', version: versions.restAssured
   functionalTestImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
   functionalTestImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
 
 
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
   testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
 
 
