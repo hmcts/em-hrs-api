@@ -375,7 +375,7 @@ dependencies {
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
   implementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-  implementation "ch.qos.logback:logback-classic:1.2.6"
+  implementation "ch.qos.logback:logback-classic:1.2.10"
 
   implementation "org.springframework.boot:spring-boot-starter-actuator"
   implementation "org.springframework.boot:spring-boot-starter-aop"
