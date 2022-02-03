@@ -376,6 +376,7 @@ dependencies {
 
   implementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
   implementation "ch.qos.logback:logback-classic:1.2.10"
+  implementation "ch.qos.logback:logback-core:1.2.10"
 
   implementation "org.springframework.boot:spring-boot-starter-actuator"
   implementation "org.springframework.boot:spring-boot-starter-aop"
@@ -536,7 +537,8 @@ dependencies {
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.8.2'
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-  contractTestImplementation "ch.qos.logback:logback-classic:1.2.6"
+  contractTestImplementation "ch.qos.logback:logback-classic:1.2.10"
+  contractTestImplementation "ch.qos.logback:logback-core:1.2.10"
 
   contractTestImplementation sourceSets.main.runtimeClasspath
   contractTestImplementation sourceSets.test.runtimeClasspath
