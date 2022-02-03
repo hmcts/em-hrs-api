@@ -53,6 +53,10 @@
 
   <suppress>
     <notes>SHORT TERM FIX TO GET BUILDS WORKING - address in ticket https://tools.hmcts.net/jira/browse/EM-4234</notes>
+    <cve>CVE-2021-43797</cve>
+  </suppress>
+  <suppress>
+    <notes>SHORT TERM FIX TO GET BUILDS WORKING - address in ticket https://tools.hmcts.net/jira/browse/EM-4234</notes>
     <cve>CVE-2021-22060</cve>
   </suppress>
 

@@ -254,7 +254,7 @@ dependencyManagement {
     }
 
     //CVE-2021-21295
-    dependencySet(group: 'io.netty', version: '4.1.71.Final') {
+    dependencySet(group: 'io.netty', version: '4.1.63.Final') {
       entry 'netty-buffer'
       entry 'netty-codec'
       entry 'netty-common'
@@ -268,8 +268,6 @@ dependencyManagement {
       entry 'netty-transport-native-unix-common'
       entry 'netty-codec-socks'
       entry 'netty-handler-proxy'
-      entry 'netty-tcnative-classes'
-      entry 'netty'
     }
 
     //CVE-2021-22112
