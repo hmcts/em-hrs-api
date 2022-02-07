@@ -155,3 +155,9 @@ logging:
             logging:
               filters:
                 RequestStatusLoggingFilter: WARN
+scheduling:
+  task:
+    summary-report:
+      enabled: ${SUMMARY_REPORT_ENABLED:false}
+      cron:  ${SUMMARY_REPORT_CRON:"0 0 6 ? * *"}
+
