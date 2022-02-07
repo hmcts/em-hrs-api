@@ -160,5 +160,5 @@ scheduling:
   task:
     summary-report:
       enabled: ${SUMMARY_REPORT_ENABLED:true}
-      cron:  ${SUMMARY_REPORT_CRON:"0/30 * * * * *"}
+      cron:  ${SUMMARY_REPORT_CRON:0/30 * * * * *}
 
