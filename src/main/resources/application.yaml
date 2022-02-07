@@ -156,6 +156,7 @@ logging:
               filters:
                 RequestStatusLoggingFilter: WARN
 scheduling:
+  lock_at_most_for: PT10M # 10 minutes in ISO-8601
   task:
     summary-report:
       enabled: ${SUMMARY_REPORT_ENABLED:true}
