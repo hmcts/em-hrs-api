@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.em.hrs.service.email;
 
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,7 +22,6 @@ public class SummaryReportTask {
     }
 
     @Scheduled(cron = "${scheduling.task.summary-report.cron}", zone = "Europe/London")
-    @SchedulerLock(name = TASK_NAME)
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
