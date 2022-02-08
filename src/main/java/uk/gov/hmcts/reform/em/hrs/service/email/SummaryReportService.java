@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 import uk.gov.hmcts.reform.em.hrs.storage.StorageReport;
 
+import java.util.Arrays;
+
 import static java.time.LocalDateTime.now;
 import static java.util.Collections.emptyMap;
 
@@ -31,13 +33,19 @@ public class SummaryReportService {
         HearingRecordingStorage hearingRecordingStorage
     ) {
         this.emailSender = emailSender;
-        this.recipients = recipients;
+        if (recipients == null || recipients.length == 0) {
+            throw new RuntimeException("No recipients configured for reports");
+        } else {
+            this.recipients = Arrays.copyOf(recipients, recipients.length);
+        }
         this.hearingRecordingStorage = hearingRecordingStorage;
     }
 
     public void sendReport() {
         try {
             var report = hearingRecordingStorage.getStorageReport();
+            LOGGER.info("Report recipients: {}", recipients);
+
             emailSender.sendMessageWithAttachments(
                 SUBJECT_PREFIX + now(),
                 createBody(report),
