@@ -46,9 +46,11 @@ public class HearingRecordingController {
     private final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
 
     @Autowired
-    public HearingRecordingController(final ShareAndNotifyService shareAndNotifyService,
-                                      @Qualifier("ingestionQueue") final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue,
-                                      SegmentDownloadService segmentDownloadService) {
+    public HearingRecordingController(
+        final ShareAndNotifyService shareAndNotifyService,
+        @Qualifier("ingestionQueue") final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue,
+        SegmentDownloadService segmentDownloadService
+    ) {
         this.shareAndNotifyService = shareAndNotifyService;
         this.ingestionQueue = ingestionQueue;
         this.segmentDownloadService = segmentDownloadService;

@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.em.hrs;
 
-import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -109,7 +108,6 @@ public class IngestScenarios extends BaseTest {
         //Partially copied *should* result in a file size of 0 bytes
         //TODO put link to MS doco describing this
         String caseRef = timebasedCaseRef();
-        Set<String> filenames = new HashSet<>();
 
         String filename = filename(caseRef, 0);
 
@@ -123,6 +121,7 @@ public class IngestScenarios extends BaseTest {
         SleepHelper.sleepForSeconds(10);
 
         LOGGER.info("************* CHECKING CVP HAS UPLOADED **********");
+        Set<String> filenames = new HashSet<>();
         testUtil.checkIfUploadedToStore(filenames, testUtil.cvpBlobContainerClient);
         LOGGER.info("************* Files loaded to cvp storage **********");
 
