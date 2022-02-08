@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-  <suppress>
+  <suppress until="2022-05-08">
     <cve>CVE-2020-23171</cve>
     <!-- netty cve -->
     <cve>CVE-2021-37136</cve>
     <cve>CVE-2021-37137</cve>
   </suppress>
 
-  <suppress>
+  <suppress until="2022-05-08">
     <notes>
       TODO - temporary inclusion to facilitate integration testing
       Introduced with azure identity fails less than 1.2.4 but 1.2.4 conflicts with other azure libraries
@@ -17,26 +17,12 @@
     <cve>CVE-2021-22112</cve>
   </suppress>
 
-  <suppress>
-    <notes>
-      TODO - temporary inclusion to facilitate integration testing
-      likely upgrade to be using version 5.5 (required greater than 5.4.4)
-    </notes>
-    <cve>CVE-2021-22112</cve>
-  </suppress>
-  <suppress>
+  <suppress until="2022-05-08">
     <notes><![CDATA[
    file name: spring-security-core-5.3.8.RELEASE.jar
    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-core@.*$</packageUrl>
     <vulnerabilityName>CVE-2021-22119</vulnerabilityName>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-   file name: jakarta.el-3.0.3.jar
-   ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.glassfish/jakarta\.el@.*$</packageUrl>
-    <cve>CVE-2021-28170</cve>
   </suppress>
   <suppress>
     <notes>
