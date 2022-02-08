@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.em.hrs.exception.EmailNotificationException;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 import uk.gov.hmcts.reform.em.hrs.storage.StorageReport;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -59,5 +60,13 @@ class SummaryReportServiceTest {
         summaryReportService.sendReport();
         verify(hearingRecordingStorage).getStorageReport();
         verify(emailSender).sendMessageWithAttachments(anyString(),anyString(),anyString(),any(),any());
+    }
+
+    @Test
+    void should_throw_if_empty_recipients() {
+        assertThrows(
+            RuntimeException.class,
+            () -> new SummaryReportService(null, new String[]{}, null)
+        );
     }
 }
