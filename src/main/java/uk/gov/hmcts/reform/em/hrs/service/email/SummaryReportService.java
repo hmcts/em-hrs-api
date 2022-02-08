@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.em.hrs.exception.EmailRecipientNotFoundException;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 import uk.gov.hmcts.reform.em.hrs.storage.StorageReport;
 
@@ -34,7 +35,7 @@ public class SummaryReportService {
     ) {
         this.emailSender = emailSender;
         if (recipients == null || recipients.length == 0) {
-            throw new RuntimeException("No recipients configured for reports");
+            throw new EmailRecipientNotFoundException("No recipients configured for reports");
         } else {
             this.recipients = Arrays.copyOf(recipients, recipients.length);
         }
