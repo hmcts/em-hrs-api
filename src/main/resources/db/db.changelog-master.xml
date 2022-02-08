@@ -366,4 +366,7 @@
             <column name="case_id" type="int8"/>
         </addColumn>
     </changeSet>
+   <changeSet author="mustafa (manual)" id="shedlock-1">
+      <sqlFile path="shedlock.sql" relativeToChangelogFile="true"/>
+    </changeSet>
 </databaseChangeLog>
