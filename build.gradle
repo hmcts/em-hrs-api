@@ -364,6 +364,8 @@ dependencies {
 
   implementation group: "commons-validator", name: "commons-validator", version: "1.7"
 
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
+
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-client', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-web', version: versions.springSecurity
@@ -417,11 +419,14 @@ dependencies {
 
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.10.2'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.2.3'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.4.4'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
   implementation group: 'org.springframework', name: 'spring-context-support'
+
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.32.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.32.0'
 
 /***********************************************************************************************************************
  * DATABASE DEPENDENCIES AND SOURCE SETS
