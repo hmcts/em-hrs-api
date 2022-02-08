@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.em.hrs.service.email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 import uk.gov.hmcts.reform.em.hrs.storage.StorageReport;
@@ -11,6 +12,7 @@ import static java.time.LocalDateTime.now;
 import static java.util.Collections.emptyMap;
 
 @Service
+@Lazy
 public class SummaryReportService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SummaryReportService.class);
 
