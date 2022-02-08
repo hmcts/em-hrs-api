@@ -63,7 +63,14 @@ spring:
     host: ${SMTP_HOST:false}
     username: ${SMTP_USERNAME:xxx}
     password: ${SMTP_PASSWORD:xxx}
-
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    test-connection: false
 # service-auth-provider-client lib
 idam:
   client:
