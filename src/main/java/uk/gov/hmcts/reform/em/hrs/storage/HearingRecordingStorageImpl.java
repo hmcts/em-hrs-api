@@ -168,7 +168,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     }
 
     @Override
-    public synchronized String getStorageReport() {
+    public synchronized StorageReport getStorageReport() {
 
         final BlobListDetails blobListDetails = new BlobListDetails()
             .setRetrieveDeletedBlobs(false)
@@ -186,7 +186,8 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
         String report = "CVP Count = " + cvpItemCount;
         report += " vs HRS Count = " + hrsItemCount;
-        return report;
+        LOGGER.info(report);
+        return new StorageReport(cvpItemCount, hrsItemCount);
     }
 
 

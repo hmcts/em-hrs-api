@@ -34,8 +34,7 @@ public class CheckEndPointsApplicationReadyListener implements ApplicationListen
             LOGGER.info("Sleeping 10 secs to allow token gen:");
             TimeUnit.SECONDS.sleep(10);
             LOGGER.info("StorageReport:");
-            String report = hearingRecordingStorage.getStorageReport();
-            LOGGER.info(report);
+            hearingRecordingStorage.getStorageReport();
         } catch (Exception e) {
             LOGGER.error("Unable to verify storage connectivity: {}", e.getMessage());
         }

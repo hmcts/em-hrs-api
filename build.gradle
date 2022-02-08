@@ -468,14 +468,14 @@ dependencies {
   functionalTestImplementation 'com.github.hmcts:em-test-helper:1.18.2'
   functionalTestImplementation 'net.serenity-bdd:serenity-rest-assured:3.1.10', withoutStuff
 
-  testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.21.0'
+  testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.22.0'
   testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.25.0'
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.16.3'
   testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.3'
   testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.4', {
     exclude group: 'com.google.guava', module: 'guava'
   }
-  testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.0.3'
+  testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.1.1'
   testImplementation group: 'info.solidsoft.gradle.pitest', name: 'gradle-pitest-plugin', version: '1.6.0'
   testImplementation group: 'org.pitest', name: 'pitest', version: '1.7.3'
   testImplementation group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
