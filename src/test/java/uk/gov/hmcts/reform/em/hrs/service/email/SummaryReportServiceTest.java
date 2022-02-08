@@ -3,10 +3,8 @@ package uk.gov.hmcts.reform.em.hrs.service.email;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import uk.gov.hmcts.reform.em.hrs.exception.EmailNotificationException;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 import uk.gov.hmcts.reform.em.hrs.storage.StorageReport;
@@ -14,7 +12,6 @@ import uk.gov.hmcts.reform.em.hrs.storage.StorageReport;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -31,14 +28,14 @@ class SummaryReportServiceTest {
     private SummaryReportService summaryReportService;
 
     @BeforeEach
-    void setup(){
+    void setup() {
         summaryReportService = new SummaryReportService(emailSender, recipients, hearingRecordingStorage);
     }
 
     @Test
     void should_process() throws SendEmailException {
         given(hearingRecordingStorage.getStorageReport())
-            .willReturn(new StorageReport(23l, 67l));
+            .willReturn(new StorageReport(23L, 67L));
         summaryReportService.sendReport();
         verify(hearingRecordingStorage).getStorageReport();
         verify(emailSender).sendMessageWithAttachments(anyString(),anyString(),anyString(),any(),any());
