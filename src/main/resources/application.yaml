@@ -162,3 +162,7 @@ scheduling:
       enabled: ${SUMMARY_REPORT_ENABLED:false}
       cron:  ${SUMMARY_REPORT_CRON:0 0 6 ? * *}
 
+
+
+report:
+  recipients: ${SUMMARY_REPORT_RECIPIENTS:xxxx}

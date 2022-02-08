@@ -18,6 +18,6 @@ class SummaryReportTaskTest {
         task.run();
 
         // then
-        verify(summaryReportService, times(1)).process();;
+        verify(summaryReportService, times(1)).sendReport();;
     }
 }

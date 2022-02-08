@@ -26,7 +26,7 @@ public class SummaryReportTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        summaryReportService.process();
+        summaryReportService.sendReport();
 
         logger.info("Finished {} job", TASK_NAME);
 
