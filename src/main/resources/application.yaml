@@ -162,6 +162,9 @@ logging:
             logging:
               filters:
                 RequestStatusLoggingFilter: WARN
+
+shareelink:
+  ttl: ${SHAREE_LINK_TTL:72}
 scheduling:
   lock_at_most_for: PT10M # 10 minutes in ISO-8601
   task:

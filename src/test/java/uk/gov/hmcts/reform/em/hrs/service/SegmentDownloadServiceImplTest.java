@@ -8,25 +8,37 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegmentAuditEntry;
+import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.exception.InvalidRangeRequestException;
+import uk.gov.hmcts.reform.em.hrs.exception.ValidationErrorException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
+import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobInfo;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobstoreClient;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -54,7 +66,23 @@ class SegmentDownloadServiceImplTest {
     @MockBean
     private HearingRecordingSegmentAuditEntry hearingRecordingSegmentAuditEntry;
 
+    @MockBean
+    private ShareesRepository shareesRepository;
+
+    @MockBean
+    private SecurityService securityService;
+
     private HearingRecordingSegment segment;
+
+    private static final UUID SEGMENT_ID = UUID.randomUUID();
+
+    private static final UUID SEGMENT11_ID = UUID.randomUUID();
+    private static final UUID SEGMENT12_ID = UUID.randomUUID();
+
+    private static final UUID SEGMENT21_ID = UUID.randomUUID();
+    private static final UUID SEGMENT22_ID = UUID.randomUUID();
+
+    private static final String FILE_NAME = "XYZ";
 
     @Autowired
     private SegmentDownloadServiceImpl segmentDownloadService;
@@ -69,10 +97,53 @@ class SegmentDownloadServiceImplTest {
     @BeforeEach
     void before() {
         segment = new HearingRecordingSegment();
-        segment.setFilename("XYZ");
+        segment.setId(SEGMENT_ID);
+        segment.setFilename(FILE_NAME);
         HearingRecording hr = new HearingRecording();
-        hr.setCcdCaseId(1234L);
+        hr.setCcdCaseId(TestUtil.CCD_CASE_ID);
         segment.setHearingRecording(hr);
+    }
+
+    @Test
+    void testFetchSegmentByRecordingIdAndSegmentNumber() {
+        doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndRecordingSegment(SEGMENT_ID, 1234);
+        doReturn(TestUtil.SHARER_EMAIL_ADDRESS).when(securityService).getUserEmail(anyString());
+        doReturn(null).when(shareesRepository).findByShareeEmail(anyString());
+        HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(
+            SEGMENT_ID, 1234, TestUtil.AUTHORIZATION_TOKEN);
+        assertEquals(SEGMENT_ID, returnedSegment.getId());
+        assertEquals(FILE_NAME, returnedSegment.getFilename());
+        assertEquals(TestUtil.CCD_CASE_ID, returnedSegment.getHearingRecording().getCcdCaseId());
+    }
+
+    @Test
+    void testFetchSegmentByRecordingIdAndSegmentNumberForNonExpiredLink() {
+        doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndRecordingSegment(SEGMENT21_ID, 1234);
+        doReturn(TestUtil.SHARER_EMAIL_ADDRESS).when(securityService).getUserEmail(anyString());
+        doReturn(createHearingRecordingSharees()).when(shareesRepository).findByShareeEmail(anyString());
+        HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(
+            SEGMENT21_ID, 1234, TestUtil.AUTHORIZATION_TOKEN);
+        assertEquals(SEGMENT_ID, returnedSegment.getId());
+        assertEquals(FILE_NAME, returnedSegment.getFilename());
+        assertEquals(TestUtil.CCD_CASE_ID, returnedSegment.getHearingRecording().getCcdCaseId());
+    }
+
+    @Test
+    void testFetchSegmentByRecordingIdAndSegmentNumberForExpiredLink() {
+        try {
+            List<HearingRecordingSharee> hearingRecordingSharees = createHearingRecordingSharees();
+            hearingRecordingSharees.stream()
+                .forEach(hearingRecordingSharee ->
+                             hearingRecordingSharee.setSharedOn(LocalDateTime.now().minusHours(73)));
+            doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndRecordingSegment(SEGMENT21_ID, 1234);
+            doReturn(TestUtil.SHARER_EMAIL_ADDRESS).when(securityService).getUserEmail(anyString());
+            doReturn(hearingRecordingSharees).when(shareesRepository).findByShareeEmail(anyString());
+            HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(
+                SEGMENT21_ID, 1234, TestUtil.AUTHORIZATION_TOKEN);
+        } catch (ValidationErrorException validationErrorException) {
+            validationErrorException.getMessage();
+            assertEquals(Constants.SHARED_EXPIRED_LINK_MSG, validationErrorException.getData().get("error"));
+        }
     }
 
     @Test
@@ -136,5 +207,45 @@ class SegmentDownloadServiceImplTest {
             .setHeader(HttpHeaders.CONTENT_RANGE, "bytes 0-1023/2000");
         Mockito.verify(response, Mockito.times(1))
             .setHeader(HttpHeaders.CONTENT_LENGTH, "1024");
+    }
+
+    private List<HearingRecordingSharee> createHearingRecordingSharees() {
+
+        HearingRecordingSharee hearingRecordingSharee1 = new HearingRecordingSharee();
+        HearingRecording hearingRecording1 = new HearingRecording();
+        hearingRecordingSharee1.setHearingRecording(hearingRecording1);
+        hearingRecordingSharee1.setSharedOn(LocalDateTime.now());
+
+        HearingRecordingSegment segment11 = new HearingRecordingSegment();
+        segment11.setId(SEGMENT11_ID);
+        HearingRecordingSegment segment12 = new HearingRecordingSegment();
+        segment12.setId(SEGMENT12_ID);
+        segment12.setCreatedOn(LocalDateTime.now());
+
+        Set<HearingRecordingSegment> segment1Set = new HashSet<>();
+        segment1Set.add(segment11);
+        segment1Set.add(segment12);
+        hearingRecording1.setSegments(segment1Set);
+
+        HearingRecordingSharee hearingRecordingSharee2 = new HearingRecordingSharee();
+        HearingRecording hearingRecording2 = new HearingRecording();
+        hearingRecordingSharee2.setHearingRecording(hearingRecording2);
+        hearingRecordingSharee2.setSharedOn(LocalDateTime.now());
+
+        HearingRecordingSegment segment21 = new HearingRecordingSegment();
+        segment21.setId(SEGMENT21_ID);
+        HearingRecordingSegment segment22 = new HearingRecordingSegment();
+        segment22.setId(SEGMENT22_ID);
+
+        Set<HearingRecordingSegment> segment2Set = new HashSet<>();
+        segment2Set.add(segment21);
+        segment2Set.add(segment22);
+        hearingRecording2.setSegments(segment2Set);
+
+        List<HearingRecordingSharee> hearingRecordingSharees = new ArrayList<>();
+        hearingRecordingSharees.add(hearingRecordingSharee1);
+        hearingRecordingSharees.add(hearingRecordingSharee2);
+
+        return hearingRecordingSharees;
     }
 }
