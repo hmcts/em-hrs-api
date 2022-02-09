@@ -1,21 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-  <suppress until="2022-05-08">
-    <cve>CVE-2020-23171</cve>
-    <!-- netty cve -->
-    <cve>CVE-2021-37136</cve>
-    <cve>CVE-2021-37137</cve>
-  </suppress>
-
-  <suppress until="2022-05-08">
-    <notes>
-      TODO - temporary inclusion to facilitate integration testing
-      Introduced with azure identity fails less than 1.2.4 but 1.2.4 conflicts with other azure libraries
-      with reactor libs.
-    </notes>
-    <cve>CVE-2017-1000190</cve>
-    <cve>CVE-2021-22112</cve>
-  </suppress>
 
   <suppress until="2022-05-08">
     <notes><![CDATA[
@@ -29,20 +13,6 @@
       Springframework - review when upgrading boot
     </notes>
     <cve>CVE-2021-22096</cve>
-  </suppress>
-
-
-
-
-  <!-- TO REVIEW: -->
-
-  <suppress until="2022-05-08">
-    <notes>SHORT TERM FIX TO GET BUILDS WORKING - address in ticket https://tools.hmcts.net/jira/browse/EM-4234</notes>
-    <cve>CVE-2021-43797</cve>
-  </suppress>
-  <suppress until="2022-05-08">
-    <notes>SHORT TERM FIX TO GET BUILDS WORKING - address in ticket https://tools.hmcts.net/jira/browse/EM-4234</notes>
-    <cve>CVE-2021-22060</cve>
   </suppress>
 
 </suppressions>
