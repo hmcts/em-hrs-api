@@ -63,8 +63,8 @@ public class SummaryReportService {
 
 
     private String createBody(StorageReport report) {
-        String reportStr = "CVP Count = " + report.cvpItemCount;
+        String reportStr = "Blobstores Inspected CVP Count = " + report.cvpItemCount;
         reportStr += " vs HRS Count = " + report.hrsItemCount;
-        return "Blobstores Inspected<p>" + reportStr.replace("\n", "<p>");
+        return reportStr;
     }
 }
