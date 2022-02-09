@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.exception.SegmentDownloadException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 import uk.gov.hmcts.reform.em.hrs.service.AuditEntryService;
+import uk.gov.hmcts.reform.em.hrs.service.Constants;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
@@ -83,7 +84,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
         mockMvc.perform(post(path)
                             .content(convertObjectToJsonString(callbackRequest))
                             .contentType(APPLICATION_JSON_VALUE)
-                            .header("Authorization", AUTHORIZATION_TOKEN)
+                            .header(Constants.AUTHORIZATION, AUTHORIZATION_TOKEN)
                             .header("ServiceAuthorization", SERVICE_AUTHORIZATION_TOKEN))
             .andExpect(status().isOk());
 
@@ -141,7 +142,8 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
             .when(auditEntryService)
             .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
 
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0)))
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0))
+                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isOk())
             .andReturn();
     }
@@ -158,7 +160,8 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
             .download(any(HearingRecordingSegment.class), any(HttpServletRequest.class),
                       any(HttpServletResponse.class));
 
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0)))
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0))
+                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isInternalServerError())
             .andReturn();
     }
@@ -170,7 +173,8 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
             .fetchSegmentByRecordingIdAndSegmentNumber(any(UUID.class), any(Integer.class),
                                                        eq(TestUtil.AUTHORIZATION_TOKEN));
 
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0)))
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0))
+                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isInternalServerError())
             .andReturn();
     }

@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.service.Constants;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
@@ -39,7 +40,6 @@ import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
 public class HearingRecordingController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HearingRecordingController.class);
-    public static final String AUTHORIZATION = "Authorization";
 
     private final ShareAndNotifyService shareAndNotifyService;
     private final SegmentDownloadService segmentDownloadService;
@@ -129,7 +129,7 @@ public class HearingRecordingController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Return the requested hearing recording segment")})
     public ResponseEntity getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
                                            @PathVariable("segment") Integer segmentNo,
-                                           @RequestHeader(AUTHORIZATION) final String userToken,
+                                           @RequestHeader(Constants.AUTHORIZATION) final String userToken,
                                            HttpServletRequest request,
                                            HttpServletResponse response) {
         try {
