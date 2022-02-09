@@ -57,7 +57,7 @@
   </suppress>
   <suppress until="2022-05-08">
     <notes>SHORT TERM FIX TO GET BUILDS WORKING - address in ticket https://tools.hmcts.net/jira/browse/EM-4234</notes>
-    <cve>CVE-2022-22060</cve>
+    <cve>CVE-2021-22060</cve>
   </suppress>
 
 </suppressions>
