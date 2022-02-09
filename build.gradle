@@ -237,6 +237,22 @@ dependencyManagement {
       entry 'guava'
     }
 
+    //CVE-2021-21295
+    dependencySet(group: 'io.netty', version: '4.1.59.Final') {
+      entry 'netty-buffer'
+      entry 'netty-codec'
+      entry 'netty-common'
+      entry 'netty-handler'
+      entry 'netty-resolver'
+      entry 'netty-transport'
+      entry 'netty-codec-http'
+      entry 'netty-codec-http2'
+      entry 'netty-transport-native-epoll'
+      entry 'netty-transport-native-kqueue'
+      entry 'netty-transport-native-unix-common'
+      entry 'netty-codec-socks'
+      entry 'netty-handler-proxy'
+    }
 
     //CVE-2021-29425
     dependencySet(group: 'commons-io', version: '2.11.0') {
@@ -252,6 +268,9 @@ dependencyManagement {
       entry 'log4j-api'
       entry 'log4j-to-slf4j'
     }
+
+    // CVE-2021-28170
+    dependency group: 'org.glassfish', name: 'jakarta.el', version: '4.0.2'
   }
 }
 
@@ -360,7 +379,6 @@ dependencies {
 
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.10.2'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.2.3'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
