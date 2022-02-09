@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
+import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.exception.InvalidRangeRequestException;
@@ -76,7 +77,8 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         List<HearingRecordingSharee> hearingRecordingSharees = shareesRepository.findByShareeEmail(userEmail);
         if (CollectionUtils.isNotEmpty(hearingRecordingSharees)) {
             Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
-                .filter(hearingRecordingSharee -> getHearingRecordingShareeSegment(hearingRecordingSharee, recordingId))
+                .filter(hearingRecordingSharee ->
+                            getHearingRecordingShareeSegment(hearingRecordingSharee.getHearingRecording(), segmentNo))
                 .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn()))
                 .findAny();
             if (recordingSharee.isEmpty()) {
@@ -166,12 +168,12 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         return false;
     }
 
-    private boolean getHearingRecordingShareeSegment(HearingRecordingSharee hearingRecordingSharee,
-                                                     UUID recordingId) {
+    private boolean getHearingRecordingShareeSegment(HearingRecording hearingRecording,
+                                                     Integer segmentNo) {
         //Need to check if the segment is associated with this Sharee.
-        boolean segmentMatch = hearingRecordingSharee.getHearingRecording().getSegments()
+        boolean segmentMatch = hearingRecording.getSegments()
             .stream()
-            .filter(segment -> segment.getId().equals(recordingId))
+            .filter(segment -> segment.getRecordingSegment().equals(segmentNo))
             .findAny()
             .isEmpty();
         return !segmentMatch;
