@@ -159,7 +159,7 @@ def coverageExclusionList = [
 ]
 
 checkstyle {
-  maxWarnings = 10
+  maxWarnings = 0
   toolVersion = '8.29'
   getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
 }
@@ -327,6 +327,7 @@ def versions = [
   lombok             : '1.18.20',
   reformLogging      : '5.1.7',
   log4JVersion       : "2.17.1",
+  logbackVersion     : '1.2.10',
   springfoxSwagger   : '2.9.2',
   postgresql         : '42.2.20',
   pact_version       : '3.6.15',
@@ -366,6 +367,8 @@ dependencies {
 
   implementation group: "commons-validator", name: "commons-validator", version: "1.7"
 
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
+
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-client', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-web', version: versions.springSecurity
@@ -377,7 +380,8 @@ dependencies {
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
   implementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-  implementation "ch.qos.logback:logback-classic:1.2.6"
+  implementation group: 'ch.qos.logback', name: 'logback-classic', version: versions.logbackVersion
+  implementation group: 'ch.qos.logback', name: 'logback-core', version: versions.logbackVersion
 
   implementation "org.springframework.boot:spring-boot-starter-actuator"
   implementation "org.springframework.boot:spring-boot-starter-aop"
@@ -424,6 +428,9 @@ dependencies {
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
   implementation group: 'org.springframework', name: 'spring-context-support'
+
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.32.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.32.0'
 
 /***********************************************************************************************************************
  * DATABASE DEPENDENCIES AND SOURCE SETS
@@ -538,7 +545,8 @@ dependencies {
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.8.2'
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-  contractTestImplementation "ch.qos.logback:logback-classic:1.2.6"
+  contractTestImplementation group: 'ch.qos.logback', name: 'logback-classic', version: versions.logbackVersion
+  contractTestImplementation group: 'ch.qos.logback', name: 'logback-core', version: versions.logbackVersion
 
   contractTestImplementation sourceSets.main.runtimeClasspath
   contractTestImplementation sourceSets.test.runtimeClasspath

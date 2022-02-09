@@ -63,7 +63,14 @@ spring:
     host: ${SMTP_HOST:false}
     username: ${SMTP_USERNAME:xxx}
     password: ${SMTP_PASSWORD:xxx}
-
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    test-connection: false
 # service-auth-provider-client lib
 idam:
   client:
@@ -155,3 +162,15 @@ logging:
             logging:
               filters:
                 RequestStatusLoggingFilter: WARN
+scheduling:
+  lock_at_most_for: PT10M # 10 minutes in ISO-8601
+  task:
+    summary-report:
+      enabled: ${SUMMARY_REPORT_ENABLED:false}
+      cron:  ${SUMMARY_REPORT_CRON:0 0 6 ? * *}
+
+
+
+report:
+  recipients: ${SUMMARY_REPORT_RECIPIENTS:xxxx}
+  from: ${SMTP_USERNAME:xxxx}

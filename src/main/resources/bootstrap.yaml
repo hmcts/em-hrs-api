@@ -16,7 +16,7 @@ spring:
         em-hrs-api.idam-system-user-password: HRS_SYSTEM_USER_PASSWORD
         em-hrs-api.reports-email-username: SMTP_USERNAME
         em-hrs-api.reports-email-password: SMTP_PASSWORD
-        summary-report-recipients: SUMMARY_REPORT_RECIPIENTS
+        em-hrs-api.summary-report-recipients: SUMMARY_REPORT_RECIPIENTS
         rpa.AppInsightsInstrumentationKey: APPINSIGHTS_INSTRUMENTATIONKEY
         rpa.show-oauth2-token: IDAM_CLIENT_OAUTH_SECRET
         rpa.oauth2-client-id: OAUTH_CLIENT_ID

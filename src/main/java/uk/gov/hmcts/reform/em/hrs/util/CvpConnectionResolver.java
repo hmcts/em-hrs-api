@@ -1,13 +1,8 @@
 package uk.gov.hmcts.reform.em.hrs.util;
 
-import lombok.NoArgsConstructor;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static lombok.AccessLevel.PRIVATE;
-
-@NoArgsConstructor(access = PRIVATE)
 public class CvpConnectionResolver {
 
 
@@ -18,6 +13,9 @@ public class CvpConnectionResolver {
     https://cvprecordingsstgsa.blob.core.windows.net/
     */
     private static Pattern pattern = Pattern.compile("https://(.*?)(?:-secondary)?.blob.core.windows.net");
+
+    private CvpConnectionResolver() {
+    }
 
     public static boolean isACvpEndpointUrl(String cvpConnectionString) {
         boolean isACvpEndpointUrl =

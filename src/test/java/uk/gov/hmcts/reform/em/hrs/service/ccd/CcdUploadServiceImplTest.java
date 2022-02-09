@@ -25,11 +25,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.CCD_CASE_ID;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDING_DTO;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDING_WITH_NO_DATA_BUILDER;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.RECORDING_REFERENCE;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SEGMENT_1;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.TEST_FOLDER_1;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.hearingRecordingWithNoDataBuilder;
 
 @ExtendWith(MockitoExtension.class)
 class CcdUploadServiceImplTest {
@@ -52,7 +52,7 @@ class CcdUploadServiceImplTest {
 
     @Test
     void testShouldCreateNewCaseInCcdAndPersistRecordingAndSegmentToPostgresWhenHearingRecordingIsNotInDatabase() {
-        HearingRecording recording = HEARING_RECORDING_WITH_NO_DATA_BUILDER();
+        HearingRecording recording = hearingRecordingWithNoDataBuilder();
         doReturn(Optional.empty()).when(recordingRepository)
             .findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER_1.getName());
         doReturn(TEST_FOLDER_1).when(folderService).getFolderByName(TEST_FOLDER_1.getName());
@@ -74,7 +74,9 @@ class CcdUploadServiceImplTest {
     void testShouldUpdateCaseInCcdAndPersistSegmentToPostgresWhenHearingRecordingReferenceExistsInDatabase() {
         doReturn(Optional.of(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3)).when(recordingRepository)
             .findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER_1.getName());
-        doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient)
+
+        doReturn(CCD_CASE_ID)
+            .when(ccdDataStoreApiClient)
             .updateCaseData(
                 anyLong(),
                 eq(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3.getId()),
@@ -99,7 +101,7 @@ class CcdUploadServiceImplTest {
 
     @Test
     void testShouldNotUpdateCaseWhenCcdIdIsNull() {
-        HearingRecording recording = HEARING_RECORDING_WITH_NO_DATA_BUILDER();
+        HearingRecording recording = hearingRecordingWithNoDataBuilder();
 
         doReturn(Optional.of(recording)).when(recordingRepository)
             .findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER_1.getName());
