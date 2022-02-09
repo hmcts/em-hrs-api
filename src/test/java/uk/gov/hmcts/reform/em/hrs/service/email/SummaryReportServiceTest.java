@@ -31,7 +31,8 @@ class SummaryReportServiceTest {
 
     @BeforeEach
     void setup() {
-        summaryReportService = new SummaryReportService(emailSender, recipients, hearingRecordingStorage);
+        summaryReportService =
+            new SummaryReportService(emailSender, recipients, hearingRecordingStorage, "d@e.com");
     }
 
     @Test
@@ -67,7 +68,7 @@ class SummaryReportServiceTest {
     void should_throw_if_empty_recipients() {
         assertThrows(
             EmailRecipientNotFoundException.class,
-            () -> new SummaryReportService(null, new String[]{}, null)
+            () -> new SummaryReportService(null, new String[]{}, null, "from@g.com")
         );
     }
 }

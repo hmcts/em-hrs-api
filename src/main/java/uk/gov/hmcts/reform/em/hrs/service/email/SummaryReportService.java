@@ -20,18 +20,19 @@ public class SummaryReportService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SummaryReportService.class);
 
     private static final String SUBJECT_PREFIX = "Summary-Report-";
-    private static final String MAIL_FROM = "hrs-api@HMCTS.NET";
 
     private final EmailSender emailSender;
 
     private final String[] recipients;
 
     private final HearingRecordingStorage hearingRecordingStorage;
+    private final String from;
 
     public SummaryReportService(
         EmailSender emailSender,
         @Value("${report.recipients}") String[] recipients,
-        HearingRecordingStorage hearingRecordingStorage
+        HearingRecordingStorage hearingRecordingStorage,
+        @Value("${report.from}") String from
     ) {
         this.emailSender = emailSender;
         if (recipients == null || recipients.length == 0) {
@@ -40,6 +41,7 @@ public class SummaryReportService {
             this.recipients = Arrays.copyOf(recipients, recipients.length);
         }
         this.hearingRecordingStorage = hearingRecordingStorage;
+        this.from = from;
     }
 
     public void sendReport() {
@@ -50,7 +52,7 @@ public class SummaryReportService {
             emailSender.sendMessageWithAttachments(
                 SUBJECT_PREFIX + now(),
                 createBody(report),
-                MAIL_FROM,
+                from,
                 recipients,
                 emptyMap()
             );

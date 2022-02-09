@@ -173,3 +173,4 @@ scheduling:
 
 report:
   recipients: ${SUMMARY_REPORT_RECIPIENTS:xxxx}
+  from: ${SMTP_USERNAME:xxxx}
