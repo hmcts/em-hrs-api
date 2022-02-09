@@ -355,10 +355,6 @@ dependencies {
 //gov notify email service
   implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '3.17.2-RELEASE'
 
-//rest clients
-  implementation "com.squareup.okhttp3:okhttp:4.9.1"
-  implementation "com.squareup.okhttp3:logging-interceptor:4.9.1"
-
 //rest server / API publishing?
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
 
