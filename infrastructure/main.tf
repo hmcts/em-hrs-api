@@ -51,6 +51,8 @@ module "db" {
   database_name = var.database_name
   common_tags = var.common_tags
   subscription = var.subscription
+  sku_name           = var.sku_name
+  sku_capacity       = var.sku_capacity
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
