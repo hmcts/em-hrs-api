@@ -53,7 +53,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         hearingRecording.ifPresentOrElse(
             x -> {
                 LOGGER.info("HearingRecording CreatedOn {}", x.getCreatedOn());
-                if (x.getCreatedOn().isAfter(LocalDateTime.now().minusDays(4))) {
+                if (x.getCreatedOn().isAfter(LocalDateTime.now().minusDays(5))) {
                     updateCase(x, recordingDto);
                 }
             },
