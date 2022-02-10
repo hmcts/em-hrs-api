@@ -147,7 +147,7 @@ public class HearingRecordingController {
                 "Download Issue possibly client abort {}",
                 e.getMessage()
             );//Exceptions are thrown during partial requests from front door (it throws client abort)
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
