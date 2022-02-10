@@ -26,8 +26,6 @@ import uk.gov.hmcts.reform.em.hrs.util.debug.HttpHeadersLogging;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,28 +47,26 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
 
     @Value("${shareelink.ttl}")
-    int validityInHours;
+    private final int validityInHours;
 
     @Autowired
     public SegmentDownloadServiceImpl(HearingRecordingSegmentRepository segmentRepository,
                                       BlobstoreClient blobstoreClient, AuditEntryService auditEntryService,
                                       ShareesRepository shareesRepository,
-                                      SecurityService securityService) {
+                                      SecurityService securityService,
+                                      @Value("${shareelink.ttl}") int validityInHours) {
         this.segmentRepository = segmentRepository;
         this.blobstoreClient = blobstoreClient;
         this.auditEntryService = auditEntryService;
         this.shareesRepository = shareesRepository;
         this.securityService = securityService;
+        this.validityInHours = validityInHours;
     }
 
 
     @Override
     public HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentNumber(UUID recordingId, Integer segmentNo,
                                                                              String userToken) {
-
-        HearingRecordingSegment segment =
-            segmentRepository.findByHearingRecordingIdAndRecordingSegment(recordingId, segmentNo);
-
 
         //Check if user access has expired
         String userEmail = securityService.getUserEmail(userToken);
@@ -82,11 +78,13 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
                 .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn()))
                 .findAny();
             if (recordingSharee.isEmpty()) {
-                Map<String, Object> data = new HashMap<>();
-                data.put("error", Constants.SHARED_EXPIRED_LINK_MSG);
-                throw new ValidationErrorException(data);
+                throw new ValidationErrorException(Map.of("error", Constants.SHARED_EXPIRED_LINK_MSG));
             }
         }
+
+        HearingRecordingSegment segment =
+            segmentRepository.findByHearingRecordingIdAndRecordingSegment(recordingId, segmentNo);
+
         return segment;
     }
 
@@ -161,11 +159,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
     private boolean isAccessValid(LocalDateTime sharedOn) {
         LocalDateTime expiryTime = sharedOn.plusHours(validityInHours);
         LocalDateTime presentTime = LocalDateTime.now();
-        long result = ChronoUnit.MINUTES.between(presentTime, expiryTime);
-        if (result > 0) {
-            return true;
-        }
-        return false;
+        return  presentTime.isBefore(expiryTime);
     }
 
     private boolean getHearingRecordingShareeSegment(HearingRecording hearingRecording,
