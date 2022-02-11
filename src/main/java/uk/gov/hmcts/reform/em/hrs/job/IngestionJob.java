@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
@@ -33,6 +34,9 @@ public class IngestionJob extends QuartzJobBean {
     @Qualifier("ccdUploadQueue")
     private LinkedBlockingQueue<HearingRecordingDto> ccdUploadQueue;
 
+    @Value("${hrs.ccd-upload-enabled}")
+    private boolean ccdUploadEnabled;
+
     // Required by Quartz
     public IngestionJob() {
     }
@@ -57,12 +61,14 @@ public class IngestionJob extends QuartzJobBean {
         try {
             jobInProgressService.register(hrDto);
             ingestionService.ingest(hrDto);
-            boolean accepted = ccdUploadQueue.offer(hrDto);
-            if (accepted) {
-                LOGGER.warn("CCD Upload Job accepted for file: {} ", hrDto.getFilename());
-            } else {
-                LOGGER.warn("CCD Upload Queue Full. Not uploading file: {} ", hrDto.getFilename());
-                jobInProgressService.deRegister(hrDto);
+            if (ccdUploadEnabled) {
+                boolean accepted = ccdUploadQueue.offer(hrDto);
+                if (accepted) {
+                    LOGGER.warn("CCD Upload Job accepted for file: {} ", hrDto.getFilename());
+                } else {
+                    LOGGER.warn("CCD Upload Queue Full. Not uploading file: {} ", hrDto.getFilename());
+                    jobInProgressService.deRegister(hrDto);
+                }
             }
         } catch (RejectedExecutionException re) {
             LOGGER.warn("Execution Rejected: {}", re);//likely to be timeouts with azure copies of blobstore
@@ -72,5 +78,10 @@ public class IngestionJob extends QuartzJobBean {
             jobInProgressService.deRegister(hrDto);
         }
     }
+
+    public void setCcdUploadEnabled(boolean ccdUploadEnabled) {
+        this.ccdUploadEnabled = ccdUploadEnabled;
+    }
+
 }
 
