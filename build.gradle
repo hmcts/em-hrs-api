@@ -319,6 +319,12 @@ dependencyManagement {
       entry 'tomcat-embed-el'
       entry 'tomcat-embed-websocket'
     }
+
+    // CVE-2021-42550
+    dependencySet(group: 'ch.qos.logback', version: '1.2.10') {
+      entry 'logback-classic'
+      entry 'logback-core'
+    }
   }
 }
 
