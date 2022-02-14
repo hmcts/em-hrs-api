@@ -54,7 +54,7 @@ public class IngestionJob extends QuartzJobBean {
     @Override
     protected void executeInternal(final JobExecutionContext context) {
         Optional.ofNullable(ingestionQueue.poll())
-            .ifPresent(hrDto -> ingestGracefully(hrDto));
+            .ifPresentOrElse(hrDto -> ingestGracefully(hrDto), () -> LOGGER.info("No Records in ingestionQueue"));
     }
 
     private void ingestGracefully(HearingRecordingDto hrDto) {

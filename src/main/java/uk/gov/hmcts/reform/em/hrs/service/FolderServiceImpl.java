@@ -58,7 +58,7 @@ public class FolderServiceImpl implements FolderService {
     public Set<String> getStoredFiles(String folderName) {
         deleteStaledJobs();
         deleteStaleCcdUploadAttempts();
-
+        LOGGER.info("Stale records deleted");
         Optional<Folder> optionalFolder = folderRepository.findByName(folderName);
 
         if (optionalFolder.isEmpty()) {
@@ -66,6 +66,7 @@ public class FolderServiceImpl implements FolderService {
             folderRepository.save(newFolder);
             return Collections.emptySet();
         }
+        LOGGER.info("getJobsInProgress {}", optionalFolder.get().getJobsInProgress());
 
         return getCompletedAndInProgressFiles(optionalFolder.get());
     }
