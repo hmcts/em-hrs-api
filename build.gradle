@@ -231,11 +231,16 @@ dependencyManagement {
     }
 
     //CVE-2021-42340
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.54') {
+    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.58') {
       entry 'tomcat-embed-core'
       entry 'tomcat-embed-websocket'
     }
 
+    //CVE-2021-42550
+    dependencySet(group: 'ch.qos.logback', version: '1.2.10') {
+      entry 'logback-classic'
+      entry 'logback-core'
+    }
 
     dependencySet(group: 'com.google.guava', version: '31.0.1-jre') {
       // Guava CVE-2018-10237 - Unbounded memory allocation
