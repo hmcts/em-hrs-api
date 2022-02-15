@@ -111,8 +111,8 @@ public class FolderServiceImpl implements FolderService {
     }
 
     private void deleteStaledJobs() {
-        LocalDateTime yesterday = LocalDateTime.now(Clock.systemUTC()).minusHours(24);
-        jobInProgressRepository.deleteByCreatedOnLessThan(yesterday);
+        LocalDateTime oneHourAgo = LocalDateTime.now(Clock.systemUTC()).minusHours(1);
+        jobInProgressRepository.deleteByCreatedOnLessThan(oneHourAgo);
     }
 
 
