@@ -180,7 +180,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         final PagedIterable<BlobItem> cvpBlobItems = cvpBlobContainerClient.listBlobs(options, duration);
         long cvpItemCount = cvpBlobItems
             .stream()
-            .filter(blobItem -> blobItem.getName().contains("/"))
+            .filter(blobItem -> blobItem.getName().contains("/") && blobItem.getName().contains(".mp"))
             .count();
 
 
