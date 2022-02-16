@@ -46,7 +46,7 @@ public class FolderController {
             folderService.getStoredFiles(folderName)
         );
 
-        LOGGER.info("returning the filenames under folder {}", folderName);
+        LOGGER.info("Under folder {} Completed Filenames: {} ", folderName, recordingFilenameDto.getFilenames());
         return ResponseEntity
             .ok()
             .contentType(APPLICATION_JSON)

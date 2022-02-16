@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ import javax.validation.constraints.NotNull;
 @Component
 @Transactional
 public class FolderServiceImpl implements FolderService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FolderServiceImpl.class);
 
     private static final String FOLDER_MISSING_EXCEPTION_MSG =
         "Folders must explicitly exist, based on GET /folders/(foldername) creating them";
@@ -95,8 +98,9 @@ public class FolderServiceImpl implements FolderService {
     private Tuple2<FilesInDatabase, Set<String>> getFilesetsFromDatabase(Folder folder) {
 
         Set<String> filesInDatabase = getSegmentFilenamesInFolder(folder.getName());
+        LOGGER.info("Files In Database {} ", filesInDatabase);
         Set<String> filesInProgress = getFilesInProgress(folder.getJobsInProgress());
-
+        LOGGER.info("Files In Progress {}", filesInProgress);
         return Tuples.of(new FilesInDatabase(filesInDatabase), filesInProgress);
     }
 
@@ -107,8 +111,8 @@ public class FolderServiceImpl implements FolderService {
     }
 
     private void deleteStaledJobs() {
-        LocalDateTime yesterday = LocalDateTime.now(Clock.systemUTC()).minusHours(24);
-        jobInProgressRepository.deleteByCreatedOnLessThan(yesterday);
+        LocalDateTime oneHourAgo = LocalDateTime.now(Clock.systemUTC()).minusHours(1);
+        jobInProgressRepository.deleteByCreatedOnLessThan(oneHourAgo);
     }
 
 

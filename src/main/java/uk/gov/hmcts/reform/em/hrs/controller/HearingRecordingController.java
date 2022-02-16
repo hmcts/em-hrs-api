@@ -77,12 +77,14 @@ public class HearingRecordingController {
                 + "folder   {}\n"
                 + "case-ref {}\n"
                 + "filename {}\n"
-                + "file-ext {}",
+                + "file-ext {}\n"
+                + "segment no {}",
             hearingRecordingDto.getRecordingRef(),
             hearingRecordingDto.getFolder(),
             hearingRecordingDto.getCaseRef(),
             hearingRecordingDto.getFilename(),
-            hearingRecordingDto.getFilenameExtension()
+            hearingRecordingDto.getFilenameExtension(),
+            hearingRecordingDto.getSegment()
         );
 
         hearingRecordingDto.setUrlDomain(ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString());
