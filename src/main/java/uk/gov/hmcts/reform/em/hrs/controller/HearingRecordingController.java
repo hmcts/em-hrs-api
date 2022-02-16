@@ -25,6 +25,8 @@ import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.servlet.http.HttpServletRequest;
@@ -142,12 +144,11 @@ public class HearingRecordingController {
                 e.getMessage()
             );
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
+        } catch (UncheckedIOException | IOException e) {
             LOGGER.warn(
-                "Download Issue possibly client abort {}",
-                e.getMessage()
+                "IOException streaming response for recording ID: {} IOException message: {}",
+                recordingId, e.getMessage()
             );//Exceptions are thrown during partial requests from front door (it throws client abort)
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
