@@ -96,7 +96,9 @@ public class AzureIntegrationTestOperations {
 
     public void clearContainer() {
         hrsBlobContainerClient.listBlobs()
-            .forEach(x -> x.setDeleted(true));
+            .forEach(x -> hrsBlobContainerClient.getBlobClient(x.getName()).delete());
+        cvpBlobContainerClient.listBlobs()
+            .forEach(x -> cvpBlobContainerClient.getBlobClient(x.getName()).delete());
     }
 
     private enum Container {

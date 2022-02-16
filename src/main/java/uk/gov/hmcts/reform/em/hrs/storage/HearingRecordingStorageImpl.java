@@ -178,7 +178,10 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         final Duration duration = Duration.ofMinutes(BLOB_LIST_TIMEOUT);
 
         final PagedIterable<BlobItem> cvpBlobItems = cvpBlobContainerClient.listBlobs(options, duration);
-        long cvpItemCount = cvpBlobItems.stream().count();
+        long cvpItemCount = cvpBlobItems
+            .stream()
+            .filter(blobItem -> blobItem.getName().contains("/") && blobItem.getName().contains(".mp"))
+            .count();
 
 
         final PagedIterable<BlobItem> hrsBlobItems = hrsBlobContainerClient.listBlobs(options, duration);

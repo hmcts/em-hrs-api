@@ -1,25 +1,34 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
 import com.azure.storage.blob.models.BlobRange;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRange;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
+import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
+import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.exception.InvalidRangeRequestException;
+import uk.gov.hmcts.reform.em.hrs.exception.ValidationErrorException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
+import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobInfo;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobstoreClient;
 import uk.gov.hmcts.reform.em.hrs.util.HttpHeaderProcessor;
 import uk.gov.hmcts.reform.em.hrs.util.debug.HttpHeadersLogging;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -33,21 +42,49 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
     private final HearingRecordingSegmentRepository segmentRepository;
     private final BlobstoreClient blobstoreClient;
     private final AuditEntryService auditEntryService;
+    private final ShareesRepository shareesRepository;
+    private final SecurityService securityService;
+
+
+    @Value("${shareelink.ttl}")
+    private final int validityInHours;
 
     @Autowired
     public SegmentDownloadServiceImpl(HearingRecordingSegmentRepository segmentRepository,
-                                      BlobstoreClient blobstoreClient, AuditEntryService auditEntryService) {
+                                      BlobstoreClient blobstoreClient, AuditEntryService auditEntryService,
+                                      ShareesRepository shareesRepository,
+                                      SecurityService securityService,
+                                      @Value("${shareelink.ttl}") int validityInHours) {
         this.segmentRepository = segmentRepository;
         this.blobstoreClient = blobstoreClient;
         this.auditEntryService = auditEntryService;
+        this.shareesRepository = shareesRepository;
+        this.securityService = securityService;
+        this.validityInHours = validityInHours;
     }
 
 
     @Override
-    public HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentNumber(UUID recordingId, Integer segmentNo) {
+    public HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentNumber(UUID recordingId, Integer segmentNo,
+                                                                             String userToken) {
+
+        //Check if user access has expired
+        String userEmail = securityService.getUserEmail(userToken);
+        List<HearingRecordingSharee> hearingRecordingSharees = shareesRepository.findByShareeEmail(userEmail);
+        if (CollectionUtils.isNotEmpty(hearingRecordingSharees)) {
+            Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
+                .filter(hearingRecordingSharee ->
+                            getHearingRecordingShareeSegment(hearingRecordingSharee.getHearingRecording(), segmentNo))
+                .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn()))
+                .findAny();
+            if (recordingSharee.isEmpty()) {
+                throw new ValidationErrorException(Map.of("error", Constants.SHARED_EXPIRED_LINK_MSG));
+            }
+        }
 
         HearingRecordingSegment segment =
             segmentRepository.findByHearingRecordingIdAndRecordingSegment(recordingId, segmentNo);
+
         return segment;
     }
 
@@ -119,4 +156,20 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         auditEntryService.createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
     }
 
+    private boolean isAccessValid(LocalDateTime sharedOn) {
+        LocalDateTime expiryTime = sharedOn.plusHours(validityInHours);
+        LocalDateTime presentTime = LocalDateTime.now();
+        return  presentTime.isBefore(expiryTime);
+    }
+
+    private boolean getHearingRecordingShareeSegment(HearingRecording hearingRecording,
+                                                     Integer segmentNo) {
+        //Need to check if the segment is associated with this Sharee.
+        boolean segmentMatch = hearingRecording.getSegments()
+            .stream()
+            .filter(segment -> segment.getRecordingSegment().equals(segmentNo))
+            .findAny()
+            .isEmpty();
+        return !segmentMatch;
+    }
 }

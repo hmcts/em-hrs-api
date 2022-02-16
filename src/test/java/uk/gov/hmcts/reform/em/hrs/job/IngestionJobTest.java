@@ -56,7 +56,6 @@ class IngestionJobTest {
     @BeforeEach
     void prepare() {
         ingestionQueue.clear();
-        underTest.setCcdUploadEnabled(true);
     }
 
     @Test
