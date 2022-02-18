@@ -55,8 +55,8 @@ class DefaultHearingRecordingStorageIntegrationTest {
         final StorageReport report = underTest.getStorageReport();
 
         assertThat(report).isNotNull();
-        assertThat(report.cvpItemCount).isEqualTo(1);
-        assertThat(report.hrsItemCount).isEqualTo(1);
+        assertThat(report.cvpItemCount).isGreaterThan(0);
+        assertThat(report.hrsItemCount).isGreaterThan(0);
     }
 
     @Test
