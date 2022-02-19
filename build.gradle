@@ -1,7 +1,7 @@
 buildscript {
   dependencies {
     classpath("net.serenity-bdd:serenity-gradle-plugin:2.3.13")
-    classpath("net.serenity-bdd:serenity-single-page-report:3.1.10")
+    classpath("net.serenity-bdd:serenity-single-page-report:3.1.13")
   }
 }
 
@@ -335,9 +335,7 @@ def versions = [
   postgresql         : '42.2.20',
   pact_version       : '3.6.15',
   restAssured        : '4.2.0',
-  serenity           : '2.3.13',
   serenityRestAssured: '2.3.4',
-  serenityreporter   : '2.3.13',
   junit              : '5.8.1',
   junitPlatform      : '1.8.2',
   springSecurity     : '5.3.8.RELEASE'
@@ -451,7 +449,6 @@ dependencies {
   liquibaseRuntime sourceSets.main.output
 
   testImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
-  testImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
 
 /***********************************************************************************************************************
  * TEST DEPENDENCIES
@@ -496,9 +493,7 @@ dependencies {
 
 
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
-  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
 
-  smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
 
   smokeTestImplementation 'com.github.hmcts:em-test-helper:1.18.2'
