@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
 import com.azure.storage.blob.models.BlobRange;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +32,8 @@ import java.util.UUID;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
 public class SegmentDownloadServiceImpl implements SegmentDownloadService {
@@ -71,7 +72,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         //Check if user access has expired
         String userEmail = securityService.getUserEmail(userToken);
         List<HearingRecordingSharee> hearingRecordingSharees = shareesRepository.findByShareeEmail(userEmail);
-        if (CollectionUtils.isNotEmpty(hearingRecordingSharees)) {
+        if (!isEmpty(hearingRecordingSharees)) {
             Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
                 .filter(hearingRecordingSharee ->
                             getHearingRecordingShareeSegment(hearingRecordingSharee.getHearingRecording(), segmentNo))
