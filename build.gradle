@@ -418,7 +418,7 @@ dependencies {
   implementation group: 'org.springframework', name: 'spring-context-support'
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.33.0'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.32.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.33.0'
 
 /***********************************************************************************************************************
  * DATABASE DEPENDENCIES AND SOURCE SETS
