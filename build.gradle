@@ -262,6 +262,10 @@ dependencyManagement {
       entry 'logback-classic'
       entry 'logback-core'
     }
+
+    dependencySet(group: 'io.netty', version: '2.0.47.Final') {
+      entry 'netty-tcnative-classes'
+    }
   }
 }
 
