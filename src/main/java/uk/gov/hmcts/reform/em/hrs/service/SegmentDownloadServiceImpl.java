@@ -160,6 +160,9 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
     private boolean isAccessValid(LocalDateTime sharedOn) {
         LocalDateTime expiryTime = sharedOn.plusHours(validityInHours);
         LocalDateTime presentTime = LocalDateTime.now();
+
+        LOGGER.debug("sharedOn value is  {} with presentTime as {} resulted in {} ",
+                     sharedOn, presentTime, presentTime.isBefore(expiryTime));
         return  presentTime.isBefore(expiryTime);
     }
 
@@ -171,6 +174,8 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
             .filter(segment -> segment.getRecordingSegment().equals(segmentNo))
             .findAny()
             .isEmpty();
+        LOGGER.debug("Segment Match for segment number {} for hearingRecording with {} was {} ",
+                     segmentNo, hearingRecording.getId(), !segmentMatch);
         return !segmentMatch;
     }
 }
