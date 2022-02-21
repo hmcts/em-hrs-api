@@ -10,8 +10,8 @@ plugins {
   id 'checkstyle'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-  id 'org.springframework.boot' version '2.3.4.RELEASE'
-  id 'uk.gov.hmcts.java' version '0.12.18'
+  id 'org.springframework.boot' version '2.6.4'
+  id 'uk.gov.hmcts.java' version '0.12.8'
   id 'com.github.ben-manes.versions' version '0.42.0'
   id 'org.sonarqube' version '3.1.1'
   id 'org.liquibase.gradle' version '2.0.4'
@@ -242,48 +242,9 @@ dependencyManagement {
       entry 'guava'
     }
 
-    //CVE-2021-21295
-    dependencySet(group: 'io.netty', version: '4.1.63.Final') {
-      entry 'netty-buffer'
-      entry 'netty-codec'
-      entry 'netty-common'
-      entry 'netty-handler'
-      entry 'netty-resolver'
-      entry 'netty-transport'
-      entry 'netty-codec-http'
-      entry 'netty-codec-http2'
-      entry 'netty-transport-native-epoll'
-      entry 'netty-transport-native-kqueue'
-      entry 'netty-transport-native-unix-common'
-      entry 'netty-codec-socks'
-      entry 'netty-handler-proxy'
-    }
-
-    //CVE-2021-22119
-    dependencySet(group: 'org.springframework.security', version: '5.3.13.RELEASE') {
-      entry 'spring-security-crypto'
-    }
-
     //CVE-2021-29425
     dependencySet(group: 'commons-io', version: '2.11.0') {
       entry 'commons-io'
-    }
-
-    //CVE-2021-22118
-    dependencySet(group: 'org.springframework', version: '5.2.15.RELEASE') {
-      entry 'spring-aop'
-      entry 'spring-aspects'
-      entry 'spring-beans'
-      entry 'spring-context'
-      entry 'spring-context-support'
-      entry 'spring-core'
-      entry 'spring-expression'
-      entry 'spring-jcl'
-      entry 'spring-jdbc'
-      entry 'spring-orm'
-      entry 'spring-tx'
-      entry 'spring-web'
-      entry 'spring-webmvc'
     }
 
     // CVE-2021-44832
@@ -295,29 +256,11 @@ dependencyManagement {
     // CVE-2021-28170
     dependency group: 'org.glassfish', name: 'jakarta.el', version: '4.0.2'
 
-    //CVE-2022-23181
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.58') {
-      entry 'tomcat-embed-core'
-      entry 'tomcat-embed-websocket'
-    }
 
     // CVE-2021-42550
     dependencySet(group: 'ch.qos.logback', version: '1.2.10') {
       entry 'logback-classic'
       entry 'logback-core'
-    }
-
-    // CVE-2020-15522
-    dependencySet(group: 'org.bouncycastle', version: '1.70') {
-      entry 'bcprov-jdk15on'
-    }
-
-    // CVE-2021-22053, CVE-2021-22044
-    dependencySet(group: 'org.springframework.cloud', version: '2.2.10.RELEASE') {
-      entry 'spring-cloud-netflix-archaius'
-      entry 'spring-cloud-netflix-ribbon'
-      entry 'spring-cloud-openfeign-core'
-      entry 'spring-cloud-starter-openfeign'
     }
   }
 }
