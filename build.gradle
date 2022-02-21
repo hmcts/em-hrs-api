@@ -353,7 +353,7 @@ dependencies {
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.6'
 
 //azure components
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.10.2'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.14.2'
   implementation group: 'com.azure', name: 'azure-identity', version: '1.2.3'
 
   // Job scheduling
