@@ -50,7 +50,7 @@ public class CcdDataStoreApiClient {
 
 
             var jsonNode = caseDataCreator.createCaseStartData(hearingRecordingDto, recordingId);
-            var text = jsonNode.asText();
+            var text = jsonNode.toString();
             LOGGER.info("case data jsonNode {} ", text);
             caseData = CaseDataContent.builder()
                 .event(Event.builder().id(startEventResponse.getEventId()).build())
