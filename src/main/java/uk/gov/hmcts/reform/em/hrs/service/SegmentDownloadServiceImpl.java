@@ -76,7 +76,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
             Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
                 .filter(hearingRecordingSharee ->
                             getHearingRecordingShareeSegment(hearingRecordingSharee.getHearingRecording(), segmentNo))
-                .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn()))
+                .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn(), userEmail))
                 .findAny();
             if (recordingSharee.isEmpty()) {
                 throw new ValidationErrorException(Map.of("error", Constants.SHARED_EXPIRED_LINK_MSG));
@@ -157,12 +157,12 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         auditEntryService.createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
     }
 
-    private boolean isAccessValid(LocalDateTime sharedOn) {
+    private boolean isAccessValid(LocalDateTime sharedOn, String userEmail) {
         LocalDateTime expiryTime = sharedOn.plusHours(validityInHours);
         LocalDateTime presentTime = LocalDateTime.now();
 
-        LOGGER.debug("sharedOn value is  {} with presentTime as {} resulted in {} ",
-                     sharedOn, presentTime, presentTime.isBefore(expiryTime));
+        LOGGER.debug("sharedOn value is  {} with expiryTime as {} and presentTime as {} resulted in {} for email {}",
+                     sharedOn, expiryTime, presentTime, presentTime.isBefore(expiryTime), userEmail);
         return  presentTime.isBefore(expiryTime);
     }
 
