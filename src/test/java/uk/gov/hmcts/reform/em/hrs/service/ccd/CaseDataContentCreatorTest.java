@@ -2,6 +2,10 @@ package uk.gov.hmcts.reform.em.hrs.service.ccd;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,12 +31,17 @@ class CaseDataContentCreatorTest {
     private static final UUID RECORDING_ID = UUID.randomUUID();
     private static final String RECORDING_REF = "FT-0111-testfile200M";
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static ObjectMapper objectMapper;
     HearingRecordingDto hearingRecordingDto;
     CaseDataContentCreator underTest;
 
     @BeforeEach
     void setup() {
+        objectMapper = JsonMapper.builder() // or different mapper for other format
+            .addModule(new ParameterNamesModule())
+            .addModule(new Jdk8Module())
+            .addModule(new JavaTimeModule())
+            .build();
         String dateString = "1962-07-05-10.30.00.000";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH.mm.ss.SSS");
         hearingRecordingDto = HearingRecordingDto.builder()
@@ -62,20 +71,6 @@ class CaseDataContentCreatorTest {
         CaseHearingRecording caseHearingRecording = underTest.getCaseRecordingObject(caseData);
 
         assertEquals("001", caseHearingRecording.getHearingRoomRef());
-    }
-
-    @Test
-    void createCaseStartData() {
-
-        JsonNode actual = underTest.createCaseStartData(hearingRecordingDto, RECORDING_ID);
-
-        assertEquals("FM", actual.get("jurisdictionCode").asText());
-        assertEquals(RECORDING_REF, actual.get("recordingReference").asText());
-        assertEquals("JULY", actual.at("/recordingDate/month").asText());
-        assertEquals("1962", actual.at("/recordingDate/year").asText());
-        assertEquals("AM", actual.get("recordingTimeOfDay").asText());
-        assertEquals(String.format("http://xui.com/hearing-recordings/%s/segments/0", RECORDING_ID),
-                                actual.at("/recordingFiles/0/value/documentLink/document_url").asText());
     }
 
     @Test
