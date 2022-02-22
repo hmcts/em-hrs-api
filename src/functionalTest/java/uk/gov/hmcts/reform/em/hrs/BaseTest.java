@@ -24,7 +24,6 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDataContent;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.Event;
 import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
-import uk.gov.hmcts.reform.em.EmTestConfig;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 import uk.gov.hmcts.reform.em.hrs.testutil.AuthTokenGeneratorConfiguration;
 import uk.gov.hmcts.reform.em.hrs.testutil.AzureStorageContainerClientBeans;
@@ -53,7 +52,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @SpringBootTest(classes = {
     ExtendedCcdHelper.class,
-    EmTestConfig.class,
     CcdAuthTokenGeneratorConfiguration.class,
     AuthTokenGeneratorConfiguration.class,
     BlobUtil.class,
