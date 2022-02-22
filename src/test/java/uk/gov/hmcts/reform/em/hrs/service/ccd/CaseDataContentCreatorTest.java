@@ -74,6 +74,19 @@ class CaseDataContentCreatorTest {
     }
 
     @Test
+    void createCaseStartData() {
+
+        JsonNode actual = underTest.createCaseStartData(hearingRecordingDto, RECORDING_ID);
+
+        assertEquals("FM", actual.get("jurisdictionCode").asText());
+        assertEquals(RECORDING_REF, actual.get("recordingReference").asText());
+        assertEquals("1962-07-05", actual.get("recordingDate").asText());
+        assertEquals("AM", actual.get("recordingTimeOfDay").asText());
+        assertEquals(String.format("http://xui.com/hearing-recordings/%s/segments/0", RECORDING_ID),
+                                actual.at("/recordingFiles/0/value/documentLink/document_url").asText());
+    }
+
+    @Test
     void createCaseUpdateData() {
         Map<String, CaseRecordingFile> valueMap = new HashMap<>();
         valueMap.put("value", CaseRecordingFile.builder()
