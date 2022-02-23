@@ -58,9 +58,6 @@ public class BlobUtil {
     }
 
 
-
-
-
     private int getBlobCount(BlobContainerClient client, Set<String> fileNames) {
         return (int) client.listBlobs()
             .stream()
