@@ -15,6 +15,7 @@ az acr login --name hmctspublic && az acr login --name hmctsprivate
 
 So standard az cli tools are needed, as well as @hmcts.net log in with appropriate roles
 
+
 ## Setup
 
 Simply run the following script to start all application dependencies.
