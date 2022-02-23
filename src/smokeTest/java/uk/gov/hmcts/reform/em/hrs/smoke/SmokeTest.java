@@ -16,8 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @WithTags({@WithTag("testType:Smoke")})
 public class SmokeTest {
 
-    private static final String MESSAGE = "Welcome to Hearing Recordings Service";
-
     @Value("${test.url}")
     private String testUrl;
 
@@ -30,10 +28,15 @@ public class SmokeTest {
                 .relaxedHTTPSValidation()
                 .baseUri(testUrl)
                 .when()
-                .get("/")
+                .get("/health")
                 .then()
-                .statusCode(200).extract().body().asString();
-        assertEquals(MESSAGE, response);
+                .statusCode(200)
+                .extract()
+                .body()
+                .jsonPath()
+                .get("$.status");
+        assertEquals("UP", response);
+
     }
 
 }
