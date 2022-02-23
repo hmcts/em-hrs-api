@@ -8,6 +8,14 @@
   </suppress>
 
   <suppress until="2022-05-08">
+    <notes><![CDATA[
+   file name: httpclient-4.5.12.jar
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpclient@.*$</packageUrl>
+    <cve>CVE-2020-13956</cve>
+  </suppress>
+
+  <suppress until="2022-05-08">
     <notes>
       TODO - temporary inclusion to facilitate integration testing
       Introduced with azure identity fails less than 1.2.4 but 1.2.4 conflicts with other azure libraries
@@ -31,7 +39,13 @@
     <cve>CVE-2021-22096</cve>
   </suppress>
 
-
+  <suppress until="2022-05-18">
+    <notes><![CDATA[
+   file name: spring-security-core-5.3.8.RELEASE.jar
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-core@.*$</packageUrl>
+    <vulnerabilityName>CWE-862: Missing Authorization</vulnerabilityName>
+  </suppress>
 
 
   <!-- TO REVIEW: -->

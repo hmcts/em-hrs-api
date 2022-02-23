@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,23 +8,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.em.hrs.exception.DatabaseStorageException;
 import uk.gov.hmcts.reform.em.hrs.repository.FolderRepository;
-import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
-import uk.gov.hmcts.reform.em.hrs.repository.JobInProgressRepository;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.EMPTY_FOLDER;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.FILENAME_1;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.FILENAME_2;
@@ -48,24 +40,13 @@ class FolderServiceImplTests {
     private FolderRepository folderRepository;
 
     @Mock
-    private HearingRecordingRepository hearingRecordingRepository;
-
-    @Mock
     private HearingRecordingSegmentRepository segmentRepository;
 
     @Mock
-    private JobInProgressRepository jobInProgressRepository;
-    @Mock
     private HearingRecordingStorage blobStorage;
-
 
     @InjectMocks
     private FolderServiceImpl folderServiceImpl;
-
-    @BeforeEach
-    void prepare() {
-        lenient().doNothing().when(jobInProgressRepository).deleteByCreatedOnLessThan(any(LocalDateTime.class));
-    }
 
     @Test
     @DisplayName("Test when folder is not found in the database and blobstore")
@@ -75,7 +56,6 @@ class FolderServiceImplTests {
         Set<String> actualFilenames = folderServiceImpl.getStoredFiles(TEST_FOLDER_1_NAME);
 
         assertThat(actualFilenames).hasSameElementsAs(Collections.emptySet());
-        verify(jobInProgressRepository, times(1)).deleteByCreatedOnLessThan(any(LocalDateTime.class));
     }
 
     @Test
@@ -88,7 +68,6 @@ class FolderServiceImplTests {
         Set<String> actualFilenames = folderServiceImpl.getStoredFiles(EMPTY_FOLDER.getName());
 
         assertThat(actualFilenames).hasSameElementsAs(Collections.emptySet());
-        verify(jobInProgressRepository, times(1)).deleteByCreatedOnLessThan(any(LocalDateTime.class));
     }
 
     @Test
@@ -101,7 +80,6 @@ class FolderServiceImplTests {
         Set<String> actualFilenames = folderServiceImpl.getStoredFiles(TEST_FOLDER_1_NAME);
 
         assertThat(actualFilenames).hasSameElementsAs(Collections.emptySet());
-        verify(jobInProgressRepository, times(1)).deleteByCreatedOnLessThan(any(LocalDateTime.class));
     }
 
     @Test
@@ -119,7 +97,6 @@ class FolderServiceImplTests {
         Set<String> actualFilenames = folderServiceImpl.getStoredFiles("folder-1");//TEST_FOLDER_NAME
 
         assertThat(actualFilenames).hasSameElementsAs(Set.of(FILENAME_1, FILENAME_2, FILENAME_3));
-        verify(jobInProgressRepository, times(1)).deleteByCreatedOnLessThan(any(LocalDateTime.class));
     }
 
     @Test
@@ -136,7 +113,6 @@ class FolderServiceImplTests {
         Set<String> actualFilenames = folderServiceImpl.getStoredFiles(TEST_FOLDER_1_NAME);
 
         assertThat(actualFilenames).hasSameElementsAs(Set.of(FILENAME_1, FILENAME_2, FILENAME_3));
-        verify(jobInProgressRepository, times(1)).deleteByCreatedOnLessThan(any(LocalDateTime.class));
     }
 
     @Test
@@ -149,7 +125,6 @@ class FolderServiceImplTests {
         Set<String> actualFilenames = folderServiceImpl.getStoredFiles(TEST_FOLDER_1_NAME);
 
         assertThat(actualFilenames).hasSameElementsAs(Set.of(FILENAME_3));
-        verify(jobInProgressRepository, times(1)).deleteByCreatedOnLessThan(any(LocalDateTime.class));
     }
 
 
@@ -168,9 +143,7 @@ class FolderServiceImplTests {
         Set<String> actualFilenames = folderServiceImpl.getStoredFiles(TEST_FOLDER_1_NAME);
 
         assertThat(actualFilenames).hasSameElementsAs(Set.of(FILENAME_1, FILENAME_2));
-        verify(jobInProgressRepository, times(1)).deleteByCreatedOnLessThan(any(LocalDateTime.class));
     }
-
 
     @Test
     @DisplayName("Should throw exception when folder not in db")

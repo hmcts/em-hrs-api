@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
 import com.azure.storage.blob.models.BlobRange;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +32,8 @@ import java.util.UUID;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
 public class SegmentDownloadServiceImpl implements SegmentDownloadService {
@@ -71,11 +72,11 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         //Check if user access has expired
         String userEmail = securityService.getUserEmail(userToken);
         List<HearingRecordingSharee> hearingRecordingSharees = shareesRepository.findByShareeEmail(userEmail);
-        if (CollectionUtils.isNotEmpty(hearingRecordingSharees)) {
+        if (!isEmpty(hearingRecordingSharees)) {
             Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
                 .filter(hearingRecordingSharee ->
                             getHearingRecordingShareeSegment(hearingRecordingSharee.getHearingRecording(), segmentNo))
-                .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn()))
+                .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn(), userEmail))
                 .findAny();
             if (recordingSharee.isEmpty()) {
                 throw new ValidationErrorException(Map.of("error", Constants.SHARED_EXPIRED_LINK_MSG));
@@ -156,9 +157,12 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         auditEntryService.createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
     }
 
-    private boolean isAccessValid(LocalDateTime sharedOn) {
+    private boolean isAccessValid(LocalDateTime sharedOn, String userEmail) {
         LocalDateTime expiryTime = sharedOn.plusHours(validityInHours);
         LocalDateTime presentTime = LocalDateTime.now();
+
+        LOGGER.debug("sharedOn value is  {} with expiryTime as {} and presentTime as {} resulted in {} for email {}",
+                     sharedOn, expiryTime, presentTime, presentTime.isBefore(expiryTime), userEmail);
         return  presentTime.isBefore(expiryTime);
     }
 
@@ -170,6 +174,8 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
             .filter(segment -> segment.getRecordingSegment().equals(segmentNo))
             .findAny()
             .isEmpty();
+        LOGGER.debug("Segment Match for segment number {} for hearingRecording with {} was {} ",
+                     segmentNo, hearingRecording.getId(), !segmentMatch);
         return !segmentMatch;
     }
 }

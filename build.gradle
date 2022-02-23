@@ -1,7 +1,7 @@
 buildscript {
   dependencies {
     classpath("net.serenity-bdd:serenity-gradle-plugin:2.3.13")
-    classpath("net.serenity-bdd:serenity-single-page-report:3.1.13")
+    classpath("net.serenity-bdd:serenity-single-page-report:3.2.0")
   }
 }
 
@@ -15,8 +15,7 @@ plugins {
   id 'com.github.ben-manes.versions' version '0.42.0'
   id 'org.sonarqube' version '3.1.1'
   id 'org.liquibase.gradle' version '2.0.4'
-  id 'groovy'
-  id 'au.com.dius.pact' version '4.2.11'
+  id 'au.com.dius.pact' version '4.3.5'
   id "info.solidsoft.pitest" version '1.6.0'
 }
 
@@ -73,10 +72,6 @@ sourceSets {
     java {
       compileClasspath += main.output
       runtimeClasspath += main.output
-    }
-    groovy {
-      compileClasspath += main.output + test.output
-      runtimeClasspath += main.output + test.output
     }
   }
 
@@ -265,7 +260,7 @@ dependencyManagement {
     }
 
     //CVE-2021-22112
-    dependencySet(group: 'org.springframework.security', version: '5.3.8.RELEASE') {
+    dependencySet(group: 'org.springframework.security', version: '5.6.1') {
       entry 'spring-security-config'
       entry 'spring-security-core'
       entry 'spring-security-crypto'
@@ -360,13 +355,6 @@ dependencies {
     exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
   }
 
-  implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
-  implementation group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
-
-  //for retry mechanism updatign ccd
-  implementation "com.github.rholder:guava-retrying:2.0.0"
-
-  implementation group: "commons-validator", name: "commons-validator", version: "1.7"
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
 
@@ -404,8 +392,6 @@ dependencies {
   implementation group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: '4.7.5'
 
 //hmcts logging
-// no log4j impl needed if over slf4 used
-  implementation group: 'org.slf4j', name: 'log4j-over-slf4j', version: '1.7.32'
   implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-spring', version: versions.reformLogging
@@ -427,7 +413,7 @@ dependencies {
   implementation group: 'org.springframework', name: 'spring-context-support'
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.33.0'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.32.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.33.0'
 
 /***********************************************************************************************************************
  * DATABASE DEPENDENCIES AND SOURCE SETS
@@ -471,19 +457,14 @@ dependencies {
 
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.22.0'
-  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.25.0'
+  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.32.0'
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.16.3'
-  testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.3'
+  testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.16.3'
   testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.4', {
     exclude group: 'com.google.guava', module: 'guava'
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.1.1'
-  testImplementation group: 'info.solidsoft.gradle.pitest', name: 'gradle-pitest-plugin', version: '1.6.0'
-  testImplementation group: 'org.pitest', name: 'pitest', version: '1.7.3'
-  testImplementation group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
 
-  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
-  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.6.3'
   functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
   functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
@@ -495,10 +476,6 @@ dependencies {
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
 
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
-
-  smokeTestImplementation 'com.github.hmcts:em-test-helper:1.18.2'
-
-
 
 /***********************************************************************************************************************
  * TEST SOURCE SETS
@@ -516,19 +493,13 @@ dependencies {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
-  contractTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
-  contractTestImplementation group: 'io.rest-assured', name: 'json-schema-validator', version: versions.restAssured
-  contractTestImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
-  contractTestImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-junit5_2.12', version: versions.pact_version
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-java8_2.12', version: versions.pact_version
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.0.10'
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-gradle', version: '4.0.10'
 
   contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
-  contractTestImplementation "org.junit.vintage:junit-vintage-engine:5.6.3"
-  contractTestImplementation("org.junit.jupiter:junit-jupiter-api:5.6.2")
-  contractTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.1"
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.8.2'
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok

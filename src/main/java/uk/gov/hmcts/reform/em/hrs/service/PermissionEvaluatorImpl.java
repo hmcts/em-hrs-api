@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
 
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +21,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
+
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Component
 public class PermissionEvaluatorImpl implements PermissionEvaluator {
@@ -61,7 +62,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
             userInfo.getRoles()
         );
 
-        if (CollectionUtils.isNotEmpty(userInfo.getRoles())) {
+        if (!isEmpty(userInfo.getRoles())) {
             Optional<String> userRole = userInfo.getRoles().stream()
                 .filter(role -> allowedRoles.contains(role))
                 .findFirst();
@@ -88,7 +89,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
                     .map(sharedRecording -> sharedRecording.getHearingRecording().getCaseRef())
                     .collect(Collectors.toList())
             );
-            if (CollectionUtils.isNotEmpty(sharedRecordings)) {
+            if (!isEmpty(sharedRecordings)) {
                 Optional<HearingRecordingSharee> hearingRecording = sharedRecordings.stream()
                     .filter(sharedRecording -> sharedRecording.getHearingRecording().getId().equals(recordingId))
                     .findFirst();
