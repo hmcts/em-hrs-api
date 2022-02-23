@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.em.hrs.testutil;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,28 +37,6 @@ public class BlobUtil {
         this.cvpBlobContainerClient = cvpBlobContainerClient;
     }
 
-    public void deleteFilesFromContainerNotMatchingPrefix(final String folderName, BlobContainerClient containerClient,
-                                                          String fileNamePrefixToNotDelete) {
-
-        String pathPrefix = folderName + "/" + fileNamePrefixToNotDelete;
-        LOGGER.info("Cleaning folder: {}", folderName);
-        LOGGER.info("Excluding Prefix: {}", pathPrefix);
-
-
-        containerClient.listBlobs()
-            .stream()
-            .filter(blobItem ->
-                        blobItem.getName().startsWith(folderName)
-                            && !blobItem.getName().startsWith(pathPrefix)
-            )
-            .forEach(blobItem -> {
-                LOGGER.info("Deleting old blob: {}", blobItem.getName());
-                final BlockBlobClient blobClient =
-                    containerClient.getBlobClient(blobItem.getName()).getBlockBlobClient();
-                blobClient.delete();
-            });
-    }
-
 
     public void checkIfUploadedToStore(Set<String> fileNames,
                                        BlobContainerClient containerClient) {
@@ -79,9 +56,6 @@ public class BlobUtil {
                     + filesToCheckCount);
         }
     }
-
-
-
 
 
     private int getBlobCount(BlobContainerClient client, Set<String> fileNames) {

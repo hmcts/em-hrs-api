@@ -81,9 +81,9 @@ public class FolderServiceImpl implements FolderService {
     private Tuple2<FilesInDatabase, Set<String>> getFilesetsFromDatabase(Folder folder) {
 
         Set<String> filesInDatabase = getSegmentFilenamesInFolder(folder.getName());
-        LOGGER.info("Files In Database {} ", filesInDatabase);
+        LOGGER.debug("Files In Database {} ", filesInDatabase);
         Set<String> filesInProgress = getFilesInProgress(folder.getJobsInProgress());
-        LOGGER.info("Files In Progress {}", filesInProgress);
+        LOGGER.debug("Files In Progress {}", filesInProgress);
         return Tuples.of(new FilesInDatabase(filesInDatabase), filesInProgress);
     }
 

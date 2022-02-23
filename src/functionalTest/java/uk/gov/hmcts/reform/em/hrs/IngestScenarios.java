@@ -46,22 +46,6 @@ public class IngestScenarios extends BaseTest {
         //TODO CCD and postgres database ought to be cleaned out as well, by archiving the case -
         // however this functionality is not yet available
 
-        LOGGER.info("************* CLEARING DOWN CVP STORE **********");
-
-        testUtil.deleteFilesFromContainerNotMatchingPrefix(
-            FOLDER,
-            testUtil.cvpBlobContainerClient,
-            fileNamePrefixToNotDelete
-        );
-
-        LOGGER.info("************* CLEARING DOWN HRS STORE **********");
-
-        testUtil.deleteFilesFromContainerNotMatchingPrefix(
-            FOLDER,
-            testUtil.hrsBlobContainerClient,
-            fileNamePrefixToNotDelete
-        );
-
     }
 
 
