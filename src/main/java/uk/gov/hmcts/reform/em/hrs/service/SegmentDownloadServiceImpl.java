@@ -73,6 +73,8 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         String userEmail = securityService.getUserEmail(userToken);
         List<HearingRecordingSharee> hearingRecordingSharees = shareesRepository.findByShareeEmail(userEmail);
         if (!isEmpty(hearingRecordingSharees)) {
+            LOGGER.debug("User  {} is trying to access the recordingId  {} with segment Number {}",
+                         userEmail, recordingId, segmentNo);
             Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
                 .filter(hearingRecordingSharee ->
                             getHearingRecordingShareeSegment(hearingRecordingSharee.getHearingRecording(), segmentNo))
