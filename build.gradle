@@ -215,8 +215,6 @@ dependencyCheck {
 
 configurations.all {
   exclude group: 'com.vaadin.external.google', module: 'android-json'
-  exclude group: 'org.springframework.cloud',  module: 'spring-cloud-netflix-archaius'
-  exclude group: 'org.springframework.cloud',  module: 'spring-cloud-netflix-ribbon'
 }
 
 dependencyManagement {
@@ -313,6 +311,8 @@ dependencyManagement {
     dependencySet(group: 'org.springframework.cloud', version: '2.2.10.RELEASE') {
       entry 'spring-cloud-openfeign-core'
       entry 'spring-cloud-starter-openfeign'
+      entry 'spring-cloud-netflix-archaius'
+      entry 'spring-cloud-netflix-ribbon'
     }
   }
 }
