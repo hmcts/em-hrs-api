@@ -131,6 +131,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         final Long caseId = ccdDataStoreApiClient.createCase(recording.getId(), recordingDto);
         recording.setCcdCaseId(caseId);
         recording = recordingRepository.save(recording);
+        LOGGER.info("Created case in CCD: {} for  {} ", caseId, recordingDto.getRecordingSource());
 
         HearingRecordingSegment segment = createSegment(recording, recordingDto);
         segmentRepository.save(segment);

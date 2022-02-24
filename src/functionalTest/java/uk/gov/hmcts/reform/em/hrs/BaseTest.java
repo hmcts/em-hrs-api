@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
-import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
 import net.serenitybdd.rest.SerenityRest;
 import net.thucydides.core.annotations.WithTag;
 import net.thucydides.core.annotations.WithTags;
@@ -18,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDataContent;
@@ -37,7 +37,6 @@ import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 
-import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -62,7 +61,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 })
 
 @TestPropertySource(value = "classpath:application.yml")
-@RunWith(SpringIntegrationSerenityRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 @WithTags({@WithTag("testType:Functional")})
 public abstract class BaseTest {
 
@@ -77,11 +76,6 @@ public abstract class BaseTest {
     public static String SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION =
         "hrs.functional.system.user@hmcts.net";
 
-    public static List<String>
-        SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION_ROLES =
-        List.of("caseworker", "caseworker-hrs", "caseworker-hrs-searcher", "ccd-import");
-
-
     protected static final String USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS = "em-test-searcher@test.hmcts.net";
     protected static final String USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY = "em-test-requestor@test.hmcts.net";
     protected static final String USER_WITH_NONACCESS_ROLE__CITIZEN = "em-test-citizen@test.hmcts.net";
@@ -91,15 +85,9 @@ public abstract class BaseTest {
     protected static final String FOLDER = "audiostream123455";
     protected static final String TIME = "2020-11-04-14.56.32.819";
     public static final String CASEREF_PREFIX = "FUNCTEST_";
-    protected static List<String> CASE_WORKER_ROLE = List.of("caseworker");
-    protected static List<String> CASE_WORKER_HRS_SEARCHER_ROLE =
-        List.of("caseworker", "caseworker-hrs", "caseworker-hrs-searcher");
-    protected static List<String> CITIZEN_ROLE = List.of("citizen");
     protected static final String CLOSE_CASE = "closeCase";
 
     protected static int FIND_CASE_TIMEOUT = 30;
-
-    static int createUsersBaseTestRunCount = 0;
 
     protected String hrsS2sAuth;
 
@@ -135,42 +123,11 @@ public abstract class BaseTest {
 
     @PostConstruct
     public void init() {
-        int maxRuns = 1;
-
-        if (createUsersBaseTestRunCount < maxRuns) {
-
-            LOGGER.info("BASE TEST POST CONSTRUCT INITIALISATIONS....");
-            SerenityRest.useRelaxedHTTPSValidation();
-
-
-            LOGGER.info("CREATING HRS FUNCTIONAL TEST SYSTEM USER");
-            createIDAMUserIfNotExists(
-                SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION,
-                SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION_ROLES
-            );
-
-            LOGGER.info("CREATING REGULAR TEST USERS");
-
-            createIDAMUserIfNotExists(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, CASE_WORKER_HRS_SEARCHER_ROLE);
-            createIDAMUserIfNotExists(USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY, CASE_WORKER_ROLE);
-            createIDAMUserIfNotExists(USER_WITH_NONACCESS_ROLE__CITIZEN, CITIZEN_ROLE);
-
-            LOGGER.info("IMPORTING CCD DEFINITION");
-
-            try {
-                extendedCcdHelper.importDefinitionFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            createUsersBaseTestRunCount++;
-
-        }
         LOGGER.info("AUTHENTICATING TEST USER FOR CCD CALLS");
         hrsS2sAuth = BEARER + s2sHelper.getS2sToken();
     }
 
-    private void createIDAMUserIfNotExists(String email, List<String> roles) {
+    private void createIdamUserIfNotExists(String email, List<String> roles) {
         /*
 
         if multiple PR branches are triggered, then it means the user token cache used by em-test-helper
@@ -193,7 +150,8 @@ public abstract class BaseTest {
             try {
                 String userId = idamHelper.getUserId(email);
                 LOGGER.info("User {} already exists: id={}", email, userId);
-            } catch (Exception e) {//if user does not exist
+            } catch (Exception e) {
+                //if user does not exist
                 LOGGER.info(
                     "Exception thrown, likely user does not exist so will create. Ignore the above Exception:{}",
                     e.getMessage()

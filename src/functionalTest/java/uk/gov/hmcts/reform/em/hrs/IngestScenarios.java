@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,13 +37,7 @@ public class IngestScenarios extends BaseTest {
     @PostConstruct
     public void setup() throws Exception {
         createFolderIfDoesNotExistInHrsDB(FOLDER);
-    }
 
-
-    @Test
-    public void shouldCreateHearingRecordingSegments() throws Exception {
-        String caseRef = timebasedCaseRef();
-        Set<String> filenames = new HashSet<>();
 
         ZonedDateTime now = ZonedDateTime.now();
         String fileNamePrefixToNotDelete = JURISDICTION + "-" + LOCATION_CODE + "-" + CASEREF_PREFIX
@@ -51,27 +46,18 @@ public class IngestScenarios extends BaseTest {
         //TODO CCD and postgres database ought to be cleaned out as well, by archiving the case -
         // however this functionality is not yet available
 
-        LOGGER.info("************* CLEARING DOWN CVP STORE **********");
+    }
 
-        testUtil.deleteFilesFromContainerNotMatchingPrefix(
-            FOLDER,
-            testUtil.cvpBlobContainerClient,
-            fileNamePrefixToNotDelete
-        );
 
-        LOGGER.info("************* CLEARING DOWN HRS STORE **********");
-
-        testUtil.deleteFilesFromContainerNotMatchingPrefix(
-            FOLDER,
-            testUtil.hrsBlobContainerClient,
-            fileNamePrefixToNotDelete
-        );
-
+    @Test
+    public void shouldCreateHearingRecordingSegments() throws Exception {
+        String caseRef = timebasedCaseRef();
+        Set<String> filenames = new HashSet<>();
 
         for (int segmentIndex = 0; segmentIndex < SEGMENT_COUNT; segmentIndex++) {
             String filename = filename(caseRef, segmentIndex);
             filenames.add(filename);
-            testUtil.uploadToCvpContainer(filename);
+            testUtil.uploadFileFromPathToCvpContainer(filename,"data/test_data.mp4");
         }
 
         LOGGER.info("************* CHECKING CVP HAS UPLOADED **********");
@@ -89,6 +75,60 @@ public class IngestScenarios extends BaseTest {
         LOGGER.info("************* CHECKING HRS HAS COPIED TO STORE **********");
         testUtil.checkIfUploadedToStore(filenames, testUtil.hrsBlobContainerClient);
 
+        long cvpFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.cvpBlobContainerClient);
+        long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsBlobContainerClient);
+        Assert.assertEquals(hrsFileSize, cvpFileSize);
+
+        uploadToCcd(filenames, caseRef);
+
+        LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
+        SleepHelper.sleepForSeconds(20);
+
+    }
+
+
+    @Test
+    public void shouldIngestPartiallyCopiedHearingRecordingSegments() throws Exception {
+        //Partially copied *should* result in a file size of 0 bytes
+        //TODO put link to MS doco describing this
+        String caseRef = timebasedCaseRef();
+
+        String filename = filename(caseRef, 0);
+
+        //Upload corrupt file to hrs
+        testUtil.uploadFileFromPathToHrsContainer(filename, "data/empty_file.mp4");
+
+        //Upload a real file to cvp
+        testUtil.uploadFileFromPathToCvpContainer(filename,"data/test_data.mp4");
+
+        //Sleep for 10 seconds to see the empty file in the Azure Blob Storage - HRS container
+        SleepHelper.sleepForSeconds(10);
+
+        LOGGER.info("************* CHECKING CVP HAS UPLOADED **********");
+        Set<String> filenames = new HashSet<>();
+        testUtil.checkIfUploadedToStore(filenames, testUtil.cvpBlobContainerClient);
+        LOGGER.info("************* Files loaded to cvp storage **********");
+
+        //Wait until the ingestion has triggered the copy
+        postRecordingSegment(caseRef, 0)
+            .then()
+            .log().all()
+            .statusCode(202);
+
+        SleepHelper.sleepForSeconds(10);
+
+        LOGGER.info("************* CHECKING HRS HAS COPIED TO STORE **********");
+        testUtil.checkIfUploadedToStore(filenames, testUtil.hrsBlobContainerClient);
+
+        long cvpFileSize = testUtil.getFileSizeFromStore(filename, testUtil.cvpBlobContainerClient);
+        long hrsFileSize = testUtil.getFileSizeFromStore(filename, testUtil.hrsBlobContainerClient);
+        Assert.assertEquals(hrsFileSize, cvpFileSize);
+
+        uploadToCcd(filenames, caseRef);
+
+    }
+
+    private void uploadToCcd(Set<String> filenames, String caseRef) {
         //IN AAT hrs is running on 8 / minute uploads, so need to wait at least 8 secs per segment
         //giving it 10 secs per segment, plus an additional segment
         int secondsToWaitForCcdUploadsToComplete =
@@ -121,6 +161,6 @@ public class IngestScenarios extends BaseTest {
         LOGGER.info("data size: " + data.size()); //TODO when posting multisegment - this needs to match
         List recordingFiles = (ArrayList) data.get("recordingFiles");
         LOGGER.info("num recordings: " + recordingFiles.size());
-
     }
+
 }

@@ -29,6 +29,12 @@ java:
           alias: HRS_SYSTEM_USER_PASSWORD
         - name: notification-api-key
           alias: NOTIFICATION_API_KEY
+        - name: reports-email-username
+          alais: SMTP_USERNAME
+        - name: reports-email-password
+          alaias: SMTP_PASSWORD
+        - name: summary-report-recipients
+          alias: SUMMARY_REPORT_RECIPIENTS
     rpa:
       resourceGroup: rpa
       secrets:
@@ -59,6 +65,10 @@ java:
     ENDPOINTS_INFO_SENSITIVE: false
     ENABLE_IDAM_HEALTH_CHECK: false
     ENABLE_S2S_HEALTH_CHECK: false
+    SMTP_HOST: false
+    SUMMARY_REPORT_CRON: "0 0 6 ? * *"
+    SUMMARY_REPORT_ENABLED: false
+    SHAREE_LINK_TTL: 72 #ttl in hours
 
 blobstorage:
   enabled: false

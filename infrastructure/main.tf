@@ -51,6 +51,8 @@ module "db" {
   database_name = var.database_name
   common_tags = var.common_tags
   subscription = var.subscription
+  sku_name           = var.sku_name
+  sku_capacity       = var.sku_capacity
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
@@ -95,6 +97,8 @@ module "storage_account" {
   access_tier               = "Hot"
 
   enable_https_traffic_only = true
+
+  enable_data_protection    = true
 
   default_action = "Allow"
 
@@ -145,7 +149,7 @@ module "cvp_storage_account_simulator" {
   location = var.location
   account_kind = "StorageV2"
   account_tier = "Standard"
-  account_replication_type = "ZRS"
+  account_replication_type = "LRS"
   access_tier = "Hot"
 
   enable_https_traffic_only = true

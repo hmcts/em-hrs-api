@@ -8,8 +8,8 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDING_WITH_NO_DATA_BUILDER;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHAREE_EMAIL_ADDRESS;
+import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.hearingRecordingWithNoDataBuilder;
 
 class ShareesRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest {
 
@@ -19,7 +19,7 @@ class ShareesRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest
     @Test
     void testShouldSaveSharee() {
         final HearingRecordingSharee hearingRecordingSharee = HearingRecordingSharee.builder()
-            .hearingRecording(HEARING_RECORDING_WITH_NO_DATA_BUILDER())
+            .hearingRecording(hearingRecordingWithNoDataBuilder())
             .shareeEmail(SHAREE_EMAIL_ADDRESS).build();
 
         final HearingRecordingSharee savedSharee = underTest.save(hearingRecordingSharee);
@@ -34,7 +34,7 @@ class ShareesRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest
     void testAuditingFieldsArePopulated() {
         final LocalDateTime preTest = LocalDateTime.now(Clock.systemDefaultZone());
         final HearingRecordingSharee hearingRecordingSharee = HearingRecordingSharee.builder()
-            .hearingRecording(HEARING_RECORDING_WITH_NO_DATA_BUILDER())
+            .hearingRecording(hearingRecordingWithNoDataBuilder())
             .shareeEmail(SHAREE_EMAIL_ADDRESS).build();
 
         final HearingRecordingSharee savedSharee = underTest.save(hearingRecordingSharee);

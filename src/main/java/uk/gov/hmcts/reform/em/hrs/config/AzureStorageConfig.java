@@ -44,9 +44,9 @@ public class AzureStorageConfig {
             .orElse(false);
 
         if (!containerExists) {
-            LOGGER.info("Creating container {} in HRS Storage",hrsContainer);
+            LOGGER.info("Creating container {} in HRS Storage", hrsContainer);
             blobContainerClient.create();
-       }
+        }
         return blobContainerClient;
 
     }

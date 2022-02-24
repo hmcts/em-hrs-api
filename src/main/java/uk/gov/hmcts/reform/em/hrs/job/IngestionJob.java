@@ -33,6 +33,7 @@ public class IngestionJob extends QuartzJobBean {
     @Qualifier("ccdUploadQueue")
     private LinkedBlockingQueue<HearingRecordingDto> ccdUploadQueue;
 
+
     // Required by Quartz
     public IngestionJob() {
     }
@@ -72,5 +73,6 @@ public class IngestionJob extends QuartzJobBean {
             jobInProgressService.deRegister(hrDto);
         }
     }
+
 }
 

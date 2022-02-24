@@ -114,8 +114,10 @@ public class SecurityConfiguration {
         private String issuerUri;
 
         @Autowired
-        public ExternalApiSecurityConfigurationAdapter(final JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter,
-                                                       final ServiceAuthFilter serviceAuthFilter) {
+        public ExternalApiSecurityConfigurationAdapter(
+            final JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter,
+            final ServiceAuthFilter serviceAuthFilter
+        ) {
             super();
             this.serviceAuthFilter = serviceAuthFilter;
             this.jwtAuthenticationConverter = new JwtAuthenticationConverter();

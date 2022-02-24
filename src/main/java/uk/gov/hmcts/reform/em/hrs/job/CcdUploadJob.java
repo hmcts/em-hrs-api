@@ -46,6 +46,7 @@ public class CcdUploadJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(final JobExecutionContext context) {
+        LOGGER.info("CCD upload job starting");
         Optional.ofNullable(ccdUploadQueue.poll())
             .ifPresent(this::uploadGracefully);
     }

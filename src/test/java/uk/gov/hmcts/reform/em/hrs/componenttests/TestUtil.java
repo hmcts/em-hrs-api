@@ -138,7 +138,7 @@ public class TestUtil {
         .build();
 
 
-    public static final HearingRecording HEARING_RECORDING_WITH_NO_DATA_BUILDER() {
+    public static final HearingRecording hearingRecordingWithNoDataBuilder() {
 
         return HearingRecording.builder()
             .id(RANDOM_UUID)

@@ -72,7 +72,7 @@ public class AuditEntryServiceTests {
 
     @Test
     public void testFindHearingRecordingAudits() {
-        HearingRecording hearingRecording = TestUtil.HEARING_RECORDING_WITH_NO_DATA_BUILDER();
+        HearingRecording hearingRecording = TestUtil.hearingRecordingWithNoDataBuilder();
 
         when(hearingRecordingAuditEntryRepository
                  .findByHearingRecordingOrderByEventDateTimeAsc(hearingRecording))
@@ -81,22 +81,6 @@ public class AuditEntryServiceTests {
             auditEntryService.findHearingRecordingAudits(hearingRecording);
         Assertions.assertEquals(1, entries.size());
     }
-
-
-//    @Test
-//    public void testCreateAndSaveEntryForHearingRecording() {
-//        prepareMockSecurityService();
-//
-//        HearingRecordingAuditEntry entry = auditEntryService.createAndSaveEntry(
-//            hearingRecording,
-//            AuditActions.
-//        );
-//
-//        assertSecurityServiceValues(entry);
-//        assertLogFormatterInvoked();
-//        verify(hearingRecordingAuditEntryRepository, times(1)).save(any(HearingRecordingAuditEntry.class));
-//    }
-
 
     @Test
     public void testCreateAndSaveEntryForHearingRecordingSegment() {

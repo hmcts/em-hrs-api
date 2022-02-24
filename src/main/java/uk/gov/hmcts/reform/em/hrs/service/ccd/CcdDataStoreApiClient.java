@@ -90,7 +90,12 @@ public class CcdDataStoreApiClient {
         try {
             Map<String, String> tokens = securityService.getTokens();
             StartEventResponse startEventResponse =
-                coreCaseDataApi.startEvent(tokens.get(USER), tokens.get(SERVICE), caseId.toString(), EVENT_MANAGE_FILES);
+                coreCaseDataApi.startEvent(
+                    tokens.get(USER),
+                    tokens.get(SERVICE),
+                    caseId.toString(),
+                    EVENT_MANAGE_FILES
+                );
 
             caseData = CaseDataContent.builder()
                 .event(Event.builder().id(startEventResponse.getEventId()).build())

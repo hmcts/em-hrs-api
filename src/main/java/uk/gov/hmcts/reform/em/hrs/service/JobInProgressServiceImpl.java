@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.em.hrs.exception.DatabaseStorageException;
 import uk.gov.hmcts.reform.em.hrs.repository.FolderRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.JobInProgressRepository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
@@ -42,7 +43,12 @@ public class JobInProgressServiceImpl implements JobInProgressService {
         if (folder.isEmpty()) {
             throw new DatabaseStorageException("IllegalState - Folder not found in DB: " + String.valueOf(folderName));
         } else {
-            JobInProgress job = JobInProgress.builder().folder(folder.get()).filename(filename).build();
+            JobInProgress job = JobInProgress
+                .builder()
+                .folder(folder.get())
+                .filename(filename)
+                .createdOn(LocalDateTime.now())
+                .build();
             jobInProgressRepository.save(job);
         }
     }

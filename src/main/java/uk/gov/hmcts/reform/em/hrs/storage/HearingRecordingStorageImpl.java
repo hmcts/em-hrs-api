@@ -86,9 +86,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
         LOGGER.info("############## Trying copy from URL for sourceUri {}", sourceUri);
 
-        //TODO should we compare md5sum of destination as well or
-        // Or always overwrite (assume ingestor knows if it should be replaced or not, so md5 checksum done there)?
-        if (!destinationBlobClient.exists()) {
+        if (!destinationBlobClient.exists() || destinationBlobClient.getProperties().getBlobSize() == 0) {
             if (CvpConnectionResolver.isACvpEndpointUrl(cvpConnectionString)) {
                 LOGGER.info("Generating and appending SAS token for copy");
                 String sasToken = generateReadSasForCvp(filename);
@@ -170,7 +168,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     }
 
     @Override
-    public synchronized String getStorageReport() {
+    public synchronized StorageReport getStorageReport() {
 
         final BlobListDetails blobListDetails = new BlobListDetails()
             .setRetrieveDeletedBlobs(false)
@@ -180,7 +178,10 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         final Duration duration = Duration.ofMinutes(BLOB_LIST_TIMEOUT);
 
         final PagedIterable<BlobItem> cvpBlobItems = cvpBlobContainerClient.listBlobs(options, duration);
-        long cvpItemCount = cvpBlobItems.stream().count();
+        long cvpItemCount = cvpBlobItems
+            .stream()
+            .filter(blobItem -> blobItem.getName().contains("/") && blobItem.getName().contains(".mp"))
+            .count();
 
 
         final PagedIterable<BlobItem> hrsBlobItems = hrsBlobContainerClient.listBlobs(options, duration);
@@ -188,7 +189,8 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
         String report = "CVP Count = " + cvpItemCount;
         report += " vs HRS Count = " + hrsItemCount;
-        return report;
+        LOGGER.info(report);
+        return new StorageReport(cvpItemCount, hrsItemCount);
     }
 
 
