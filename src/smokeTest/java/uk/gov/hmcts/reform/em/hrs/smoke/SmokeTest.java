@@ -30,7 +30,7 @@ public class SmokeTest {
             .get("/health")
             .then()
             .statusCode(200)
-            .body("title", equalTo("UP"));
+            .body("status", equalTo("UP"));
     }
 
 }
