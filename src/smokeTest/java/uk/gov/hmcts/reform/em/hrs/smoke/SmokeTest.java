@@ -9,14 +9,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.Matchers.equalTo;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(value = "classpath:application.yml")
 @WithTags({@WithTag("testType:Smoke")})
 public class SmokeTest {
-
-    private static final String MESSAGE = "Welcome to Hearing Recordings Service";
 
     @Value("${test.url}")
     private String testUrl;
@@ -24,16 +22,15 @@ public class SmokeTest {
     @Test
     public void testHealthEndpoint() {
 
-        String response =
-            RestAssured
-                .given()
-                .relaxedHTTPSValidation()
-                .baseUri(testUrl)
-                .when()
-                .get("/")
-                .then()
-                .statusCode(200).extract().body().asString();
-        assertEquals(MESSAGE, response);
+        RestAssured
+            .given()
+            .relaxedHTTPSValidation()
+            .baseUri(testUrl)
+            .when()
+            .get("/health")
+            .then()
+            .statusCode(200)
+            .body("status", equalTo("UP"));
     }
 
 }
