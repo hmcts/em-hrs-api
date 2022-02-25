@@ -140,7 +140,7 @@ class SegmentDownloadServiceImplTest {
         segment.setRecordingSegment(1);
         doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndRecordingSegment(SEGMENT21_ID, 1);
         doReturn(TestUtil.SHARER_EMAIL_ADDRESS).when(securityService).getUserEmail(anyString());
-        doReturn(hearingRecordingSharees).when(shareesRepository).findByShareeEmail(anyString());
+        doReturn(hearingRecordingSharees).when(shareesRepository).findByShareeEmailIgnoreCase(anyString());
         HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(
             SEGMENT21_ID, 1, TestUtil.AUTHORIZATION_TOKEN);
         assertEquals(SEGMENT_ID, returnedSegment.getId());
