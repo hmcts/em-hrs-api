@@ -37,13 +37,17 @@ class JobInProgressRepositoryIntegrationTest extends AbstractRepositoryIntegrati
                 .id(UUID.randomUUID())
                 .filename("c-today.txt")
                 .createdOn(now)
+                .build(),
+            JobInProgress.builder()
+                .id(UUID.randomUUID())
+                .filename("d-NULL.txt")
                 .build()
         );
 
         underTest.saveAll(jobsInProgress);
 
         final Iterable<JobInProgress> all = underTest.findAll();
-        assertThat(all).hasSize(3);
+        assertThat(all).hasSize(4);
     }
 
     @Test

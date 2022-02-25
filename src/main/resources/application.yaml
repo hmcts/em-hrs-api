@@ -59,7 +59,18 @@ spring:
           oidc:
             client-id: microservicekey-em-hrs-api
             client-secret: ${S2S_KEY:AAAAAAAAAAAAAAAA}
-
+  mail:
+    host: ${SMTP_HOST:false}
+    username: ${SMTP_USERNAME:xxx}
+    password: ${SMTP_PASSWORD:xxx}
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    test-connection: false
 # service-auth-provider-client lib
 idam:
   client:
@@ -121,10 +132,9 @@ hrs:
     core-size: 5
     max-size: 10
     queue-capacity: 100
-  ingestion-interval-in-seconds: 1 # how long between each fired job (per server: 4 servers at 1 seconds = 4 per second)
-  ccdupload-interval-in-seconds: 30 # how long between each upload (per server: 4 servers at 30 seconds = 8 per minute)
+  ingestion-interval-in-seconds: ${INGESTION_INTERVAL_IN_SECONDS:1} # how long between each fired job (per server: 4 servers at 1 seconds = 4 per second)
+  ccdupload-interval-in-seconds: ${CCDUPLOAD_INTERVAL_IN_SECONDS:30} # how long between each upload (per server: 4 servers at 30 seconds = 8 per minute)
   allowed-roles: ${ALLOWED_ROLES:caseworker-hrs-searcher,caseworker-hrs} #TODO remove caseworker-hrs after all PRS synced to master
-
 auth:
   provider:
     service:
@@ -151,3 +161,23 @@ logging:
             logging:
               filters:
                 RequestStatusLoggingFilter: WARN
+
+shareelink:
+  ttl: ${SHAREE_LINK_TTL:72}
+scheduling:
+  lock_at_most_for: PT10M # 10 minutes in ISO-8601
+  task:
+    summary-report:
+      enabled: ${SUMMARY_REPORT_ENABLED:false}
+      cron:  ${SUMMARY_REPORT_CRON:0 0 6 ? * *}
+    delete-inprogress-jobs:
+      enabled: ${DELETE_INPROGRESS_ENABLED:true}
+      cron:  ${DELETE_INPROGRESS_CRON:0 0 */4 * * *}
+      ttl-hours: 2
+
+
+
+
+report:
+  recipients: ${SUMMARY_REPORT_RECIPIENTS:xxxx}
+  from: ${SMTP_USERNAME:xxxx}

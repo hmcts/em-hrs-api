@@ -39,6 +39,6 @@ public class JobInProgress {
         this.id = id;
         this.folder = folder;
         this.filename = filename;
-        setCreatedOn(createdOn);
+        this.createdOn = createdOn;
     }
 }

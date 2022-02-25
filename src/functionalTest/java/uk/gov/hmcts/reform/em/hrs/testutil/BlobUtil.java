@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.em.hrs.testutil;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,28 +37,6 @@ public class BlobUtil {
         this.cvpBlobContainerClient = cvpBlobContainerClient;
     }
 
-    public void deleteFilesFromContainerNotMatchingPrefix(final String folderName, BlobContainerClient containerClient,
-                                                          String fileNamePrefixToNotDelete) {
-
-        String pathPrefix = folderName + "/" + fileNamePrefixToNotDelete;
-        LOGGER.info("Cleaning folder: {}", folderName);
-        LOGGER.info("Excluding Prefix: {}", pathPrefix);
-
-
-        containerClient.listBlobs()
-            .stream()
-            .filter(blobItem ->
-                        blobItem.getName().startsWith(folderName)
-                            && !blobItem.getName().startsWith(pathPrefix)
-            )
-            .forEach(blobItem -> {
-                LOGGER.info("Deleting old blob: {}", blobItem.getName());
-                final BlockBlobClient blobClient =
-                    containerClient.getBlobClient(blobItem.getName()).getBlockBlobClient();
-                blobClient.delete();
-            });
-    }
-
 
     public void checkIfUploadedToStore(Set<String> fileNames,
                                        BlobContainerClient containerClient) {
@@ -89,8 +66,8 @@ public class BlobUtil {
     }
 
 
-    public void uploadToCvpContainer(final String blobName) throws Exception {
-        final FileInputStream fileInputStream = getTestFile();
+    public void uploadFileFromPathToCvpContainer(final String blobName, final String pathToFile) throws Exception {
+        final FileInputStream fileInputStream = getFileFromPath(pathToFile);
         final byte[] bytes = fileInputStream.readAllBytes();
         final InputStream inStream = new ByteArrayInputStream(bytes);
 
@@ -99,9 +76,34 @@ public class BlobUtil {
         blobClient.upload(new BufferedInputStream(inStream), bytes.length);
     }
 
-    public FileInputStream getTestFile() throws Exception {
-        final URL resource = BlobUtil.class.getClassLoader().getResource("data/test_data.mp4");
+
+    public void uploadFileFromPathToHrsContainer(final String blobName, final String pathToFile) throws Exception {
+        final FileInputStream fileInputStream =  getFileFromPath(pathToFile);
+        final byte[] bytes = fileInputStream.readAllBytes();
+        final InputStream inStream = new ByteArrayInputStream(bytes);
+
+        final BlobClient blobClient = hrsBlobContainerClient.getBlobClient(blobName);
+        LOGGER.debug("hrsBlobContainerClient.getBlobContainerUrl() ~{}", hrsBlobContainerClient.getBlobContainerUrl());
+        blobClient.upload(new BufferedInputStream(inStream), bytes.length);
+    }
+
+
+    public FileInputStream getFileFromPath(final String pathToFile) throws Exception {
+        final URL resource = ClassLoader.getSystemResource(pathToFile);
         final File file = new File(Objects.requireNonNull(resource).toURI());
         return new FileInputStream(file);
     }
+
+    public long getFileSizeFromStore(String filename, BlobContainerClient hrsBlobContainerClient) {
+        return hrsBlobContainerClient.getBlobClient(filename).getProperties().getBlobSize();
+    }
+
+    public long getFileSizeFromStore(Set<String> fileNames, BlobContainerClient hrsBlobContainerClient) {
+        long fileSize = 0;
+        for (String fileName : fileNames) {
+            fileSize += hrsBlobContainerClient.getBlobClient(fileName).getProperties().getBlobSize();
+        }
+        return fileSize;
+    }
+
 }

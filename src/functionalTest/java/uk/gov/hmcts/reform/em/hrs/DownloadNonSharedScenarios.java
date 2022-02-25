@@ -34,7 +34,7 @@ public class DownloadNonSharedScenarios extends BaseTest {
         filename = filename(caseRef, 0);
 
         LOGGER.info("Priming CVP Container");
-        blobUtil.uploadToCvpContainer(filename);
+        blobUtil.uploadFileFromPathToCvpContainer(filename,"data/test_data.mp4");
         blobUtil.checkIfUploadedToStore(filenames, blobUtil.cvpBlobContainerClient);
 
         LOGGER.info("Priming HRS API With Posted Segments");
@@ -46,7 +46,7 @@ public class DownloadNonSharedScenarios extends BaseTest {
         caseDetails = findCaseWithAutoRetryWithUserWithSearcherRole(caseRef);
 
         //used in tests to verify file is fully downloaded
-        expectedFileSize = blobUtil.getTestFile().readAllBytes().length;
+        expectedFileSize = blobUtil.getFileFromPath("data/test_data.mp4").readAllBytes().length;
         assertThat(expectedFileSize, is(not(0)));
     }
 

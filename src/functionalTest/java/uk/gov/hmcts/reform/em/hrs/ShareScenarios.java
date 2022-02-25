@@ -40,7 +40,7 @@ public class ShareScenarios extends BaseTest {
 
 
         LOGGER.info("SET UP: UPLOADING TO CVP");
-        blobUtil.uploadToCvpContainer(filename);
+        blobUtil.uploadFileFromPathToCvpContainer(filename,"data/test_data.mp4");
         blobUtil.checkIfUploadedToStore(filenames, blobUtil.cvpBlobContainerClient);
 
         LOGGER.info("SET UP: POSTING TO HRS");
@@ -52,7 +52,7 @@ public class ShareScenarios extends BaseTest {
 
         //used in tests to verify file is fully downloaded
         LOGGER.info("SET UP: CHECKING FILE SIZE UPLOADED TO CVP");
-        expectedFileSize = blobUtil.getTestFile().readAllBytes().length;
+        expectedFileSize = blobUtil.getFileFromPath("data/test_data.mp4").readAllBytes().length;
         assertThat(expectedFileSize, is(not(0)));
 
         LOGGER.info("SET UP: SCENARIO DATA READY FOR TESTING");

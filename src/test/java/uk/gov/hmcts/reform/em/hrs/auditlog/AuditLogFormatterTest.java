@@ -14,7 +14,9 @@ import java.util.Date;
 class AuditLogFormatterTest {
 
     private final AuditLogFormatter alf = new AuditLogFormatter();
-    private final int numberOfFieldsInAuditEntryClass = 7;//including ID - here to catch if class is extended, but not formatter
+
+    //including ID - here to catch if class is extended, but not formatter
+    private final int numberOfFieldsInAuditEntryClass = 7;
 
     @Test
     public void shouldFormatAuditEntryWithNoValuesPopulated() {

@@ -27,8 +27,8 @@ class IngestionServiceImplTest {
     @Test
     void testShouldCopyToAzureStorageAndJobToCcdQueueWhenHearingRecordingIsNew() {
 
-        doNothing().
-            when(hearingRecordingStorage)
+        doNothing()
+            .when(hearingRecordingStorage)
             .copyRecording(HEARING_RECORDING_DTO.getCvpFileUrl(), HEARING_RECORDING_DTO.getFilename());
 
         sutIngestionService.ingest(HEARING_RECORDING_DTO);

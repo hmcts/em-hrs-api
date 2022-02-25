@@ -7,5 +7,5 @@ public interface HearingRecordingStorage {
 
     void copyRecording(String sourceUri, String filename);
 
-    String getStorageReport();
+    StorageReport getStorageReport();
 }

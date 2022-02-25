@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
+import uk.gov.hmcts.reform.em.hrs.storage.StorageReport;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -22,9 +23,10 @@ public class BlobStoreInspectorController {
     @GetMapping(value = "/inspect", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<String> inspect() {
 
-        String report = hearingRecordingStorage.getStorageReport();
-        log.info("Blobstore Inspection Results: " + report);
-        String htmlResponse = "Blobstores Inspected<p>" + report.replace("\n", "<p>");
+        StorageReport report = hearingRecordingStorage.getStorageReport();
+        String reportStr = "CVP Count = " + report.cvpItemCount;
+        reportStr += " vs HRS Count = " + report.hrsItemCount;
+        String htmlResponse = "Blobstores Inspected<p>" + reportStr.replace("\n", "<p>");
         return ok(htmlResponse);
     }
 }

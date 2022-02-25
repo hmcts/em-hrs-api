@@ -22,9 +22,12 @@ import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.service.Constants;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.servlet.http.HttpServletRequest;
@@ -40,15 +43,16 @@ public class HearingRecordingController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HearingRecordingController.class);
 
-
     private final ShareAndNotifyService shareAndNotifyService;
     private final SegmentDownloadService segmentDownloadService;
     private final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
 
     @Autowired
-    public HearingRecordingController(final ShareAndNotifyService shareAndNotifyService,
-                                      @Qualifier("ingestionQueue") final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue,
-                                      SegmentDownloadService segmentDownloadService) {
+    public HearingRecordingController(
+        final ShareAndNotifyService shareAndNotifyService,
+        @Qualifier("ingestionQueue") final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue,
+        SegmentDownloadService segmentDownloadService
+    ) {
         this.shareAndNotifyService = shareAndNotifyService;
         this.ingestionQueue = ingestionQueue;
         this.segmentDownloadService = segmentDownloadService;
@@ -73,12 +77,14 @@ public class HearingRecordingController {
                 + "folder   {}\n"
                 + "case-ref {}\n"
                 + "filename {}\n"
-                + "file-ext {}",
+                + "file-ext {}\n"
+                + "segment no {}",
             hearingRecordingDto.getRecordingRef(),
             hearingRecordingDto.getFolder(),
             hearingRecordingDto.getCaseRef(),
             hearingRecordingDto.getFilename(),
-            hearingRecordingDto.getFilenameExtension()
+            hearingRecordingDto.getFilenameExtension(),
+            hearingRecordingDto.getSegment()
         );
 
         hearingRecordingDto.setUrlDomain(ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString());
@@ -127,12 +133,15 @@ public class HearingRecordingController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Return the requested hearing recording segment")})
     public ResponseEntity getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
                                            @PathVariable("segment") Integer segmentNo,
+                                           @RequestHeader(Constants.AUTHORIZATION) final String userToken,
                                            HttpServletRequest request,
                                            HttpServletResponse response) {
         try {
             //TODO this should return a 403 if its not in database
             HearingRecordingSegment segment = segmentDownloadService
-                .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo);
+                .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken);
+
+
             segmentDownloadService.download(segment, request, response);
         } catch (AccessDeniedException e) {
             LOGGER.warn(
@@ -140,12 +149,11 @@ public class HearingRecordingController {
                 e.getMessage()
             );
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
+        } catch (UncheckedIOException | IOException e) {
             LOGGER.warn(
-                "Download Issue possibly client abort {}",
-                e.getMessage()
+                "IOException streaming response for recording ID: {} IOException message: {}",
+                recordingId, e.getMessage()
             );//Exceptions are thrown during partial requests from front door (it throws client abort)
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }

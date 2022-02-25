@@ -37,3 +37,11 @@ variable "team_contact" {
 variable "destroy_me" {
   default = "No"
 }
+
+variable sku_name {
+  default = "GP_Gen5_2"
+}
+
+variable sku_capacity {
+  default = "2"
+}
