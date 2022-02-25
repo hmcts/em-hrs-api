@@ -131,6 +131,24 @@ class SegmentDownloadServiceImplTest {
     }
 
     @Test
+    void testFetchSegmentByRecordingIdAndSegmentNumberForNonExpiredLinkSharedAgain() {
+        List<HearingRecordingSharee> hearingRecordingSharees = createHearingRecordingSharees();
+        hearingRecordingSharees.stream().findFirst().get().setSharedOn(LocalDateTime.now().minusHours(74));
+        hearingRecordingSharees.stream()
+            .forEach(hearingRecordingSharee ->
+                         hearingRecordingSharee.getHearingRecording().setId(SEGMENT21_ID));
+        segment.setRecordingSegment(1);
+        doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndRecordingSegment(SEGMENT21_ID, 1);
+        doReturn(TestUtil.SHARER_EMAIL_ADDRESS).when(securityService).getUserEmail(anyString());
+        doReturn(hearingRecordingSharees).when(shareesRepository).findByShareeEmail(anyString());
+        HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(
+            SEGMENT21_ID, 1, TestUtil.AUTHORIZATION_TOKEN);
+        assertEquals(SEGMENT_ID, returnedSegment.getId());
+        assertEquals(FILE_NAME, returnedSegment.getFilename());
+        assertEquals(TestUtil.CCD_CASE_ID, returnedSegment.getHearingRecording().getCcdCaseId());
+    }
+
+    @Test
     void testFetchSegmentByRecordingIdAndSegmentNumberForExpiredLink() {
         try {
             List<HearingRecordingSharee> hearingRecordingSharees = createHearingRecordingSharees();
@@ -229,6 +247,7 @@ class SegmentDownloadServiceImplTest {
         segment1Set.add(segment11);
         segment1Set.add(segment12);
         hearingRecording1.setSegments(segment1Set);
+        hearingRecording1.setId(SEGMENT11_ID);
 
         HearingRecordingSharee hearingRecordingSharee2 = new HearingRecordingSharee();
         HearingRecording hearingRecording2 = new HearingRecording();
@@ -246,6 +265,7 @@ class SegmentDownloadServiceImplTest {
         segment2Set.add(segment21);
         segment2Set.add(segment22);
         hearingRecording2.setSegments(segment2Set);
+        hearingRecording2.setId(SEGMENT21_ID);
 
         List<HearingRecordingSharee> hearingRecordingSharees = new ArrayList<>();
         hearingRecordingSharees.add(hearingRecordingSharee1);

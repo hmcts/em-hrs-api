@@ -78,6 +78,8 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
             LOGGER.debug("User  {} has shared recordings", userEmail);
             Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
                 .filter(hearingRecordingSharee ->
+                            hearingRecordingSharee.getHearingRecording().getId().equals(recordingId))
+                .filter(hearingRecordingSharee ->
                             getHearingRecordingShareeSegment(hearingRecordingSharee.getHearingRecording(), segmentNo))
                 .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn(), userEmail))
                 .findAny();
