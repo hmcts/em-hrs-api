@@ -151,6 +151,7 @@ def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/model/**',
   '**uk/gov/hmcts/reform/em/hrs/storage/**',
   '**uk/gov/hmcts/reform/em/hrs/util/debug/**',
+  '**uk/gov/hmcts/reform/em/hrs/controller/HearingRecordingController**',
 ]
 
 checkstyle {
