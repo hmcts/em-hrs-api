@@ -73,7 +73,7 @@ class ShareAndNotifyServiceImplTest {
         doNothing()
             .when(notificationService)
             .sendEmailNotification(
-                CASE_REFERENCE, List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0")),
+                CASE_REFERENCE, List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0/sharee")),
                 RECORDING_DATE, RECORDING_TIMEOFDAY,
                 SHAREE_ID, SHAREE_EMAIL_ADDRESS
             );
@@ -87,7 +87,7 @@ class ShareAndNotifyServiceImplTest {
         verify(notificationService, times(2))
             .sendEmailNotification(
                 CASE_REFERENCE,
-                List.copyOf(Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0")),
+                List.copyOf(Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0/sharee")),
                 RECORDING_DATE, RECORDING_TIMEOFDAY,
                 SHAREE_ID, SHAREE_EMAIL_ADDRESS
             );
@@ -112,7 +112,7 @@ class ShareAndNotifyServiceImplTest {
         doNothing()
             .when(notificationService)
             .sendEmailNotification(
-                CASE_REFERENCE, List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0")),
+                CASE_REFERENCE, List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0/sharee")),
                 RECORDING_DATE, RECORDING_TIMEOFDAY,
                 SHAREE_ID, SHAREE_EMAIL_ADDRESS
             );
@@ -128,7 +128,7 @@ class ShareAndNotifyServiceImplTest {
         verify(notificationService, times(0))
             .sendEmailNotification(
                 CASE_REFERENCE,
-                List.copyOf(Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0")),
+                List.copyOf(Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0/sharee")),
                 RECORDING_DATE, RECORDING_TIMEOFDAY,
                 SHAREE_ID, SHAREE_BAD_EMAIL_ADDRESS
             );
@@ -154,7 +154,7 @@ class ShareAndNotifyServiceImplTest {
         doNothing()
             .when(notificationService)
             .sendEmailNotification(
-                CASE_REFERENCE, List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0")),
+                CASE_REFERENCE, List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0/sharee")),
                 RECORDING_DATE, RECORDING_TIMEOFDAY,
                 SHAREE_ID, SHAREE_EMAIL_ADDRESS
             );
@@ -172,7 +172,7 @@ class ShareAndNotifyServiceImplTest {
         verify(notificationService, times(1))
             .sendEmailNotification(
                 CASE_REFERENCE,
-                List.copyOf(Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0")),
+                List.copyOf(Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0/sharee")),
                 RECORDING_DATE, RECORDING_TIMEOFDAY,
                 SHAREE_ID, SHAREE_EMAIL_ADDRESS
             );

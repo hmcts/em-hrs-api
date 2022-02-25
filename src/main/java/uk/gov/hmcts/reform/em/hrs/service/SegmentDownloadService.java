@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 public interface SegmentDownloadService {
 
     HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentNumber(UUID recordingId, Integer segmentNo,
-                                                                      String userToken);
+                                                                      String userToken, boolean isSharee);
 
 
     void download(HearingRecordingSegment segment, HttpServletRequest request,
