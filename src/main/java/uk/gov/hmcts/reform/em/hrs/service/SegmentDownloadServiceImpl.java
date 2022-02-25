@@ -71,7 +71,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
         //Check if user access has expired
         String userEmail = securityService.getUserEmail(userToken);
-        List<HearingRecordingSharee> hearingRecordingSharees = shareesRepository.findByShareeEmail(userEmail);
+        List<HearingRecordingSharee> hearingRecordingSharees = shareesRepository.findByShareeEmailIgnoreCase(userEmail);
         LOGGER.debug("User  {} is trying to access the recordingId  {} with segment Number {}",
                      userEmail, recordingId, segmentNo);
         if (!isEmpty(hearingRecordingSharees)) {

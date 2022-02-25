@@ -101,7 +101,7 @@ public class PermissionEvaluatorImplTest {
     public void testPermissionOnDownloadShareeSuccess() {
         when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_SHAREE_INFO);
         when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
-        when(shareesRepository.findByShareeEmail(Mockito.anyString())).thenReturn(hearingRecordingWithSharee);
+        when(shareesRepository.findByShareeEmailIgnoreCase(Mockito.anyString())).thenReturn(hearingRecordingWithSharee);
         Assert.assertTrue(permissionEvaluator.hasPermission(authentication, segment, "READ"));
     }
 
@@ -109,7 +109,7 @@ public class PermissionEvaluatorImplTest {
     public void testPermissionOnDownloadShareeFailure() {
         when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_SHAREE_INFO);
         when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
-        when(shareesRepository.findByShareeEmail(Mockito.anyString())).thenReturn(hearingRecordingWithNoSharees);
+        when(shareesRepository.findByShareeEmailIgnoreCase(Mockito.anyString())).thenReturn(hearingRecordingWithNoSharees);
         boolean permissionResult = permissionEvaluator.hasPermission(authentication, segment, "READ");
         Assert.assertFalse(permissionResult);
         verify(auditEntryService, times(1)).createAndSaveEntry(

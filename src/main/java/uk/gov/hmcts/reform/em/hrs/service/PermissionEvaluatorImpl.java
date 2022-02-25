@@ -82,7 +82,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
                 hr.getRecordingRef(),
                 shareeEmail
             );
-            List<HearingRecordingSharee> sharedRecordings = shareesRepository.findByShareeEmail(shareeEmail);
+            List<HearingRecordingSharee> sharedRecordings = shareesRepository.findByShareeEmailIgnoreCase(shareeEmail);
             LOGGER.info(
                 "recordings that are shared with the user: ({})",
                 sharedRecordings.stream()

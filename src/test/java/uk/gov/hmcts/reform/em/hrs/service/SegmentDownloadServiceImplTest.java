@@ -109,7 +109,7 @@ class SegmentDownloadServiceImplTest {
     void testFetchSegmentByRecordingIdAndSegmentNumber() {
         doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndRecordingSegment(SEGMENT_ID, 0);
         doReturn(TestUtil.SHARER_EMAIL_ADDRESS).when(securityService).getUserEmail(anyString());
-        doReturn(null).when(shareesRepository).findByShareeEmail(anyString());
+        doReturn(null).when(shareesRepository).findByShareeEmailIgnoreCase(anyString());
         HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(
             SEGMENT_ID, 0, TestUtil.AUTHORIZATION_TOKEN);
         assertEquals(SEGMENT_ID, returnedSegment.getId());
@@ -122,7 +122,7 @@ class SegmentDownloadServiceImplTest {
         segment.setRecordingSegment(1);
         doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndRecordingSegment(SEGMENT21_ID, 1);
         doReturn(TestUtil.SHARER_EMAIL_ADDRESS).when(securityService).getUserEmail(anyString());
-        doReturn(createHearingRecordingSharees()).when(shareesRepository).findByShareeEmail(anyString());
+        doReturn(createHearingRecordingSharees()).when(shareesRepository).findByShareeEmailIgnoreCase(anyString());
         HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(
             SEGMENT21_ID, 1, TestUtil.AUTHORIZATION_TOKEN);
         assertEquals(SEGMENT_ID, returnedSegment.getId());
@@ -139,7 +139,7 @@ class SegmentDownloadServiceImplTest {
                              hearingRecordingSharee.setSharedOn(LocalDateTime.now().minusHours(73)));
             doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndRecordingSegment(SEGMENT21_ID, 1234);
             doReturn(TestUtil.SHARER_EMAIL_ADDRESS).when(securityService).getUserEmail(anyString());
-            doReturn(hearingRecordingSharees).when(shareesRepository).findByShareeEmail(anyString());
+            doReturn(hearingRecordingSharees).when(shareesRepository).findByShareeEmailIgnoreCase(anyString());
             HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(
                 SEGMENT21_ID, 1234, TestUtil.AUTHORIZATION_TOKEN);
         } catch (ValidationErrorException validationErrorException) {
