@@ -11,8 +11,8 @@ plugins {
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id 'org.springframework.boot' version '2.4.5'
-  id 'uk.gov.hmcts.java' version '0.12.15'
-  id 'com.github.ben-manes.versions' version '0.36.0'
+  id 'uk.gov.hmcts.java' version '0.12.18'
+  id 'com.github.ben-manes.versions' version '0.42.0'
   id 'org.sonarqube' version '3.1.1'
   id 'org.liquibase.gradle' version '2.0.4'
   id 'au.com.dius.pact' version '4.3.5'
@@ -307,12 +307,17 @@ dependencyManagement {
       entry 'logback-core'
     }
 
-    // CVE-2021-22044
+    // CVE-2020-15522
+    dependencySet(group: 'org.bouncycastle', version: '1.70') {
+      entry 'bcprov-jdk15on'
+    }
+
+    // CVE-2021-22053, CVE-2021-22044
     dependencySet(group: 'org.springframework.cloud', version: '2.2.10.RELEASE') {
-      entry 'spring-cloud-openfeign-core'
-      entry 'spring-cloud-starter-openfeign'
       entry 'spring-cloud-netflix-archaius'
       entry 'spring-cloud-netflix-ribbon'
+      entry 'spring-cloud-openfeign-core'
+      entry 'spring-cloud-starter-openfeign'
     }
   }
 }
@@ -466,7 +471,7 @@ dependencies {
   testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.32.0'
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.16.3'
   testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.16.3'
-  testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.4', {
+  testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.5', {
     exclude group: 'com.google.guava', module: 'guava'
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.1.1'
