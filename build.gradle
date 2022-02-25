@@ -334,7 +334,6 @@ def versions = [
   postgresql         : '42.2.20',
   pact_version       : '3.6.15',
   restAssured        : '4.2.0',
-  serenityRestAssured: '2.3.4',
   junit              : '5.8.1',
   junitPlatform      : '1.8.2',
   springSecurity     : '5.5.3'
@@ -370,6 +369,8 @@ dependencies {
   implementation group: 'org.springframework.security', name: 'spring-security-config', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-core', version: versions.springSecurity
 
+  // Remove com.nimbusds:nimbus-jose-jwt:9.18 after upgrading SpringBoot to 2.6.X
+  implementation 'com.nimbusds:nimbus-jose-jwt:9.18'
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
   implementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
