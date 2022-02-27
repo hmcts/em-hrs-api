@@ -209,7 +209,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
             .download(any(HearingRecordingSegment.class), any(HttpServletRequest.class),
                       any(HttpServletResponse.class));
 
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0))
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d/sharee", recordingId, 0))
                             .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isOk())
             .andReturn();
@@ -222,7 +222,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
             .fetchSegmentByRecordingIdAndSegmentNumber(any(UUID.class), any(Integer.class),
                                                        eq(TestUtil.AUTHORIZATION_TOKEN), any(boolean.class));
 
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0))
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d/sharee", recordingId, 0))
                             .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isForbidden())
             .andReturn();
