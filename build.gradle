@@ -236,10 +236,6 @@ dependencyManagement {
       entry 'guava'
     }
 
-    dependencySet(group: 'com.google.inject', version: '4.2.0') {
-      entry 'guice'
-    }
-
     //CVE-2021-21295
     dependencySet(group: 'io.netty', version: '4.1.63.Final') {
       entry 'netty-buffer'
