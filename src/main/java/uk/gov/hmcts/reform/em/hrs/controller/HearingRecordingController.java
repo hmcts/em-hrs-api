@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.em.hrs.controller;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,11 +64,11 @@ public class HearingRecordingController {
         consumes = APPLICATION_JSON_VALUE
     )
     @ResponseBody
-    @ApiOperation(value = "Post hearing recording segment", notes = "Save hearing recording segment")
+    @Operation(summary = "Post hearing recording segment", description = "Save hearing recording segment")
     @ApiResponses(value = {
-        @ApiResponse(code = 202, message = "Request accepted for asynchronous processing"),
-        @ApiResponse(code = 429, message = "Request rejected - too many pending requests"),
-        @ApiResponse(code = 500, message = "Internal Server Error")
+        @ApiResponse(responseCode = "202", description = "Request accepted for asynchronous processing"),
+        @ApiResponse(responseCode = "429", description = "Request rejected - too many pending requests"),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
     public ResponseEntity<Void> createHearingRecording(@RequestBody final HearingRecordingDto hearingRecordingDto) {
         LOGGER.info(
@@ -98,13 +98,13 @@ public class HearingRecordingController {
         produces = APPLICATION_JSON_VALUE
     )
     @ResponseBody
-    @ApiOperation(value = "Create permissions record", notes = "Create permissions record to the specified "
+    @Operation(summary = "Create permissions record", description = "Create permissions record to the specified "
         + "hearing recording and notify user with the link to the resource via email")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Return the location of the resource being granted "
+        @ApiResponse(responseCode = "200", description = "Return the location of the resource being granted "
             + "access to (the download link)"),
-        @ApiResponse(code = 404, message = "Not Found"),
-        @ApiResponse(code = 500, message = "Internal Server Error")
+        @ApiResponse(responseCode = "404", description = "Not Found"),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
     public ResponseEntity<Void> shareHearingRecording(
         @RequestHeader("authorization") final String authorisationToken,
@@ -127,10 +127,12 @@ public class HearingRecordingController {
         path = "/hearing-recordings/{recordingId}/segments/{segment}",
         produces = APPLICATION_OCTET_STREAM_VALUE
     )
-    @ResponseBody
-    @ApiOperation(value = "Get hearing recording file",
-        notes = "Return hearing recording file from the specified folder")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Return the requested hearing recording segment")})
+
+    @Operation(summary = "Get hearing recording file",
+        description = "Return hearing recording file from the specified folder")
+    @ApiResponses(value =
+        {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment")}
+    )
     public ResponseEntity getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
                                            @PathVariable("segment") Integer segmentNo,
                                            @RequestHeader(Constants.AUTHORIZATION) final String userToken,

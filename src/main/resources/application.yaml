@@ -181,3 +181,9 @@ scheduling:
 report:
   recipients: ${SUMMARY_REPORT_RECIPIENTS:xxxx}
   from: ${SMTP_USERNAME:xxxx}
+
+springdoc:
+  packagesToScan: uk.gov.hmcts.reform.em.hrs.controller
+  pathsToMatch: /**
+  swagger-ui:
+    use-root-path: true

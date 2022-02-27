@@ -1,15 +1,14 @@
 package uk.gov.hmcts.reform.em.hrs.controller;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.em.hrs.dto.RecordingFilenameDto;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
@@ -34,12 +33,15 @@ public class FolderController {
         path = "/folders/{name}",
         produces = APPLICATION_JSON_VALUE
     )
-    @ResponseBody
-    @ApiOperation(value = "Get recording file names", notes = "Retrieve recording file names for a given folder")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Names of successfully stored recording files"),
-        @ApiResponse(code = 500, message = "Internal Server Error")
-    })
+    @Operation(
+        summary = "Get recording file names", description = "Retrieve recording file names for a given folder"
+    )
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200", description = "Names of successfully stored recording files"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+        }
+    )
     public ResponseEntity<RecordingFilenameDto> getFilenames(@PathVariable("name") final String folderName) {
         var recordingFilenameDto = new RecordingFilenameDto(
             folderName,
