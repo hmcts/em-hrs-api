@@ -179,6 +179,22 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
             .andReturn();
     }
 
+    @Test
+    void testShouldDownloadSegmentForSharee() throws Exception {
+        UUID recordingId = UUID.randomUUID();
+        doNothing().when(segmentDownloadService)
+            .download(any(HearingRecordingSegment.class), any(HttpServletRequest.class),
+                      any(HttpServletResponse.class));
+        doReturn(hearingRecordingSegmentAuditEntry)
+            .when(auditEntryService)
+            .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
+
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d/sharee", recordingId, 0))
+                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
+            .andExpect(status().isOk())
+            .andReturn();
+    }
+
     private void clogJobQueue() {
         IntStream.rangeClosed(1, INGESTION_QUEUE_SIZE + 300)
             .forEach(x -> {

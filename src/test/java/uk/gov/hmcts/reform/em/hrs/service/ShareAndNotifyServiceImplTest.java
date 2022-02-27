@@ -54,6 +54,10 @@ class ShareAndNotifyServiceImplTest {
         auditEntryService
     );
 
+    private static final String SHAREE_LINK = "/hearing-recordings/1234/segments/0/sharee";
+    private static final String SHAREE_URL = "http://em-hrs-api.com/hearing-recordings/1234/segments/0";
+    private static final String XUI_SHAREE_URL = "https://xui.domain/hearing-recordings/1234/segments/0/sharee";
+
     @Test
     void testShouldSendNotificationSuccessfullyForDuplicatedShare() throws Exception {
         CaseHearingRecording caseData = CaseHearingRecording.builder()
@@ -64,7 +68,7 @@ class ShareAndNotifyServiceImplTest {
             .recordingFiles(Collections.singletonList(Map.of("value", CASE_RECORDING_FILE))).build();
         doReturn(caseData).when(caseDataCreator).getCaseRecordingObject(Map.of("case", "data"));
         doReturn(List.of(
-            CaseDocument.builder().binaryUrl("http://em-hrs-api.com/hearing-recordings/1234/segments/0").build()
+            CaseDocument.builder().binaryUrl(SHAREE_URL).build()
         )).when(caseDataCreator).extractCaseDocuments(caseData);
         doReturn(Optional.of(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3))
             .when(hearingRecordingRepository).findByCcdCaseId(CCD_CASE_ID);
@@ -73,7 +77,7 @@ class ShareAndNotifyServiceImplTest {
         doNothing()
             .when(notificationService)
             .sendEmailNotification(
-                CASE_REFERENCE, List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0/sharee")),
+                CASE_REFERENCE, List.copyOf(Collections.singleton(SHAREE_LINK)),
                 RECORDING_DATE, RECORDING_TIMEOFDAY,
                 SHAREE_ID, SHAREE_EMAIL_ADDRESS
             );
@@ -87,7 +91,7 @@ class ShareAndNotifyServiceImplTest {
         verify(notificationService, times(2))
             .sendEmailNotification(
                 CASE_REFERENCE,
-                List.copyOf(Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0/sharee")),
+                List.copyOf(Collections.singleton(XUI_SHAREE_URL)),
                 RECORDING_DATE, RECORDING_TIMEOFDAY,
                 SHAREE_ID, SHAREE_EMAIL_ADDRESS
             );
@@ -103,7 +107,7 @@ class ShareAndNotifyServiceImplTest {
             .recordingFiles(Collections.singletonList(Map.of("value", CASE_RECORDING_FILE))).build();
         doReturn(caseData).when(caseDataCreator).getCaseRecordingObject(Map.of("case", "data"));
         doReturn(List.of(
-            CaseDocument.builder().binaryUrl("http://em-hrs-api.com/hearing-recordings/1234/segments/0").build()
+            CaseDocument.builder().binaryUrl(SHAREE_URL).build()
         )).when(caseDataCreator).extractCaseDocuments(caseData);
         doReturn(Optional.of(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3))
             .when(hearingRecordingRepository).findByCcdCaseId(CCD_CASE_ID);
@@ -112,7 +116,7 @@ class ShareAndNotifyServiceImplTest {
         doNothing()
             .when(notificationService)
             .sendEmailNotification(
-                CASE_REFERENCE, List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0/sharee")),
+                CASE_REFERENCE, List.copyOf(Collections.singleton(SHAREE_LINK)),
                 RECORDING_DATE, RECORDING_TIMEOFDAY,
                 SHAREE_ID, SHAREE_EMAIL_ADDRESS
             );
@@ -128,7 +132,7 @@ class ShareAndNotifyServiceImplTest {
         verify(notificationService, times(0))
             .sendEmailNotification(
                 CASE_REFERENCE,
-                List.copyOf(Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0/sharee")),
+                List.copyOf(Collections.singleton(XUI_SHAREE_URL)),
                 RECORDING_DATE, RECORDING_TIMEOFDAY,
                 SHAREE_ID, SHAREE_BAD_EMAIL_ADDRESS
             );
@@ -145,7 +149,7 @@ class ShareAndNotifyServiceImplTest {
             .recordingFiles(Collections.singletonList(Map.of("value", CASE_RECORDING_FILE))).build();
         doReturn(caseData).when(caseDataCreator).getCaseRecordingObject(Map.of("case", "data"));
         doReturn(List.of(
-            CaseDocument.builder().binaryUrl("http://em-hrs-api.com/hearing-recordings/1234/segments/0").build()
+            CaseDocument.builder().binaryUrl(SHAREE_URL).build()
         )).when(caseDataCreator).extractCaseDocuments(caseData);
         doReturn(Optional.of(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3))
             .when(hearingRecordingRepository).findByCcdCaseId(CCD_CASE_ID);
@@ -154,7 +158,7 @@ class ShareAndNotifyServiceImplTest {
         doNothing()
             .when(notificationService)
             .sendEmailNotification(
-                CASE_REFERENCE, List.copyOf(Collections.singleton("/hearing-recordings/1234/segments/0/sharee")),
+                CASE_REFERENCE, List.copyOf(Collections.singleton(SHAREE_LINK)),
                 RECORDING_DATE, RECORDING_TIMEOFDAY,
                 SHAREE_ID, SHAREE_EMAIL_ADDRESS
             );
@@ -172,7 +176,7 @@ class ShareAndNotifyServiceImplTest {
         verify(notificationService, times(1))
             .sendEmailNotification(
                 CASE_REFERENCE,
-                List.copyOf(Collections.singleton("https://xui.domain/hearing-recordings/1234/segments/0/sharee")),
+                List.copyOf(Collections.singleton(XUI_SHAREE_URL)),
                 RECORDING_DATE, RECORDING_TIMEOFDAY,
                 SHAREE_ID, SHAREE_EMAIL_ADDRESS
             );
