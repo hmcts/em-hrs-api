@@ -165,14 +165,18 @@ public class HearingRecordingController {
         produces = APPLICATION_OCTET_STREAM_VALUE
     )
     @ResponseBody
-    @ApiOperation(value = "Get hearing recording file",
-        notes = "Return hearing recording file from the specified folder")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Return the requested hearing recording segment")})
-    public ResponseEntity getSegmentBinaryForSharee(@PathVariable("recordingId") UUID recordingId,
-                                           @PathVariable("segment") Integer segmentNo,
-                                           @RequestHeader(Constants.AUTHORIZATION) final String userToken,
-                                           HttpServletRequest request,
-                                           HttpServletResponse response) {
+    @Operation(summary = "Get hearing recording file",
+        description = "Return hearing recording file from the specified folder")
+    @ApiResponses(
+        value = {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment")}
+    )
+    public ResponseEntity getSegmentBinaryForSharee(
+        @PathVariable("recordingId") UUID recordingId,
+        @PathVariable("segment") Integer segmentNo,
+        @RequestHeader(Constants.AUTHORIZATION) final String userToken,
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
         try {
             //TODO this should return a 403 if its not in database
             HearingRecordingSegment segment = segmentDownloadService
