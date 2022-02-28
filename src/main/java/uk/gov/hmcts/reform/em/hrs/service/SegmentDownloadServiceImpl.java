@@ -65,6 +65,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
     }
 
 
+    @Override
     public HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentNumber(UUID recordingId, Integer segmentNo,
                                                                              String userToken, boolean isSharee) {
 
