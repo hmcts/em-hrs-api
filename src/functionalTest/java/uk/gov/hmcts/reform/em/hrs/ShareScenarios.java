@@ -72,7 +72,7 @@ public class ShareScenarios extends BaseTest {
             .statusCode(200);
 
         final byte[] downloadedFileBytes =
-            downloadRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, caseDetails.getData())
+            downloadShareeRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, caseDetails.getData())
                 .then()
                 .statusCode(200)
                 .extract().response()
@@ -93,7 +93,7 @@ public class ShareScenarios extends BaseTest {
             .statusCode(200);
 
         final byte[] downloadedFileBytes =
-            downloadRecording(USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY, caseDetails.getData())
+            downloadShareeRecording(USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY, caseDetails.getData())
                 .then()
                 .statusCode(200)
                 .extract().response()
@@ -117,7 +117,7 @@ public class ShareScenarios extends BaseTest {
             .statusCode(200);
 
         final byte[] downloadedFileBytes =
-            downloadRecording(USER_WITH_NONACCESS_ROLE__CITIZEN, caseDetails.getData())
+            downloadShareeRecording(USER_WITH_NONACCESS_ROLE__CITIZEN, caseDetails.getData())
                 .then()
                 .statusCode(200)
                 .extract().response()

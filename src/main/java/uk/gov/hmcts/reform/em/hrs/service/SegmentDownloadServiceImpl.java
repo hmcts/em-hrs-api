@@ -67,22 +67,30 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
     @Override
     public HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentNumber(UUID recordingId, Integer segmentNo,
-                                                                             String userToken) {
+                                                                             String userToken, boolean isSharee) {
 
-        //Check if user access has expired
-        String userEmail = securityService.getUserEmail(userToken);
-        List<HearingRecordingSharee> hearingRecordingSharees = shareesRepository.findByShareeEmail(userEmail);
-        LOGGER.debug("User  {} is trying to access the recordingId  {} with segment Number {}",
-                     userEmail, recordingId, segmentNo);
-        if (!isEmpty(hearingRecordingSharees)) {
-            LOGGER.debug("User  {} has shared recordings", userEmail);
-            Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
-                .filter(hearingRecordingSharee ->
-                            getHearingRecordingShareeSegment(hearingRecordingSharee.getHearingRecording(), segmentNo))
-                .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn(), userEmail))
-                .findAny();
-            if (recordingSharee.isEmpty()) {
-                throw new ValidationErrorException(Map.of("error", Constants.SHARED_EXPIRED_LINK_MSG));
+        if (isSharee) {
+            //Check if user access has expired
+            String userEmail = securityService.getUserEmail(userToken);
+            List<HearingRecordingSharee> hearingRecordingSharees =
+                shareesRepository.findByShareeEmailIgnoreCase(userEmail);
+            LOGGER.debug("User  {} is trying to access the recordingId  {} with segment Number {}",
+                         userEmail, recordingId, segmentNo);
+            if (!isEmpty(hearingRecordingSharees)) {
+                LOGGER.debug("User  {} has shared recordings", userEmail);
+                Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
+                    .filter(hearingRecordingSharee ->
+                                hearingRecordingSharee.getHearingRecording().getId().equals(recordingId))
+                    .filter(hearingRecordingSharee ->
+                                getHearingRecordingShareeSegment(hearingRecordingSharee.getHearingRecording(),
+                                                                 segmentNo))
+                    .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn(), userEmail))
+                    .findAny();
+                if (recordingSharee.isEmpty()) {
+                    throw new ValidationErrorException(Map.of("error", Constants.SHARED_EXPIRED_LINK_MSG));
+                }
+            } else {
+                LOGGER.debug("No Shared recordings found for user {}", userEmail);
             }
         }
 

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.access.AccessDeniedException;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.componenttests.AbstractBaseTest;
@@ -19,6 +20,7 @@ import uk.gov.hmcts.reform.em.hrs.service.Constants;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -154,7 +156,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
         HearingRecordingSegment segment = new HearingRecordingSegment();
         doReturn(segment).when(segmentDownloadService)
                 .fetchSegmentByRecordingIdAndSegmentNumber(any(UUID.class), any(Integer.class),
-                                                      eq(TestUtil.AUTHORIZATION_TOKEN));
+                                                      eq(TestUtil.AUTHORIZATION_TOKEN), any(boolean.class));
         doThrow(new SegmentDownloadException("failed download"))
             .when(segmentDownloadService)
             .download(any(HearingRecordingSegment.class), any(HttpServletRequest.class),
@@ -171,11 +173,58 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
         UUID recordingId = UUID.randomUUID();
         doThrow(RuntimeException.class).when(segmentDownloadService)
             .fetchSegmentByRecordingIdAndSegmentNumber(any(UUID.class), any(Integer.class),
-                                                       eq(TestUtil.AUTHORIZATION_TOKEN));
+                                                       eq(TestUtil.AUTHORIZATION_TOKEN), any(boolean.class));
 
         mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0))
                             .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isInternalServerError())
+            .andReturn();
+    }
+
+    @Test
+    void testShouldDownloadSegmentForSharee() throws Exception {
+        UUID recordingId = UUID.randomUUID();
+        doNothing().when(segmentDownloadService)
+            .download(any(HearingRecordingSegment.class), any(HttpServletRequest.class),
+                      any(HttpServletResponse.class));
+        doReturn(hearingRecordingSegmentAuditEntry)
+            .when(auditEntryService)
+            .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
+
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d/sharee", recordingId, 0))
+                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
+            .andExpect(status().isOk())
+            .andReturn();
+    }
+
+    @Test
+    void testShouldHandleSegmentDownloadExceptionForSharee() throws Exception {
+        UUID recordingId = UUID.randomUUID();
+        HearingRecordingSegment segment = new HearingRecordingSegment();
+        doReturn(segment).when(segmentDownloadService)
+            .fetchSegmentByRecordingIdAndSegmentNumber(any(UUID.class), any(Integer.class),
+                                                       eq(TestUtil.AUTHORIZATION_TOKEN), any(boolean.class));
+        doThrow(IOException.class)
+            .when(segmentDownloadService)
+            .download(any(HearingRecordingSegment.class), any(HttpServletRequest.class),
+                      any(HttpServletResponse.class));
+
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d/sharee", recordingId, 0))
+                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
+            .andExpect(status().isOk())
+            .andReturn();
+    }
+
+    @Test
+    void testShouldHandleSegmentFetchExceptionForSharee() throws Exception {
+        UUID recordingId = UUID.randomUUID();
+        doThrow(AccessDeniedException.class).when(segmentDownloadService)
+            .fetchSegmentByRecordingIdAndSegmentNumber(any(UUID.class), any(Integer.class),
+                                                       eq(TestUtil.AUTHORIZATION_TOKEN), any(boolean.class));
+
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d/sharee", recordingId, 0))
+                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
+            .andExpect(status().isForbidden())
             .andReturn();
     }
 

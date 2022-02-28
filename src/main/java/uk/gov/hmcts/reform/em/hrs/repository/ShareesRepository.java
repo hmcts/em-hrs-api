@@ -10,6 +10,6 @@ import java.util.UUID;
 @Repository
 public interface ShareesRepository extends PagingAndSortingRepository<HearingRecordingSharee, UUID> {
 
-    List<HearingRecordingSharee> findByShareeEmail(String shareeEmail);
+    List<HearingRecordingSharee> findByShareeEmailIgnoreCase(String shareeEmail);
 }
 

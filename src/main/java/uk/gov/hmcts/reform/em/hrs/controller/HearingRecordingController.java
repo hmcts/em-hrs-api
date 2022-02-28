@@ -141,7 +141,7 @@ public class HearingRecordingController {
         try {
             //TODO this should return a 403 if its not in database
             HearingRecordingSegment segment = segmentDownloadService
-                .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken);
+                .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, false);
 
 
             segmentDownloadService.download(segment, request, response);
@@ -160,5 +160,39 @@ public class HearingRecordingController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping(
+        path = "/hearing-recordings/{recordingId}/segments/{segment}/sharee",
+        produces = APPLICATION_OCTET_STREAM_VALUE
+    )
+    @ResponseBody
+    @ApiOperation(value = "Get hearing recording file",
+        notes = "Return hearing recording file from the specified folder")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Return the requested hearing recording segment")})
+    public ResponseEntity getSegmentBinaryForSharee(@PathVariable("recordingId") UUID recordingId,
+                                           @PathVariable("segment") Integer segmentNo,
+                                           @RequestHeader(Constants.AUTHORIZATION) final String userToken,
+                                           HttpServletRequest request,
+                                           HttpServletResponse response) {
+        try {
+            //TODO this should return a 403 if its not in database
+            HearingRecordingSegment segment = segmentDownloadService
+                .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, true);
+
+
+            segmentDownloadService.download(segment, request, response);
+        } catch (AccessDeniedException e) {
+            LOGGER.warn(
+                "User does not have permission to download recording {}",
+                e.getMessage()
+            );
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (UncheckedIOException | IOException e) {
+            LOGGER.warn(
+                "IOException streaming response for recording ID: {} IOException message: {}",
+                recordingId, e.getMessage()
+            );//Exceptions are thrown during partial requests from front door (it throws client abort)
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 }

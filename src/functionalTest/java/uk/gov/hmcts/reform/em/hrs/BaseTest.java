@@ -242,6 +242,25 @@ public abstract class BaseTest {
             .get(recordingUrl);
     }
 
+    protected Response downloadShareeRecording(String userName, Map<String, Object> caseData) {
+        @SuppressWarnings("unchecked")
+        List<Map> segmentNodes = (ArrayList) caseData.getOrDefault("recordingFiles", new ArrayList());
+
+        String recordingUrl = segmentNodes.stream()
+            .map(segmentNode -> new ObjectMapper().convertValue(segmentNode.get("value"), CaseRecordingFile.class))
+            .map(caseRecordingFile -> caseRecordingFile.getCaseDocument())
+            .map(caseDocument -> caseDocument.getBinaryUrl())
+            .findFirst()
+            .orElseThrow();
+
+        return authRequestForUsername(userName)
+            .relaxedHTTPSValidation()
+            .baseUri(testUrl)
+            .contentType(APPLICATION_JSON_VALUE)
+            .when().log().all()
+            .get(recordingUrl + "/sharee");
+    }
+
     protected JsonNode createSegmentPayload(String caseRef, int segment) {
         return createRecordingSegment(
             FOLDER,
