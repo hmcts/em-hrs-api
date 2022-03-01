@@ -9,7 +9,6 @@ java:
   aadIdentityName: em
   keyVaults:
     em-hrs-api:
-      resourceGroup: em-hrs-api
       secrets:
         - name: hrs-api-POSTGRES-PASS
           alias: SPRING_DATASOURCE_PASSWORD

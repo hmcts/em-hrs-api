@@ -5,7 +5,6 @@ java:
   readinessDelay: 45
   keyVaults:
     em-hrs-api:
-      resourceGroup: em-hrs-api
       secrets:
         - name: storage-account-primary-connection-string
           alias: STORAGEACCOUNT_PRIMARY_CONNECTION_STRING
