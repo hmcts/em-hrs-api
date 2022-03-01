@@ -337,6 +337,8 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-web"
   implementation "org.springframework.boot:spring-boot-starter-security"
 
+  implementation "uk.gov.hmcts.reform:properties-volume-spring-boot-starter:0.1.0"
+
 //hmcts autho
   implementation group: 'uk.gov.hmcts.reform', name: 'idam-client', version: '1.5.5'
   implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.4'
