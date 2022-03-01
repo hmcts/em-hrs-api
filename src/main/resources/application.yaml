@@ -19,6 +19,8 @@ management:
 spring:
   application:
     name: Hearing Recordings Service
+  config:
+    import: "optional:configtree:/mnt/secrets/em-hrs-api,/mnt/secrets/rpa"
   jpa:
     database: postgresql
     show-sql: ${SHOW_SQL:false}
