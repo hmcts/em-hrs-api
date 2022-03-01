@@ -40,7 +40,7 @@ java:
         - name: show-oauth2-token
           alias: IDAM_CLIENT_OAUTH_SECRET
         - name: oauth2-client-id
-          alias: IDAM_CLIENT_OAUTH_SECRET
+          alias: OAUTH_CLIENT_ID
         - name: AppInsightsInstrumentationKey
           alias: APPINSIGHTS_INSTRUMENTATIONKEY
   environment:
