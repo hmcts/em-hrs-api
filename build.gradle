@@ -428,6 +428,12 @@ dependencies {
 
   functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
   functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
+  functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
+  functionalTestImplementation group: 'io.rest-assured', name: 'json-schema-validator', version: versions.restAssured
+  functionalTestImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
+  functionalTestImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
