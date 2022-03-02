@@ -276,6 +276,9 @@ repositories {
 }
 
 def versions = [
+  serenity           : '2.6.0',
+  serenityreporter   : '2.6.0',
+  serenityRestAssured : '2.6.0',
   lombok             : '1.18.20',
   reformLogging      : '5.1.7',
   log4JVersion       : "2.17.1",
@@ -283,7 +286,6 @@ def versions = [
   postgresql         : '42.2.20',
   pact_version       : '3.6.15',
   restAssured        : '4.2.0',
-  serenityRestAssured: '2.3.4',
   junit              : '5.8.1',
   junitPlatform      : '1.8.2',
   springSecurity     : '5.6.1'
@@ -391,7 +393,10 @@ dependencies {
   liquibaseRuntime sourceSets.main.output
 
   testImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
-
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
 /***********************************************************************************************************************
  * TEST DEPENDENCIES
  **********************************************************************************************************************/
@@ -421,8 +426,14 @@ dependencies {
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.1.1'
 
-  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
+  functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
+  functionalTestImplementation group: 'io.rest-assured', name: 'json-schema-validator', version: versions.restAssured
+  functionalTestImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
+  functionalTestImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
 
 
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
@@ -430,9 +441,17 @@ dependencies {
 
 
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
 
+  smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
+  smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
-
+  smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
+  smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '1.20.2'
 /***********************************************************************************************************************
  * TEST SOURCE SETS
  **********************************************************************************************************************/
@@ -449,6 +468,10 @@ dependencies {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
+  contractTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
+  contractTestImplementation group: 'io.rest-assured', name: 'json-schema-validator', version: versions.restAssured
+  contractTestImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
+  contractTestImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-junit5_2.12', version: versions.pact_version
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-java8_2.12', version: versions.pact_version
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.0.10'
