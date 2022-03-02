@@ -97,22 +97,10 @@ tasks.withType(Test) {
   }
 }
 
-task functional(type: Test) {
-  failFast = true
-  testLogging {
-    events = ["passed", "failed", "skipped"]
-    showStandardStreams = true
-  }
-  description = "Runs functional tests"
-  group = "Verification"
+task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
-  environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
-  include "uk/gov/hmcts/reform/em/hrs/**"
-  logger.info("Functional tests info:")
-  logger.info('A {} log message', 'info')
 }
-
 
 
 task integration(type: Test) {
