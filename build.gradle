@@ -19,6 +19,17 @@ plugins {
   id "info.solidsoft.pitest" version '1.6.0'
 }
 
+ext.libraries = [
+  junit5: [
+    "org.junit.jupiter:junit-jupiter-api:${versions.junit}",
+    "org.junit.jupiter:junit-jupiter-engine:${versions.junit}",
+    "org.junit.jupiter:junit-jupiter-params:${versions.junit}",
+    "org.junit.platform:junit-platform-commons:${versions.junitPlatform}",
+    "org.junit.platform:junit-platform-engine:${versions.junitPlatform}",
+    "org.apiguardian:apiguardian-api:${versions.apiguardian}"
+  ]
+]
+
 apply from: 'liquibase.gradle'
 apply plugin: 'net.serenity-bdd.aggregator'
 
@@ -423,6 +434,8 @@ dependencies {
 
   functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
   functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
+  functionalTestImplementation libraries.junit5
 
 
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
