@@ -458,6 +458,17 @@ dependencies {
   contractTestImplementation group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.13'
 }
 
+processFunctionalTestResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+processIntegrationTestResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+processTestResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
 /***********************************************************************************************************************
  * Adhoc
  **********************************************************************************************************************/
