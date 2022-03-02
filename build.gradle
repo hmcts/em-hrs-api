@@ -1,9 +1,4 @@
-buildscript {
-  dependencies {
-    classpath("net.serenity-bdd:serenity-gradle-plugin:2.3.13")
-    classpath("net.serenity-bdd:serenity-single-page-report:3.2.0")
-  }
-}
+
 
 plugins {
   id 'application'
@@ -531,10 +526,6 @@ project.ext {
 
 static def getCheckedOutGitCommitHash() {
   'git rev-parse --verify --short HEAD'.execute().text.trim()
-}
-
-serenity {
-  reports = ["single-page-html"]
 }
 
 pact {
