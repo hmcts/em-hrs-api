@@ -40,17 +40,17 @@ public class SecurityConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityConfiguration.class);
 
+    @Value("#{'${idam.s2s-authorised.services}'.split(',')}")
+    private List<String> s2sNamesWhiteList;
+
+    @Bean
+    public Function<HttpServletRequest, Collection<String>> authorizedServicesExtractor() {
+        return any -> s2sNamesWhiteList;
+    }
+
     @Configuration
     @Order(1) // Checking only for S2S Token
     public static class InternalApiSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
-
-        @Value("#{'${idam.s2s-authorised.services}'.split(',')}")
-        private List<String> s2sNamesWhiteList;
-
-        @Bean
-        public Function<HttpServletRequest, Collection<String>> authorizedServicesExtractor() {
-            return any -> s2sNamesWhiteList;
-        }
 
         @Autowired
         private RequestAuthorizer<Service> serviceRequestAuthorizer;
