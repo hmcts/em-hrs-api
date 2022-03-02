@@ -420,9 +420,11 @@ dependencies {
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.1.1'
 
-  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
 
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
   testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
