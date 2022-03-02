@@ -22,10 +22,6 @@ plugins {
 apply from: 'liquibase.gradle'
 apply plugin: 'net.serenity-bdd.aggregator'
 
-apply plugin : 'java'
-
-
-
 allprojects {
   sourceCompatibility = '11'
   targetCompatibility = '11'
@@ -210,6 +206,7 @@ dependencyUpdates {
 dependencyCheck {
   suppressionFile = 'config/owasp/suppressions.xml'
 }
+
 
 configurations.all {
   exclude group: 'com.vaadin.external.google',module: 'android-json'
