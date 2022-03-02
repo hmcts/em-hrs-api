@@ -20,7 +20,6 @@ plugins {
 }
 
 apply from: 'liquibase.gradle'
-apply plugin: 'net.serenity-bdd.aggregator'
 
 
 allprojects {
@@ -276,7 +275,6 @@ dependencyManagement {
 
 repositories {
   mavenCentral()
-  jcenter()
   maven { url 'https://jitpack.io' }
 }
 
