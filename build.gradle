@@ -47,9 +47,7 @@ sourceSets {
     java {
       compileClasspath += main.output
       runtimeClasspath += main.output
-      srcDir file('src/functionalTest/java')
     }
-    resources.srcDir file('src/functionalTest/resources')
   }
 
   //integrationTest typically tests with mocked external endpoints (so can run locally without dependencies)
@@ -114,6 +112,7 @@ task functional(type: Test) {
   logger.info("Functional tests info:")
   logger.info('A {} log message', 'info')
 }
+
 
 
 task integration(type: Test) {
@@ -439,7 +438,6 @@ dependencies {
  **********************************************************************************************************************/
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
-  functionalTestImplementation sourceSets.test.runtimeClasspath
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
