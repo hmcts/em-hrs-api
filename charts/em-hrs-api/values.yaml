@@ -9,7 +9,6 @@ java:
   aadIdentityName: em
   keyVaults:
     em-hrs-api:
-      resourceGroup: em-hrs-api
       secrets:
         - name: hrs-api-POSTGRES-PASS
           alias: SPRING_DATASOURCE_PASSWORD
@@ -36,7 +35,6 @@ java:
         - name: summary-report-recipients
           alias: SUMMARY_REPORT_RECIPIENTS
     rpa:
-      resourceGroup: rpa
       secrets:
         - name: show-oauth2-token
           alias: IDAM_CLIENT_OAUTH_SECRET
