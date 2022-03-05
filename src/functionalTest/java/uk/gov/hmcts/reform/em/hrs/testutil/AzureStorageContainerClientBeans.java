@@ -28,19 +28,28 @@ public class AzureStorageContainerClientBeans {
 
     @Bean(name = "hrsBlobContainerClient")
     public BlobContainerClient hrsBlobContainerClient() {
-        LOGGER.info("HRS ConnectionString: {}, HRS Container: {} ", hrsConnectionString, hrsContainer);
-        return new BlobContainerClientBuilder()
+        LOGGER.info("HRS ConnectionStringzzz: {}, HRS Container: {} ", hrsConnectionString, hrsContainer);
+        LOGGER.info("CVP ConnectionStringzzz {}, CVP Container: {} ", cvpConnectionString, cvpContainer);
+        var x = new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
             .containerName(hrsContainer)
             .buildClient();
+
+        LOGGER.info("HRS Account URL  {}", x.getAccountUrl());
+
+        return x;
     }
 
     @Bean(name = "cvpBlobContainerClient")
     public BlobContainerClient cvpBlobContainerClient() {
-        LOGGER.info("CVP ConnectionString: {}, CVP Container: {} ", cvpConnectionString, cvpContainer);
-        return new BlobContainerClientBuilder()
+        LOGGER.info("x {}, CVP Container: {} ", cvpConnectionString, cvpContainer);
+        var x = new BlobContainerClientBuilder()
             .connectionString(cvpConnectionString)
             .containerName(cvpContainer)
             .buildClient();
+
+        LOGGER.info("CVP Account URL  {} ", x.getAccountUrl());
+        return x;
+
     }
 }

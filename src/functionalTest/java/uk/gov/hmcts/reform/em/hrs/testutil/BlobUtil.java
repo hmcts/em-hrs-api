@@ -43,6 +43,7 @@ public class BlobUtil {
 
         int retryCount = 0;
         int filesFound = 0;
+
         int filesToCheckCount = fileNames.size();
         while (retryCount <= 30 && filesFound < filesToCheckCount) {
             sleepForSeconds(FIND_BLOB_TIMEOUT);
