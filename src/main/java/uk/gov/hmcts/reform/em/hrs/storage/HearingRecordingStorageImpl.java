@@ -85,6 +85,8 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         BlockBlobClient destinationBlobClient = hrsBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
 
         LOGGER.info("############## Trying copy from URL for sourceUri {}", sourceUri);
+        LOGGER.info("hrsBlobContainerClient account  {}", hrsBlobContainerClient.getAccountUrl());
+        LOGGER.info("cvpBlobContainerClient account  {}", cvpBlobContainerClient.getAccountUrl());
 
         if (!destinationBlobClient.exists() || destinationBlobClient.getProperties().getBlobSize() == 0) {
             if (CvpConnectionResolver.isACvpEndpointUrl(cvpConnectionString)) {
