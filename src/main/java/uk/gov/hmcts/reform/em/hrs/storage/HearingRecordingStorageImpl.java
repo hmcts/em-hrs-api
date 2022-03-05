@@ -82,7 +82,8 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     @Override
     public void copyRecording(String sourceUri, final String filename) {
 
-        BlockBlobClient destinationBlobClient = hrsBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
+        final BlockBlobClient destinationBlobClient
+            = hrsBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
 
         LOGGER.info("############## Trying copy from URL for sourceUri {}", sourceUri);
         LOGGER.info("hrsBlobContainerClient account  {}", hrsBlobContainerClient.getAccountUrl());
