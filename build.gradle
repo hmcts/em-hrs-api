@@ -280,7 +280,7 @@ def versions = [
   serenityreporter   : '2.6.0',
   serenityRestAssured : '2.6.0',
   lombok             : '1.18.20',
-  reformLogging      : '5.1.7',
+  reformLogging      : '5.1.9',
   log4JVersion       : "2.17.1",
   springfoxSwagger   : '2.9.2',
   postgresql         : '42.2.20',
@@ -336,24 +336,22 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-web"
   implementation "org.springframework.boot:spring-boot-starter-security"
 
-  implementation "uk.gov.hmcts.reform:properties-volume-spring-boot-starter:0.1.0"
-
+  implementation group: 'com.github.hmcts', name: 'properties-volume-spring-boot-starter', version: '0.1.1'
 //hmcts autho
-  implementation group: 'uk.gov.hmcts.reform', name: 'idam-client', version: '1.5.5'
-  implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.4'
-  implementation(group: 'uk.gov.hmcts.reform.auth', name: 'auth-checker-lib', version: '2.1.4') {
+  implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '2.0.1'
+  implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '4.0.3'
+  implementation group: 'com.github.hmcts', name: 'auth-checker-lib', version: '2.1.5', {
     exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
   }
 
 
 //hmcts ccd
-  implementation group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: '4.7.5'
+  implementation group: 'com.github.hmcts', name: 'core-case-data-store-client', version: '4.8.6'
 
 //hmcts logging
-  implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
-  implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
-  implementation group: 'uk.gov.hmcts.reform', name: 'logging-spring', version: versions.reformLogging
-
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging-spring', version: versions.reformLogging
 
 //gov notify email service
   implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '3.17.2-RELEASE'
@@ -451,7 +449,9 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '1.20.2'
+  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '1.21.2'
+
+
 /***********************************************************************************************************************
  * TEST SOURCE SETS
  **********************************************************************************************************************/
