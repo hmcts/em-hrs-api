@@ -161,7 +161,7 @@ jacocoTestReport {
   reports {
     xml.enabled = true
     csv.enabled = false
-    xml.destination file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+    xml.destination = file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
   }
 
   afterEvaluate {
@@ -171,7 +171,7 @@ jacocoTestReport {
   }
 }
 
-project.tasks['sonarqube'].dependsOn test, integration, jacocoTestReport
+project.tasks['sonarqube'].dependsOn jacocoTestReport
 
 sonarqube {
   properties {
@@ -211,10 +211,6 @@ dependencyCheck {
     // Disable scanning of .NET related binaries
     assemblyEnabled = false
   }
-}
-
-configurations.all {
-  exclude group: 'com.vaadin.external.google',module: 'android-json'
 }
 
 dependencyManagement {
