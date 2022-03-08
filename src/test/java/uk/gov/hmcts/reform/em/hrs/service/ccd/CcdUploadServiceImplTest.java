@@ -58,15 +58,15 @@ class CcdUploadServiceImplTest {
         doReturn(TEST_FOLDER_1).when(folderService).getFolderByName(TEST_FOLDER_1.getName());
 
         doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).createCase(recording.getId(), HEARING_RECORDING_DTO);
-        doReturn(recording).when(recordingRepository).save(any(HearingRecording.class));
-        doReturn(SEGMENT_1).when(segmentRepository).save(any(HearingRecordingSegment.class));
+        doReturn(recording).when(recordingRepository).saveAndFlush(any(HearingRecording.class));
+        doReturn(SEGMENT_1).when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
 
         underTest.upload(HEARING_RECORDING_DTO);
 
         verify(recordingRepository).findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER_1.getName());
         verify(ccdDataStoreApiClient).createCase(recording.getId(), HEARING_RECORDING_DTO);
-        verify(recordingRepository, times(2)).save(any(HearingRecording.class));
-        verify(segmentRepository).save(any(HearingRecordingSegment.class));
+        verify(recordingRepository, times(2)).saveAndFlush(any(HearingRecording.class));
+        verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
     }
 
 
@@ -82,7 +82,7 @@ class CcdUploadServiceImplTest {
                 eq(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3.getId()),
                 eq(HEARING_RECORDING_DTO)
             );
-        doReturn(SEGMENT_1).when(segmentRepository).save(any(HearingRecordingSegment.class));
+        doReturn(SEGMENT_1).when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
 
         underTest.upload(HEARING_RECORDING_DTO);
 
@@ -95,8 +95,8 @@ class CcdUploadServiceImplTest {
             );
         verify(ccdDataStoreApiClient, never())
             .createCase(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3.getId(), HEARING_RECORDING_DTO);
-        verify(recordingRepository, never()).save(any(HearingRecording.class));
-        verify(segmentRepository).save(any(HearingRecordingSegment.class));
+        verify(recordingRepository, never()).saveAndFlush(any(HearingRecording.class));
+        verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
     }
 
     @Test
@@ -117,8 +117,8 @@ class CcdUploadServiceImplTest {
             );
         verify(ccdDataStoreApiClient, never())
             .createCase(any(UUID.class), any(HearingRecordingDto.class));
-        verify(recordingRepository, never()).save(any(HearingRecording.class));
-        verify(segmentRepository, never()).save(any(HearingRecordingSegment.class));
+        verify(recordingRepository, never()).saveAndFlush(any(HearingRecording.class));
+        verify(segmentRepository, never()).saveAndFlush(any(HearingRecordingSegment.class));
     }
 
 
