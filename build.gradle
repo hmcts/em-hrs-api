@@ -164,7 +164,7 @@ jacocoTestReport {
   reports {
     xml.enabled = true
     csv.enabled = false
-    xml.destination file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+    xml.destination = file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
   }
 
   afterEvaluate {
@@ -181,8 +181,7 @@ sonarqube {
     property "sonar.projectName", "Reform :: em-hrs-api"
     property "sonar.projectKey", "uk.gov.hmcts.reform.em.hrs:em-hrs-api"
     property "sonar.exclusions", coverageExclusionList.join(", ")
-    property "sonar.coverage.jacoco.xmlReportPaths", "${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml"
-
+    property "sonar.coverage.jacoco.xmlReportPaths", jacocoTestReport.reports.xml.destination.path
     property "sonar.pitest.mode", "reuseReport"
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     property "sonar.cpd.exclusions", "**/*Scheduler.java"
