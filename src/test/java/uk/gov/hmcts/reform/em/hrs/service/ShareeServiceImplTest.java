@@ -26,6 +26,6 @@ class ShareeServiceImplTest {
     void testShouldSaveEntity() {
         underTest.createAndSaveEntry(SHAREE_EMAIL_ADDRESS, hearingRecordingWithNoDataBuilder());
 
-        verify(shareesRepository, times(1)).save(any(HearingRecordingSharee.class));
+        verify(shareesRepository, times(1)).saveAndFlush(any(HearingRecordingSharee.class));
     }
 }

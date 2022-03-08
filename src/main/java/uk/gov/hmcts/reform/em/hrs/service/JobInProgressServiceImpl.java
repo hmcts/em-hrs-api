@@ -49,7 +49,7 @@ public class JobInProgressServiceImpl implements JobInProgressService {
                 .filename(filename)
                 .createdOn(LocalDateTime.now())
                 .build();
-            jobInProgressRepository.save(job);
+            jobInProgressRepository.saveAndFlush(job);
         }
     }
 

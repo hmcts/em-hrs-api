@@ -23,7 +23,7 @@ public class ShareeServiceImpl implements ShareeService {
         final HearingRecordingSharee hearingRecordingSharee = HearingRecordingSharee.builder()
             .hearingRecording(hearingRecording)
             .shareeEmail(emailAddress).build();
-        return shareesRepository.save(hearingRecordingSharee);
+        return shareesRepository.saveAndFlush(hearingRecordingSharee);
     }
 
 }

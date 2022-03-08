@@ -60,7 +60,7 @@ class JobsInProgressServiceImplTests {
         assertThatExceptionOfType(DatabaseStorageException.class).isThrownBy(() -> jobInProgressServiceImpl.register(
             HEARING_RECORDING_DTO));
 
-        verify(jobInProgressRepository, never()).save(any(JobInProgress.class));
+        verify(jobInProgressRepository, never()).saveAndFlush(any(JobInProgress.class));
     }
 
 
@@ -75,7 +75,7 @@ class JobsInProgressServiceImplTests {
             .findByName(TEST_FOLDER_1_NAME);
         jobInProgressServiceImpl.register(HEARING_RECORDING_DTO);
 
-        verify(jobInProgressRepository, times(1)).save(any(JobInProgress.class));
+        verify(jobInProgressRepository, times(1)).saveAndFlush(any(JobInProgress.class));
 
     }
 

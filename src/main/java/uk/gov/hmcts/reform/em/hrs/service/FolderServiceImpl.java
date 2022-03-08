@@ -51,7 +51,7 @@ public class FolderServiceImpl implements FolderService {
 
         if (optionalFolder.isEmpty()) {
             Folder newFolder = Folder.builder().name(folderName).build();
-            folderRepository.save(newFolder);
+            folderRepository.saveAndFlush(newFolder);
             return Collections.emptySet();
         }
 

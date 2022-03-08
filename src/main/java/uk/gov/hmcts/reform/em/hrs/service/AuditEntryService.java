@@ -69,7 +69,7 @@ public class AuditEntryService {
         );
 
         LOGGER.info(auditLogFormatter.format(entry));
-        hearingRecordingAuditEntryRepository.save(entry);
+        hearingRecordingAuditEntryRepository.saveAndFlush(entry);
         return entry;
 
     }
@@ -87,7 +87,7 @@ public class AuditEntryService {
         );
 
         LOGGER.info(auditLogFormatter.format(entry));
-        hearingRecordingSegmentAuditEntryRepository.save(entry);
+        hearingRecordingSegmentAuditEntryRepository.saveAndFlush(entry);
         return entry;
     }
 
@@ -105,7 +105,7 @@ public class AuditEntryService {
         );
 
         LOGGER.info(auditLogFormatter.format(entry));
-        hearingRecordingShareeAuditEntryRepository.save(entry);
+        hearingRecordingShareeAuditEntryRepository.saveAndFlush(entry);
         return entry;
     }
 

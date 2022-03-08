@@ -82,7 +82,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
 
         try {
             HearingRecordingSegment segment = createSegment(recording, recordingDto);
-            segmentRepository.save(segment);
+            segmentRepository.saveAndFlush(segment);
 
         } catch (ConstraintViolationException e) {
             LOGGER.warn(
@@ -111,7 +111,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
             .build();
 
         try {
-            recording = recordingRepository.save(recording);
+            recording = recordingRepository.saveAndFlush(recording);
 
         } catch (ConstraintViolationException e) {
             //the recording has already been persisted by another cluster - do not proceed as waiting for CCD id
@@ -130,11 +130,11 @@ public class CcdUploadServiceImpl implements CcdUploadService {
 
         final Long caseId = ccdDataStoreApiClient.createCase(recording.getId(), recordingDto);
         recording.setCcdCaseId(caseId);
-        recording = recordingRepository.save(recording);
+        recording = recordingRepository.saveAndFlush(recording);
         LOGGER.info("Created case in CCD: {} for  {} ", caseId, recordingDto.getRecordingSource());
 
         HearingRecordingSegment segment = createSegment(recording, recordingDto);
-        segmentRepository.save(segment);
+        segmentRepository.saveAndFlush(segment);
     }
 
     private HearingRecordingSegment createSegment(final HearingRecording recording,

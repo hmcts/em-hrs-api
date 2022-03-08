@@ -37,7 +37,7 @@ class ShareesRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest
             .hearingRecording(hearingRecordingWithNoDataBuilder())
             .shareeEmail(SHAREE_EMAIL_ADDRESS).build();
 
-        final HearingRecordingSharee savedSharee = underTest.save(hearingRecordingSharee);
+        final HearingRecordingSharee savedSharee = underTest.saveAndFlush(hearingRecordingSharee);
 
         final LocalDateTime postTest = LocalDateTime.now(Clock.systemDefaultZone());
         assertThat(savedSharee).satisfies(x -> {
