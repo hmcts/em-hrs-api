@@ -157,6 +157,7 @@ checkstyle {
 }
 
 jacocoTestReport {
+  dependsOn test, integration
   executionData(test, integration)
   reports {
     xml.enabled = true
