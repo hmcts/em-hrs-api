@@ -217,10 +217,6 @@ dependencyCheck {
 dependencyManagement {
   dependencies {
 
-    //CVE-2021-27568
-    dependencySet(group: 'net.minidev', version: '2.4.8') {
-      entry 'json-smart'
-    }
 
     dependencySet(group: 'com.google.guava', version: '31.1-jre') {
       // Guava CVE-2018-10237 - Unbounded memory allocation
@@ -232,21 +228,8 @@ dependencyManagement {
       entry 'commons-io'
     }
 
-    // CVE-2021-44832
-    dependencySet(group: 'org.apache.logging.log4j', version: '2.17.2') {
-      entry 'log4j-api'
-      entry 'log4j-to-slf4j'
-    }
-
     // CVE-2021-28170
     dependency group: 'org.glassfish', name: 'jakarta.el', version: '4.0.2'
-
-
-    // CVE-2021-42550
-    dependencySet(group: 'ch.qos.logback', version: '1.2.11') {
-      entry 'logback-classic'
-      entry 'logback-core'
-    }
 
     dependencySet(group: 'io.netty', version: '2.0.50.Final') {
       entry 'netty-tcnative-classes'
