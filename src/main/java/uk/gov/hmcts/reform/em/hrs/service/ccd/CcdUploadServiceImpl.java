@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -107,7 +108,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
             .hearingSource(recordingDto.getRecordingSource())
             .jurisdictionCode(recordingDto.getJurisdictionCode())
             .serviceCode(recordingDto.getServiceCode())
-            .createdOn(recordingDto.getRecordingDateTime())
+            .createdOn(LocalDateTime.now())
             .build();
 
         try {
