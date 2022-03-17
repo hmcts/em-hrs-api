@@ -98,6 +98,11 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
                     return true;
                 }
             }
+            LOGGER.info(
+                "Number of recordings found while User attempted to access recording ref ({}) with email ({}) is ({})",
+                hr.getRecordingRef(),
+                shareeEmail, sharedRecordings.size()
+            );
             auditEntryService.createAndSaveEntry(hrSegment, AuditActions.USER_DOWNLOAD_UNAUTHORIZED);
         }
         return false;//Not a segment
