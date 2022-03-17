@@ -84,7 +84,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
             );
             List<HearingRecordingSharee> sharedRecordings = shareesRepository.findByShareeEmailIgnoreCase(shareeEmail);
             LOGGER.info(
-                "recordings that are shared with the user: ({})",
+                "recordings that are shared with the user: ({}) are ({})", shareeEmail,
                 sharedRecordings.stream()
                     .map(sharedRecording -> sharedRecording.getHearingRecording().getCaseRef())
                     .collect(Collectors.toList())
@@ -98,11 +98,6 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
                     return true;
                 }
             }
-            LOGGER.info(
-                "Number of recordings found while User attempted to access recording ref ({}) with email ({}) is ({})",
-                hr.getRecordingRef(),
-                shareeEmail, sharedRecordings.size()
-            );
             auditEntryService.createAndSaveEntry(hrSegment, AuditActions.USER_DOWNLOAD_UNAUTHORIZED);
         }
         return false;//Not a segment
