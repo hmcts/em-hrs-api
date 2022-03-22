@@ -91,6 +91,8 @@ public abstract class BaseTest {
 
     protected String hrsS2sAuth;
 
+    @Value("${close-ccd-test-cases}")
+    protected boolean closeCcdCase;
 
     //The format "yyyy-MM-dd---HH-MM-ss---SSS" will render "07-30-2021---16-07-35---485"
     DateTimeFormatter datePartFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");

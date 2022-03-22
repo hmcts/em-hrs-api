@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.em.hrs;
 
 import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ShareScenarios extends BaseTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShareScenarios.class);
 
     @Autowired
     private BlobUtil blobUtil;
@@ -27,7 +31,7 @@ public class ShareScenarios extends BaseTest {
     private CaseDetails caseDetails;
     private int expectedFileSize;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ShareScenarios.class);
+    private Long ccdCaseId;
 
     @PostConstruct
     public void setup() throws Exception {
@@ -49,7 +53,7 @@ public class ShareScenarios extends BaseTest {
 
         LOGGER.info("SET UP: CHECKING CASE IN CCD");
         caseDetails = findCaseWithAutoRetryWithUserWithSearcherRole(caseRef);
-
+        ccdCaseId = caseDetails.getId();
         //used in tests to verify file is fully downloaded
         LOGGER.info("SET UP: CHECKING FILE SIZE UPLOADED TO CVP");
         expectedFileSize = blobUtil.getFileFromPath("data/test_data.mp4").readAllBytes().length;
@@ -153,5 +157,13 @@ public class ShareScenarios extends BaseTest {
             .statusCode(404);
 
         caseDetails.setId(null);
+    }
+
+    @AfterAll
+    void clearUp(){
+        if(closeCcdCase) {
+            LOGGER.info("Closing CCD case, case id {}", ccdCaseId);
+            extendedCcdHelper.closeCcdCase(ccdCaseId);
+        }
     }
 }

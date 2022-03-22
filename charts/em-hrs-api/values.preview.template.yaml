@@ -32,6 +32,7 @@ java:
     ENABLE_LIQUIBASE: true
     ENABLE_DB_MIGRATE: true
     CVP_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=$(BLOB_ACCOUNT_NAME);AccountKey=$(BLOB_ACCESS_KEY);EndpointSuffix=core.windows.net"
+    CLOSE_CCD_TEST_CASES: true
   postgresql:
     enabled: true
 blobstorage:
