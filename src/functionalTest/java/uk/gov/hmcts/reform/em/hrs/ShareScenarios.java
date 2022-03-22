@@ -1,8 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs;
 
 import org.junit.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.AfterEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ShareScenarios extends BaseTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShareScenarios.class);
 
@@ -32,7 +30,7 @@ public class ShareScenarios extends BaseTest {
     private int expectedFileSize;
 
     private Long ccdCaseId;
-
+    private static int testCount = 0;
     @PostConstruct
     public void setup() throws Exception {
         LOGGER.info("SETTING UP SHARE RECORDING SCENARIOS....");
@@ -159,10 +157,13 @@ public class ShareScenarios extends BaseTest {
         caseDetails.setId(null);
     }
 
-    @AfterAll
+
+    @AfterEach
     void clearUp() {
+        testCount++;
         LOGGER.info("closeCcdCase ====> {}", closeCcdCase);
-        if (closeCcdCase) {
+
+        if (testCount == 4 && closeCcdCase) {
             LOGGER.info("Closing CCD case, case id {}", ccdCaseId);
             extendedCcdHelper.closeCcdCase(ccdCaseId);
         }
