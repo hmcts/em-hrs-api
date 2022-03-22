@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.not;
 
 public class ShareScenarios extends BaseTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShareScenarios.class);
+    private static int testCount = 0;
 
     @Autowired
     private BlobUtil blobUtil;
@@ -30,7 +31,7 @@ public class ShareScenarios extends BaseTest {
     private int expectedFileSize;
 
     private Long ccdCaseId;
-    private static int testCount = 0;
+
     @PostConstruct
     public void setup() throws Exception {
         LOGGER.info("SETTING UP SHARE RECORDING SCENARIOS....");
