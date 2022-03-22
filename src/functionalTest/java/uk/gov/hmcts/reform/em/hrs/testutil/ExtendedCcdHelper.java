@@ -51,7 +51,7 @@ public class ExtendedCcdHelper {
     protected String ccdDefinitionFile;
 
 
-    @Value("${core_case_data.api.urle}")
+    @Value("${core_case_data.api.url}")
     protected String ccdApiUrl;
 
 
