@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs;
 
 import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -19,7 +19,6 @@ import static org.hamcrest.Matchers.not;
 
 public class ShareScenarios extends BaseTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShareScenarios.class);
-    private static int testCount = 0;
 
     @Autowired
     private BlobUtil blobUtil;
@@ -159,12 +158,11 @@ public class ShareScenarios extends BaseTest {
     }
 
 
-    @AfterEach
+    @PreDestroy
     void clearUp() {
-        testCount++;
         LOGGER.info("closeCcdCase ====> {}", closeCcdCase);
 
-        if (testCount == 4 && closeCcdCase) {
+        if (closeCcdCase) {
             LOGGER.info("Closing CCD case, case id {}", ccdCaseId);
             extendedCcdHelper.closeCcdCase(ccdCaseId);
         }
