@@ -17,6 +17,7 @@ So standard az cli tools are needed, as well as @hmcts.net log in with appropria
 
 ## Setup
 
+
 Simply run the following script to start all application dependencies.
 
 ```bash
