@@ -61,7 +61,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 })
 
 @TestPropertySource(value = "classpath:application.yml")
-@RunWith(SpringJUnit4ClassRunner.class)
 @WithTags({@WithTag("testType:Functional")})
 public abstract class BaseTest {
 

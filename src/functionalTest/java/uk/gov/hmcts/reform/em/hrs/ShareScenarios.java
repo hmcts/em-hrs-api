@@ -157,7 +157,6 @@ public class ShareScenarios extends BaseTest {
         caseDetails.setId(null);
     }
 
-
     @AfterAll
     static void clearUp() {
         LOGGER.info("closeCcdCase ====> ");
