@@ -282,7 +282,7 @@ dependencies {
 
   implementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
-  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.2.1'
+  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.2.2'
   implementation group: 'com.fasterxml.jackson', name: 'jackson-bom', version: '2.13.2', ext: 'pom'
 
   implementation "org.springframework.boot:spring-boot-starter-actuator"
