@@ -118,6 +118,7 @@ pass:emhrs
 jdbc_url: jdbc:postgresql://localhost:5444/emhrs
 
 
+
 #Idea Setup
 
 Increase import star to 200 to avoid conflicts with checkstyle
