@@ -4,13 +4,7 @@ provider "azurerm" {
 
 locals {
   app_full_name = "${var.product}-${var.component}"
-  tags = (merge(
-  var.common_tags,
-  map(
-  "Team Contact", var.team_contact,
-  "Destroy Me", var.destroy_me
-  )
-  ))
+  tags          = var.common_tags
 }
 
 resource "azurerm_resource_group" "rg" {
