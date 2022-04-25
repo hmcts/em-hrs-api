@@ -86,7 +86,8 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
         LOGGER.info("############## Trying copy from URL for sourceUri {}", sourceUri);
 
-        if (Boolean.FALSE.equals(destinationBlobClient.exists()) || destinationBlobClient.getProperties().getBlobSize() == 0) {
+        if (Boolean.FALSE.equals(destinationBlobClient.exists())
+            || destinationBlobClient.getProperties().getBlobSize() == 0) {
             if (CvpConnectionResolver.isACvpEndpointUrl(cvpConnectionString)) {
                 LOGGER.info("Generating and appending SAS token for copy");
                 String sasToken = generateReadSasForCvp(filename);
