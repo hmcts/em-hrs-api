@@ -4,8 +4,6 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobRange;
 import com.azure.storage.blob.models.DownloadRetryOptions;
 import com.azure.storage.blob.specialized.BlockBlobClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -14,8 +12,6 @@ import java.io.OutputStream;
 
 @Component
 public class BlobstoreClientImpl implements BlobstoreClient {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BlobstoreClientImpl.class);
 
     private final BlobContainerClient blobContainerClient;
 
@@ -39,7 +35,7 @@ public class BlobstoreClientImpl implements BlobstoreClient {
     public void downloadFile(final String filename, BlobRange blobRange,
                              final OutputStream outputStream) {
 
-        blockBlobClient(filename.toString())
+        blockBlobClient(filename)
             .downloadWithResponse(
                 outputStream,
                 blobRange,
