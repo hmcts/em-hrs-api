@@ -1,8 +1,12 @@
 package uk.gov.hmcts.reform.em.hrs.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +43,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
 
 @RestController
+@Tag(name = "HearingRecordings Service", description = "Endpoint for managing HearingRecordings.")
 public class HearingRecordingController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HearingRecordingController.class);
@@ -64,7 +69,11 @@ public class HearingRecordingController {
         consumes = APPLICATION_JSON_VALUE
     )
     @ResponseBody
-    @Operation(summary = "Post hearing recording segment", description = "Save hearing recording segment")
+    @Operation(summary = "Post hearing recording segment", description = "Save hearing recording segment",
+        parameters = {
+            @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
+                description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string"))})
     @ApiResponses(value = {
         @ApiResponse(responseCode = "202", description = "Request accepted for asynchronous processing"),
         @ApiResponse(responseCode = "429", description = "Request rejected - too many pending requests"),
@@ -99,7 +108,11 @@ public class HearingRecordingController {
     )
     @ResponseBody
     @Operation(summary = "Create permissions record", description = "Create permissions record to the specified "
-        + "hearing recording and notify user with the link to the resource via email")
+        + "hearing recording and notify user with the link to the resource via email",
+        parameters = {
+            @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
+                description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string"))})
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Return the location of the resource being granted "
             + "access to (the download link)"),
@@ -129,7 +142,11 @@ public class HearingRecordingController {
     )
 
     @Operation(summary = "Get hearing recording file",
-        description = "Return hearing recording file from the specified folder")
+        description = "Return hearing recording file from the specified folder",
+        parameters = {
+            @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
+                description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string"))})
     @ApiResponses(value =
         {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment")}
     )
@@ -166,7 +183,11 @@ public class HearingRecordingController {
     )
     @ResponseBody
     @Operation(summary = "Get hearing recording file",
-        description = "Return hearing recording file from the specified folder")
+        description = "Return hearing recording file from the specified folder",
+        parameters = {
+            @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
+                description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string"))})
     @ApiResponses(
         value = {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment")}
     )
