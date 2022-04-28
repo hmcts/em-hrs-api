@@ -144,7 +144,8 @@ def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/exception/**',
   '**uk/gov/hmcts/reform/em/hrs/job/*Scheduler.java',
   '**uk/gov/hmcts/reform/em/hrs/model/**',
-  '**uk/gov/hmcts/reform/em/hrs/util/debug/**',
+  '**uk/gov/hmcts/reform/em/hrs/storage/HearingRecordingStorageImpl.java',
+  'uk/gov/hmcts/reform/em/hrs/util/debug/HttpHeadersLogging.java'
 ]
 
 checkstyle {
