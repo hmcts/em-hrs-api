@@ -316,7 +316,7 @@ dependencies {
 
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.16.0'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.5.0'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.5.1'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
