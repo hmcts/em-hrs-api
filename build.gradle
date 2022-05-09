@@ -370,7 +370,7 @@ dependencies {
 
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.22.0'
-  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.34.0'
+  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.35.0'
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.17.1'
   testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.1'
   testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.5', {
