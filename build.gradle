@@ -212,6 +212,9 @@ dependencyCheck {
   }
 }
 
+configurations.all {
+  exclude group: 'org.springframework.security', module: 'spring-security-rsa'
+}
 dependencyManagement {
   dependencies {
 
@@ -265,7 +268,7 @@ def versions = [
   restAssured        : '4.2.0',
   junit              : '5.8.1',
   junitPlatform      : '1.8.2',
-  springSecurity     : '5.6.1',
+  springSecurity     : '5.7.1',
   shedlock           : '4.34.0'
 ]
 
