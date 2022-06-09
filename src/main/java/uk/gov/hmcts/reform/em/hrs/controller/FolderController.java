@@ -1,8 +1,12 @@
 package uk.gov.hmcts.reform.em.hrs.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +21,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
+@Tag(name = "HearingRecordings Folder Service", description = "Endpoint for managing HearingRecordings Folder.")
 public class FolderController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FolderController.class);
@@ -34,7 +39,11 @@ public class FolderController {
         produces = APPLICATION_JSON_VALUE
     )
     @Operation(
-        summary = "Get recording file names", description = "Retrieve recording file names for a given folder"
+        summary = "Get recording file names", description = "Retrieve recording file names for a given folder",
+        parameters = {
+            @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
+                description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string"))}
     )
     @ApiResponses(
         value = {

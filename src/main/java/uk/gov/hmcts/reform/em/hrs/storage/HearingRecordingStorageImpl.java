@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 import static uk.gov.hmcts.reform.em.hrs.util.CvpConnectionResolver.extractAccountFromUrl;
 
-
+@SuppressWarnings("squid:S2139")
 @Component
 public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private static final Logger LOGGER = LoggerFactory.getLogger(HearingRecordingStorageImpl.class);
@@ -86,7 +86,8 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
         LOGGER.info("############## Trying copy from URL for sourceUri {}", sourceUri);
 
-        if (!destinationBlobClient.exists() || destinationBlobClient.getProperties().getBlobSize() == 0) {
+        if (Boolean.FALSE.equals(destinationBlobClient.exists())
+            || destinationBlobClient.getProperties().getBlobSize() == 0) {
             if (CvpConnectionResolver.isACvpEndpointUrl(cvpConnectionString)) {
                 LOGGER.info("Generating and appending SAS token for copy");
                 String sasToken = generateReadSasForCvp(filename);
@@ -160,11 +161,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             .setStartTime(OffsetDateTime.now().minusMinutes(95));
         String accountName =
             extractAccountFromUrl(cvpConnectionString);//TODO this is hardcoded for perftest enviro
-        String sas =
-            sourceBlob.generateUserDelegationSas(signatureValues, userDelegationKey, accountName, Context.NONE);
-
-
-        return sas;
+        return sourceBlob.generateUserDelegationSas(signatureValues, userDelegationKey, accountName, Context.NONE);
     }
 
     @Override

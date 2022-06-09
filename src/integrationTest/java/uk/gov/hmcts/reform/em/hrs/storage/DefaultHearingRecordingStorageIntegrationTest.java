@@ -21,6 +21,7 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = {
     TestAzureStorageConfig.class,
@@ -105,6 +106,14 @@ class DefaultHearingRecordingStorageIntegrationTest {
             .untilAsserted(() -> assertThat(azureIntegrationTestOperations.getHrsBlobsFrom(folder))
                 .singleElement()
                 .isEqualTo(file1));
+    }
+
+    @Test
+    void testStorageReport() {
+        StorageReport storageReport = underTest.getStorageReport();
+        System.out.println(storageReport);
+        assertEquals(storageReport.cvpItemCount, 0);
+        assertEquals(storageReport.hrsItemCount, 1);
     }
 
     @Test

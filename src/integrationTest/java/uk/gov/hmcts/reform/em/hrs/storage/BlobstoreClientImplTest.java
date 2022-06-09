@@ -44,27 +44,29 @@ class BlobstoreClientImplTest {
         BlobRange blobRange = null;
         try (final PipedInputStream pipedInput = new PipedInputStream();
              final PipedOutputStream output = new PipedOutputStream(pipedInput)) {
-
-
             underTest.downloadFile(filePath, null, output);
-
             assertThat(pipedInput).satisfies(this::assertStreamContent);
-
-
         }
 
         try (final PipedInputStream pipedInput = new PipedInputStream();
              final PipedOutputStream output = new PipedOutputStream(pipedInput)) {
-
             blobRange = new BlobRange(0, 3L);
             underTest.downloadFile(filePath, blobRange, output);
-
             assertThat(pipedInput).satisfies(this::assertPartialStreamContent);
         }
-
-
     }
 
+    @Test
+    void testShouldFetchBlobInfo() throws Exception {
+        final String filePath = ONE_ITEM_FOLDER + "/" + UUID.randomUUID() + ".txt";
+        azureIntegrationTestOperations.populateHrsContainer(filePath, TEST_DATA);
+        try (final PipedInputStream pipedInput = new PipedInputStream();
+             final PipedOutputStream output = new PipedOutputStream(pipedInput)) {
+            underTest.downloadFile(filePath, null, output);
+            underTest.fetchBlobInfo(filePath);
+            assertThat(pipedInput).satisfies(this::assertStreamContent);
+        }
+    }
 
     private void assertStreamContent(final InputStream input) {
         final StringBuilder sb = new StringBuilder();
