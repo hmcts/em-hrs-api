@@ -10,12 +10,14 @@ import net.serenitybdd.rest.SerenityRest;
 import net.thucydides.core.annotations.WithTag;
 import net.thucydides.core.annotations.WithTags;
 import org.junit.Rule;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDataContent;
@@ -59,6 +61,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 })
 
 @TestPropertySource(value = "classpath:application.yml")
+@RunWith(SpringJUnit4ClassRunner.class)
 @WithTags({@WithTag("testType:Functional")})
 public abstract class BaseTest {
 
@@ -388,7 +391,8 @@ public abstract class BaseTest {
                                       caseData
             );
 
-        assert (caseDetails.getState().equals("1_CLOSED"));
+        String caseState = caseDetails.getState();
+        assert (caseState.equals("1_CLOSED"));
         LOGGER.info("closed case id ({}) with reference ({}), it now has state ({})",
                     caseDetails.getId(), caseRef, caseDetails.getState()
         );
