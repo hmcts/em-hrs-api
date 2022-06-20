@@ -94,9 +94,7 @@ public class ExtendedCcdHelper {
         );
     }
 
-    public void closeCcdCase(
-        Long caseId
-    ) {
+    public void closeCcdCase(Long caseId) {
 
         String userId = idamHelper.getUserId(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
 

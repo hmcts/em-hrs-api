@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.em.hrs;
 
 import org.junit.Test;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ShareScenarios extends BaseTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShareScenarios.class);
 
@@ -42,7 +44,7 @@ public class ShareScenarios extends BaseTest {
 
 
         LOGGER.info("SET UP: UPLOADING TO CVP");
-        blobUtil.uploadFileFromPathToCvpContainer(filename,"data/test_data.mp4");
+        blobUtil.uploadFileFromPathToCvpContainer(filename, "data/test_data.mp4");
         blobUtil.checkIfUploadedToStore(filenames, blobUtil.cvpBlobContainerClient);
 
         LOGGER.info("SET UP: POSTING TO HRS");
@@ -158,7 +160,11 @@ public class ShareScenarios extends BaseTest {
     }
 
     @AfterAll
-    static void clearUp() {
-        LOGGER.info("closeCcdCase ====> ");
+    void clearUp() {
+        LOGGER.info("closeCcdCase ====> {}", closeCcdCase);
+        if (closeCcdCase) {
+            LOGGER.info("Closing CCD case, case id {}", ccdCaseId);
+            extendedCcdHelper.closeCcdCase(ccdCaseId);
+        }
     }
 }
