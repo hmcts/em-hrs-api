@@ -148,7 +148,7 @@ public class ExtendedCcdHelper {
         Long caseId,
         String eventId
     ) {
-        return getRequestSpecification(idamToken, s2sToken)
+        return getRequestSpecification(idamToken, s2sToken).log().all()
             .header(CONTENT_TYPE, APPLICATION_JSON.getMimeType())
             .pathParam("userId", userId)
             .pathParam("jurisdictionId", jurisdictionId)
@@ -179,7 +179,7 @@ public class ExtendedCcdHelper {
         CaseDataContent caseDataContent
     ) {
         return getRequestSpecification(idamToken, s2sToken)
-            .header(CONTENT_TYPE, APPLICATION_JSON.getMimeType())
+            .header(CONTENT_TYPE, APPLICATION_JSON.getMimeType()).log().all()
             .pathParam("userId", userId)
             .pathParam("jurisdictionId", jurisdictionId)
             .pathParam("caseType", caseType)
@@ -201,7 +201,7 @@ public class ExtendedCcdHelper {
 
     private RequestSpecification getRequestSpecification(String idamToken, String s2sToken) {
         return RestAssured
-            .given()
+            .given().log().all()
             .relaxedHTTPSValidation()
             .baseUri(ccdApiUrl)
             .header("experimental", true)
