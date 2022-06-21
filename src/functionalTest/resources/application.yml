@@ -79,4 +79,4 @@ app-insights:
   telemetry-component: on
 
 
-close-ccd-test-cases: ${CLOSE_CCD_TEST_CASES:false}
+close-ccd-test-cases: ${CLOSE_CCD_TEST_CASES:true}
