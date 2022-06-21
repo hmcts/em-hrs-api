@@ -67,6 +67,6 @@ java:
     SUMMARY_REPORT_CRON: "0 0 6 ? * *"
     SUMMARY_REPORT_ENABLED: false
     SHAREE_LINK_TTL: 72 #ttl in hours
-
+    CLOSE_CCD_TEST_CASES: false
 blobstorage:
   enabled: false
