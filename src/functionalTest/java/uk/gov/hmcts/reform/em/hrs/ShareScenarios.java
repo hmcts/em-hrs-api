@@ -1,7 +1,8 @@
 package uk.gov.hmcts.reform.em.hrs;
 
-import org.junit.Test;
+
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,11 +85,6 @@ public class ShareScenarios extends BaseTest {
 
         final int actualFileSize = downloadedFileBytes.length;
         assertThat(actualFileSize, is(expectedFileSize));
-        LOGGER.info("closeCcdCase ====> {}", closeCcdCase);
-        if (closeCcdCase) {
-            LOGGER.info("Closing CCD case, case id {}", ccdCaseId);
-            extendedCcdHelper.closeCcdCase(ccdCaseId);
-        }
     }
 
     @Test
@@ -110,11 +106,6 @@ public class ShareScenarios extends BaseTest {
 
         final int actualFileSize = downloadedFileBytes.length;
         assertThat(actualFileSize, is(expectedFileSize));
-        LOGGER.info("closeCcdCase ====> {}", closeCcdCase);
-        if (closeCcdCase) {
-            LOGGER.info("Closing CCD case, case id {}", ccdCaseId);
-            extendedCcdHelper.closeCcdCase(ccdCaseId);
-        }
     }
 
     @Test
@@ -139,11 +130,6 @@ public class ShareScenarios extends BaseTest {
 
         final int actualFileSize = downloadedFileBytes.length;
         assertThat(actualFileSize, is(expectedFileSize));
-        LOGGER.info("closeCcdCase ====> {}", closeCcdCase);
-        if (closeCcdCase) {
-            LOGGER.info("Closing CCD case, case id {}", ccdCaseId);
-            extendedCcdHelper.closeCcdCase(ccdCaseId);
-        }
     }
 
     @Test
@@ -175,7 +161,7 @@ public class ShareScenarios extends BaseTest {
     }
 
     @AfterEach
-    void clearUp() {
+    public void clearUp() {
         LOGGER.info("closeCcdCase AfterEach ====> {}", closeCcdCase);
         if (closeCcdCase) {
             LOGGER.info("Closing CCD case, case id {}", ccdCaseId);
