@@ -205,7 +205,7 @@ public class ExtendedCcdHelper {
             .relaxedHTTPSValidation()
             .baseUri(ccdApiUrl)
             .header("experimental", true)
-            .header("Authorization", idamToken)
-            .header("ServiceAuthorization", s2sToken);
+            .header("Authorization", BEARER_TOKEN_PREFIX + idamToken)
+            .header("ServiceAuthorization", BEARER_TOKEN_PREFIX + s2sToken);
     }
 }
