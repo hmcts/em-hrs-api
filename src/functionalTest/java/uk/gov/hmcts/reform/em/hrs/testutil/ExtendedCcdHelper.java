@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.testutil;
 
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -200,12 +201,19 @@ public class ExtendedCcdHelper {
     }
 
     private RequestSpecification getRequestSpecification(String idamToken, String s2sToken) {
+
+        if (!StringUtils.startsWith(idamToken, BEARER_TOKEN_PREFIX)) {
+            idamToken = BEARER_TOKEN_PREFIX + idamToken;
+        }
+        if (!StringUtils.startsWith(s2sToken, BEARER_TOKEN_PREFIX)) {
+            s2sToken = BEARER_TOKEN_PREFIX + s2sToken;
+        }
         return RestAssured
             .given().log().all()
             .relaxedHTTPSValidation()
             .baseUri(ccdApiUrl)
             .header("experimental", true)
-            .header("Authorization", BEARER_TOKEN_PREFIX + idamToken)
-            .header("ServiceAuthorization", BEARER_TOKEN_PREFIX + s2sToken);
+            .header("Authorization", idamToken)
+            .header("ServiceAuthorization", s2sToken);
     }
 }
