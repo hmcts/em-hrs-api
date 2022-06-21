@@ -43,3 +43,7 @@ variable sku_name {
 variable sku_capacity {
   default = "2"
 }
+
+variable close_ccd_test_cases {
+  default = false
+}
