@@ -162,7 +162,7 @@ public class ExtendedCcdHelper {
                     + "/cases/{caseId}"
                     + "/event-triggers/{eventId}/token"
             )
-            .then()
+            .then().log().all()
             .assertThat()
             .statusCode(SC_OK)
             .extract()
@@ -192,7 +192,7 @@ public class ExtendedCcdHelper {
                     + "/cases/{caseId}"
                     + "/events?ignoreWarning=true"
             )
-            .then()
+            .then().log().all()
             .assertThat()
             .statusCode(SC_CREATED)
             .extract()
