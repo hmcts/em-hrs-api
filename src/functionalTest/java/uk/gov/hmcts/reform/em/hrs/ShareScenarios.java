@@ -132,34 +132,6 @@ public class ShareScenarios extends BaseTest {
         assertThat(actualFileSize, is(expectedFileSize));
     }
 
-    @Test
-    public void shouldReturn400WhenShareHearingRecordingsToInvalidEmailAddress() {
-        final CallbackRequest callbackRequest =
-            addEmailRecipientToCaseDetailsCallBack(caseDetails, EMAIL_ADDRESS_INVALID_FORMAT);
-
-        shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
-            .then().log().all()
-            .statusCode(400);
-    }
-
-    @Test
-    public void shouldReturn404WhenShareHearingRecordingsToEmailAddressWithNonExistentCaseId() {
-        Long randomCcdId = Long.valueOf(generateUid());
-        caseDetails.setId(randomCcdId);
-        final CallbackRequest callbackRequest =
-            addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY);
-        LOGGER.info(
-            "Sharing case with new timebased random ccd id {}, by user {}",
-            randomCcdId,
-            USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS
-        );
-        shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
-            .then().log().all()
-            .statusCode(404);
-
-        caseDetails.setId(null);
-    }
-
     @AfterEach
     public void clearUp() {
         LOGGER.info("closeCcdCase AfterEach ====> {}", closeCcdCase);
