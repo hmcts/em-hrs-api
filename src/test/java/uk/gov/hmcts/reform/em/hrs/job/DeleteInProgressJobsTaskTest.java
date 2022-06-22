@@ -5,6 +5,7 @@ import org.mockito.ArgumentCaptor;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.JobInProgressRepository;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +22,7 @@ class DeleteInProgressJobsTaskTest {
         // given
         var hearingRecordingRepository = mock(HearingRecordingRepository.class);
         var jobInProgressRepository = mock(JobInProgressRepository.class);
-        LocalDateTime fourHoursAgo = LocalDateTime.now().minusHours(4);
+        LocalDateTime fourHoursAgo = LocalDateTime.now(Clock.systemUTC()).minusHours(4);
         var task = new DeleteInProgressJobsTask(
             hearingRecordingRepository,
             jobInProgressRepository,

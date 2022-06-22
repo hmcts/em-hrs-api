@@ -82,8 +82,15 @@ public class AzureStorageConfig {
 
         }
 
+        BlobContainerClient blobContainerClient = b.buildClient();
+        final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
+            .orElse(false);
 
-        return b.buildClient();
+        if (!containerExists) {
+            LOGGER.info("Creating container {} in HRS Storage", cvpContainer);
+            blobContainerClient.create();
+        }
+        return blobContainerClient;
     }
 
 }

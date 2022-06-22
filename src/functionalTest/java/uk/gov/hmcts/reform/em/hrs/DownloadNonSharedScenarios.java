@@ -32,6 +32,7 @@ public class DownloadNonSharedScenarios extends BaseTest {
         createFolderIfDoesNotExistInHrsDB(FOLDER);
         caseRef = timebasedCaseRef();
         filename = filename(caseRef, 0);
+        filenames.add(filename);
 
         LOGGER.info("Priming CVP Container");
         blobUtil.uploadFileFromPathToCvpContainer(filename,"data/test_data.mp4");
