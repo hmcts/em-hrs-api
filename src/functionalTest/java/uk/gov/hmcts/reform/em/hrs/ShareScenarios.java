@@ -45,7 +45,7 @@ public class ShareScenarios extends BaseTest {
 
 
         LOGGER.info("SET UP: UPLOADING TO CVP");
-        blobUtil.uploadFileFromPathToCvpContainer(filename, "data/test_data.mp4");
+        blobUtil.uploadFileFromPathToCvpContainer(filename,"data/test_data.mp4");
         blobUtil.checkIfUploadedToStore(filenames, blobUtil.cvpBlobContainerClient);
 
         LOGGER.info("SET UP: POSTING TO HRS");
@@ -132,6 +132,34 @@ public class ShareScenarios extends BaseTest {
         assertThat(actualFileSize, is(expectedFileSize));
     }
 
+    @Test
+    public void shouldReturn400WhenShareHearingRecordingsToInvalidEmailAddress() {
+        final CallbackRequest callbackRequest =
+            addEmailRecipientToCaseDetailsCallBack(caseDetails, EMAIL_ADDRESS_INVALID_FORMAT);
+
+        shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
+            .then().log().all()
+            .statusCode(400);
+    }
+
+    @Test
+    public void shouldReturn404WhenShareHearingRecordingsToEmailAddressWithNonExistentCaseId() {
+        Long randomCcdId = Long.valueOf(generateUid());
+        caseDetails.setId(randomCcdId);
+        final CallbackRequest callbackRequest =
+            addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY);
+        LOGGER.info(
+            "Sharing case with new timebased random ccd id {}, by user {}",
+            randomCcdId,
+            USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS
+        );
+        shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
+            .then().log().all()
+            .statusCode(404);
+
+        caseDetails.setId(null);
+    }
+
     @AfterEach
     public void clearUp() {
         LOGGER.info("closeCcdCase AfterEach ====> {}", closeCcdCase);
@@ -140,4 +168,5 @@ public class ShareScenarios extends BaseTest {
             extendedCcdHelper.closeCcdCase(ccdCaseId);
         }
     }
+
 }
