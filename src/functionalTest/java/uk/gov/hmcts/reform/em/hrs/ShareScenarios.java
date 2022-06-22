@@ -2,8 +2,8 @@ package uk.gov.hmcts.reform.em.hrs;
 
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +13,11 @@ import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.annotation.PostConstruct;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ShareScenarios extends BaseTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShareScenarios.class);
 
@@ -34,7 +32,7 @@ public class ShareScenarios extends BaseTest {
 
     private Long ccdCaseId;
 
-    @PostConstruct
+    @BeforeEach
     public void setup() throws Exception {
         LOGGER.info("SETTING UP SHARE RECORDING SCENARIOS....");
 
