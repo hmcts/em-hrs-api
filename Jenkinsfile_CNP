@@ -70,6 +70,9 @@ withPipeline(type, product, component) {
   overrideVaultEnvironments(vaultOverrides)
   loadVaultSecrets(secrets)
 
+  onPR {
+    env.CLOSE_CCD_TEST_CASES = true
+  }
 
   onMaster {
     after('test') {

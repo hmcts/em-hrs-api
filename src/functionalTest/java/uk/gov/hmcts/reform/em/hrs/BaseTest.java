@@ -91,6 +91,8 @@ public abstract class BaseTest {
 
     protected String hrsS2sAuth;
 
+    @Value("${close-ccd-test-cases}")
+    protected boolean closeCcdCase;
 
     //The format "yyyy-MM-dd---HH-MM-ss---SSS" will render "07-30-2021---16-07-35---485"
     DateTimeFormatter datePartFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -391,7 +393,8 @@ public abstract class BaseTest {
                                       caseData
             );
 
-        assert (caseDetails.getState().equals("1_CLOSED"));
+        String caseState = caseDetails.getState();
+        assert (caseState.equals("1_CLOSED"));
         LOGGER.info("closed case id ({}) with reference ({}), it now has state ({})",
                     caseDetails.getId(), caseRef, caseDetails.getState()
         );

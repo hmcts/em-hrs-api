@@ -219,6 +219,7 @@ dependencyCheck {
 configurations.all {
   exclude group: 'org.springframework.security', module: 'spring-security-rsa'
   exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
+  exclude group: 'com.vaadin.external.google',   module: 'android-json'
 }
 dependencyManagement {
   dependencies {
