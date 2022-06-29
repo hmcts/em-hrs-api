@@ -127,8 +127,6 @@ public abstract class BaseTest {
     public void init() {
         LOGGER.info("AUTHENTICATING TEST USER FOR CCD CALLS");
         hrsS2sAuth = BEARER + s2sHelper.getS2sToken();
-        createIdamUserIfNotExists(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS,
-                                  List.of("caseworker", "caseworker-hrs", "caseworker-hrs-searcher"));
     }
 
     private void createIdamUserIfNotExists(String email, List<String> roles) {

@@ -27,8 +27,9 @@ public class CftLibConfig implements CFTLibConfigurer {
         }
 
         lib.createRoles(
-            "caseworker-hrs",
+            "citizen",
             "caseworker",
+            "caseworker-hrs",
             "caseworker-hrs-searcher"
         );
 
@@ -37,7 +38,8 @@ public class CftLibConfig implements CFTLibConfigurer {
                                         .getInputStream(), Charset.defaultCharset());
         lib.configureRoleAssignments(json);
 
-        lib.importDefinition(Files.readAllBytes(Path.of("src/functionalTest/resources/hrs_ccd_case_definition_v1.0_AAT.xlsx")));
+        lib.importDefinition(Files.readAllBytes(
+            Path.of("src/functionalTest/resources/hrs_ccd_case_definition_v1.0_AAT.xlsx")));
 
     }
 }

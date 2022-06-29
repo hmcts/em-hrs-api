@@ -1,11 +1,11 @@
 [
   {
-    "email": "TEST_SYSTEM_USER@mailinator.com",
+    "email": "em-test-searcher@test.hmcts.net",
     "id": "93b108b7-4b26-41bf-ae8f-6e356efb11b3",
     "roleAssignments": [
       {
         "roleType": "CASE",
-        "roleName": "idam:caseworker-divorce-solicitor",
+        "roleName": "idam:caseworker-hrs-searcher",
         "grantType": "SPECIFIC",
         "roleCategory": "PROFESSIONAL",
         "classification": "RESTRICTED",
@@ -22,52 +22,29 @@
         "readOnly": false,
         "attributes": { "caseType": "HearingRecordings", "jurisdiction": "HRS" },
         "authorisations": []
+      }
+    ],
+    "overrideAll": true
+  },
+  {
+    "email": "em-test-requestor@test.hmcts.net",
+    "id": "93b108b7-4b26-41bf-ae8f-6e356efb11a4",
+    "roleAssignments": [
+      {
+        "roleType": "CASE",
+        "roleName": "idam:caseworker-hrs",
+        "grantType": "SPECIFIC",
+        "roleCategory": "PROFESSIONAL",
+        "classification": "RESTRICTED",
+        "readOnly": false,
+        "attributes": { "caseType": "HearingRecordings", "jurisdiction": "HRS" },
+        "authorisations": []
       },
       {
         "roleType": "CASE",
         "roleName": "[APPONESOLICITOR]",
-        "grantType": "CHALLENGED",
-        "roleCategory": "PROFESSIONAL",
-        "classification": "RESTRICTED",
-        "readOnly": false,
-        "attributes": { "caseType": "HearingRecordings", "jurisdiction": "HRS" },
-        "authorisations": []
-      },
-      {
-        "roleType": "CASE",
-        "roleName": "[APPTWOSOLICITOR]",
         "grantType": "SPECIFIC",
         "roleCategory": "PROFESSIONAL",
-        "classification": "RESTRICTED",
-        "readOnly": false,
-        "attributes": { "caseType": "HearingRecordings", "jurisdiction": "HRS" },
-        "authorisations": []
-      },
-      {
-        "roleType": "CASE",
-        "roleName": "[APPTWOSOLICITOR]",
-        "grantType": "CHALLENGED",
-        "roleCategory": "PROFESSIONAL",
-        "classification": "RESTRICTED",
-        "readOnly": false,
-        "attributes": { "caseType": "HearingRecordings", "jurisdiction": "HRS" },
-        "authorisations": []
-      },
-      {
-        "roleType": "CASE",
-        "roleName": "[APPLICANTTWO]",
-        "grantType": "SPECIFIC",
-        "roleCategory": "CITIZEN",
-        "classification": "RESTRICTED",
-        "readOnly": false,
-        "attributes": { "caseType": "HearingRecordings", "jurisdiction": "HRS" },
-        "authorisations": []
-      },
-      {
-        "roleType": "CASE",
-        "roleName": "[APPLICANTTWO]",
-        "grantType": "CHALLENGED",
-        "roleCategory": "CITIZEN",
         "classification": "RESTRICTED",
         "readOnly": false,
         "attributes": { "caseType": "HearingRecordings", "jurisdiction": "HRS" },

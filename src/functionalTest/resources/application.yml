@@ -12,7 +12,7 @@ spring:
       client:
         provider:
           oidc:
-            issuer-uri: ${OPEN_ID_API_BASE_URI:http://localhost:5000/o}
+            issuer-uri: ${OPEN_ID_API_BASE_URI:https://idam-web-public.aat.platform.hmcts.net/o}
         registration:
           oidc:
             client-id: webshow #TODO: create proper idam client-id for hrs
@@ -31,17 +31,17 @@ test:
 
 idam:
   api:
-    url: ${IDAM_API_BASE_URI:http://localhost:5000}
+    url: ${IDAM_API_BASE_URI:https://idam-api.aat.platform.hmcts.net}
   client:
     id: ${OAUTH_CLIENT_ID:webshow}
     secret: ${IDAM_CLIENT_OAUTH_SECRET:AAAAAAAAAAAAAAAA}
-    redirect_uri: ${IDAM_REDIRECT_URI:http://localhost:8080/oauth2redirect}
+    redirect_uri: ${IDAM_REDIRECT_URI:https://em-hrs-api-aat.service.core-compute-aat.internal/oauth2/callback}
     grant_type: 'password'
     scope: 'openid roles profile'
 
 s2s:
   api:
-    url: ${S2S_BASE_URI:http://localhost:8489}
+    url: ${S2S_BASE_URI:http://rpe-service-auth-provider-aat.service.core-compute-aat.internal}
     secret: ${FUNCTIONAL_TEST_CLIENT_S2S_TOKEN:AAAAAAAAAAAAAAAA}
     serviceName: ${S2S_SERVICE_NAME:em_gw}
     ccdGwSecret: ${FUNCTIONAL_TEST_CCD_GW_SERVICE_SECRET:AAAAAAAAAAAAAAAA}
@@ -66,7 +66,7 @@ azure:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:d30268e8-8979-4579-8d58-010dbe03a1e6}
   storage:
     cvp:
-      container-url: ${CVP_CONTAINER_URL:http://localhost:10000/devstoreaccount1/cvptestcontainer/}
+      container-url: https://emhrsapiaat.blob.core.windows.net/cvpsimulator/
       connection-string: ${CVP_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
       blob-container-reference: ${CVP_STORAGE_CONTAINER_NAME:cvptestcontainer}
     hrs:
