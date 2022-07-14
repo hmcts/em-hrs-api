@@ -1,52 +1,45 @@
 # Hearing Recording Storage Service
 
-#.github custom workflows
+## .github custom workflows
 
 https://github.com/hrvey/combine-prs-workflow
  is used to combine passing dependabot PRs into a single branch
 
 ## Pre-requisites:
 
-To be able to run the applicaiton locally, you will need to be able to run the docker images
+To be able to run the application locally, you will need to be able to run the docker images
 for CCD and other services.
 
 You will need to be able to run this command:
-az acr login --name hmctspublic && az acr login --name hmctsprivate
+az login
 
 So standard az cli tools are needed, as well as @hmcts.net log in with appropriate roles
 
 ## Setup
 
-Simply run the following script to start all application dependencies.
+#### To clone repo and prepare to pull containers:
 
-```bash
-  ./docker/dependencies/start-local-environment.sh
 ```
-### Building the application
-
-To build the project execute the following command:
-
-```bash
-  ./gradlew build
-```
-### Running the application
-
-Create the image of the application by executing the following command:
-
-```bash
-  ./gradlew assemble
+git clone https://github.com/hmcts/em-hrs-api.git
+cd em-hrs-api/
 ```
 
-Create docker image:
+#### Clean and build the application:
 
-```bash
-  docker-compose build
+Requires docker desktop running
+
+```
+./gradlew clean
+./gradlew build
 ```
 
-Run the application in docker by executing the following command:
+#### To run the application:
 
-```bash
-  docker-compose up
+VPN connection is required
+
+```
+az login
+./gradlew bootWithCCD
 ```
 
 This will start the API container exposing the application's port [8080]
@@ -57,31 +50,27 @@ In order to test if the application is up, you can call its health endpoint:
   curl http://localhost:8080/health
 ```
 
-You should get a response similar to this:
+Contained within the response should be similar to this:
 
 ```
   {"status":"UP","diskSpace":{"status":"UP","total":249644974080,"free":137188298752,"threshold":10485760}}
 ```
 
-#Gotchas:
+#### Gotchas:
 
-1) the applicaitons postgres database runs on port 5444 due to issues getting pact broker database
-to run on a different port
-
-2) as with all liquibase projects, sometimes your database will be out of sync with changes within
+1) as with all liquibase projects, sometimes your database will be out of sync with changes within
    src/main/resources/db/db.changelog-master.xml
-   AS a convenience method, when your run "make app-run", it will call the liquibase apply as part of the
-   gradle commands. this make command resolves to:
-   ./gradlew migratePostgresDatabase bootRun
+   To fix this run:
+   ./gradlew migratePostgresDatabase
 
-3) before running any integration tests from hrs-ingestor, you will need to prime the CCD data API with the
+2) before running any integration tests from hrs-ingestor, you will need to prime the CCD data API with the
    hrs spreadsheet. This can be achieved by running ./gradlew functional
 
-4) Sonarqube only does analysis
+3) Sonarqube only does analysis
 
-#Local Dev
+## Local Dev
 
-##First Time Build
+### First Time Build
 
 You'll need to get sonarqube, and initialise it and change the password to adminnew
 
@@ -93,7 +82,7 @@ make report-sonarqube
 in the browser, log in as admin (password=admin), go to http://localhost:9000/account/security/ and change password to adminnew
 
 
-##Subsequent Builds (these must all pass before raising a PR)
+### Subsequent Builds (these must all pass before raising a PR)
 
 checks:
  - make check-all
@@ -108,17 +97,17 @@ smoketest:
  - make app-run
  - make app-smoke-test
 
-#Connecting to Database
+## Connecting to Database
 Using PGAdmin, or IntelliJ Ultimate:
 
 host:localhost
-port:5444
+port:6432
 username:emhrs
 pass:emhrs
-jdbc_url: jdbc:postgresql://localhost:5444/emhrs
+jdbc_url: jdbc:postgresql://localhost:6432/emhrs
 
 
-#Idea Setup
+## Idea Setup
 
 Increase import star to 200 to avoid conflicts with checkstyle
 https://intellij-support.jetbrains.com/hc/en-us/community/posts/206203659-Turn-off-Wildcard-imports-
