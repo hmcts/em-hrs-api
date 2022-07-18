@@ -1,0 +1,56 @@
+[
+  {
+    "email": "em-test-searcher@test.hmcts.net",
+    "id": "93b108b7-4b26-41bf-ae8f-6e356efb11b3",
+    "roleAssignments": [
+      {
+        "roleType": "CASE",
+        "roleName": "idam:caseworker-hrs-searcher",
+        "grantType": "SPECIFIC",
+        "roleCategory": "PROFESSIONAL",
+        "classification": "RESTRICTED",
+        "readOnly": false,
+        "attributes": { "caseType": "HearingRecordings", "jurisdiction": "HRS" },
+        "authorisations": []
+      },
+      {
+        "roleType": "CASE",
+        "roleName": "[APPONESOLICITOR]",
+        "grantType": "SPECIFIC",
+        "roleCategory": "PROFESSIONAL",
+        "classification": "RESTRICTED",
+        "readOnly": false,
+        "attributes": { "caseType": "HearingRecordings", "jurisdiction": "HRS" },
+        "authorisations": []
+      }
+    ],
+    "overrideAll": true
+  },
+  {
+    "email": "em-test-requestor@test.hmcts.net",
+    "id": "93b108b7-4b26-41bf-ae8f-6e356efb11a4",
+    "roleAssignments": [
+      {
+        "roleType": "CASE",
+        "roleName": "idam:caseworker-hrs",
+        "grantType": "SPECIFIC",
+        "roleCategory": "PROFESSIONAL",
+        "classification": "RESTRICTED",
+        "readOnly": false,
+        "attributes": { "caseType": "HearingRecordings", "jurisdiction": "HRS" },
+        "authorisations": []
+      },
+      {
+        "roleType": "CASE",
+        "roleName": "[APPONESOLICITOR]",
+        "grantType": "SPECIFIC",
+        "roleCategory": "PROFESSIONAL",
+        "classification": "RESTRICTED",
+        "readOnly": false,
+        "attributes": { "caseType": "HearingRecordings", "jurisdiction": "HRS" },
+        "authorisations": []
+      }
+    ],
+    "overrideAll": true
+  }
+]
