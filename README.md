@@ -58,8 +58,7 @@ Contained within the response should be similar to this:
 
 #### Gotchas:
 
-1) as with all liquibase projects, sometimes your database will be out of sync with changes within
-   src/main/resources/db/db.changelog-master.xml
+1) sometimes your database will be out of sync with changes
    To fix this run:
    ./gradlew migratePostgresDatabase
 
