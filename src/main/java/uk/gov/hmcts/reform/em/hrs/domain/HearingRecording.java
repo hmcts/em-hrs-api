@@ -11,21 +11,16 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -71,13 +66,6 @@ public class HearingRecording {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "hearingRecording")
     private Set<HearingRecordingAuditEntry> auditEntries;
 
-    @ElementCollection
-    @MapKeyColumn(name = "name")
-    @Column(name = "value")
-    @CollectionTable(name = "hearing_recording_metadata",
-        joinColumns = @JoinColumn(name = "hearing_recording_metadata_id"))
-
-    private Map<String, String> metadata;
 
     private LocalDateTime ttl;
     private String recordingRef;
@@ -98,7 +86,7 @@ public class HearingRecording {
                             LocalDateTime modifiedOn, LocalDateTime createdOn,
                             boolean deleted, Folder folder,
                             Set<HearingRecordingAuditEntry> auditEntries,
-                            Map<String, String> metadata, LocalDateTime ttl,
+                            LocalDateTime ttl,
                             String recordingRef, String caseRef, String hearingLocationCode,
                             String hearingRoomRef, String hearingSource,
                             String jurisdictionCode, String serviceCode, Long ccdCaseId,
@@ -114,7 +102,6 @@ public class HearingRecording {
         setFolder(folder);
 
         setAuditEntries(auditEntries);
-        setMetadata(metadata);
         setTtl(ttl);
 
         setRecordingRef(recordingRef);
