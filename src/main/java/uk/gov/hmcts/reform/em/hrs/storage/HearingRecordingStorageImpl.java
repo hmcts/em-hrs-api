@@ -178,27 +178,44 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         final Duration duration = Duration.ofMinutes(BLOB_LIST_TIMEOUT);
 
         final PagedIterable<BlobItem> cvpBlobItems = cvpBlobContainerClient.listBlobs(options, duration);
-        var cvpBlobItemsStream = cvpBlobItems.stream();
-        long cvpItemCount = cvpBlobItemsStream
-            .filter(blobItem -> blobItem.getName().contains("/") && blobItem.getName().contains(".mp"))
-            .count();
 
         LocalDate today = LocalDate.now();
-        long cvpItemCountToday = cvpBlobItemsStream.filter(blob -> isCreatedToday(blob, today)).count();
 
-        final PagedIterable<BlobItem> hrsBlobItems = hrsBlobContainerClient.listBlobs(options, duration);
-        var hrsBlobItemsStream =  hrsBlobItems.stream();
-        long hrsItemCount = hrsBlobItemsStream.count();
-        long hrsItemCountToday = hrsBlobItemsStream.filter(blob -> isCreatedToday(blob, today)).count();
+        var cvpTodayItemCounter = new Counter();
+        long cvpItemCount = cvpBlobItems
+            .stream()
+            .filter(blobItem -> blobItem.getName().contains("/") && blobItem.getName().contains(".mp"))
+            .peek(blob -> {
+                if (isCreatedToday(blob, today)) {
+                    cvpTodayItemCounter.count++;
+                }
+            }).count();
+
+        var hrsTodayItemCounter = new Counter();
+
+        long hrsItemCount = hrsBlobContainerClient.listBlobs(options, duration)
+            .stream()
+            .peek(blob -> {
+                if (isCreatedToday(blob, today)) {
+                    hrsTodayItemCounter.count++;
+                }
+            }).count();
+
 
         LOGGER.info(
             "CVP Total Count= {} vs HRS Total Count= {}, Today CVP= {} vs HRS= {} ",
             cvpItemCount,
             hrsItemCount,
-            cvpItemCountToday,
-            hrsItemCountToday
+            cvpTodayItemCounter.count,
+            hrsTodayItemCounter.count
         );
-        return new StorageReport(today, cvpItemCount, hrsItemCount, cvpItemCountToday, hrsItemCountToday);
+        return new StorageReport(
+            today,
+            cvpItemCount,
+            hrsItemCount,
+            cvpTodayItemCounter.count,
+            hrsTodayItemCounter.count
+        );
     }
 
     private boolean isCreatedToday(BlobItem blobItem, LocalDate today) {
@@ -210,5 +227,10 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             ));
     }
 
+    private class Counter {
+        public long count = 0;
+    }
 
 }
+
+
