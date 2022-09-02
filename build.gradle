@@ -272,7 +272,7 @@ dependencies {
     exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
   }
 
-
+  implementation group: 'org.yaml', name: 'snakeyaml', version: '1.31'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
 
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server', version: versions.springSecurity
