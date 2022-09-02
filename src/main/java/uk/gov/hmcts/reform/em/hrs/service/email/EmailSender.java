@@ -26,7 +26,7 @@ public class EmailSender implements MessageSender {
     @Override
     public void sendMessageWithAttachments(
         String subject,
-        String body,
+        String htmlMsg,
         String from,
         String[] recipients,
         Map<String, File> attachments
@@ -38,7 +38,7 @@ public class EmailSender implements MessageSender {
             helper.setFrom(from);
             helper.setTo(recipients);
             helper.setSubject(subject);
-            helper.setText(body);
+            helper.setText(htmlMsg);
             for (Map.Entry<String, File> attachment : attachments.entrySet()) {
                 helper.addAttachment(attachment.getKey(), attachment.getValue());
             }

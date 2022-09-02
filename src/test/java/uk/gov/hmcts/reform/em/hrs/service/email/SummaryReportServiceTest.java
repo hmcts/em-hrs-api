@@ -10,6 +10,8 @@ import uk.gov.hmcts.reform.em.hrs.exception.EmailRecipientNotFoundException;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 import uk.gov.hmcts.reform.em.hrs.storage.StorageReport;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -37,8 +39,9 @@ class SummaryReportServiceTest {
 
     @Test
     void should_process() throws SendEmailException {
+        var today = LocalDate.now();
         given(hearingRecordingStorage.getStorageReport())
-            .willReturn(new StorageReport(23L, 67L));
+            .willReturn(new StorageReport(today, 23L, 67L, 14L, 45L));
         summaryReportService.sendReport();
         verify(hearingRecordingStorage).getStorageReport();
         verify(emailSender).sendMessageWithAttachments(anyString(),anyString(),anyString(),any(),any());

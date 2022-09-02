@@ -30,7 +30,10 @@ import uk.gov.hmcts.reform.em.hrs.exception.BlobCopyException;
 import uk.gov.hmcts.reform.em.hrs.util.CvpConnectionResolver;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -175,19 +178,36 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         final Duration duration = Duration.ofMinutes(BLOB_LIST_TIMEOUT);
 
         final PagedIterable<BlobItem> cvpBlobItems = cvpBlobContainerClient.listBlobs(options, duration);
-        long cvpItemCount = cvpBlobItems
-            .stream()
+        var cvpBlobItemsStream = cvpBlobItems.stream();
+        long cvpItemCount = cvpBlobItemsStream
             .filter(blobItem -> blobItem.getName().contains("/") && blobItem.getName().contains(".mp"))
             .count();
 
+        LocalDate today = LocalDate.now();
+        long cvpItemCountToday = cvpBlobItemsStream.filter(blob -> isCreatedToday(blob, today)).count();
 
         final PagedIterable<BlobItem> hrsBlobItems = hrsBlobContainerClient.listBlobs(options, duration);
-        long hrsItemCount = hrsBlobItems.stream().count();
+        var hrsBlobItemsStream =  hrsBlobItems.stream();
+        long hrsItemCount = hrsBlobItemsStream.count();
+        long hrsItemCountToday = hrsBlobItemsStream.filter(blob -> isCreatedToday(blob, today)).count();
 
-        String report = "CVP Count = " + cvpItemCount;
-        report += " vs HRS Count = " + hrsItemCount;
-        LOGGER.info(report);
-        return new StorageReport(cvpItemCount, hrsItemCount);
+        LOGGER.info(
+            "CVP Total Count= {} vs HRS Total Count= {}, Today CVP= {} vs HRS= {} ",
+            cvpItemCount,
+            hrsItemCount,
+            cvpItemCountToday,
+            hrsItemCountToday
+        );
+        return new StorageReport(today, cvpItemCount, hrsItemCount, cvpItemCountToday, hrsItemCountToday);
+    }
+
+    private boolean isCreatedToday(BlobItem blobItem, LocalDate today) {
+        return blobItem.getProperties().getCreationTime().isAfter(
+            OffsetDateTime.of(
+                today,
+                LocalTime.MIDNIGHT,
+                ZoneOffset.UTC
+            ));
     }
 
 

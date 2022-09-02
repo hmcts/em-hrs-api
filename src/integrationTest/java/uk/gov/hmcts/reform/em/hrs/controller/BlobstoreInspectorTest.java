@@ -8,6 +8,8 @@ import uk.gov.hmcts.reform.em.hrs.componenttests.AbstractBaseTest;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 import uk.gov.hmcts.reform.em.hrs.storage.StorageReport;
 
+import java.time.LocalDate;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,7 +25,8 @@ public class BlobstoreInspectorTest extends AbstractBaseTest {
     @Test
     public void inspectEndpoint() throws Exception {
 
-        var storageReport = new StorageReport(12, 21);
+        var today = LocalDate.now();
+        var storageReport = new StorageReport(today, 12, 21, 2, 6);
         when(hearingRecordingStorage.getStorageReport()).thenReturn(storageReport);
         MvcResult response = mockMvc.perform(get("/inspect")).andExpect(status().isOk()).andReturn();
         assertThat(response.getResponse().getContentAsString()).startsWith("Blobstores");
