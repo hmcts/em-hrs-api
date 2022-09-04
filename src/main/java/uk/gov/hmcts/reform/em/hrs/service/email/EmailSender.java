@@ -38,7 +38,7 @@ public class EmailSender implements MessageSender {
             helper.setFrom(from);
             helper.setTo(recipients);
             helper.setSubject(subject);
-            helper.setText(htmlMsg);
+            helper.setText(htmlMsg, true);
             for (Map.Entry<String, File> attachment : attachments.entrySet()) {
                 helper.addAttachment(attachment.getKey(), attachment.getValue());
             }
