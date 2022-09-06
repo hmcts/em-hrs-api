@@ -382,8 +382,8 @@ dependencies {
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.2.0'
 
-  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.8.2'
-  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.6.3'
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.9.0'
+  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.9.0'
   functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
   functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
   functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
