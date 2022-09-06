@@ -19,7 +19,7 @@ plugins {
   id "info.solidsoft.pitest" version '1.6.0'
   id 'org.owasp.dependencycheck' version '7.1.0.1'
   id 'com.github.hmcts.rse-cft-lib' version '0.19.273'
-  id 'uk.gov.hmcts.java' version '0.12.28'
+  id 'uk.gov.hmcts.java' version '0.12.29'
 }
 
 apply plugin: 'net.serenity-bdd.aggregator'
