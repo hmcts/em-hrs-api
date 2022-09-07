@@ -18,7 +18,7 @@ plugins {
   id 'au.com.dius.pact' version '4.3.6'
   id "info.solidsoft.pitest" version '1.6.0'
   id 'org.owasp.dependencycheck' version '7.1.0.1'
-  id 'com.github.hmcts.rse-cft-lib' version '0.19.273'
+  id 'com.github.hmcts.rse-cft-lib' version '0.19.337'
   id 'uk.gov.hmcts.java' version '0.12.29'
 }
 
@@ -286,7 +286,7 @@ dependencies {
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-core', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-config', version: versions.springSecurity
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.2'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.4'
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.2'
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
