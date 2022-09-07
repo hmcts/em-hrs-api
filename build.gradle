@@ -311,7 +311,7 @@ dependencies {
 
 
 //hmcts ccd
-  implementation group: 'com.github.hmcts', name: 'core-case-data-store-client', version: '4.9.3'
+  implementation group: 'com.github.hmcts', name: 'core-case-data-store-client', version: '4.9.1'
 
 //hmcts logging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
