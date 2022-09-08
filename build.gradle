@@ -17,7 +17,7 @@ plugins {
   id 'org.flywaydb.flyway' version '9.2.2'
   id 'au.com.dius.pact' version '4.3.6'
   id "info.solidsoft.pitest" version '1.6.0'
-  id 'org.owasp.dependencycheck' version '7.1.0.1'
+  id 'org.owasp.dependencycheck' version '7.1.2'
   id 'com.github.hmcts.rse-cft-lib' version '0.19.337'
   id 'uk.gov.hmcts.java' version '0.12.29'
 }
@@ -376,7 +376,7 @@ dependencies {
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.22.0'
   testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.35.0'
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.17.3'
-  testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.2'
+  testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.3'
   testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.5', {
     exclude group: 'com.google.guava', module: 'guava'
   }
