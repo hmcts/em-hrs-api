@@ -34,6 +34,8 @@ java:
           alias: SMTP_PASSWORD
         - name: summary-report-recipients
           alias: SUMMARY_REPORT_RECIPIENTS
+        - name: hrs-api-app-insights-config
+          alias: app-insights-config
     rpa:
       secrets:
         - name: show-oauth2-token
@@ -68,6 +70,7 @@ java:
     SUMMARY_REPORT_CRON: "0 0 6 ? * *"
     SUMMARY_REPORT_ENABLED: false
     SHAREE_LINK_TTL: 72 #ttl in hours
+    APPLICATIONINSIGHTS_CONFIGURATION_FILE: /mnt/secrets/em-hrs-api/app-insights-config
 
 blobstorage:
   enabled: false
