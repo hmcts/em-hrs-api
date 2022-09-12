@@ -34,8 +34,6 @@ java:
           alias: SMTP_PASSWORD
         - name: summary-report-recipients
           alias: SUMMARY_REPORT_RECIPIENTS
-        - name: hrs-api-app-insights-config
-          alias: app-insights-config
     rpa:
       secrets:
         - name: show-oauth2-token
@@ -44,6 +42,8 @@ java:
           alias: OAUTH_CLIENT_ID
         - name: AppInsightsInstrumentationKey
           alias: APPINSIGHTS_INSTRUMENTATIONKEY
+        - name: app-insights-connection-string
+          alias: app-insights-connection-string
   environment:
     SPRING_DATASOURCE_URL: jdbc:postgresql://em-hrs-api-postgres-v11-db-{{ .Values.global.environment }}.postgres.database.azure.com:5432/emhrs?ssl=disable
     SPRING_DATASOURCE_USERNAME: emhrs@em-hrs-api-postgres-v11-db-{{ .Values.global.environment }}
@@ -70,7 +70,6 @@ java:
     SUMMARY_REPORT_CRON: "0 0 6 ? * *"
     SUMMARY_REPORT_ENABLED: false
     SHAREE_LINK_TTL: 72 #ttl in hours
-    APPLICATIONINSIGHTS_CONFIGURATION_FILE: /mnt/secrets/em-hrs-api/app-insights-config
 
 blobstorage:
   enabled: false
