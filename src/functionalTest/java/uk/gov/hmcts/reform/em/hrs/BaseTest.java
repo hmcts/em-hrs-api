@@ -427,7 +427,7 @@ public abstract class BaseTest {
      * @param numberString number string to process
      * @param noCheckDigit Whether check digit is present or not. True if no check Digit
      *                     is appended.
-     * @return
+     * @return check digit
      */
     public int checkSum(String numberString, boolean noCheckDigit) {
         int sum = 0;
