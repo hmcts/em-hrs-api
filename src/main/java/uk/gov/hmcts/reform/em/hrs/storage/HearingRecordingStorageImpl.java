@@ -87,21 +87,22 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
         BlockBlobClient destinationBlobClient = hrsBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
 
-        LOGGER.info("############## Trying copy from URL for sourceUri {}", sourceUri);
+        LOGGER.info("########## Trying copy from URL for sourceUri {}", sourceUri);
 
         if (Boolean.FALSE.equals(destinationBlobClient.exists())
             || destinationBlobClient.getProperties().getBlobSize() == 0) {
             if (CvpConnectionResolver.isACvpEndpointUrl(cvpConnectionString)) {
-                LOGGER.info("Generating and appending SAS token for copy");
+                LOGGER.info("Generating and appending SAS token for copy for filename{}", filename);
                 String sasToken = generateReadSasForCvp(filename);
                 sourceUri = sourceUri + "?" + sasToken;
             }
 
+            LOGGER.info("SAS token created for filename{}", filename);
 
             try {
 
                 BlockBlobClient sourceBlob = cvpBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
-                LOGGER.info("sourceBlob.exists() {}", sourceBlob.exists());
+                LOGGER.info("SourceBlob exists= {}, blob name {}", sourceBlob.exists(), sourceBlob.getBlobName());
                 SyncPoller<BlobCopyInfo, Void> poller = destinationBlobClient.beginCopy(sourceUri, null);
                 PollResponse<BlobCopyInfo> poll = poller.waitForCompletion();
                 LOGGER.info(
