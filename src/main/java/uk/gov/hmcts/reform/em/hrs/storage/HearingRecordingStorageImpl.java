@@ -37,6 +37,7 @@ import java.time.ZoneOffset;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.azure.core.util.polling.LongRunningOperationStatus.SUCCESSFULLY_COMPLETED;
 import static uk.gov.hmcts.reform.em.hrs.util.CvpConnectionResolver.extractAccountFromUrl;
 
 @SuppressWarnings("squid:S2139")
@@ -49,13 +50,15 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
 
     private final String cvpConnectionString;
+    private static final Duration POLLER_WAIT = Duration.ofMinutes(5);
+    private static final Duration POLLING_INTERVAL = Duration.ofSeconds(3);
 
     @Autowired
-    public HearingRecordingStorageImpl(final @Qualifier("HrsBlobContainerClient")
-                                           BlobContainerClient hrsContainerClient,
-                                       final @Qualifier("CvpBlobContainerClient")
-                                           BlobContainerClient cvpContainerClient,
-                                       @Value("${azure.storage.cvp.connection-string}") String cvpConnectionString) {
+    public HearingRecordingStorageImpl(
+        final @Qualifier("HrsBlobContainerClient") BlobContainerClient hrsContainerClient,
+        final @Qualifier("CvpBlobContainerClient") BlobContainerClient cvpContainerClient,
+        @Value("${azure.storage.cvp.connection-string}") String cvpConnectionString
+    ) {
         this.hrsBlobContainerClient = hrsContainerClient;
         this.cvpBlobContainerClient = cvpContainerClient;
         this.cvpConnectionString = cvpConnectionString;
@@ -98,35 +101,44 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             }
 
             LOGGER.info("SAS token created for filename{}", filename);
-
+            PollResponse<BlobCopyInfo> poll;
             try {
 
                 BlockBlobClient sourceBlob = cvpBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
                 LOGGER.info("SourceBlob exists= {}, blob name {}", sourceBlob.exists(), sourceBlob.getBlobName());
-                SyncPoller<BlobCopyInfo, Void> poller = destinationBlobClient.beginCopy(sourceUri, null);
-                PollResponse<BlobCopyInfo> poll = poller.waitForCompletion();
+                SyncPoller<BlobCopyInfo, Void> poller = destinationBlobClient.beginCopy(sourceUri, POLLING_INTERVAL);
+                poll = poller.waitForCompletion(POLLER_WAIT);
                 LOGGER.info(
                     "File copy completed for {} with status {}",
                     filename,
                     poll.getStatus()
                 );
             } catch (BlobStorageException be) {
-                LOGGER.info("Blob Copy BlobStorageException code {}, message{}", be.getErrorCode(), be.getMessage());
+                LOGGER.info(
+                    "Blob Copy BlobStorageException code {}, message{}, file {}",
+                    be.getErrorCode(),
+                    be.getMessage(),
+                    filename
+                );
                 throw new BlobCopyException(be.getMessage(), be);
                 //TODO should we try and clean up the destination blob? can it be partially present?
             } catch (Exception e) {
-                LOGGER.info("Unhandled Exception during Blob Copy {}", e.getMessage());
+                LOGGER.info(
+                    "Unhandled Exception during Blob Copy {}, filename {}",
+                    e.getMessage(),
+                    filename
+                );
                 throw new BlobCopyException(e.getMessage(), e);
                 //TODO should we try and clean up the destination blob? can it be partially present?
             }
 
-
+            if (poll == null || !SUCCESSFULLY_COMPLETED.equals(poll.getStatus())) {
+                throw new BlobCopyException("Copy not completed successfully");
+            }
         } else {
             LOGGER.info("############## target blobstore already has file: {}", filename);
         }
-
     }
-
 
     private String generateReadSasForCvp(String fileName) {
 
