@@ -228,7 +228,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 }
             }).count();
 
-        LOGGER.info("CVP-HRS difference ", cvpItems);
+        LOGGER.info("CVP-HRS difference {}", cvpItems);
         LOGGER.info(
             "StorageReport CVP Total Count= {} vs HRS Total Count= {}, Today CVP= {} vs HRS= {} ",
             cvpItemCount,
