@@ -108,6 +108,9 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 BlobClient sourceBlobClient = cvpBlobContainerClient.getBlobClient(filename);
                 LOGGER.info("sourceBlobClient url", sourceBlobClient.getProperties().getBlobSize());
 
+                BlockBlobClient sourceBlob = sourceBlobClient.getBlockBlobClient();
+                LOGGER.info("SourceBlob exists= {}, blob name {}", sourceBlob.exists(), sourceBlob.getBlobName());
+                
                 SyncPoller<BlobCopyInfo, Void> poller = destinationBlobClient.beginCopy(sourceUri, POLLING_INTERVAL);
                 poll = poller.waitForCompletion(POLLER_WAIT);
                 LOGGER.info(
