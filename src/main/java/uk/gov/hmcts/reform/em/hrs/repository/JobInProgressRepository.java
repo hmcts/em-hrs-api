@@ -6,10 +6,10 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import uk.gov.hmcts.reform.em.hrs.domain.JobInProgress;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
+import javax.transaction.Transactional;
 
 public interface JobInProgressRepository extends PagingAndSortingRepository<JobInProgress, UUID> {
 
