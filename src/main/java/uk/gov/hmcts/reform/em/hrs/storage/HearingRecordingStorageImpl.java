@@ -204,7 +204,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                     cvpTodayItemCounter.count++;
                 }
             })
-            .map(blb->blb.getName())
+            .map(blb -> blb.getName())
             .collect(Collectors.toSet());
 
 
