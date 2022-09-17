@@ -177,6 +177,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             .setStartTime(OffsetDateTime.now().minusMinutes(95));
         String accountName =
             extractAccountFromUrl(cvpConnectionString);//TODO this is hardcoded for perftest enviro
+        LOGGER.info("GenerateUserDelegationSas for blobfile: {}", fileName);
         return sourceBlob.generateUserDelegationSas(signatureValues, userDelegationKey, accountName, Context.NONE);
     }
 
@@ -195,14 +196,19 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         LocalDate today = LocalDate.now();
 
         var cvpTodayItemCounter = new Counter();
-        long cvpItemCount = cvpBlobItems
+        Set cvpItems  = cvpBlobItems
             .stream()
             .filter(blobItem -> blobItem.getName().contains("/") && blobItem.getName().contains(".mp"))
             .peek(blob -> {
                 if (isCreatedToday(blob, today)) {
                     cvpTodayItemCounter.count++;
                 }
-            }).count();
+            })
+            .map(blb->blb.getName())
+            .collect(Collectors.toSet());
+
+
+        long cvpItemCount = cvpItems.size();
         LOGGER.info("StorageReport CVP done");
 
         final BlobListDetails hrsBlobListDetails = new BlobListDetails()
@@ -216,11 +222,13 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             .stream()
             .filter(blobItem -> blobItem.getName().contains("/"))
             .peek(blob -> {
+                cvpItems.remove(blob.getName());
                 if (isCreatedToday(blob, today)) {
                     hrsTodayItemCounter.count++;
                 }
             }).count();
 
+        LOGGER.info("CVP-HRS difference ", cvpItems);
         LOGGER.info(
             "StorageReport CVP Total Count= {} vs HRS Total Count= {}, Today CVP= {} vs HRS= {} ",
             cvpItemCount,
