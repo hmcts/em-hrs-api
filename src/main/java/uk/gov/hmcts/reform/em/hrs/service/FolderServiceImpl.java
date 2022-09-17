@@ -64,16 +64,19 @@ public class FolderServiceImpl implements FolderService {
             .orElseThrow(() -> new DatabaseStorageException(FOLDER_MISSING_EXCEPTION_MSG));
     }
 
-
     private Set<String> getCompletedAndInProgressFiles(Folder folder) {
 
         Tuple2<FilesInDatabase, Set<String>> databaseRecords = getFilesetsFromDatabase(folder);
         FilesInDatabase filesInDatabase = databaseRecords.getT1();
-
+        
         Set<String> filesInBlobstore = hearingRecordingStorage.findByFolderName(folder.getName());
+        LOGGER.info("Files In Blob Store for folder={}, {}", folder.getName(), filesInDatabase);
 
         Set<String> completedFiles = filesInDatabase.intersect(filesInBlobstore);
+        LOGGER.info("Completed Files={}", completedFiles);
+
         Set<String> filesInProgress = databaseRecords.getT2();
+        LOGGER.info("FilesInProgress {}", filesInProgress);
 
         return SetUtils.union(completedFiles, filesInProgress);
     }
