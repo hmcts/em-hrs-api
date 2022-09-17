@@ -40,8 +40,12 @@ public class DeleteInProgressJobsTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
         LocalDateTime hoursAgo = LocalDateTime.now(Clock.systemUTC()).minusHours(ttlHours);
-        jobInProgressRepository.deleteByCreatedOnLessThan(hoursAgo);
-        hearingRecordingRepository.deleteStaleRecordsWithNullCcdCaseId(hoursAgo);
+        try {
+            jobInProgressRepository.deleteByCreatedOnLessThan(hoursAgo);
+            hearingRecordingRepository.deleteStaleRecordsWithNullCcdCaseId(hoursAgo);
+        } catch (Exception ex) {
+            logger.info("ERROR in {} job", TASK_NAME, ex);
+        }
         logger.info("Finished {} job", TASK_NAME);
     }
 }
