@@ -105,11 +105,12 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             try {
 
                 LOGGER.info("get cvpBlobContainerClient for filename{}", filename);
-                var clt = cvpBlobContainerClient.getBlobClient(filename);
+
                 LOGGER.info(
-                    "file name {}, size at source {}",
+                    "file name {}, getBlobContainerName {}, exists {}",
                     filename,
-                    clt.getProperties().getBlobSize()
+                    cvpBlobContainerClient.getBlobContainerName(),
+                    cvpBlobContainerClient.exists()
                 );
                 BlockBlobClient sourceBlob = cvpBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
                 LOGGER.info("SourceBlob exists= {}, blob name {}", sourceBlob.exists(), sourceBlob.getBlobName());
