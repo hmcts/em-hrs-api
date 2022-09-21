@@ -93,69 +93,59 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
             LOGGER.info("########## Trying copy from URL for sourceUri {}", sourceUri);
 
-            LOGGER.info(
-                "DestinationBlobClient filename {} exists {} ",
-                filename,
-                destinationBlobClient.existsWithResponse(Duration.ofSeconds(10), Context.NONE)
-            );
-
-            if (Boolean.FALSE.equals(destinationBlobClient.exists())
-                || destinationBlobClient.getProperties().getBlobSize() == 0) {
-                if (CvpConnectionResolver.isACvpEndpointUrl(cvpConnectionString)) {
-                    LOGGER.info("Generating and appending SAS token for copy for filename{}", filename);
-                    String sasToken = generateReadSasForCvp(filename);
-                    sourceUri = sourceUri + "?" + sasToken;
-                }
-
-                LOGGER.info("SAS token created for filename{}", filename);
-                PollResponse<BlobCopyInfo> poll;
-                try {
-
-                    LOGGER.info("get cvpBlobContainerClient for filename {}", filename);
-
-                    LOGGER.info(
-                        "file name {}, getBlobContainerName {}, exists {}",
-                        filename,
-                        cvpBlobContainerClient.getBlobContainerName(),
-                        cvpBlobContainerClient.exists()
-                    );
-                    SyncPoller<BlobCopyInfo, Void> poller = destinationBlobClient.beginCopy(
-                        sourceUri,
-                        POLLING_INTERVAL
-                    );
-                    LOGGER.info("Wait For Completion filename {}", filename);
-
-                    poll = poller.waitForCompletion(POLLER_WAIT);
-                    LOGGER.info(
-                        "File copy completed for {} with status {}",
-                        filename,
-                        poll.getStatus()
-                    );
-                } catch (BlobStorageException be) {
-                    LOGGER.info(
-                        "Blob Copy BlobStorageException code {}, message{}, file {}",
-                        be.getErrorCode(),
-                        be.getMessage(),
-                        filename
-                    );
-                    throw new BlobCopyException(be.getMessage(), be);
-                    //TODO should we try and clean up the destination blob? can it be partially present?
-                } catch (Exception e) {
-                    LOGGER.info(
-                        "Unhandled Exception Blob Copy {}, filename {}",
-                        e.getMessage(),
-                        filename
-                    );
-                    throw new BlobCopyException(e.getMessage(), e);
-                    //TODO should we try and clean up the destination blob? can it be partially present?
-                }
-
-                if (poll == null || !SUCCESSFULLY_COMPLETED.equals(poll.getStatus())) {
-                    throw new BlobCopyException("Copy not completed successfully");
-                }
-            } else {
-                LOGGER.info("############## target blobstore already has file: {}", filename);
+            if (CvpConnectionResolver.isACvpEndpointUrl(cvpConnectionString)) {
+                LOGGER.info("Generating and appending SAS token for copy for filename{}", filename);
+                String sasToken = generateReadSasForCvp(filename);
+                sourceUri = sourceUri + "?" + sasToken;
             }
+
+            LOGGER.info("SAS token created for filename{}", filename);
+            PollResponse<BlobCopyInfo> poll;
+            try {
+
+                LOGGER.info("get cvpBlobContainerClient for filename {}", filename);
+
+                LOGGER.info(
+                    "file name {}, getBlobContainerName {}, exists {}",
+                    filename,
+                    cvpBlobContainerClient.getBlobContainerName(),
+                    cvpBlobContainerClient.exists()
+                );
+                SyncPoller<BlobCopyInfo, Void> poller = destinationBlobClient.beginCopy(
+                    sourceUri,
+                    POLLING_INTERVAL
+                );
+                LOGGER.info("Wait For Completion filename {}", filename);
+
+                poll = poller.waitForCompletion(POLLER_WAIT);
+                LOGGER.info(
+                    "File copy completed for {} with status {}",
+                    filename,
+                    poll.getStatus()
+                );
+            } catch (BlobStorageException be) {
+                LOGGER.info(
+                    "Blob Copy BlobStorageException code {}, message{}, file {}",
+                    be.getErrorCode(),
+                    be.getMessage(),
+                    filename
+                );
+                throw new BlobCopyException(be.getMessage(), be);
+                //TODO should we try and clean up the destination blob? can it be partially present?
+            } catch (Exception e) {
+                LOGGER.info(
+                    "Unhandled Exception Blob Copy {}, filename {}",
+                    e.getMessage(),
+                    filename
+                );
+                throw new BlobCopyException(e.getMessage(), e);
+                //TODO should we try and clean up the destination blob? can it be partially present?
+            }
+
+            if (poll == null || !SUCCESSFULLY_COMPLETED.equals(poll.getStatus())) {
+                throw new BlobCopyException("Copy not completed successfully");
+            }
+
         } catch (Exception e) {
             LOGGER.error(
                 "Unhandled Exception During Blob Copy Process {}, filename {}",
