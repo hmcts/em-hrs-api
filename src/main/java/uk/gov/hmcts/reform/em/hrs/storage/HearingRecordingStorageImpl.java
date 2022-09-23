@@ -90,7 +90,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
         try {
 
-            if(filename.equals("audiostream586/BGA2-000-REF-2021-0273_2022-09-16-09.09.22.119-UTC_0.mp4")){
+            if (filename.equals("audiostream586/BGA2-000-REF-2021-0273_2022-09-16-09.09.22.119-UTC_0.mp4")) {
                 LOGGER.info("Skip copy {}", sourceUri);
                 return;
             }
