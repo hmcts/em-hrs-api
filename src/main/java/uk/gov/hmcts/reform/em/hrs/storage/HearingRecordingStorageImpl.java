@@ -89,6 +89,12 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     public void copyRecording(String sourceUri, final String filename) {
 
         try {
+
+            if(filename.equals("audiostream586/BGA2-000-REF-2021-0273_2022-09-16-09.09.22.119-UTC_0.mp4")){
+                LOGGER.info("Skip copy {}", sourceUri);
+                return;
+            }
+
             BlockBlobClient destinationBlobClient = hrsBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
 
             LOGGER.info("########## Trying copy from URL for sourceUri {}", sourceUri);
