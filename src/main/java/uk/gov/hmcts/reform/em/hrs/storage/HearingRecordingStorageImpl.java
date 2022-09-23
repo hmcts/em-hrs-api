@@ -50,7 +50,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
 
     private final String cvpConnectionString;
-    private static final Duration POLLER_WAIT = Duration.ofMinutes(60);
     private static final Duration POLLING_INTERVAL = Duration.ofSeconds(3);
 
     @Autowired
@@ -117,7 +116,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 );
                 LOGGER.info("Wait For Completion filename {}", filename);
 
-                poll = poller.waitForCompletion(POLLER_WAIT);
+                poll = poller.waitForCompletion();
                 LOGGER.info(
                     "File copy completed for {} with status {}",
                     filename,
