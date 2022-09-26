@@ -101,7 +101,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 }
 
                 LOGGER.info("SAS token created for filename{}", filename);
-                PollResponse<BlobCopyInfo> poll;
+                PollResponse<BlobCopyInfo> poll = null;
                 try {
 
                     LOGGER.info("get cvpBlobContainerClient for filename {}", filename);
@@ -125,25 +125,29 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                         poll.getStatus()
                     );
                 } catch (BlobStorageException be) {
-                    LOGGER.info(
+                    LOGGER.error(
                         "Blob Copy BlobStorageException code {}, message{}, file {}",
                         be.getErrorCode(),
                         be.getMessage(),
                         filename
                     );
+                    if (poll != null) {
+                        try {
+                            destinationBlobClient.abortCopyFromUrl(poll.getValue().getCopyId());
+                        } catch (Exception exc) {
+                            LOGGER.error(
+                                "Abort Copy From Url got Error,  for {}  to rejected container",
+                                filename,
+                                exc
+                            );
+                        }
+                    }
+                    LOGGER.info("Delete if exist {} ", filename);
+                    destinationBlobClient.deleteIfExists();
                     throw new BlobCopyException(be.getMessage(), be);
-                    //TODO should we try and clean up the destination blob? can it be partially present?
-                } catch (Exception e) {
-                    LOGGER.info(
-                        "Unhandled Exception Blob Copy {}, filename {}",
-                        e.getMessage(),
-                        filename
-                    );
-                    throw new BlobCopyException(e.getMessage(), e);
-                    //TODO should we try and clean up the destination blob? can it be partially present?
                 }
 
-                if (poll == null || !SUCCESSFULLY_COMPLETED.equals(poll.getStatus())) {
+                if (poll != null && !SUCCESSFULLY_COMPLETED.equals(poll.getStatus())) {
                     throw new BlobCopyException("Copy not completed successfully");
                 }
             } else {
