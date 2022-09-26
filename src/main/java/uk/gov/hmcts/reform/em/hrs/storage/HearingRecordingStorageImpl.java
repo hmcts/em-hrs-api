@@ -148,6 +148,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 }
 
                 if (poll != null && !SUCCESSFULLY_COMPLETED.equals(poll.getStatus())) {
+                    destinationBlobClient.deleteIfExists();
                     throw new BlobCopyException("Copy not completed successfully");
                 }
             } else {
@@ -280,7 +281,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private class Counter {
         public long count = 0;
     }
-
 }
 
 
