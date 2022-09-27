@@ -16,14 +16,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(FolderController.class)
-public class FolderControllerTest extends BaseWebTest{
+public class FolderControllerTest extends BaseWebTest {
 
     @MockBean
     FolderService folderService;
 
     @Test
     public void should_return_full_list_of_files() throws Exception {
-
         var folderName = "audioStream123";
         var fileName1 = "32123-32-23-332.mpeg";
         var fileName2 = "dcfds9923-ss-FB.mpeg";
@@ -41,7 +40,6 @@ public class FolderControllerTest extends BaseWebTest{
 
     @Test
     public void should_return_empty_list_of_files() throws Exception {
-
         var folderName = "audioStream9084";
         Set<String> folderSet = Set.of();
         when(folderService.getStoredFiles(folderName)).thenReturn(folderSet);
@@ -50,6 +48,5 @@ public class FolderControllerTest extends BaseWebTest{
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.folder-name").value(folderName))
             .andExpect(jsonPath("$.filenames", hasSize(0)));
-
     }
 }
