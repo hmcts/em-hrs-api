@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,6 +37,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 
 @EnableWebSecurity
+@Profile({"!integration-web-test"})
 public class SecurityConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityConfiguration.class);
@@ -50,6 +52,7 @@ public class SecurityConfiguration {
 
     @Configuration
     @Order(1) // Checking only for S2S Token
+    @Profile({"!integration-web-test"})
     public static class InternalApiSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
 
@@ -106,6 +109,7 @@ public class SecurityConfiguration {
 
     @Configuration
     @Order(2) // Checking only for Idam User Token
+    @Profile({"!integration-web-test"})
     public static class ExternalApiSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
         private JwtAuthenticationConverter jwtAuthenticationConverter;
