@@ -243,6 +243,10 @@ dependencyManagement {
     dependencySet(group: 'org.springframework.cloud', version: '3.1.4') {
       entry 'spring-cloud-starter-openfeign'
     }
+    //CVE-2022-42003
+    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.14.0') {
+      entry 'jackson-databind'
+    }
 
   }
 }
