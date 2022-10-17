@@ -335,7 +335,7 @@ dependencies {
 
 
 //rest server / API publishing?
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.11'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.12'
 
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.19.1'
