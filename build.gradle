@@ -390,7 +390,7 @@ dependencies {
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.23.1'
   testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.36.0'
-  testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.17.5'
+  testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.17.6'
   testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.6'
   testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.5', {
     exclude group: 'com.google.guava', module: 'guava'
