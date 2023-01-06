@@ -388,7 +388,7 @@ dependencies {
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
 
 
-  testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.23.1'
+  testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.24.1'
   testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.36.0'
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.17.6'
   testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.6'
