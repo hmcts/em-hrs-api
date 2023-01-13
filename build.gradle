@@ -277,7 +277,7 @@ def versions = [
   pact_version       : '3.6.15',
   restAssured        : '4.2.0',
   junit              : '5.8.1',
-  junitPlatform      : '1.9.1',
+  junitPlatform      : '1.9.2',
   springSecurity     : '5.7.5',
   shedlock           : '4.34.0'
 ]
@@ -346,7 +346,7 @@ dependencies {
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.14'
 
 //azure components
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.20.1'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.20.2'
   implementation group: 'com.azure', name: 'azure-identity', version: '1.7.3'
 
   // Job scheduling
@@ -402,8 +402,8 @@ dependencies {
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.2.0'
 
-  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.9.1'
-  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.9.1'
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.9.2'
+  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.9.2'
   functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
   functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
   functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
