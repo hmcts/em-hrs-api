@@ -75,7 +75,7 @@ withPipeline(type, product, component) {
   }
 
   onMaster {
-    after('test') {
+    afterSuccess('test') {
       sh '''
             curl https://raw.githubusercontent.com/hmcts/reform-api-docs/master/bin/publish-swagger-docs.sh > publish-swagger-docs.sh
             sh ./publish-swagger-docs.sh
@@ -88,7 +88,7 @@ withPipeline(type, product, component) {
   enablePactAs([AppPipelineDsl.PactRoles.CONSUMER])
     }
 
-  after('test') {
+  afterAlways('test') {
 
     publishHTML target: [
       allowMissing         : true,
@@ -138,7 +138,7 @@ withPipeline(type, product, component) {
 
 
 
-  after('smoketest:aat') {
+  afterAlways('smoketest:aat') {
     publishHTML target: [
       allowMissing         : true,
       alwaysLinkToLastBuild: true,
@@ -149,7 +149,7 @@ withPipeline(type, product, component) {
     ]
   }
 
-  after('functionalTest:aat') {
+  afterAlways('functionalTest:aat') {
 
     publishHTML target: [
       allowMissing         : true,
@@ -162,7 +162,7 @@ withPipeline(type, product, component) {
     steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
   }
 
-  after('test') {
+  afterAlways('test') {
     publishHTML target: [
       allowMissing         : true,
       alwaysLinkToLastBuild: true,
@@ -202,7 +202,7 @@ withPipeline(type, product, component) {
 
   }
 
-  after('smoketest:preview') {
+  afterAlways('smoketest:preview') {
     publishHTML target: [
       allowMissing         : true,
       alwaysLinkToLastBuild: true,
@@ -213,7 +213,7 @@ withPipeline(type, product, component) {
     ]
   }
 
-  after('functionalTest:preview') {
+  afterAlways('functionalTest:preview') {
     publishHTML target: [
       allowMissing         : true,
       alwaysLinkToLastBuild: true,
@@ -225,7 +225,7 @@ withPipeline(type, product, component) {
     steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
   }
 
-  after('pactconsumerVerification:preview') {
+  afterAlways('pactconsumerVerification:preview') {
     publishHTML target: [
       allowMissing         : true,
       alwaysLinkToLastBuild: true,
@@ -236,7 +236,7 @@ withPipeline(type, product, component) {
     ]
   }
 
-  after('pactconsumerVerification:aat') {
+  afterAlways('pactconsumerVerification:aat') {
     publishHTML target: [
       allowMissing         : true,
       alwaysLinkToLastBuild: true,

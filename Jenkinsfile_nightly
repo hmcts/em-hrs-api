@@ -80,7 +80,7 @@ withNightlyPipeline(type, product, component) {
   enableFullFunctionalTest()
   enableSlackNotifications('#em-dev-chat')
 
-  after('functionalTest:aat') {
+  afterAlways('functionalTest:aat') {
 
     publishHTML target: [
       allowMissing         : true,
