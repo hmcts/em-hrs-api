@@ -389,7 +389,7 @@ dependencies {
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
 
-  functionalTestImplementation 'com.github.hmcts:em-test-helper:1.21.6'
+  functionalTestImplementation 'com.github.hmcts:em-test-helper:1.21.8'
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
 
 
@@ -427,7 +427,7 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '1.21.5'
+  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '1.21.8'
 
 
 /***********************************************************************************************************************
