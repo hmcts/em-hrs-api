@@ -339,7 +339,7 @@ dependencies {
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-spring', version: versions.reformLogging
 
 //gov notify email service
-  implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '3.19.0-RELEASE'
+  implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '3.19.1-RELEASE'
 
 
 //rest server / API publishing?
