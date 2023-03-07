@@ -352,7 +352,7 @@ dependencies {
 
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.20.3'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.8.0'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.8.1'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
