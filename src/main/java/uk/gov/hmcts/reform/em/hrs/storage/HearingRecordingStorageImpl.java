@@ -195,7 +195,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         BlobClient sourceBlob = cvpBlobContainerClient.getBlobClient(fileName);
         // generate sas token
         OffsetDateTime expiryTime = OffsetDateTime.now().plusMinutes(95);
-        BlobSasPermission permission = new BlobSasPermission().setReadPermission(true).setListPermission(true);
+        BlobSasPermission permission = new BlobSasPermission().setReadPermission(true);
 
         BlobServiceSasSignatureValues signatureValues = new BlobServiceSasSignatureValues(expiryTime, permission)
             .setStartTime(OffsetDateTime.now().minusMinutes(95));
