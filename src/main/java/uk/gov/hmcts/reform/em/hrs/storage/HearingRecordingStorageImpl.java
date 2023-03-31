@@ -98,6 +98,8 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                     LOGGER.info("Generating and appending SAS token for copy for filename{}", filename);
                     String sasToken = generateReadSasForCvp(filename);
                     sourceUri = sourceUri + "?" + sasToken;
+                    LOGGER.info("Generated SasToken {}", sasToken);
+
                 }
 
                 LOGGER.info("SAS token created for filename{}", filename);
@@ -195,7 +197,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         BlobClient sourceBlob = cvpBlobContainerClient.getBlobClient(fileName);
         // generate sas token
         OffsetDateTime expiryTime = OffsetDateTime.now().plusMinutes(95);
-        BlobSasPermission permission = new BlobSasPermission().setReadPermission(true).setListPermission(true);
+        BlobSasPermission permission = new BlobSasPermission().setReadPermission(true);
 
         BlobServiceSasSignatureValues signatureValues = new BlobServiceSasSignatureValues(expiryTime, permission)
             .setStartTime(OffsetDateTime.now().minusMinutes(95));
