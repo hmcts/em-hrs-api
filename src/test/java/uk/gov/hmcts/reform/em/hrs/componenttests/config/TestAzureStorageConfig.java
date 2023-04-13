@@ -19,7 +19,7 @@ import javax.annotation.PreDestroy;
 public class TestAzureStorageConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestAzureStorageConfig.class);
 
-    private static final String AZURITE_IMAGE = "mcr.microsoft.com/azure-storage/azurite:3.19.0";
+    private static final String AZURITE_IMAGE = "mcr.microsoft.com/azure-storage/azurite:3.23.0";
     private static final int MAPPER_PORT = 10000;
 
     private static final String ACCOUNT_NAME = "devstoreaccount1";
