@@ -17,7 +17,7 @@ plugins {
   id 'org.flywaydb.flyway' version '9.8.3'
   id 'au.com.dius.pact' version '4.3.6'
   id "info.solidsoft.pitest" version '1.9.0'
-  id 'com.github.hmcts.rse-cft-lib' version '0.19.631'
+  id 'com.github.hmcts.rse-cft-lib' version '0.19.654'
   id 'uk.gov.hmcts.java' version '0.12.43'
   id 'org.owasp.dependencycheck' version '8.2.1'
 }
@@ -254,6 +254,11 @@ dependencyManagement {
     dependencySet(group: 'commons-fileupload', version: '1.5') {
       entry 'commons-fileupload'
     }
+
+    //CVE-2022-45688
+    dependencySet(group: 'org.json', version: '20230227') {
+      entry 'json'
+    }
   }
 }
 
@@ -337,15 +342,15 @@ dependencies {
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-spring', version: versions.reformLogging
 
 //gov notify email service
-  implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '3.19.0-RELEASE'
+  implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '3.19.1-RELEASE'
 
 
 //rest server / API publishing?
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.15'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.7.0'
 
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.21.1'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.8.1'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.8.2'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
@@ -387,14 +392,14 @@ dependencies {
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
 
-  functionalTestImplementation 'com.github.hmcts:em-test-helper:1.21.8'
+  functionalTestImplementation 'com.github.hmcts:em-test-helper:1.21.9'
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
 
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.24.2'
   testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.37.0'
-  testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.17.6'
-  testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.6'
+  testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.18.0'
+  testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.18.0'
   testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.5', {
     exclude group: 'com.google.guava', module: 'guava'
   }
@@ -425,7 +430,7 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '1.21.8'
+  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '1.21.9'
 
 
 /***********************************************************************************************************************
