@@ -125,9 +125,6 @@ withPipeline(type, product, component) {
       echo "HRS_BLOB_ACCESS_KEY : ${env.HRS_BLOB_ACCESS_KEY}"
 
 
-      env.HRS_STORAGE_CONTAINER_NAME = "hrs"
-      emv.CVP_STORAGE_CONTAINER_NAME = "cvp"
-
 
 
     }
