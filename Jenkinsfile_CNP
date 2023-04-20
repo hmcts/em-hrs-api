@@ -1,10 +1,8 @@
 #!groovy
 import uk.gov.hmcts.contino.AppPipelineDsl
 import uk.gov.hmcts.contino.DockerImage
-import uk.gov.hmcts.contino.GradleBuilder
 import uk.gov.hmcts.contino.Kubectl
 import uk.gov.hmcts.pipeline.TeamConfig
-
 properties([
   [
     $class       : 'GithubProjectProperty',
@@ -88,8 +86,6 @@ def vaultOverrides = [
   'spreview': 'saat'
 ]
 
-GradleBuilder builder = new GradleBuilder(this, product)
-
 withPipeline(type, product, component) {
   enableDbMigration('em-hrs-api')
   overrideVaultEnvironments(vaultOverrides)
@@ -117,10 +113,10 @@ withPipeline(type, product, component) {
       kubectl.login()
 
       // Get storage account details from kubernetes
-      env.CVP_BLOB_ACCOUNT_NAME = kubectl.getSecret(cvpStorageSecret, namespace, "{.data.storageAccountName}")
+      env.CVP_BLOB_ACCOUNT_NAME = kubectl.getSecret("storage-account-cvp-${aksServiceName}", namespace, "{.data.storageAccountName}")
       env.CVP_BLOB_ACCESS_KEY = kubectl.getSecret(cvpStorageSecret, namespace, "{.data.accessKey}")
 
-      env.HRS_BLOB_ACCOUNT_NAME = kubectl.getSecret(hrsStorageSecret, namespace, "{.data.storageAccountName}")
+      env.HRS_BLOB_ACCOUNT_NAME = kubectl.getSecret("storage-account-hrs-${aksServiceName}", namespace, "{.data.storageAccountName}")
       env.HRS_BLOB_ACCESS_KEY = kubectl.getSecret(hrsStorageSecret, namespace, "{.data.accessKey}")
 
       env.CVP_STORAGE_URL= "https://${env.CVP_BLOB_ACCOUNT_NAME}.blob.core.windows.net/cvp/"
