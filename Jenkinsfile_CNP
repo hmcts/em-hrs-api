@@ -39,6 +39,24 @@ def secrets = [
    ]
 ]
 
+
+def secretsForPreview = [
+  's2s-${env}': [
+    secret('microservicekey-em-hrs-api', 'S2S_KEY'),
+    secret('microservicekey-ccd-gw', 'FUNCTIONAL_TEST_CCD_GW_SERVICE_SECRET'),
+    secret('microservicekey-em-gw', 'FUNCTIONAL_TEST_CLIENT_S2S_TOKEN')
+  ],
+  'rpa-${env}': [
+    secret('oauth2-client-id', 'OAUTH_CLIENT_ID'),
+    secret('show-oauth2-token', 'IDAM_CLIENT_OAUTH_SECRET')
+  ],
+  'em-hrs-api-${env}': [
+    secret('notification-api-key', 'NOTIFICATION_API_KEY'),
+    secret('idam-system-user-name', 'HRS_SYSTEM_USER'),
+    secret('idam-system-user-password', 'HRS_SYSTEM_USER_PASSWORD')
+  ]
+]
+
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
   [$class     : 'AzureKeyVaultSecret',
    secretType : 'Secret',
@@ -68,10 +86,49 @@ def vaultOverrides = [
 withPipeline(type, product, component) {
   enableDbMigration('em-hrs-api')
   overrideVaultEnvironments(vaultOverrides)
-  loadVaultSecrets(secrets)
 
-  onPR {
+  onNonPR() {
+    loadVaultSecrets(secrets)
+  }
+
+  onPR(){
     env.CLOSE_CCD_TEST_CASES = true
+    loadVaultSecrets(secretsForPreview)
+  }
+
+  env.CVP_STORAGE_URL= "https://emhrsapiaat.blob.core.windows.net/cvpsimulator/"
+  before('smoketest:preview') {
+    withAksClient('nonprod', product) {
+      def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME, env.GIT_COMMIT, env.LAST_COMMIT_TIMESTAMP)
+      def subscription = env.SUBSCRIPTION_NAME
+      def aksServiceName = dockerImage.getAksServiceName().toLowerCase()
+      def hrsStorageSecret = "storage-secret-hrs-${aksServiceName}"
+      def cvpStorageSecret = "storage-secret-cvp-${aksServiceName}"
+
+      def namespace = new TeamConfig(this).getNameSpace(product)
+      def kubectl = new Kubectl(this, subscription, namespace)
+      kubectl.login()
+
+      // Get storage account details from kubernetes
+      env.CVP_BLOB_ACCOUNT_NAME = previewAccountName(kubectl, cvpStorageSecret, namespace)
+     // env.TEST_STORAGE_ACCOUNT_URL = "https://${env.TEST_STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
+      env.CVP_BLOB_ACCESS_KEY = previewAccountKey(kubectl, cvpStorageSecret, namespace)
+
+
+      env.HRS_BLOB_ACCOUNT_NAME = previewAccountName(kubectl, hrsStorageSecret, namespace)
+      env.HRS_BLOB_ACCESS_KEY = previewAccountKey(kubectl, hrsStorageSecret, namespace)
+
+      env.CVP_STORAGE_URL= "https://${env.CVP_BLOB_ACCOUNT_NAME}.blob.core.windows.net/cvp/"
+
+
+      env.HRS_STORAGE_CONTAINER_NAME = "hrs"
+      emv.CVP_STORAGE_CONTAINER_NAME = "cvp"
+
+      env.CVP_STORAGE_CONNECTION_STRING= "DefaultEndpointsProtocol=https;AccountName=${env.CVP_BLOB_ACCOUNT_NAME};AccountKey=${env.CVP_BLOB_ACCESS_KEY};EndpointSuffix=core.windows.net"
+      env.HRS_STORAGEACCOUNT_CONNECTION_STRING= "DefaultEndpointsProtocol=https;AccountName=${env.HRS_BLOB_ACCOUNT_NAME};AccountKey=${env.HRS_BLOB_ACCESS_KEY};EndpointSuffix=core.windows.net"
+
+
+    }
   }
 
   onMaster {
@@ -248,3 +305,6 @@ withPipeline(type, product, component) {
   }
   syncBranchesWithMaster(['demo', 'perftest', 'ithc'])
 }
+
+
+
