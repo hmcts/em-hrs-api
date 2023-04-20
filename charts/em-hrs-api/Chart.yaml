@@ -13,3 +13,8 @@ dependencies:
     version: 0.3.0
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
     condition: blobstorage.enabled
+  - name: blobstorage
+    alias: cvpblobstorage
+    version: 0.3.0
+    repository: https://hmctspublic.azurecr.io/helm/v1/repo/
+    condition: cvpblobstorage.enabled
