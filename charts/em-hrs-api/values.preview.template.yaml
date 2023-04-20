@@ -15,13 +15,13 @@ java:
   secrets:
     CVP_BLOB_ACCOUNT_NAME:
       secretRef: storage-secret-cvp-{{ .Release.Name }}
-      key: storage_account_name
+      key: storageAccountName
     CVP_BLOB_ACCESS_KEY:
       secretRef: storage-secret-cvp-{{ .Release.Name }}
       key: accessKey
     HRS_BLOB_ACCOUNT_NAME:
       secretRef: storage-secret-hrs-{{ .Release.Name }}
-      key: storage_account_name
+      key: storageAccountName
     HRS_BLOB_ACCESS_KEY:
       secretRef: storage-secret-hrs-{{ .Release.Name }}
       key: accessKey
