@@ -121,6 +121,10 @@ withPipeline(type, product, component) {
       env.HRS_BLOB_ACCESS_KEY = kubectl.getSecret(hrsStorageSecret, namespace, "{.data.accessKey}")
 
 
+      echo "HRS_BLOB_ACCOUNT_NAME : ${env.HRS_BLOB_ACCOUNT_NAME}"
+      echo "HRS_BLOB_ACCESS_KEY : ${env.HRS_BLOB_ACCESS_KEY}"
+
+
       env.CVP_BLOB_ACCOUNT_NAME = kubectl.getSecret(cvpStorageSecret, namespace, "{.data.storageAccountName}")
       env.CVP_BLOB_ACCESS_KEY = kubectl.getSecret(cvpStorageSecret, namespace, "{.data.accessKey}")
 
@@ -130,14 +134,11 @@ withPipeline(type, product, component) {
 
       env.HRS_STORAGE_CONTAINER_NAME = "hrs"
       emv.CVP_STORAGE_CONTAINER_NAME = "cvp"
-
+      echo "CVP_BLOB_ACCOUNT_NAME : ${env.CVP_BLOB_ACCOUNT_NAME}"
+      echo "CVP_BLOB_ACCESS_KEY : ${env.CVP_BLOB_ACCESS_KEY}"
       echo "CVP_STORAGE_URL : ${env.CVP_STORAGE_URL}"
 
-      env.CVP_STORAGE_CONNECTION_STRING= "DefaultEndpointsProtocol=https;AccountName="+env.CVP_BLOB_ACCOUNT_NAME+";AccountKey="+env.CVP_BLOB_ACCESS_KEY+"EndpointSuffix=core.windows.net"
-      env.HRS_STORAGEACCOUNT_CONNECTION_STRING= "DefaultEndpointsProtocol=https;AccountName="+env.HRS_BLOB_ACCOUNT_NAME+";AccountKey="+env.HRS_BLOB_ACCESS_KEY+";EndpointSuffix=core.windows.net"
 
-      echo "CVP_STORAGE_CONNECTION_STRING : ${env.CVP_STORAGE_CONNECTION_STRING}"
-      echo "HRS_STORAGEACCOUNT_CONNECTION_STRING : ${env.HRS_STORAGEACCOUNT_CONNECTION_STRING}"
 
     }
   }
