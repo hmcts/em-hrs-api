@@ -71,5 +71,7 @@ java:
     SUMMARY_REPORT_ENABLED: false
     SHAREE_LINK_TTL: 72 #ttl in hours
     APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: DEBUG
-blobstorage:
+hrsblobstorage:
+  enabled: false
+cvpblobstorage:
   enabled: false
