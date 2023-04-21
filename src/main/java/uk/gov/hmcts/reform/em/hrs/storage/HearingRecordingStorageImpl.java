@@ -17,6 +17,7 @@ import com.azure.storage.blob.models.BlobListDetails;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.models.UserDelegationKey;
+import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
@@ -32,9 +33,11 @@ import uk.gov.hmcts.reform.em.hrs.util.CvpConnectionResolver;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -95,13 +98,24 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             LOGGER.info("##########  destinationBlobClient{}", hrsBlobContainerClient.getBlobContainerUrl());
             if (Boolean.FALSE.equals(destinationBlobClient.exists())
                 || destinationBlobClient.getProperties().getBlobSize() == 0) {
-
                 if (CvpConnectionResolver.isACvpEndpointUrl(cvpConnectionString)) {
                     LOGGER.info("Generating and appending SAS token for copy for filename{}", filename);
                     String sasToken = generateReadSasForCvp(filename);
                     sourceUri = sourceUri + "?" + sasToken;
                     LOGGER.info("Generated SasToken {}", sasToken);
+                } else {
+                    BlobClient sourceBlob = cvpBlobContainerClient.getBlobClient(filename);
 
+                    String sasToken = sourceBlob
+                        .generateSas(
+                            new BlobServiceSasSignatureValues(
+                                OffsetDateTime.of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC),
+                                new BlobContainerSasPermission().setReadPermission(true)
+                            )
+                        );
+
+                    sourceUri = sourceUri + "?" + sasToken;
+                    LOGGER.info("Generated sourceUri {}", sourceUri);
                 }
 
                 LOGGER.info("SAS token created for filename{}", filename);
