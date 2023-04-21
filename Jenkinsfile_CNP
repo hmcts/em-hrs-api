@@ -132,6 +132,15 @@ withPipeline(type, product, component) {
       echo "CVP_BLOB_ACCESS_KEY : ${env.CVP_BLOB_ACCESS_KEY}"
 
 
+      env.CVP_STORAGE_URL= "https://${env.CVP_BLOB_ACCOUNT_NAME}.blob.core.windows.net/cvp/"
+
+
+      env.HRS_STORAGE_CONTAINER_NAME = 'hrs'
+      emv.CVP_STORAGE_CONTAINER_NAME = 'cvp'
+      echo "CVP_BLOB_ACCOUNT_NAME : ${env.CVP_BLOB_ACCOUNT_NAME}"
+      echo "CVP_BLOB_ACCESS_KEY : ${env.CVP_BLOB_ACCESS_KEY}"
+      echo "CVP_STORAGE_URL : ${env.CVP_STORAGE_URL}"
+
 
     }
   }
