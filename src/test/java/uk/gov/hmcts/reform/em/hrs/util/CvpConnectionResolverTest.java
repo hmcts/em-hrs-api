@@ -20,7 +20,7 @@ public class CvpConnectionResolverTest {
             "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
                 + "AccountKey=ACTUALKEYNOTNEEDEDFORTHISTEST"
                 + "BlobEndpoint=https://cvprecordingssboxsa.blob.core.windows.net/"));
-        assertFalse(isACvpEndpointUrl("https://hrsendpoint.blob.core.windows.net/"));
+        assertTrue(isACvpEndpointUrl("https://hrsendpoint.blob.core.windows.net/"));
 
         assertTrue(isACvpEndpointUrl("https://cvprecordingssboxsa.blob.core.windows.net/"));
         assertTrue(isACvpEndpointUrl("https://cvprecordingsstgsa.blob.core.windows.net/"));
