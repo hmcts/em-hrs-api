@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.em.hrs.util;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.hmcts.reform.em.hrs.util.CvpConnectionResolver.extractAccountFromUrl;
 import static uk.gov.hmcts.reform.em.hrs.util.CvpConnectionResolver.isACvpEndpointUrl;
