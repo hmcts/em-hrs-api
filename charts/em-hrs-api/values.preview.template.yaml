@@ -14,16 +14,6 @@ java:
           alias: HRS_SYSTEM_USER_PASSWORD
         - name: microservicekey-em-hrs-api
           alias: S2S_KEY
-  secrets:
-    BLOB_ACCOUNT_NAME:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: storageAccountName
-    BLOB_ACCESS_KEY:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: accessKey
-    BLOB_SERVICE_ENDPOINT:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: primaryBlobServiceEndPoint
   environment:
     SPRING_DATASOURCE_URL: jdbc:postgresql://{{ .Release.Name }}-{{ .Values.postgresql.nameOverride}}:5432/javadatabase?ssl=disable
     SPRING_DATASOURCE_USERNAME: "{{ .Values.postgresql.postgresqlUsername}}"
@@ -37,12 +27,5 @@ java:
     auth:
       username: emhrs
       password: emhrs
-blobstorage:
-  enabled: true
-  resourceGroup: em-hrs-api-aks
-  teamName: "EM"
-  location: uksouth
-  setup:
-    containers:
-      - em-hrs-api
+
 
