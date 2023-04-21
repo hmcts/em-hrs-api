@@ -30,8 +30,6 @@ public class AzureStorageContainerClientBeans {
 
     @Bean(name = "hrsBlobContainerClient")
     public BlobContainerClient hrsBlobContainerClient() {
-        var conn = hrsConnectionString;
-        LOGGER.info("xxxxx HRS ConnectionString: {}, HRS Container: {} ", conn, conn.toLowerCase(Locale.ROOT));
         LOGGER.info("HRS ConnectionString: {}, HRS Container: {} ", hrsConnectionString, hrsContainer);
         return new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
@@ -41,8 +39,6 @@ public class AzureStorageContainerClientBeans {
 
     @Bean(name = "cvpBlobContainerClient")
     public BlobContainerClient cvpBlobContainerClient() {
-        var conn = cvpConnectionString;
-        LOGGER.info("xxxxx CVP ConnectionString: {}, CVP Container: {} ", conn, conn.toLowerCase(Locale.ROOT));
         LOGGER.info("CVP ConnectionString: {}, CVP Container: {} ", cvpConnectionString, cvpContainer);
         return new BlobContainerClientBuilder()
             .connectionString(cvpConnectionString)
