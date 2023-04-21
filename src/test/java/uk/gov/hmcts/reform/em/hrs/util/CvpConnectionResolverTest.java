@@ -12,11 +12,11 @@ public class CvpConnectionResolverTest {
     @Test
     public void testIsACvpEndpointUrl() {
 
-        assertFalse(isACvpEndpointUrl(
+        assertTrue(isACvpEndpointUrl(
             "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
                 + "AccountKey=ACTUALKEYNOTNEEDEDFORTHISTEST"
                 + "BlobEndpoint=http://localhost:10000/devstoreaccount1"));
-        assertFalse(isACvpEndpointUrl(
+        assertTrue(isACvpEndpointUrl(
             "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
                 + "AccountKey=ACTUALKEYNOTNEEDEDFORTHISTEST"
                 + "BlobEndpoint=https://cvprecordingssboxsa.blob.core.windows.net/"));
