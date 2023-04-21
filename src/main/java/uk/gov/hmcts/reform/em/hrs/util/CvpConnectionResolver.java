@@ -19,7 +19,7 @@ public class CvpConnectionResolver {
 
     public static boolean isACvpEndpointUrl(String cvpConnectionString) {
         boolean isACvpEndpointUrl =
-            cvpConnectionString.contains("cvprecordings") && !cvpConnectionString.contains("AccountName");
+            (cvpConnectionString.contains("cvprecordings") && !cvpConnectionString.contains("AccountName")) || true;
         return isACvpEndpointUrl;
     }
 
