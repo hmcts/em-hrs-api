@@ -135,7 +135,14 @@ withPipeline(type, product, component) {
       env.CVP_STORAGE_URL= "https://${env.CVP_BLOB_ACCOUNT_NAME}.blob.core.windows.net/cvp/"
 
 
+      env.HRS_STORAGE_CONTAINER_NAME = 'hrs'
+      env.CVP_STORAGE_CONTAINER_NAME = 'cvp'
 
+      env.CVP_STORAGE_CONNECTION_STRING= "DefaultEndpointsProtocol=https;AccountName=${env.CVP_BLOB_ACCOUNT_NAME};AccountKey=${env.CVP_BLOB_ACCESS_KEY};EndpointSuffix=core.windows.net"
+      env.HRS_STORAGEACCOUNT_CONNECTION_STRING= "DefaultEndpointsProtocol=https;AccountName=${env.HRS_BLOB_ACCOUNT_NAME};AccountKey=${env.HRS_BLOB_ACCESS_KEY};EndpointSuffix=core.windows.net"
+
+      echo "CVP_STORAGE_CONNECTION_STRING : ${env.CVP_STORAGE_CONNECTION_STRING}"
+      echo "HRS_STORAGEACCOUNT_CONNECTION_STRING : ${env.HRS_STORAGEACCOUNT_CONNECTION_STRING}"
 
     }
   }
