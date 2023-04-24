@@ -4,4 +4,8 @@
       <notes>Awaiting fix as updating to latest available version hasn't resolved this.</notes>
       <cve>CVE-2022-45688</cve>
     </suppress>
+    <suppress>
+      <notes>general suppress all</notes>
+      <cve>CVE-2023-20863</cve>
+  </suppress>
 </suppressions>
