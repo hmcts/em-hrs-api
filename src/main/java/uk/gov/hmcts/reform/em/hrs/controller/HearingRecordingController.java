@@ -89,7 +89,9 @@ public class HearingRecordingController {
                 + "file-ext {}\n"
                 + "segment no {}\n"
                 + "jurisdiction {}\n"
-                + "serviceCode {}",
+                + "serviceCode {}\n"
+                + "RecordingSource {}\n"
+                + "CvpFileUrl {}",
             hearingRecordingDto.getRecordingRef(),
             hearingRecordingDto.getFolder(),
             hearingRecordingDto.getCaseRef(),
@@ -97,7 +99,9 @@ public class HearingRecordingController {
             hearingRecordingDto.getFilenameExtension(),
             hearingRecordingDto.getSegment(),
             hearingRecordingDto.getJurisdictionCode(),
-            hearingRecordingDto.getServiceCode()
+            hearingRecordingDto.getServiceCode(),
+            hearingRecordingDto.getRecordingSource(),
+            hearingRecordingDto.getCvpFileUrl()
         );
 
         hearingRecordingDto.setUrlDomain(ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString());
