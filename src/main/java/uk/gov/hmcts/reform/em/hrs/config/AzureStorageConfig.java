@@ -66,7 +66,7 @@ public class AzureStorageConfig {
         return createBlobClient(cvpConnectionString, cvpContainer);
     }
 
-    private BlobContainerClient createBlobClient(String connectionString, String containerName){
+    private BlobContainerClient createBlobClient(String connectionString, String containerName) {
         BlobContainerClientBuilder b = new BlobContainerClientBuilder();
 
         if (CvpConnectionResolver.isACvpEndpointUrl(connectionString)) {
@@ -91,8 +91,6 @@ public class AzureStorageConfig {
             LOGGER.info("****************************");
 
         }
-
-
         return b.buildClient();
     }
 }

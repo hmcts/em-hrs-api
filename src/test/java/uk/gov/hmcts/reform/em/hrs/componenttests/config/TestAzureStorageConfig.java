@@ -88,7 +88,7 @@ public class TestAzureStorageConfig {
         return createBlobClient(connectionString, VH_CONTAINER);
     }
 
-    private BlobContainerClient createBlobClient(String sourceConnectionString, String containerName ){
+    private BlobContainerClient createBlobClient(String sourceConnectionString, String containerName) {
         final BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
             .connectionString(sourceConnectionString)
             .containerName(containerName)
