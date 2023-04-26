@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.storage;
 
 import com.azure.core.http.rest.PagedIterable;
+import com.azure.core.util.Configuration;
 import com.azure.core.util.Context;
 import com.azure.core.util.polling.PollResponse;
 import com.azure.core.util.polling.SyncPoller;
@@ -16,6 +17,7 @@ import com.azure.storage.blob.models.BlobListDetails;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.models.UserDelegationKey;
+import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
@@ -31,9 +33,11 @@ import uk.gov.hmcts.reform.em.hrs.util.CvpConnectionResolver;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -91,13 +95,27 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             BlockBlobClient destinationBlobClient = hrsBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
 
             LOGGER.info("########## Trying copy from URL for sourceUri {}", sourceUri);
+            LOGGER.info("##########  destinationBlobClient{}", hrsBlobContainerClient.getBlobContainerUrl());
             if (Boolean.FALSE.equals(destinationBlobClient.exists())
                 || destinationBlobClient.getProperties().getBlobSize() == 0) {
-
                 if (CvpConnectionResolver.isACvpEndpointUrl(cvpConnectionString)) {
                     LOGGER.info("Generating and appending SAS token for copy for filename{}", filename);
                     String sasToken = generateReadSasForCvp(filename);
                     sourceUri = sourceUri + "?" + sasToken;
+                    LOGGER.info("Generated SasToken {}", sasToken);
+                } else {
+                    BlobClient sourceBlob = cvpBlobContainerClient.getBlobClient(filename);
+
+                    String sasToken = sourceBlob
+                        .generateSas(
+                            new BlobServiceSasSignatureValues(
+                                OffsetDateTime.of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC),
+                                new BlobContainerSasPermission().setReadPermission(true)
+                            )
+                        );
+
+                    sourceUri = sourceUri + "?" + sasToken;
+                    LOGGER.info("Generated sourceUri {}", sourceUri);
                 }
 
                 LOGGER.info("SAS token created for filename{}", filename);
@@ -175,7 +193,10 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             BlobServiceClientBuilder builder = new BlobServiceClientBuilder();
 
             DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
-
+            Configuration configuration = Configuration.getGlobalConfiguration().clone();
+            var tenantId = configuration.get(Configuration.PROPERTY_AZURE_TENANT_ID);
+            var managedIdentityClientId = configuration.get(Configuration.PROPERTY_AZURE_CLIENT_ID);
+            LOGGER.info("Configuration tenantId {}, managedIdentityClientId {}", tenantId, managedIdentityClientId);
             builder.endpoint(cvpConnectionString);
             builder.credential(credential);
             blobServiceClient = builder.buildClient();
@@ -195,7 +216,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         BlobClient sourceBlob = cvpBlobContainerClient.getBlobClient(fileName);
         // generate sas token
         OffsetDateTime expiryTime = OffsetDateTime.now().plusMinutes(95);
-        BlobSasPermission permission = new BlobSasPermission().setReadPermission(true).setListPermission(true);
+        BlobSasPermission permission = new BlobSasPermission().setReadPermission(true);
 
         BlobServiceSasSignatureValues signatureValues = new BlobServiceSasSignatureValues(expiryTime, permission)
             .setStartTime(OffsetDateTime.now().minusMinutes(95));

@@ -16,8 +16,24 @@ import static org.hamcrest.Matchers.equalTo;
 @WithTags({@WithTag("testType:Smoke")})
 public class SmokeTest {
 
+    private static final String MESSAGE = "Welcome to the HRS API!";
+
     @Value("${test.url}")
     private String testUrl;
+
+    @Test
+    public void testHealthWelcomeEndpoint() {
+
+        RestAssured
+            .given()
+            .relaxedHTTPSValidation()
+            .baseUri(testUrl)
+            .when()
+            .get("/")
+            .then()
+            .statusCode(200)
+            .body("message",equalTo(MESSAGE));
+    }
 
     @Test
     public void testHealthEndpoint() {
@@ -32,5 +48,4 @@ public class SmokeTest {
             .statusCode(200)
             .body("status", equalTo("UP"));
     }
-
 }

@@ -163,8 +163,6 @@ report:
 springdoc:
   packagesToScan: uk.gov.hmcts.reform.em.hrs.controller
   pathsToMatch: /**
-  swagger-ui:
-    use-root-path: true
 
 dbMigration:
   # When true, the app will run DB migration on startup.
