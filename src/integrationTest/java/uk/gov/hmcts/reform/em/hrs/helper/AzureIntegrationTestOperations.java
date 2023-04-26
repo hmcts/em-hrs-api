@@ -25,14 +25,18 @@ public class AzureIntegrationTestOperations {
     private static final int BLOB_LIST_TIMEOUT = 5;
     private final BlobContainerClient hrsBlobContainerClient;
     private final BlobContainerClient cvpBlobContainerClient;
+    private final BlobContainerClient vhBlobContainerClient;
     private final Fairy fairy;
 
     @Autowired
     public AzureIntegrationTestOperations(
         final @Qualifier("HrsBlobContainerClient") BlobContainerClient hrsBlobContainerClient,
-        final @Qualifier("CvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient) {
+        final @Qualifier("CvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient,
+        final @Qualifier("VhBlobContainerClient") BlobContainerClient vhBlobContainerClient
+    ) {
         this.hrsBlobContainerClient = hrsBlobContainerClient;
         this.cvpBlobContainerClient = cvpBlobContainerClient;
+        this.vhBlobContainerClient = vhBlobContainerClient;
         fairy = Fairy.create();
     }
 

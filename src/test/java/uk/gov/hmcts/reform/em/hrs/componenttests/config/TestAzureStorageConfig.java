@@ -30,6 +30,7 @@ public class TestAzureStorageConfig {
         "DefaultEndpointsProtocol=http;AccountName=%s;AccountKey=%s;BlobEndpoint=%s;";
     private static final String HRS_CONTAINER = "hrs-test-container";
     private static final String CVP_CONTAINER = "cvp-test-container";
+    private static final String VH_CONTAINER = "vh-test-container";
 
     //docker run -p 10000:10000 mcr.microsoft.com/azure-storage/azurite azurite-blob --blobHost 0.0.0.0 --blobPort 10000
     private final GenericContainer<?> azuriteContainer = new GenericContainer<>(AZURITE_IMAGE)
@@ -77,14 +78,22 @@ public class TestAzureStorageConfig {
 
     @Primary
     @Bean("CvpBlobContainerClient")
-    public BlobContainerClient provideBlobContainerClient() {
+    public BlobContainerClient cvpBlobContainerClient() {
+        return createBlobClient(connectionString, CVP_CONTAINER);
+    }
+
+    @Primary
+    @Bean("VhBlobContainerClient")
+    public BlobContainerClient vhBlobContainerClient() {
+        return createBlobClient(connectionString, VH_CONTAINER);
+    }
+
+    private BlobContainerClient createBlobClient(String sourceConnectionString, String containerName ){
         final BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
-            .connectionString(connectionString)
-            .containerName(CVP_CONTAINER)
+            .connectionString(sourceConnectionString)
+            .containerName(containerName)
             .buildClient();
-
         blobContainerClient.create();
-
         return blobContainerClient;
     }
 
