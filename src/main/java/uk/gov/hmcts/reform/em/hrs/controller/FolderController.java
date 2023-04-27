@@ -66,7 +66,7 @@ public class FolderController {
 
 
     @GetMapping(
-        path = "{hearingSource}/folders/{name}",
+        path = "/{hearingSource}/folders/{name}",
         produces = APPLICATION_JSON_VALUE
     )
     @Operation(
@@ -91,7 +91,12 @@ public class FolderController {
             folderService.getStoredFiles(folderName, hearingSource)
         );
 
-        LOGGER.info("Under folder {} Completed Filenames: {} ", folderName, recordingFilenameDto.getFilenames());
+        LOGGER.info(
+            "HearingSource {} Under folder {} Completed Filenames: {} ",
+            hearingSource,
+            folderName,
+            recordingFilenameDto.getFilenames()
+        );
         return ResponseEntity
             .ok()
             .contentType(APPLICATION_JSON)
