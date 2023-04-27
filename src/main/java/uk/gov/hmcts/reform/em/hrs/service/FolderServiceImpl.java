@@ -59,6 +59,20 @@ public class FolderServiceImpl implements FolderService {
     }
 
     @Override
+    public Set<String> getStoredFiles(String folderName, String hearingSource) {
+
+        Optional<Folder> optionalFolder = folderRepository.findByNameAndHearingSource(folderName,hearingSource);
+
+        if (optionalFolder.isEmpty()) {
+            Folder newFolder = Folder.builder().name(folderName).hearingSource(hearingSource).build();
+            folderRepository.save(newFolder);
+            return Collections.emptySet();
+        }
+
+        return getCompletedAndInProgressFiles(optionalFolder.get());
+    }
+
+    @Override
     public Folder getFolderByName(@NotNull String folderName) {
         return folderRepository.findByName(folderName)
             .orElseThrow(() -> new DatabaseStorageException(FOLDER_MISSING_EXCEPTION_MSG));

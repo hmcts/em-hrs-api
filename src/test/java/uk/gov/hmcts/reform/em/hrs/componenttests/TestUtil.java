@@ -30,6 +30,8 @@ public class TestUtil {
     public static final String FILENAME_2 = "file-2.mp4";
     public static final String FILENAME_3 = "file-3.mp4";
     public static final String TEST_FOLDER_1_NAME = "folder-1";
+    public static final String HEARING_RESOURCE = "CVP";
+
     public static final UUID RANDOM_UUID = UUID.randomUUID();
     public static final String AUTHORIZATION_TOKEN = "xxxxxxxxxxxxxxxxxxxx";
     public static final String SERVICE_AUTHORIZATION_TOKEN = "xxxxxxxxxxxxxxxx";

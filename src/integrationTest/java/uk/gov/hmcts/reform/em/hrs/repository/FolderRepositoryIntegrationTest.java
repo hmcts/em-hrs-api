@@ -15,6 +15,8 @@ class FolderRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest 
 
     private static final String EMPTY_FOLDER = "folder-0";
     private static final String TEST_FOLDER = "folder-1";
+    private static final String TEST_FOLDER3 = "folder-3";
+    private static final String CVP_HEARING_SOURCE = "CVP";
 
     @Autowired
     private FolderRepository underTest;
@@ -22,6 +24,13 @@ class FolderRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest 
     @Test
     void testShouldReturnEmptySetWhenDatabaseIsEmpty() {
         final Optional<Folder> folder = underTest.findByName(EMPTY_FOLDER);
+
+        assertThat(folder).isEmpty();
+    }
+
+    @Test
+    void testShouldReturnEmptySetForHearingSourceWhenDatabaseIsEmpty() {
+        final Optional<Folder> folder = underTest.findByNameAndHearingSource(TEST_FOLDER, "not_valid");
 
         assertThat(folder).isEmpty();
     }
@@ -35,6 +44,18 @@ class FolderRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest 
             assertThat(x.getName()).isEqualTo(TEST_FOLDER);
             assertThat(x.getJobsInProgress().size()).isEqualTo(2);
             assertThat(x.getHearingRecordings().size()).isEqualTo(2);
+        });
+    }
+
+    @Test
+    void testFindByFolderNameAndHearingSource() {
+        final Optional<Folder> folder = underTest.findByNameAndHearingSource(TEST_FOLDER3, CVP_HEARING_SOURCE);
+
+        assertThat(folder).hasValueSatisfying(x -> {
+            assertThat(x.getId()).isEqualTo(UUID.fromString("7acb7529-ee08-4ad4-b989-d0b3ac536578"));
+            assertThat(x.getName()).isEqualTo(TEST_FOLDER3);
+            assertThat(x.getJobsInProgress().size()).isEqualTo(1);
+            assertThat(x.getHearingRecordings().size()).isEqualTo(0);
         });
     }
 

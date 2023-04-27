@@ -1,7 +1,8 @@
-INSERT INTO folder(id, name)
-VALUES ('3E3F63FB-3C7A-447B-86DA-69ED164763B0', 'folder-1'),
-       ('B741E4E9-4968-47B1-B168-8EE5192CC8CC', 'folder-2'),
-       ('7ACB7529-EE08-4AD4-B989-D0B3AC536578', 'folder-3');
+INSERT INTO folder(id, name, hearing_source)
+VALUES ('3E3F63FB-3C7A-447B-86DA-69ED164763B0', 'folder-1', 'CVP'),
+       ('B741E4E9-4968-47B1-B168-8EE5192CC8CC', 'folder-2', 'CVP'),
+       ('7ACB7529-EE08-4AD4-B989-D0B3AC536578', 'folder-3', 'CVP'),
+       ('7ACB7529-EE08-4AD4-B989-D0B3AC531111', 'folder-3', 'VH');
 
 INSERT INTO job_in_progress(id, filename, folder_id)
 VALUES ('6073C487-D84C-4907-B0EC-1E4D3AEE9750', 'folder-1-file-3-1.mp4', '3E3F63FB-3C7A-447B-86DA-69ED164763B0'),

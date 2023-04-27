@@ -32,8 +32,11 @@ public class Folder {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private UUID id;
 
-    @Column(unique = true)
+    @Column
     private String name;
+
+    @Column
+    private String hearingSource;
 
     @OneToMany(mappedBy = "folder")
     private List<HearingRecording> hearingRecordings;

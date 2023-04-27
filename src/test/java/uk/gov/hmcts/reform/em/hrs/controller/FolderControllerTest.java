@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class FolderControllerTest extends AbstractBaseTest {
 
     private static final String TEST_FOLDER = "folder-1";
+    private static final String HEARING_RESOURCE = "CVP";
 
     @MockBean
     private FolderService folderService;
@@ -71,4 +72,45 @@ class FolderControllerTest extends AbstractBaseTest {
         verify(folderService, times(1)).getStoredFiles(TEST_FOLDER);
     }
 
+    @Test
+    void testWhenRequestedFolderDoesNotExistOrIsEmpty_by_hearing_resource() throws Exception {
+        final String path = "/" + HEARING_RESOURCE + "/folders/" + TEST_FOLDER;
+        doReturn(emptySet()).when(folderService).getStoredFiles(TEST_FOLDER, HEARING_RESOURCE);
+
+        final MvcResult mvcResult = mockMvc.perform(get(path).accept(APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+            .andReturn();
+
+        final String content = mvcResult.getResponse().getContentAsString();
+
+        assertThatJson(content)
+            .when(Option.IGNORING_ARRAY_ORDER)
+            .and(
+                x -> x.node("folder-name").isPresent().isEqualTo(TEST_FOLDER),
+                x -> x.node("filenames").isArray().isEmpty()
+            );
+        verify(folderService, times(1)).getStoredFiles(TEST_FOLDER, HEARING_RESOURCE);
+    }
+
+    @Test
+    void testWhenRequestedFolderHasStoredFiles_by_hearing_resource() throws Exception {
+        final String path = "/" + HEARING_RESOURCE + "/folders/" + TEST_FOLDER;
+        doReturn(Set.of(TestUtil.FILENAME_1, TestUtil.FILENAME_2)).when(folderService)
+            .getStoredFiles(TEST_FOLDER, HEARING_RESOURCE);
+        final MvcResult mvcResult = mockMvc.perform(get(path).accept(APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+            .andReturn();
+
+        final String content = mvcResult.getResponse().getContentAsString();
+
+        assertThatJson(content)
+            .when(Option.IGNORING_ARRAY_ORDER)
+            .and(
+                x -> x.node("folder-name").isEqualTo(TEST_FOLDER),
+                x -> x.node("filenames").isArray().isEqualTo(json("[\"file-1.mp4\",\"file-2.mp4\"]"))
+            );
+        verify(folderService, times(1)).getStoredFiles(TEST_FOLDER, HEARING_RESOURCE);
+    }
 }

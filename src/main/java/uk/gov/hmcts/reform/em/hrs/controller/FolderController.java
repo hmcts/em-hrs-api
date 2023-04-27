@@ -65,4 +65,38 @@ public class FolderController {
     }
 
 
+    @GetMapping(
+        path = "{hearingSource}/folders/{name}",
+        produces = APPLICATION_JSON_VALUE
+    )
+    @Operation(
+        summary = "Get recording file names", description = "Retrieve recording file names for a given folder",
+        parameters = {
+            @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
+                description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string"))}
+    )
+    @ApiResponses(
+        value = {
+            @ApiResponse(responseCode = "200", description = "Names of successfully stored recording files"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+        }
+    )
+    public ResponseEntity<RecordingFilenameDto> getFilenamesByHearingSource(
+        @PathVariable("name") final String folderName,
+        @PathVariable("hearingSource") final String hearingSource
+    ) {
+        var recordingFilenameDto = new RecordingFilenameDto(
+            folderName,
+            folderService.getStoredFiles(folderName, hearingSource)
+        );
+
+        LOGGER.info("Under folder {} Completed Filenames: {} ", folderName, recordingFilenameDto.getFilenames());
+        return ResponseEntity
+            .ok()
+            .contentType(APPLICATION_JSON)
+            .body(recordingFilenameDto);
+    }
+
+
 }
