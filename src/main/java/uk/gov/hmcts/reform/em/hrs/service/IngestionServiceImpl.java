@@ -23,7 +23,7 @@ public class IngestionServiceImpl implements IngestionService {
 
     @Override
     public void ingest(final HearingRecordingDto hrDto) {
-        String cvpFileUrl = hrDto.getCvpFileUrl();
+        String cvpFileUrl = hrDto.getSourceBlobUrl();
         String filename = hrDto.getFilename();
 
         LOGGER.info("Ingestion: Copying File: {}", filename);
