@@ -290,7 +290,7 @@ public abstract class BaseTest {
             .put("hearing-room-ref", "London")
             .put("jurisdiction-code", jurisdictionCode)
             .put("case-ref", caseRef)
-            .put("cvp-file-url", cvpContainerUrl + filename)
+            .put("source-blob-url", cvpContainerUrl + filename)
             .put("filename", filename)
             .put("filename-extension", fileExt)
             .put("file-size", 200724364L)
