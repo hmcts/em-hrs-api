@@ -1,8 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.smoke;
 
 import io.restassured.RestAssured;
-import net.thucydides.core.annotations.WithTag;
-import net.thucydides.core.annotations.WithTags;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +11,6 @@ import static org.hamcrest.Matchers.equalTo;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(value = "classpath:application.yml")
-@WithTags({@WithTag("testType:Smoke")})
 public class SmokeTest {
 
     private static final String MESSAGE = "Welcome to the HRS API!";
