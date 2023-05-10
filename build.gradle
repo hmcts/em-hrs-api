@@ -344,7 +344,7 @@ dependencies {
 
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.22.0'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.8.2'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.8.3'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
@@ -361,7 +361,7 @@ dependencies {
 
   implementation group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
   implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.6.7.Final'
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '9.16.3'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: '9.17.0'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
   implementation "org.springframework.boot:spring-boot-starter-jdbc"
 
