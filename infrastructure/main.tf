@@ -93,6 +93,7 @@ module "storage_account" {
   enable_https_traffic_only = true
 
   enable_data_protection    = true
+  enable_change_feed = true
 
   default_action = "Allow"
 
@@ -155,7 +156,7 @@ module "cvp_storage_account_simulator" {
   enable_https_traffic_only = true
 
   default_action = "Allow"
-
+  enable_data_protection = false
   // Tags
   common_tags = local.tags
   team_contact = var.team_contact
