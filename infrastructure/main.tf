@@ -96,6 +96,7 @@ module "storage_account" {
   enable_change_feed = true
 
   default_action = "Allow"
+
   // Tags
   common_tags  = local.tags
   team_contact = var.team_contact
