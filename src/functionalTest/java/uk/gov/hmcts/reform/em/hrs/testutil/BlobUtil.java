@@ -52,8 +52,9 @@ public class BlobUtil {
         }
         if (retryCount > 30) {
             throw new IllegalStateException(
-                "Could not find files within test.\nActual count =" + filesFound + ", Expected Total = "
-                    + filesToCheckCount);
+                "Could not find files within test. Files " + fileNames
+                    + "\nActual count =" + filesFound
+                    + ", Expected Total = " + filesToCheckCount);
         }
     }
 
