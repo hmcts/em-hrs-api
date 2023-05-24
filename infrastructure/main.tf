@@ -93,9 +93,9 @@ module "storage_account" {
   enable_https_traffic_only = true
 
   enable_data_protection    = true
+  enable_change_feed = true
 
   default_action = "Allow"
-  change_feed_enabled = true
   // Tags
   common_tags  = local.tags
   team_contact = var.team_contact
