@@ -44,7 +44,7 @@ java:
 
 cvpblobstorage:
   enabled: true
-  resourceGroup: em-hrs-api-aso-preview-rg
+  resourceGroup: em-aso-preview-rg
   releaseNameOverride: cvp-{{ .Release.Name }}
   teamName: "EM"
   location: uksouth
@@ -54,7 +54,7 @@ cvpblobstorage:
 
 hrsblobstorage:
   enabled: true
-  resourceGroup: em-hrs-api-aso-preview-rg
+  resourceGroup: em-aso-preview-rg
   releaseNameOverride: hrs-{{ .Release.Name }}
   teamName: "EM"
   location: uksouth
