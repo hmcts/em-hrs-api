@@ -107,6 +107,8 @@ withPipeline(type, product, component) {
       def aksServiceName = dockerImage.getAksServiceName().toLowerCase()
       def hrsStorageSecret = "storage-secret-hrs-${aksServiceName}"
       def cvpStorageSecret = "storage-secret-cvp-${aksServiceName}"
+      def hrsStorageSecretName = "storage-account-hrs-${aksServiceName}"
+      def cvpStorageSecretName = "storage-account-cvp-${aksServiceName}"
 
       def namespace = new TeamConfig(this).getNameSpace(product)
       def kubectl = new Kubectl(this, subscription, namespace)
@@ -114,13 +116,15 @@ withPipeline(type, product, component) {
 
       // Get storage account details from kubernetes
 
-      env.HRS_BLOB_ACCOUNT_NAME = kubectl.getSecret(hrsStorageSecret, namespace, "{.data.storageAccountName}")
+      env.HRS_BLOB_ACCOUNT_NAME = kubectl.getSecret(hrsStorageSecretName, namespace, "{.data.storage_account_name}")
       env.HRS_BLOB_ACCESS_KEY = kubectl.getSecret(hrsStorageSecret, namespace, "{.data.accessKey}")
+      env.HRS_BLOB_ACCOUNT_URL = kubectl.getSecret(hrsStorageSecret, namespace, "{.data.blobEndpoint}")
 
-      env.CVP_BLOB_ACCOUNT_NAME = kubectl.getSecret(cvpStorageSecret, namespace, "{.data.storageAccountName}")
+      env.CVP_BLOB_ACCOUNT_NAME = kubectl.getSecret(cvpStorageSecretName, namespace, "{.data.storage_account_name}")
       env.CVP_BLOB_ACCESS_KEY = kubectl.getSecret(cvpStorageSecret, namespace, "{.data.accessKey}")
-      env.CVP_STORAGE_URL= "https://${env.CVP_BLOB_ACCOUNT_NAME}.blob.core.windows.net/cvp/"
 
+      env.CVP_BLOB_ACCOUNT_URL = kubectl.getSecret(cvpStorageSecret, namespace, "{.data.blobEndpoint}")
+      env.CVP_STORAGE_URL= "${env.CVP_BLOB_ACCOUNT_URL}cvp/"
       env.HRS_STORAGE_CONTAINER_NAME = 'hrs'
       env.CVP_STORAGE_CONTAINER_NAME = 'cvp'
 
