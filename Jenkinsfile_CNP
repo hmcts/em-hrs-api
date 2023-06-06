@@ -122,9 +122,9 @@ withPipeline(type, product, component) {
 
       env.CVP_BLOB_ACCOUNT_NAME = kubectl.getSecret(cvpStorageSecretName, namespace, "{.data.storage_account_name}")
       env.CVP_BLOB_ACCESS_KEY = kubectl.getSecret(cvpStorageSecret, namespace, "{.data.accessKey}")
-      env.CVP_STORAGE_URL= "https://${env.CVP_BLOB_ACCOUNT_URL}cvp/"
-      env.CVP_BLOB_ACCOUNT_URL = kubectl.getSecret(cvpStorageSecret, namespace, "{.data.blobEndpoint}")
 
+      env.CVP_BLOB_ACCOUNT_URL = kubectl.getSecret(cvpStorageSecret, namespace, "{.data.blobEndpoint}")
+      env.CVP_STORAGE_URL= "https://${env.CVP_BLOB_ACCOUNT_URL}cvp/"
       env.HRS_STORAGE_CONTAINER_NAME = 'hrs'
       env.CVP_STORAGE_CONTAINER_NAME = 'cvp'
 
