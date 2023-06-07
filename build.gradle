@@ -230,7 +230,7 @@ configurations.all {
 dependencyManagement {
   dependencies {
 
-    dependencySet(group: 'com.google.guava', version: '31.1-jre') {
+    dependencySet(group: 'com.google.guava', version: '32.0.0-jre') {
       // Guava CVE-2018-10237 - Unbounded memory allocation
       entry 'guava'
     }
@@ -276,7 +276,8 @@ def versions = [
   junit              : '5.8.1',
   junitPlatform      : '1.9.3',
   springSecurity     : '5.7.8',
-  shedlock           : '4.34.0'
+  shedlock           : '4.34.0',
+  testcontainers     : '1.18.3'
 ]
 
 ext.libraries = [
@@ -394,8 +395,10 @@ dependencies {
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.24.2'
   testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.38.0'
-  testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.18.1'
-  testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.18.1'
+
+  testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: versions.testcontainers
+  testImplementation group: 'org.testcontainers', name: 'postgresql', version: versions.testcontainers
+
   testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.5', {
     exclude group: 'com.google.guava', module: 'guava'
   }
