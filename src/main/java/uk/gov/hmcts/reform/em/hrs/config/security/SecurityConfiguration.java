@@ -81,11 +81,9 @@ public class SecurityConfiguration {
                 http.headers().cacheControl().disable();
                 http.addFilter(serviceOnlyFilter)
                     .csrf().disable()
-                    .requestMatchers()
-                    .antMatchers(HttpMethod.POST, "/segments")
-                    .antMatchers(HttpMethod.GET, "/folders/**")
-                    .and()
-                    .authorizeRequests().anyRequest().authenticated();
+                    .authorizeHttpRequests((authz) -> authz
+                        .requestMatchers("/segments", "/folders/**").authenticated()
+                    );
             } catch (Exception e) {
                 LOG.info("Error in InternalApiSecurityConfigurationAdapter: {}", e);
             }
