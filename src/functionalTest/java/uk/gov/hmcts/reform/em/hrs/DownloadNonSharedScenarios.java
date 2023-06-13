@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs;
 
+import jakarta.annotation.PostConstruct;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,6 @@ import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.annotation.PostConstruct;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

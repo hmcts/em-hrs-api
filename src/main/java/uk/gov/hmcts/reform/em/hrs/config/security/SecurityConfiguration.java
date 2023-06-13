@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.config.security;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +10,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -22,16 +21,14 @@ import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import uk.gov.hmcts.reform.auth.checker.core.RequestAuthorizer;
-import uk.gov.hmcts.reform.auth.checker.core.service.Service;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
+import org.springframework.security.web.SecurityFilterChain;
 import uk.gov.hmcts.reform.auth.checker.spring.serviceonly.AuthCheckerServiceOnlyFilter;
 import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
-import javax.servlet.http.HttpServletRequest;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -53,47 +50,28 @@ public class SecurityConfiguration {
     @Configuration
     @Order(1) // Checking only for S2S Token
     @Profile({"!integration-web-test"})
-    public static class InternalApiSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
-
-
-
-        @Autowired
-        private RequestAuthorizer<Service> serviceRequestAuthorizer;
+    public static class InternalApiSecurityConfigurationAdapter {
 
         private AuthCheckerServiceOnlyFilter serviceOnlyFilter;
 
         @Autowired
-        private AuthenticationManager authenticationManager;
+        private ServiceAuthFilter serviceAuthFilter;
 
-        @Autowired
-        public void setServiceOnlyFilter(Optional<AuthCheckerServiceOnlyFilter> serviceOnlyFilter) {
-            this.serviceOnlyFilter = serviceOnlyFilter.orElseGet(() -> {
-                AuthCheckerServiceOnlyFilter filter = new AuthCheckerServiceOnlyFilter(serviceRequestAuthorizer);
-                filter.setAuthenticationManager(authenticationManager);
-                return filter;
-            });
+        @Bean
+        public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
+
+            http.headers(h -> h.cacheControl(c -> c.disable()))
+                .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
+                .csrf().disable()
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/segments").authenticated())
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/folders/**").authenticated());
+
+            return http.build();
         }
 
-        @Override
-        protected void configure(HttpSecurity http) {
-            try {
-                serviceOnlyFilter.setAuthenticationManager(authenticationManager());
-                http.headers().cacheControl().disable();
-                http.addFilter(serviceOnlyFilter)
-                    .csrf().disable()
-                    .requestMatchers()
-                    .antMatchers(HttpMethod.POST, "/segments")
-                    .antMatchers(HttpMethod.GET, "/folders/**")
-                    .and()
-                    .authorizeRequests().anyRequest().authenticated();
-            } catch (Exception e) {
-                LOG.info("Error in InternalApiSecurityConfigurationAdapter: {}", e);
-            }
-        }
-
-        @Override
-        public void configure(WebSecurity web) {
-            web.ignoring().antMatchers(
+        @Bean
+        public WebSecurityCustomizer getWebSecurityCustomizer() {
+            return (web) -> web.ignoring().requestMatchers(
                 "/swagger-ui.html",
                 "/webjars/springfox-swagger-ui/**",
                 "/swagger-resources/**",
@@ -110,7 +88,7 @@ public class SecurityConfiguration {
     @Configuration
     @Order(2) // Checking only for Idam User Token
     @Profile({"!integration-web-test"})
-    public static class ExternalApiSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+    public static class ExternalApiSecurityConfigurationAdapter {
 
         private JwtAuthenticationConverter jwtAuthenticationConverter;
 
@@ -130,25 +108,23 @@ public class SecurityConfiguration {
             jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         }
 
-        @Override
-        protected void configure(HttpSecurity http) {
-            try {
-                http.headers().cacheControl().disable();
-                http.sessionManagement().sessionCreationPolicy(STATELESS).and()
-                    .formLogin().disable()
-                    .logout().disable()
-                    .authorizeRequests()
-                    .antMatchers(HttpMethod.GET, "/hearing-recordings/**").authenticated()
-                    .antMatchers(HttpMethod.POST, "/sharees").authenticated()
-                    .and()
-                    .oauth2ResourceServer()
-                    .jwt()
-                    .and()
-                    .and()
-                    .oauth2Client();
-            } catch (Exception e) {
-                LOG.info("Error in ExternalApiSecurityConfigurationAdapter: {}", e);
-            }
+        @Bean
+        protected SecurityFilterChain configureHttpSecurity(HttpSecurity http) throws Exception {
+            http.headers(h -> h.cacheControl(c -> c.disable()))
+                .csrf().disable()
+                .sessionManagement(sess -> sess.sessionCreationPolicy(STATELESS))
+                .formLogin(login -> login.disable())
+                .logout(lgout -> lgout.disable())
+                .authorizeRequests()
+                .requestMatchers(HttpMethod.GET, "/hearing-recordings/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/sharees").authenticated()
+                .and()
+                .oauth2ResourceServer()
+                .jwt()
+                .and()
+                .and()
+                .oauth2Client();
+            return http.build();
         }
 
         @Bean

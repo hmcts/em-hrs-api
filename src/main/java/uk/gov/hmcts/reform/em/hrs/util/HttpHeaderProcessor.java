@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.util;
 
-import javax.servlet.http.HttpServletRequest;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 //non frontdoor environments (ie DEMO do not use front door, and may use TitleCase header names)
 public class HttpHeaderProcessor {

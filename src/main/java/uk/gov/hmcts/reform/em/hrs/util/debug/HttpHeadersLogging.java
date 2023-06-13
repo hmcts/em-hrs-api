@@ -1,11 +1,11 @@
 package uk.gov.hmcts.reform.em.hrs.util.debug;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Enumeration;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
 
 public class HttpHeadersLogging {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpHeadersLogging.class);

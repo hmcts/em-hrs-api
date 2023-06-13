@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.repository;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,7 +11,6 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
-import javax.transaction.Transactional;
 
 @Repository
 public interface HearingRecordingRepository extends JpaRepository<HearingRecording, UUID> {

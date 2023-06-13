@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
+import jakarta.annotation.PostConstruct;
 import net.serenitybdd.rest.SerenityRest;
 import net.thucydides.core.annotations.WithTag;
 import net.thucydides.core.annotations.WithTags;
@@ -15,7 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
@@ -32,6 +35,7 @@ import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 import uk.gov.hmcts.reform.em.hrs.testutil.CcdAuthTokenGeneratorConfiguration;
 import uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper;
 import uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper;
+import uk.gov.hmcts.reform.em.test.idam.IdamConfiguration;
 import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
@@ -44,7 +48,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.PostConstruct;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -53,16 +56,20 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @SpringBootTest(classes = {
     ExtendedCcdHelper.class,
-    EmTestConfig.class,
     CcdAuthTokenGeneratorConfiguration.class,
     AuthTokenGeneratorConfiguration.class,
     BlobUtil.class,
-    AzureStorageContainerClientBeans.class
+    AzureStorageContainerClientBeans.class,
+    IdamConfiguration.class,
+    EmTestConfig.class
 })
-
 @TestPropertySource(value = "classpath:application.yml")
 @RunWith(SpringJUnit4ClassRunner.class)
 @WithTags({@WithTag("testType:Functional")})
+@ComponentScan(basePackages = {
+    "uk.gov.hmcts.reform.em.test",
+    "uk.gov.hmcts.reform.document"
+})
 public abstract class BaseTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
@@ -190,6 +197,7 @@ public abstract class BaseTest {
     }
 
     protected ValidatableResponse getFilenamesCompletedOrInProgress(String folder) {
+
         return authRequestForSearcherRole() //TODO this is something ingestor would call not searcher
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
