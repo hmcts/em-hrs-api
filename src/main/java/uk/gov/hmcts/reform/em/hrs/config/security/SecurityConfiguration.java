@@ -62,10 +62,7 @@ public class SecurityConfiguration {
 
             http.headers(h -> h.cacheControl(c -> c.disable()))
                 .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
-                .csrf().disable()
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/segments"))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/folders/**"));
-
+                .csrf().disable();
             return http.build();
         }
 
