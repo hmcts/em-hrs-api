@@ -52,6 +52,19 @@ public class DownloadNonSharedScenarios extends BaseTest {
     }
 
     @Test
+    public void userWithCaseWorkerHrsSearcherRoleShouldBeAbleToDownloadHearingRecordings() {
+        final byte[] downloadedFileBytes =
+            downloadRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, caseDetails.getData())
+                .then()
+                .statusCode(200)
+                .extract().response()
+                .body().asByteArray();
+
+        final int actualFileSize = downloadedFileBytes.length;
+        assertThat(actualFileSize, is(expectedFileSize));
+    }
+
+    @Test
     public void userWithOnlyCaseWorkerRoleShouldNotBeAbleToDownloadHearingRecordings() {
         downloadRecording(USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY, caseDetails.getData())
             .then()
