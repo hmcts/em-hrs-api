@@ -30,7 +30,7 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
         when(hearingRecordingStorage.getStorageReport()).thenReturn(storageReport);
         MvcResult response = mockMvc.perform(get("/inspect")).andExpect(status().isOk()).andReturn();
 
-        mockMvc.perform(get("/inspect/"))
+        mockMvc.perform(get("/inspect"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.today").value(today.toString()))
