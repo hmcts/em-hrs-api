@@ -61,8 +61,12 @@ public class SecurityConfiguration {
         public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
 
             http.headers(h -> h.cacheControl(c -> c.disable()))
+                .csrf(cs -> cs.disable())
                 .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
-                .csrf().disable();
+                .authorizeHttpRequests((authz) -> authz
+                    .requestMatchers("/segments", "/folders/**")
+                    .authenticated().anyRequest());
+
             return http.build();
         }
 
@@ -108,7 +112,7 @@ public class SecurityConfiguration {
         @Bean
         protected SecurityFilterChain configureHttpSecurity(HttpSecurity http) throws Exception {
             http.headers(h -> h.cacheControl(c -> c.disable()))
-                .csrf().disable()
+                .csrf(cs->cs.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(STATELESS))
                 .formLogin(login -> login.disable())
                 .logout(lgout -> lgout.disable())
