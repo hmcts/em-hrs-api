@@ -45,6 +45,8 @@ public class SecurityConfiguration {
                 http.headers().cacheControl().disable();
                 http.addFilter(serviceAuthFilter)
                     .csrf().disable()
+                    .antMatcher("/segments")
+                    .antMatcher("/folders")
                     .requestMatchers()
                     .antMatchers(HttpMethod.POST, "/segments")
                     .antMatchers(HttpMethod.GET, "/folders/**");
