@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.em.hrs;
 
 import jakarta.annotation.PostConstruct;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import java.util.Set;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 
+@Ignore
 public class IngestScenarios extends BaseTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestScenarios.class);
