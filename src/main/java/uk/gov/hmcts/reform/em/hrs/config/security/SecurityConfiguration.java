@@ -47,9 +47,7 @@ public class SecurityConfiguration {
                     .csrf().disable()
                     .requestMatchers()
                     .antMatchers(HttpMethod.POST, "/segments")
-                    .antMatchers(HttpMethod.GET, "/folders/**")
-                    .and()
-                    .authorizeRequests().anyRequest().authenticated();
+                    .antMatchers(HttpMethod.GET, "/folders/**");
             } catch (Exception e) {
                 LOG.info("Error in InternalApiSecurityConfigurationAdapter: {}", e);
             }
