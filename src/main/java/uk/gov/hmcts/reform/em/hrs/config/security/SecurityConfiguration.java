@@ -63,7 +63,7 @@ public class SecurityConfiguration {
                 .csrf(cs -> cs.disable())
                 .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
                 .authorizeHttpRequests((authz) -> authz
-                    .requestMatchers("/segments", "/folders/**")
+                    .requestMatchers("/segments/**", "/folders/**")
                     .anonymous()
                     .anyRequest()
                     .authenticated()
