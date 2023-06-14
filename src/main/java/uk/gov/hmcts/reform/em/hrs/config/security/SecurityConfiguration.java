@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,19 +21,9 @@ import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import uk.gov.hmcts.reform.auth.checker.core.RequestAuthorizer;
-import uk.gov.hmcts.reform.auth.checker.core.service.Service;
-import uk.gov.hmcts.reform.auth.checker.spring.serviceonly.AuthCheckerServiceOnlyFilter;
 import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import javax.servlet.http.HttpServletRequest;
-
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-
 
 @EnableWebSecurity
 @Profile({"!integration-web-test"})
@@ -42,44 +31,19 @@ public class SecurityConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityConfiguration.class);
 
-    @Value("#{'${idam.s2s-authorised.services}'.split(',')}")
-    private List<String> s2sNamesWhiteList;
-
-    @Bean
-    public Function<HttpServletRequest, Collection<String>> authorizedServicesExtractor() {
-        return any -> s2sNamesWhiteList;
-    }
-
     @Configuration
     @Order(1) // Checking only for S2S Token
     @Profile({"!integration-web-test"})
     public static class InternalApiSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
-
-
         @Autowired
-        private RequestAuthorizer<Service> serviceRequestAuthorizer;
-
-        private AuthCheckerServiceOnlyFilter serviceOnlyFilter;
-
-        @Autowired
-        private AuthenticationManager authenticationManager;
-
-        @Autowired
-        public void setServiceOnlyFilter(Optional<AuthCheckerServiceOnlyFilter> serviceOnlyFilter) {
-            this.serviceOnlyFilter = serviceOnlyFilter.orElseGet(() -> {
-                AuthCheckerServiceOnlyFilter filter = new AuthCheckerServiceOnlyFilter(serviceRequestAuthorizer);
-                filter.setAuthenticationManager(authenticationManager);
-                return filter;
-            });
-        }
+        private ServiceAuthFilter serviceAuthFilter;
 
         @Override
         protected void configure(HttpSecurity http) {
             try {
-                serviceOnlyFilter.setAuthenticationManager(authenticationManager());
                 http.headers().cacheControl().disable();
-                http.addFilter(serviceOnlyFilter)
+                http.addFilter(serviceAuthFilter)
                     .csrf().disable()
                     .requestMatchers()
                     .antMatchers(HttpMethod.POST, "/segments")
