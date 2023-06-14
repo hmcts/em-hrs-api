@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.em.hrs.config.security;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -20,14 +20,10 @@ import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import uk.gov.hmcts.reform.auth.checker.spring.serviceonly.AuthCheckerServiceOnlyFilter;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Function;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -38,38 +34,32 @@ public class SecurityConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityConfiguration.class);
 
-    @Value("#{'${idam.s2s-authorised.services}'.split(',')}")
-    private List<String> s2sNamesWhiteList;
-
-    @Bean
-    public Function<HttpServletRequest, Collection<String>> authorizedServicesExtractor() {
-        return any -> s2sNamesWhiteList;
-    }
 
     @Configuration
     @Order(1) // Checking only for S2S Token
     @Profile({"!integration-web-test"})
     public static class InternalApiSecurityConfigurationAdapter {
 
-        private AuthCheckerServiceOnlyFilter serviceOnlyFilter;
 
         @Autowired
         private ServiceAuthFilter serviceAuthFilter;
 
         @Bean
-        public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
+        public SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
-            http.headers(h -> h.cacheControl(c -> c.disable()))
-                .csrf(cs -> cs.disable())
+            http.headers(hd -> hd.cacheControl(c -> c.disable()))
                 .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
-                .authorizeHttpRequests((authz) -> authz
-                    .requestMatchers("/segments/**", "/folders/**")
-                    .anonymous()
-                    .anyRequest()
-                    .authenticated()
-                );
+                .csrf(cs -> cs.disable())
+                .authorizeHttpRequests(
+                    authz ->
+                        authz.requestMatchers(
+                                RegexRequestMatcher.regexMatcher(HttpMethod.POST, "/segments"),
+                                RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/folders/*")
+                            )
+                            .authenticated());
             return http.build();
         }
+
 
         @Bean
         public WebSecurityCustomizer getWebSecurityCustomizer() {
@@ -111,18 +101,15 @@ public class SecurityConfiguration {
         }
 
         @Bean
-        protected SecurityFilterChain configureHttpSecurity(HttpSecurity http) throws Exception {
-            http.headers(h -> h.cacheControl(c -> c.disable()))
-                .csrf(cs -> cs.disable())
-                .sessionManagement(sess -> sess.sessionCreationPolicy(STATELESS))
-                .formLogin(login -> login.disable())
-                .logout(lgout -> lgout.disable())
-                .authorizeHttpRequests((authz) -> authz
-                    .requestMatchers("/hearing-recordings/**", "/sharees")
-                    .anonymous()
-                    .anyRequest()
-                    .authenticated()
-                )
+        public SecurityFilterChain configureHttpSecurity(HttpSecurity http) throws Exception {
+            http.headers().cacheControl().disable();
+            http.sessionManagement().sessionCreationPolicy(STATELESS).and()
+                .formLogin().disable()
+                .logout().disable()
+                .authorizeHttpRequests(authz -> authz.requestMatchers(
+                    RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/hearing-recordings/*"),
+                    RegexRequestMatcher.regexMatcher(HttpMethod.POST, "/sharees")
+                ).authenticated())
                 .oauth2ResourceServer()
                 .jwt()
                 .and()
