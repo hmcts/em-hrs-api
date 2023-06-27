@@ -120,10 +120,14 @@ public class HearingRecordingController {
         parameters = {
             @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
                 description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string")),
+            @Parameter(in = ParameterIn.HEADER, name = "Authorization",
+                description = "Authorization (Idam Bearer token)", required = true,
                 schema = @Schema(type = "string"))})
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Return the location of the resource being granted "
             + "access to (the download link)"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
         @ApiResponse(responseCode = "404", description = "Not Found"),
         @ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
@@ -154,9 +158,13 @@ public class HearingRecordingController {
         parameters = {
             @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
                 description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string")),
+            @Parameter(in = ParameterIn.HEADER, name = "Authorization",
+                description = "Authorization (Idam Bearer token)", required = true,
                 schema = @Schema(type = "string"))})
     @ApiResponses(value =
-        {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment")}
+        {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")}
     )
     public ResponseEntity getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
                                            @PathVariable("segment") Integer segmentNo,
@@ -195,9 +203,13 @@ public class HearingRecordingController {
         parameters = {
             @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
                 description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string")),
+            @Parameter(in = ParameterIn.HEADER, name = "Authorization",
+                description = "Authorization (Idam Bearer token)", required = true,
                 schema = @Schema(type = "string"))})
     @ApiResponses(
-        value = {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment")}
+        value = {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")}
     )
     public ResponseEntity getSegmentBinaryForSharee(
         @PathVariable("recordingId") UUID recordingId,
