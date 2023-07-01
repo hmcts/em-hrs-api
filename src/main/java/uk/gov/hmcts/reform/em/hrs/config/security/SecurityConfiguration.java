@@ -59,11 +59,11 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.csrf(csrf->csrf.disable())
-            .formLogin(login->login.disable())
-            .logout(logout->logout.disable())
+        http.csrf(csrf -> csrf.disable())
+            .formLogin(login -> login.disable())
+            .logout(logout -> logout.disable())
             .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
-            .sessionManagement(sess->sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeRequests()
             .requestMatchers(HttpMethod.GET, "/hearing-recordings/**").authenticated()
             .requestMatchers(HttpMethod.POST, "/sharees").authenticated()
