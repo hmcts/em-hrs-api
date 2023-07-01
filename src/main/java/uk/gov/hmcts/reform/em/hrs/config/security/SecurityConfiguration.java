@@ -23,6 +23,8 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthen
 import org.springframework.security.web.SecurityFilterChain;
 import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 
 @Configuration
 @EnableWebSecurity
@@ -68,11 +70,8 @@ public class SecurityConfiguration {
             .requestMatchers(HttpMethod.GET, "/hearing-recordings/**").authenticated()
             .requestMatchers(HttpMethod.POST, "/sharees").authenticated()
             .and()
-            .oauth2ResourceServer()
-            .jwt()
-            .and()
-            .and()
-            .oauth2Client();
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
+            .oauth2Client(withDefaults());
         return http.build();
     }
 
