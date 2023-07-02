@@ -77,6 +77,9 @@ sourceSets {
  * Build Tasks
  **********************************************************************************************************************/
 
+tasks.withType(JavaCompile) {
+  options.compilerArgs << "-Xlint:unchecked" << "-Werror"
+}
 
 // https://github.com/gradle/gradle/issues/16791
 tasks.withType(JavaExec).configureEach {
@@ -219,7 +222,7 @@ configurations.all {
 dependencyManagement {
   dependencies {
 
-    dependencySet(group: 'com.google.guava', version: '32.0.1-jre') {
+    dependencySet(group: 'com.google.guava', version: '32.1.1-jre') {
       // Guava CVE-2018-10237 - Unbounded memory allocation
       entry 'guava'
     }
@@ -247,7 +250,6 @@ dependencyManagement {
       entry 'netty-codec-http2'
       entry 'netty-codec-socks'
       entry 'netty-common'
-      entry 'netty-handler'
       entry 'netty-handler'
       entry 'netty-handler-proxy'
       entry 'netty-resolver'
