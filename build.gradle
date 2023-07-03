@@ -459,10 +459,6 @@ dependencies {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
-  //contractTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
-  //contractTestImplementation group: 'io.rest-assured', name: 'json-schema-validator', version: versions.restAssured
-  //contractTestImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
-  //contractTestImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-junit5_2.12', version: versions.pact_version
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-java8_2.12', version: versions.pact_version
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.0.10'
