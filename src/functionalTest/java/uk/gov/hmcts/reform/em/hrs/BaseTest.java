@@ -171,8 +171,10 @@ public abstract class BaseTest {
 
 
     private RequestSpecification authRequestForUsername(String username) {
+        LOGGER.info("username==> {}", username);
         String userToken = idamHelper.authenticateUser(username);
-
+        LOGGER.info("idamHelper==> {}", userToken);
+        LOGGER.info("hrsS2sAuth==? {}", hrsS2sAuth);
 
         return SerenityRest
             .given()

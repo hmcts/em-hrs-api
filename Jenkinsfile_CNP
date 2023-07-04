@@ -15,7 +15,7 @@ properties([
   disableConcurrentBuilds()
 ])
 
-@Library("Infrastructure")
+@Library("Infrastructure@enable-logging-on-ft")
 
 def type = "java"
 def product = "em"
