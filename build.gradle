@@ -417,7 +417,7 @@ dependencies {
 
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.24.2'
-  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.38.0'
+  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '3.0.0'
 
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: versions.testcontainers
   testImplementation group: 'org.testcontainers', name: 'postgresql', version: versions.testcontainers
