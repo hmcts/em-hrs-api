@@ -7,7 +7,7 @@ properties([
     projectUrlStr: 'https://github.com/hmcts/em-hrs-api'
   ],
   // H allow predefined but random minute see https://en.wikipedia.org/wiki/Cron#Non-standard_characters
-  pipelineTriggers([cron('H 05 * * *')]),
+  pipelineTriggers([cron('H 8 * * 1-5')]),
   parameters([
     string(name: 'SecurityRules',
       defaultValue: 'http://raw.githubusercontent.com/hmcts/security-test-rules/master/conf/security-rules.conf',

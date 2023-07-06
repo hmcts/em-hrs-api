@@ -59,7 +59,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
     BlobUtil.class,
     AzureStorageContainerClientBeans.class
 })
-
 @TestPropertySource(value = "classpath:application.yml")
 @RunWith(SpringJUnit4ClassRunner.class)
 @WithTags({@WithTag("testType:Functional")})

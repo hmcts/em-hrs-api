@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.em.hrs;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.serenitybdd.rest.SerenityRest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +19,7 @@ import java.util.Set;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class ShareScenarios extends BaseTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShareScenarios.class);
@@ -82,6 +86,29 @@ public class ShareScenarios extends BaseTest {
 
         final int actualFileSize = downloadedFileBytes.length;
         assertThat(actualFileSize, is(expectedFileSize));
+    }
+
+    @Test
+    public void shareesShouldReturn401WhenAuthorizationMissing() {
+        final CallbackRequest callbackRequest = addEmailRecipientToCaseDetailsCallBack(
+            caseDetails,
+            USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS
+        );
+
+        JsonNode reqBody = new ObjectMapper().convertValue(callbackRequest, JsonNode.class);
+        SerenityRest
+            .given()
+            .baseUri(testUrl)
+            .contentType(APPLICATION_JSON_VALUE)
+            .header("ServiceAuthorization", hrsS2sAuth)
+            .relaxedHTTPSValidation()
+            .baseUri(testUrl)
+            .contentType(APPLICATION_JSON_VALUE)
+            .body(reqBody)
+            .when().log().all()
+            .post("/sharees")
+            .then()
+            .statusCode(401);
     }
 
     @Test
