@@ -125,7 +125,7 @@ withPipeline(type, product, component) {
 
       env.CVP_BLOB_ACCOUNT_URL = kubectl.getSecret(cvpStorageSecret, namespace, "{.data.blobEndpoint}")
       env.CVP_STORAGE_URL= "${env.CVP_BLOB_ACCOUNT_URL}cvp/"
-      env.HRS_CVP_DEST_CONTAINER_NAME = 'hrs'
+      env.HRS_CVP_DEST_CONTAINER_NAME = 'hrs-cvp'
       env.CVP_STORAGE_CONTAINER_NAME = 'cvp'
 
       env.CVP_STORAGE_CONNECTION_STRING= "DefaultEndpointsProtocol=https;AccountName=${env.CVP_BLOB_ACCOUNT_NAME};AccountKey=${env.CVP_BLOB_ACCESS_KEY};EndpointSuffix=core.windows.net"
