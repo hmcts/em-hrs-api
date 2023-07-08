@@ -35,7 +35,7 @@ def secrets = [
       secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING'),
       secret('cvp-storage-container-name', 'CVP_STORAGE_CONTAINER_NAME'),
       secret('storage-account-primary-connection-string', 'HRS_STORAGEACCOUNT_CONNECTION_STRING'),
-      secret('hrs-storage-container-name', 'HRS_STORAGE_CONTAINER_NAME'),
+      secret('hrs-storage-container-name', 'HRS_CVP_DEST_CONTAINER_NAME'),
       secret('notification-api-key', 'NOTIFICATION_API_KEY'),
       secret('idam-system-user-name', 'HRS_SYSTEM_USER'),
       secret('idam-system-user-password', 'HRS_SYSTEM_USER_PASSWORD')
@@ -125,7 +125,7 @@ withPipeline(type, product, component) {
 
       env.CVP_BLOB_ACCOUNT_URL = kubectl.getSecret(cvpStorageSecret, namespace, "{.data.blobEndpoint}")
       env.CVP_STORAGE_URL= "${env.CVP_BLOB_ACCOUNT_URL}cvp/"
-      env.HRS_STORAGE_CONTAINER_NAME = 'hrs'
+      env.HRS_CVP_DEST_CONTAINER_NAME = 'hrs'
       env.CVP_STORAGE_CONTAINER_NAME = 'cvp'
 
       env.CVP_STORAGE_CONNECTION_STRING= "DefaultEndpointsProtocol=https;AccountName=${env.CVP_BLOB_ACCOUNT_NAME};AccountKey=${env.CVP_BLOB_ACCESS_KEY};EndpointSuffix=core.windows.net"
@@ -133,7 +133,7 @@ withPipeline(type, product, component) {
 
       echo "CVP_STORAGE_CONNECTION_STRING : ${env.CVP_STORAGE_CONNECTION_STRING}"
       echo "HRS_STORAGEACCOUNT_CONNECTION_STRING : ${env.HRS_STORAGEACCOUNT_CONNECTION_STRING}"
-      echo "HRS_STORAGE_CONTAINER_NAME : ${env.HRS_STORAGE_CONTAINER_NAME}"
+      echo "HRS_CVP_DEST_CONTAINER_NAME : ${env.HRS_CVP_DEST_CONTAINER_NAME}"
       echo "CVP_STORAGE_CONTAINER_NAME : ${env.CVP_STORAGE_CONTAINER_NAME}"
 
     }
