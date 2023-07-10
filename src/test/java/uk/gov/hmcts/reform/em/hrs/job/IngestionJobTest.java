@@ -36,7 +36,7 @@ class IngestionJobTest {
         .filenameExtension("mp4")
         .fileSize(123456789L)
         .segment(0)
-        .cvpFileUrl("recording-cvp-uri")
+        .sourceBlobUrl("recording-cvp-uri")
         .checkSum("erI2foA30B==")
         .build();
 

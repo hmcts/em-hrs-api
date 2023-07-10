@@ -29,12 +29,12 @@ class IngestionServiceImplTest {
 
         doNothing()
             .when(hearingRecordingStorage)
-            .copyRecording(HEARING_RECORDING_DTO.getCvpFileUrl(), HEARING_RECORDING_DTO.getFilename());
+            .copyRecording(HEARING_RECORDING_DTO.getSourceBlobUrl(), HEARING_RECORDING_DTO.getFilename());
 
         sutIngestionService.ingest(HEARING_RECORDING_DTO);
 
         verify(hearingRecordingStorage).copyRecording(
-            HEARING_RECORDING_DTO.getCvpFileUrl(),
+            HEARING_RECORDING_DTO.getSourceBlobUrl(),
             HEARING_RECORDING_DTO.getFilename()
         );
 

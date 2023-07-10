@@ -21,7 +21,7 @@ public class HearingRecordingDto {
     private String jurisdictionCode;
     private String courtLocationCode;
     private String recordingRef;
-    private String cvpFileUrl;
+    private String sourceBlobUrl;
     private String urlDomain;
     private String filename;
     private String filenameExtension;

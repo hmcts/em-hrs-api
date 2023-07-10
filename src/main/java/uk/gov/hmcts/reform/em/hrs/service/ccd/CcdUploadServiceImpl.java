@@ -145,7 +145,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
             .fileExtension(recordingDto.getFilenameExtension())
             .fileSizeMb(recordingDto.getFileSize())
             .fileMd5Checksum(recordingDto.getCheckSum())
-            .ingestionFileSourceUri(recordingDto.getCvpFileUrl())
+            .ingestionFileSourceUri(recordingDto.getSourceBlobUrl())
             .recordingSegment(recordingDto.getSegment())
             .hearingRecording(recording)
             .build();
