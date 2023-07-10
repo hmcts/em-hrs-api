@@ -91,7 +91,7 @@ public class HearingRecordingController {
                 + "jurisdiction {}\n"
                 + "serviceCode {}\n"
                 + "RecordingSource {}\n"
-                + "CvpFileUrl {}",
+                + "sourceBlobUrl {}",
             hearingRecordingDto.getRecordingRef(),
             hearingRecordingDto.getFolder(),
             hearingRecordingDto.getCaseRef(),
@@ -101,7 +101,7 @@ public class HearingRecordingController {
             hearingRecordingDto.getJurisdictionCode(),
             hearingRecordingDto.getServiceCode(),
             hearingRecordingDto.getRecordingSource(),
-            hearingRecordingDto.getCvpFileUrl()
+            hearingRecordingDto.getSourceBlobUrl()
         );
 
         hearingRecordingDto.setUrlDomain(ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString());
