@@ -109,8 +109,8 @@ class SecurityServiceImplTest {
 
         assertThat(tokens).isNotNull().isNotEmpty();
         verify(idamClient, times(1)).getAccessToken(SYSTEM_USER, SYSTEM_USER_PASSWORD);
-        verify(idamClient, times(1)).getUserDetails(AUTHORIZATION_TOKEN);
-        verify(authTokenGenerator, times(1)).generate();
+        verify(idamClient, times(2)).getUserDetails(AUTHORIZATION_TOKEN);
+        verify(authTokenGenerator, times(2)).generate();
     }
 
     @Test
