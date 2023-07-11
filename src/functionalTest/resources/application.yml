@@ -75,7 +75,7 @@ azure:
       blob-container-name: ${CVP_STORAGE_CONTAINER_NAME:cvptestcontainer}
     hrs:
       connection-string: ${HRS_STORAGEACCOUNT_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
-      blob-container-reference: ${HRS_STORAGE_CONTAINER_NAME:emhrstestcontainer}
+      blob-container-reference: ${HRS_CVP_DEST_CONTAINER_NAME:emhrstestcontainer}
 
 app-insights:
   dev-mode: off

@@ -35,7 +35,7 @@ def secrets = [
     secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING'),
     secret('cvp-storage-container-name', 'CVP_STORAGE_CONTAINER_NAME'),
     secret('storage-account-primary-connection-string', 'HRS_STORAGEACCOUNT_CONNECTION_STRING'),
-    secret('hrs-storage-container-name', 'HRS_STORAGE_CONTAINER_NAME'),
+    secret('hrs-storage-container-name', 'HRS_CVP_DEST_CONTAINER_NAME'),
     secret('notification-api-key', 'NOTIFICATION_API_KEY'),
     secret('idam-system-user-name', 'HRS_SYSTEM_USER'),
     secret('idam-system-user-password', 'HRS_SYSTEM_USER_PASSWORD')
