@@ -110,7 +110,8 @@ azure:
   storage:
     hrs:
       connection-string: ${STORAGEACCOUNT_PRIMARY_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
-      blob-container-reference: ${HRS_CVP_DEST_CONTAINER_NAME:emhrstestcontainer}
+      cvp-dest-blob-container-name: ${HRS_CVP_DEST_CONTAINER_NAME:emhrstestcontainer}
+      vh-dest-blob-container-name: ${HRS_VH_DEST_CONTAINER_NAME:emhrstestcontainer}
     cvp:
       connection-string: ${CVP_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
       blob-container-reference: ${CVP_STORAGE_CONTAINER_NAME:cvptestcontainer}

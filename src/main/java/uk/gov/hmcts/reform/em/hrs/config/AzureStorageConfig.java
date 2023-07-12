@@ -21,7 +21,7 @@ public class AzureStorageConfig {
     @Value("${azure.storage.hrs.connection-string}")
     private String hrsConnectionString;
 
-    @Value("${azure.storage.hrs.blob-container-reference}")
+    @Value("${azure.storage.hrs.cvp-dest-blob-container-name}")
     private String hrsContainer;
 
     @Value("${azure.storage.cvp.connection-string}")
