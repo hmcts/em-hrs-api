@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import uk.gov.hmcts.reform.em.hrs.util.CvpConnectionResolver;
 
 import java.util.Optional;
 
@@ -35,6 +34,9 @@ public class AzureStorageConfig {
 
     @Value("${azure.storage.vh.blob-container-name}")
     private String vhContainer;
+
+    @Value("${azure.storage.use-ad-auth}")
+    private boolean useAdAuth;
 
     @Bean("HrsBlobContainerClient")
     public BlobContainerClient provideBlobContainerClient() {
@@ -69,7 +71,7 @@ public class AzureStorageConfig {
     private BlobContainerClient createBlobClient(String connectionString, String containerName) {
         BlobContainerClientBuilder b = new BlobContainerClientBuilder();
 
-        if (CvpConnectionResolver.isACvpEndpointUrl(connectionString)) {
+        if (useAdAuth) {
             LOGGER.info("****************************");
             LOGGER.info("Using Managed Identity For Blob Container Client (For SAS Token Generation)");
             LOGGER.info("end point: {}", connectionString);
