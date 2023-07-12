@@ -308,7 +308,6 @@ ext.libraries = [
 
 dependencies {
 
-  implementation 'org.jetbrains:annotations:24.0.1'
   def withoutStuff = {
     exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
     exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
