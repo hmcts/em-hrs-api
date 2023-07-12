@@ -1,17 +1,17 @@
 package uk.gov.hmcts.reform.em.hrs.repository;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import uk.gov.hmcts.reform.em.hrs.domain.JobInProgress;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
-import javax.transaction.Transactional;
 
-public interface JobInProgressRepository extends PagingAndSortingRepository<JobInProgress, UUID> {
+public interface JobInProgressRepository extends CrudRepository<JobInProgress, UUID> {
 
     @Modifying
     @Transactional

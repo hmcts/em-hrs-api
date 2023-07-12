@@ -1,8 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.util;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
-
-import javax.servlet.http.HttpServletRequest;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;

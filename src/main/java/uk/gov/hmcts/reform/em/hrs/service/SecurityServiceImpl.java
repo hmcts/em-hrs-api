@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,6 @@ import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
 import java.util.Map;
 import java.util.Objects;
-import javax.servlet.http.HttpServletRequest;
 
 @Component
 public class SecurityServiceImpl implements SecurityService {

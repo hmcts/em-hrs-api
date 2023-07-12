@@ -9,9 +9,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -21,14 +20,17 @@ import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
+import org.springframework.security.web.SecurityFilterChain;
 import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Profile({"!integration-web-test"})
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityConfiguration.class);
 
@@ -41,9 +43,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.serviceAuthFilter = serviceAuthFilter;
     }
 
-    @Override
-    public void configure(WebSecurity web) {
-        web.ignoring().antMatchers(
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers(
             "/swagger-ui.html",
             "/webjars/springfox-swagger-ui/**",
             "/swagger-resources/**",
@@ -56,25 +58,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/");
     }
 
-    @Override
-    protected void configure(final HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.csrf().disable()
-            .formLogin().disable()
-            .logout().disable()
+        http.csrf(csrf -> csrf.disable())
+            .formLogin(login -> login.disable())
+            .logout(logout -> logout.disable())
             .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeRequests()
-            .antMatchers(HttpMethod.GET, "/hearing-recordings/**").authenticated()
-            .antMatchers(HttpMethod.POST, "/sharees").authenticated()
+            .requestMatchers(HttpMethod.GET, "/hearing-recordings/**").authenticated()
+            .requestMatchers(HttpMethod.POST, "/sharees").authenticated()
             .and()
-            .oauth2ResourceServer()
-            .jwt()
-            .and()
-            .and()
-            .oauth2Client();
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
+            .oauth2Client(withDefaults());
+        return http.build();
     }
 
     @Bean

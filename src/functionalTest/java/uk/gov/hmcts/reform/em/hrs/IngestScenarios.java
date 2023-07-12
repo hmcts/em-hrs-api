@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs;
 
+import jakarta.annotation.PostConstruct;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -15,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.PostConstruct;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
