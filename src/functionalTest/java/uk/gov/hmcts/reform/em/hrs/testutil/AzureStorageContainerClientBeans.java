@@ -51,7 +51,7 @@ public class AzureStorageContainerClientBeans {
             .buildClient();
     }
 
-    @Bean(name = "vhBlobContainerClient")
+    @Bean(name = "VhBlobContainerClient")
     public BlobContainerClient vhBlobContainerClient() {
         LOGGER.info("VH ConnectionString: {}, VH Container: {} ", vhConnectionString, vhContainer);
         return new BlobContainerClientBuilder()

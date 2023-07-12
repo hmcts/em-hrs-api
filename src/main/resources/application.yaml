@@ -117,6 +117,7 @@ azure:
     vh:
       connection-string: ${VH_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
       blob-container-name: ${VH_STORAGE_CONTAINER_NAME:vhtestcontainer}
+    use-ad-auth: ${USE_AD_AUTH_FOR_SOURCE_BLOB_CONNECTION:false}
 
 app-insights:
   dev-mode: off
