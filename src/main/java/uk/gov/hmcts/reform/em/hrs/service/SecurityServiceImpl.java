@@ -49,12 +49,6 @@ public class SecurityServiceImpl implements SecurityService {
     @Override
     public Map<String, String> getTokens() {
         final String token = getUserToken();
-        LOGGER.info(
-            "token:{}, getUserId :{},authTokenGenerator {}",
-            token,
-            getUserId(token),
-            authTokenGenerator.generate()
-        );
         return Map.of("user", token,
                       "userId", getUserId(token),
                       "service", authTokenGenerator.generate());
