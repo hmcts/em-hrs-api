@@ -179,7 +179,7 @@ sonarqube {
     property "sonar.projectName", "Reform :: em-hrs-api"
     property "sonar.projectKey", "uk.gov.hmcts.reform.em.hrs:em-hrs-api"
     property "sonar.exclusions", coverageExclusionList.join(", ")
-    property "sonar.coverage.jacoco.xmlReportPaths", jacocoTestReport.reports.xml.destination.path
+    property "sonar.coverage.jacoco.xmlReportPaths", jacocoTestReport.reports.xml.outputLocation
     property "sonar.pitest.mode", "reuseReport"
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     property "sonar.cpd.exclusions", "**/*Scheduler.java"
