@@ -56,6 +56,9 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private final String cvpConnectionString;
     private final boolean useAdAuth;
 
+    @Value("${vh.enable-report}")
+    private boolean enableVhReport;
+
     @Autowired
     public HearingRecordingStorageImpl(
         final @Qualifier("HrsBlobContainerClient") BlobContainerClient hrsContainerClient,
@@ -256,6 +259,22 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             .map(blb -> blb.getName())
             .collect(Collectors.toSet());
 
+        if (enableVhReport) {
+            final PagedIterable<BlobItem> vhBlobItems = vhContainerClient.listBlobs(options, duration);
+
+            var vhTodayItemCounter = new Counter();
+            long vhTotalCount = vhBlobItems
+                .stream()
+                .filter(blobItem -> blobItem.getName().contains("/") && blobItem.getName().contains(".mp"))
+                .peek(blob -> {
+                    if (isCreatedToday(blob, today)) {
+                        vhTodayItemCounter.count++;
+                    }
+                })
+                .map(blb -> blb.getName())
+                .count();
+            LOGGER.info("VH count vhTotalCount {} vhTodayItemCounter{}", vhTotalCount, vhTodayItemCounter);
+        }
 
         long cvpItemCount = cvpItems.size();
         LOGGER.info("StorageReport CVP done");
@@ -306,6 +325,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private class Counter {
         public long count = 0;
     }
+
 }
 
 

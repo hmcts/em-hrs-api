@@ -120,6 +120,9 @@ azure:
       blob-container-name: ${VH_STORAGE_CONTAINER_NAME:vhtestcontainer}
     use-ad-auth: ${USE_AD_AUTH_FOR_SOURCE_BLOB_CONNECTION:false}
 
+vh:
+  enable-report: ${VH_ENABLE_REPORT:true}
+
 app-insights:
   dev-mode: off
   request-component: on
