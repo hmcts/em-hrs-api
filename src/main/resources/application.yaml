@@ -121,7 +121,7 @@ azure:
     use-ad-auth: ${USE_AD_AUTH_FOR_SOURCE_BLOB_CONNECTION:false}
 
 vh:
-  enable-report: ${VH_ENABLE_REPORT:true}
+  enable-report: ${VH_ENABLE_REPORT:false}
 
 app-insights:
   dev-mode: off
