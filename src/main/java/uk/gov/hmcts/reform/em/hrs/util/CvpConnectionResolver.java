@@ -17,12 +17,6 @@ public class CvpConnectionResolver {
     private CvpConnectionResolver() {
     }
 
-    public static boolean isACvpEndpointUrl(String cvpConnectionString) {
-        boolean isACvpEndpointUrl =
-            cvpConnectionString.contains("cvprecordings") && !cvpConnectionString.contains("AccountName");
-        return isACvpEndpointUrl;
-    }
-
     public static String extractAccountFromUrl(String cvpConnectionString) {
 
         Matcher matcher = pattern.matcher(cvpConnectionString);
