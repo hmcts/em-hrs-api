@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.service.email;
 
 import com.google.common.io.Resources;
+import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.mail.MailSendException;
@@ -9,7 +10,6 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.io.File;
 import java.util.Map;
-import javax.mail.internet.MimeMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;

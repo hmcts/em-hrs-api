@@ -22,4 +22,5 @@ public class AuthTokenGeneratorConfiguration {
     ) {
         return AuthTokenGeneratorFactory.createDefaultGenerator(secret, microService, serviceAuthorisationApi);
     }
+
 }

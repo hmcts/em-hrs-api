@@ -1,28 +1,20 @@
 
-buildscript {
-  dependencies {
-    classpath("net.serenity-bdd:serenity-gradle-plugin:2.3.13")
-    classpath("net.serenity-bdd:serenity-single-page-report:3.2.1")
-  }
-}
-
 plugins {
   id 'application'
   id 'checkstyle'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.1.0'
-  id 'org.springframework.boot' version '2.7.12'
+  id 'org.springframework.boot' version '3.1.0'
   id 'com.github.ben-manes.versions' version '0.47.0'
   id 'org.sonarqube' version '4.2.1.3168'
-  id 'org.flywaydb.flyway' version '9.20.0'
-  id 'au.com.dius.pact' version '4.3.6'
+  id 'org.flywaydb.flyway' version '9.19.4'
+  id 'au.com.dius.pact' version '4.6.0'
   id "info.solidsoft.pitest" version '1.9.0'
   id 'com.github.hmcts.rse-cft-lib' version '0.19.743'
   id 'uk.gov.hmcts.java' version '0.12.43'
   id 'org.owasp.dependencycheck' version '8.3.1'
+  id 'net.serenity-bdd.serenity-gradle-plugin' version '3.7.0'
 }
-
-apply plugin: 'net.serenity-bdd.aggregator'
 
 
 java {
@@ -168,9 +160,9 @@ jacocoTestReport {
   dependsOn test, integration
   executionData(test, integration)
   reports {
-    xml.enabled = true
-    csv.enabled = false
-    xml.destination = file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+    xml.required = true
+    csv.required = false
+    xml.outputLocation = file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
   }
 
   afterEvaluate {
@@ -230,7 +222,7 @@ configurations.all {
 dependencyManagement {
   dependencies {
 
-    dependencySet(group: 'com.google.guava', version: '32.0.1-jre') {
+    dependencySet(group: 'com.google.guava', version: '32.1.1-jre') {
       // Guava CVE-2018-10237 - Unbounded memory allocation
       entry 'guava'
     }
@@ -240,18 +232,20 @@ dependencyManagement {
       entry 'snakeyaml'
     }
 
-    dependencySet(group: 'org.springframework.cloud', version: '3.1.5') {
-      entry 'spring-cloud-starter-openfeign'
-    }
-
     //CVE-2023-24998
     dependencySet(group: 'commons-fileupload', version: '1.5') {
       entry 'commons-fileupload'
     }
 
     //CVE-2022-45688
-    dependencySet(group: 'org.json', version: '20230618') {
+    dependencySet(group: 'org.json', version: '20230227') {
       entry 'json'
+    }
+
+    // CVE-2023-34981
+    dependencySet(group: 'org.apache.tomcat.embed', version: '11.0.0-M4') {
+      entry 'tomcat-embed-core'
+      entry 'tomcat-embed-websocket'
     }
 
     //CVE-2023-34462
@@ -286,20 +280,19 @@ repositories {
 }
 
 def versions = [
-  serenity           : '2.6.0',
-  serenityreporter   : '2.6.0',
-  serenityRestAssured : '2.6.0',
+  serenity           : '3.7.0',
+  serenityreporter   : '3.7.0',
+  serenityRestAssured : '3.7.0',
   lombok             : '1.18.20',
   reformLogging      : '5.1.9',
   log4JVersion       : "2.17.1",
-  springfoxSwagger   : '2.9.2',
   postgresql         : '42.5.1',
   pact_version       : '3.6.15',
-  restAssured        : '4.2.0',
+  restAssured        : '5.3.0',
   junit              : '5.8.1',
   junitPlatform      : '1.9.3',
-  springSecurity     : '5.7.8',
-  shedlock           : '4.34.0',
+  springSecurity     : '6.1.0',
+  shedlock           : '5.4.0',
   testcontainers     : '1.18.3'
 ]
 
@@ -329,15 +322,15 @@ dependencies {
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-core', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-config', version: versions.springSecurity
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.5'
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.5'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.0.2'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.0.2'
+
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
   implementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
   implementation "org.springframework.boot:spring-boot-starter-actuator"
-  implementation "org.springframework.boot:spring-boot-starter-aop"
   implementation "org.springframework.boot:spring-boot-starter-json"
   implementation "org.springframework.boot:spring-boot-starter-validation"
   implementation "org.springframework.boot:spring-boot-starter-web"
@@ -345,7 +338,7 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'properties-volume-spring-boot-starter', version: '0.1.1'
 //hmcts autho
   implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '3.0.1'
-  implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '4.1.1'
+  implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.1.0'
   implementation group: 'com.github.hmcts', name: 'auth-checker-lib', version: '2.1.5', {
     exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
   }
@@ -362,12 +355,9 @@ dependencies {
 //gov notify email service
   implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '4.1.0-RELEASE'
 
-
-//rest server / API publishing?
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.7.0'
-
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.1.0'
 //azure components
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.22.3'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.22.2'
   implementation group: 'com.azure', name: 'azure-identity', version: '1.9.1'
 
   // Job scheduling
@@ -384,7 +374,6 @@ dependencies {
  **********************************************************************************************************************/
 
   implementation group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
-  implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.6.7.Final'
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '9.19.4'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
   implementation "org.springframework.boot:spring-boot-starter-jdbc"
@@ -412,7 +401,7 @@ dependencies {
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
 
-  functionalTestImplementation 'com.github.hmcts:em-test-helper:1.21.9'
+  functionalTestImplementation 'com.github.hmcts:em-test-helper:2.0.4'
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
 
 
@@ -431,11 +420,6 @@ dependencies {
   functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.9.3'
   functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
   functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
-  functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
-  functionalTestImplementation group: 'io.rest-assured', name: 'json-schema-validator', version: versions.restAssured
-  functionalTestImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
-  functionalTestImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
-
 
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
   testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
@@ -471,10 +455,6 @@ dependencies {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
-  contractTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
-  contractTestImplementation group: 'io.rest-assured', name: 'json-schema-validator', version: versions.restAssured
-  contractTestImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
-  contractTestImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-junit5_2.12', version: versions.pact_version
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-java8_2.12', version: versions.pact_version
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.0.10'
