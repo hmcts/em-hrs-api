@@ -458,7 +458,7 @@ dependencies {
 
   contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
   contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.1"
-  contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.9.3'
+  contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.10.0'
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
