@@ -290,7 +290,7 @@ def versions = [
   pact_version       : '3.6.15',
   restAssured        : '5.3.0',
   junit              : '5.8.1',
-  junitPlatform      : '1.9.3',
+  junitPlatform      : '1.10.0',
   springSecurity     : '6.1.2',
   shedlock           : '5.4.0',
   testcontainers     : '1.18.3'
