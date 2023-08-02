@@ -222,7 +222,7 @@ configurations.all {
 dependencyManagement {
   dependencies {
 
-    dependencySet(group: 'com.google.guava', version: '32.1.1-jre') {
+    dependencySet(group: 'com.google.guava', version: '32.1.2-jre') {
       // Guava CVE-2018-10237 - Unbounded memory allocation
       entry 'guava'
     }
