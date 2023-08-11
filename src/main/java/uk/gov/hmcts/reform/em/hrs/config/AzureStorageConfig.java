@@ -21,7 +21,7 @@ public class AzureStorageConfig {
     private String hrsConnectionString;
 
     @Value("${azure.storage.hrs.cvp-dest-blob-container-name}")
-    private String hrsContainer;
+    private String hrsCvpContainer;
 
     @Value("${azure.storage.cvp.connection-string}")
     private String cvpConnectionString;
@@ -42,14 +42,14 @@ public class AzureStorageConfig {
     public BlobContainerClient provideBlobContainerClient() {
         BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
-            .containerName(hrsContainer)
+            .containerName(hrsCvpContainer)
             .buildClient();
 
         final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
             .orElse(false);
 
         if (!containerExists) {
-            LOGGER.info("Creating container {} in HRS Storage", hrsContainer);
+            LOGGER.info("Creating container {} in HRS Storage", hrsCvpContainer);
             blobContainerClient.create();
         }
         return blobContainerClient;
