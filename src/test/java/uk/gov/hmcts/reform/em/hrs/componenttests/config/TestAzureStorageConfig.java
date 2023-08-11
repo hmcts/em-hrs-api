@@ -57,8 +57,8 @@ public class TestAzureStorageConfig {
     }
 
     @Primary
-    @Bean("HrsBlobContainerClient")
-    public BlobContainerClient provideHrsBlobContainerClient() {
+    @Bean("HrsCvpBlobContainerClient")
+    public BlobContainerClient provideHrsCvpBlobContainerClient() {
         BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
             .connectionString(connectionString)
             .containerName(HRS_CONTAINER)

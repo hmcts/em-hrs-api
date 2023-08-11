@@ -38,7 +38,7 @@ public class AzureStorageConfig {
     @Value("${azure.storage.use-ad-auth}")
     private boolean useAdAuth;
 
-    @Bean("HrsBlobContainerClient")
+    @Bean("HrsCvpBlobContainerClient")
     public BlobContainerClient provideBlobContainerClient() {
         BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)

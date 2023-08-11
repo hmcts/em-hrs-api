@@ -73,10 +73,10 @@ public class IngestScenarios extends BaseTest {
         }
 
         LOGGER.info("************* CHECKING HRS HAS COPIED TO STORE **********");
-        testUtil.checkIfUploadedToStore(filenames, testUtil.hrsBlobContainerClient);
+        testUtil.checkIfUploadedToStore(filenames, testUtil.hrsCvpBlobContainerClient);
 
         long cvpFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.cvpBlobContainerClient);
-        long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsBlobContainerClient);
+        long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsCvpBlobContainerClient);
         Assert.assertEquals(hrsFileSize, cvpFileSize);
 
         uploadToCcd(filenames, caseRef);
@@ -118,10 +118,10 @@ public class IngestScenarios extends BaseTest {
         SleepHelper.sleepForSeconds(10);
 
         LOGGER.info("************* CHECKING HRS HAS COPIED TO STORE **********");
-        testUtil.checkIfUploadedToStore(filenames, testUtil.hrsBlobContainerClient);
+        testUtil.checkIfUploadedToStore(filenames, testUtil.hrsCvpBlobContainerClient);
 
         long cvpFileSize = testUtil.getFileSizeFromStore(filename, testUtil.cvpBlobContainerClient);
-        long hrsFileSize = testUtil.getFileSizeFromStore(filename, testUtil.hrsBlobContainerClient);
+        long hrsFileSize = testUtil.getFileSizeFromStore(filename, testUtil.hrsCvpBlobContainerClient);
         Assert.assertEquals(hrsFileSize, cvpFileSize);
 
         uploadToCcd(filenames, caseRef);
