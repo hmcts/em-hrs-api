@@ -23,6 +23,9 @@ public class AzureStorageConfig {
     @Value("${azure.storage.hrs.cvp-dest-blob-container-name}")
     private String hrsCvpContainer;
 
+    @Value("${azure.storage.hrs.vh-dest-blob-container-name}")
+    private String hrsVhContainer;
+
     @Value("${azure.storage.cvp.connection-string}")
     private String cvpConnectionString;
 
@@ -39,7 +42,7 @@ public class AzureStorageConfig {
     private boolean useAdAuth;
 
     @Bean("HrsCvpBlobContainerClient")
-    public BlobContainerClient provideBlobContainerClient() {
+    public BlobContainerClient provideHrsCvpBlobContainerClient() {
         BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
             .containerName(hrsCvpContainer)
@@ -54,6 +57,15 @@ public class AzureStorageConfig {
         }
         return blobContainerClient;
 
+    }
+
+    @Bean("HrsVhBlobContainerClient")
+    public BlobContainerClient provideHrsVhBlobContainerClient() {
+        BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
+            .connectionString(hrsConnectionString)
+            .containerName(hrsVhContainer)
+            .buildClient();
+        return blobContainerClient;
     }
 
     @Bean("CvpBlobContainerClient")

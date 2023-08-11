@@ -36,12 +36,21 @@ public class AzureStorageContainerClientBeans {
     @Value("${azure.storage.vh.blob-container-name}")
     private String vhContainer;
 
-    @Bean(name = "hrsBlobContainerClient")
-    public BlobContainerClient hrsBlobContainerClient() {
-        LOGGER.info("HRS ConnectionString: {}, HRS Container: {} ", hrsConnectionString, hrsContainer);
+    @Bean(name = "hrsCvpBlobContainerClient")
+    public BlobContainerClient hrsCvpBlobContainerClient() {
+        LOGGER.info("HRS ConnectionString: {}, HRS Container: {} ", hrsConnectionString, hrsCvpContainer);
         return new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
             .containerName(hrsCvpContainer)
+            .buildClient();
+    }
+
+    @Bean(name = "hrsVhBlobContainerClient")
+    public BlobContainerClient hrsVhBlobContainerClient() {
+        LOGGER.info("HRS ConnectionString: {}, HRS Container: {} ", hrsConnectionString, hrsVhContainer);
+        return new BlobContainerClientBuilder()
+            .connectionString(hrsConnectionString)
+            .containerName(hrsVhContainer)
             .buildClient();
     }
 
