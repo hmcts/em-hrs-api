@@ -28,7 +28,8 @@ public class TestAzureStorageConfig {
     private static final String BLOB_ENDPOINT = "http://%s:%d/%s";
     private static final String AZURITE_CREDENTIALS =
         "DefaultEndpointsProtocol=http;AccountName=%s;AccountKey=%s;BlobEndpoint=%s;";
-    private static final String HRS_CONTAINER = "hrs-test-container";
+    private static final String HRS_CVP_CONTAINER = "hrs-cvp-test-container";
+    private static final String HRS_VH_CONTAINER = "hrs-vh-test-container";
     private static final String CVP_CONTAINER = "cvp-test-container";
     private static final String VH_CONTAINER = "vh-test-container";
 
@@ -61,7 +62,7 @@ public class TestAzureStorageConfig {
     public BlobContainerClient provideHrsCvpBlobContainerClient() {
         BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
             .connectionString(connectionString)
-            .containerName(HRS_CONTAINER)
+            .containerName(HRS_CVP_CONTAINER)
             .buildClient();
 
 
@@ -69,7 +70,27 @@ public class TestAzureStorageConfig {
             .orElse(false);
 
         if (!containerExists) {
-            LOGGER.info("Creating container {} in HRS Storage", HRS_CONTAINER);
+            LOGGER.info("Creating CVP container {} in HRS Storage", HRS_CVP_CONTAINER);
+            blobContainerClient.create();
+        }
+        return blobContainerClient;
+
+    }
+
+    @Primary
+    @Bean("HrsVhBlobContainerClient")
+    public BlobContainerClient provideHrsVhBlobContainerClient() {
+        BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
+            .connectionString(connectionString)
+            .containerName(HRS_VH_CONTAINER)
+            .buildClient();
+
+
+        final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
+            .orElse(false);
+
+        if (!containerExists) {
+            LOGGER.info("Creating VH container {} in HRS Storage", HRS_CVP_CONTAINER);
             blobContainerClient.create();
         }
         return blobContainerClient;
