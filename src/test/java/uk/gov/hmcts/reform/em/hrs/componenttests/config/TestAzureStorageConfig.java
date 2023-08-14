@@ -90,7 +90,7 @@ public class TestAzureStorageConfig {
             .orElse(false);
 
         if (!containerExists) {
-            LOGGER.info("Creating VH container {} in HRS Storage", HRS_CVP_CONTAINER);
+            LOGGER.info("Creating VH container {} in HRS Storage", HRS_VH_CONTAINER);
             blobContainerClient.create();
         }
         return blobContainerClient;
