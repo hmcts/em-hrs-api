@@ -51,7 +51,7 @@ public class ShareScenarios extends BaseTest {
 
         LOGGER.info("SET UP: POSTING TO HRS");
         postRecordingSegment(caseRef, 0).then().statusCode(202);
-        blobUtil.checkIfUploadedToStore(filenames, blobUtil.hrsBlobContainerClient);
+        blobUtil.checkIfUploadedToStore(filenames, blobUtil.hrsCvpBlobContainerClient);
 
         LOGGER.info("SET UP: CHECKING CASE IN CCD");
         caseDetails = findCaseWithAutoRetryWithUserWithSearcherRole(caseRef);
