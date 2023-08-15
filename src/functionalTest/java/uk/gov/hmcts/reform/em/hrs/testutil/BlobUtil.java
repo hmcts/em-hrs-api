@@ -25,15 +25,15 @@ import static uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper.sleepForSeconds;
 public class BlobUtil {
 
     public static final int FIND_BLOB_TIMEOUT = 30;
-    public final BlobContainerClient hrsBlobContainerClient;
+    public final BlobContainerClient hrsCvpBlobContainerClient;
     public final BlobContainerClient cvpBlobContainerClient;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
 
     @Autowired
-    public BlobUtil(@Qualifier("hrsBlobContainerClient") BlobContainerClient hrsBlobContainerClient,
+    public BlobUtil(@Qualifier("hrsCvpBlobContainerClient") BlobContainerClient hrsCvpBlobContainerClient,
                     @Qualifier("cvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient) {
-        this.hrsBlobContainerClient = hrsBlobContainerClient;
+        this.hrsCvpBlobContainerClient = hrsCvpBlobContainerClient;
         this.cvpBlobContainerClient = cvpBlobContainerClient;
     }
 
@@ -72,7 +72,7 @@ public class BlobUtil {
         final InputStream inStream = new ByteArrayInputStream(bytes);
 
         final BlobClient blobClient = cvpBlobContainerClient.getBlobClient(blobName);
-        LOGGER.debug("cvpBlobContainerClient.getBlobContainerUrl() ~{}", cvpBlobContainerClient.getBlobContainerUrl());
+        LOGGER.debug("cvpBlobContainerClient url {}", cvpBlobContainerClient.getBlobContainerUrl());
         blobClient.upload(new BufferedInputStream(inStream), bytes.length);
     }
 
@@ -82,8 +82,8 @@ public class BlobUtil {
         final byte[] bytes = fileInputStream.readAllBytes();
         final InputStream inStream = new ByteArrayInputStream(bytes);
 
-        final BlobClient blobClient = hrsBlobContainerClient.getBlobClient(blobName);
-        LOGGER.debug("hrsBlobContainerClient.getBlobContainerUrl() ~{}", hrsBlobContainerClient.getBlobContainerUrl());
+        final BlobClient blobClient = hrsCvpBlobContainerClient.getBlobClient(blobName);
+        LOGGER.debug("hrsCvpBlobContainerClient url {}", hrsCvpBlobContainerClient.getBlobContainerUrl());
         blobClient.upload(new BufferedInputStream(inStream), bytes.length);
     }
 
@@ -94,14 +94,14 @@ public class BlobUtil {
         return new FileInputStream(file);
     }
 
-    public long getFileSizeFromStore(String filename, BlobContainerClient hrsBlobContainerClient) {
-        return hrsBlobContainerClient.getBlobClient(filename).getProperties().getBlobSize();
+    public long getFileSizeFromStore(String filename, BlobContainerClient bobContainerClient) {
+        return bobContainerClient.getBlobClient(filename).getProperties().getBlobSize();
     }
 
-    public long getFileSizeFromStore(Set<String> fileNames, BlobContainerClient hrsBlobContainerClient) {
+    public long getFileSizeFromStore(Set<String> fileNames, BlobContainerClient bobContainerClient) {
         long fileSize = 0;
         for (String fileName : fileNames) {
-            fileSize += hrsBlobContainerClient.getBlobClient(fileName).getProperties().getBlobSize();
+            fileSize += bobContainerClient.getBlobClient(fileName).getProperties().getBlobSize();
         }
         return fileSize;
     }

@@ -23,18 +23,18 @@ import java.util.stream.Collectors;
 @Component
 public class AzureIntegrationTestOperations {
     private static final int BLOB_LIST_TIMEOUT = 5;
-    private final BlobContainerClient hrsBlobContainerClient;
+    private final BlobContainerClient hrsCvpBlobContainerClient;
     private final BlobContainerClient cvpBlobContainerClient;
     private final BlobContainerClient vhBlobContainerClient;
     private final Fairy fairy;
 
     @Autowired
     public AzureIntegrationTestOperations(
-        final @Qualifier("HrsBlobContainerClient") BlobContainerClient hrsBlobContainerClient,
+        final @Qualifier("HrsCvpBlobContainerClient") BlobContainerClient hrsCvpBlobContainerClient,
         final @Qualifier("CvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient,
         final @Qualifier("VhBlobContainerClient") BlobContainerClient vhBlobContainerClient
     ) {
-        this.hrsBlobContainerClient = hrsBlobContainerClient;
+        this.hrsCvpBlobContainerClient = hrsCvpBlobContainerClient;
         this.cvpBlobContainerClient = cvpBlobContainerClient;
         this.vhBlobContainerClient = vhBlobContainerClient;
         fairy = Fairy.create();
@@ -59,7 +59,7 @@ public class AzureIntegrationTestOperations {
     private void uploadToHrsContainer(final String blobName, final byte[] data) {
         final InputStream inStream = new ByteArrayInputStream(data);
 
-        final BlobClient blobClient = hrsBlobContainerClient.getBlobClient(blobName);
+        final BlobClient blobClient = hrsCvpBlobContainerClient.getBlobClient(blobName);
         blobClient.upload(new BufferedInputStream(inStream), data.length);
     }
 
@@ -73,7 +73,7 @@ public class AzureIntegrationTestOperations {
 
         final BlobClient blobClient = container.equals(Container.CVP)
             ? cvpBlobContainerClient.getBlobClient(filePath)
-            : hrsBlobContainerClient.getBlobClient(filePath);
+            : hrsCvpBlobContainerClient.getBlobClient(filePath);
         blobClient.upload(new BufferedInputStream(data), content.length());
     }
 
@@ -91,7 +91,7 @@ public class AzureIntegrationTestOperations {
             .setPrefix(folder);
         final Duration duration = Duration.ofMinutes(BLOB_LIST_TIMEOUT);
 
-        final PagedIterable<BlobItem> blobItems = hrsBlobContainerClient.listBlobs(options, duration);
+        final PagedIterable<BlobItem> blobItems = hrsCvpBlobContainerClient.listBlobs(options, duration);
 
         return blobItems.streamByPage()
             .flatMap(x -> x.getValue().stream().map(BlobItem::getName))
@@ -99,7 +99,7 @@ public class AzureIntegrationTestOperations {
     }
 
     public void clearContainer() {
-        hrsBlobContainerClient.listBlobs()
+        hrsCvpBlobContainerClient.listBlobs()
             .forEach(x -> x.setDeleted(true));
     }
 

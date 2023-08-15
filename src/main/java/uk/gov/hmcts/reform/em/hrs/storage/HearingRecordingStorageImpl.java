@@ -50,7 +50,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private static final int BLOB_LIST_TIMEOUT = 5;
     private static final Duration POLLING_INTERVAL = Duration.ofSeconds(3);
 
-    private final BlobContainerClient hrsBlobContainerClient;
+    private final BlobContainerClient hrsCvpBlobContainerClient;
     private final BlobContainerClient cvpBlobContainerClient;
     private final BlobContainerClient vhContainerClient;
     private final String cvpConnectionString;
@@ -61,13 +61,13 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
     @Autowired
     public HearingRecordingStorageImpl(
-        final @Qualifier("HrsBlobContainerClient") BlobContainerClient hrsContainerClient,
+        final @Qualifier("HrsCvpBlobContainerClient") BlobContainerClient hrsCvpContainerClient,
         final @Qualifier("CvpBlobContainerClient") BlobContainerClient cvpContainerClient,
         final @Qualifier("VhBlobContainerClient") BlobContainerClient vhContainerClient,
         @Value("${azure.storage.cvp.connection-string}") String cvpConnectionString,
         @Value("${azure.storage.use-ad-auth}") boolean useAdAuth
     ) {
-        this.hrsBlobContainerClient = hrsContainerClient;
+        this.hrsCvpBlobContainerClient = hrsCvpContainerClient;
         this.cvpBlobContainerClient = cvpContainerClient;
         this.vhContainerClient = vhContainerClient;
         this.cvpConnectionString = cvpConnectionString;
@@ -88,7 +88,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             .setPrefix(folderPath);
         final var duration = Duration.ofMinutes(BLOB_LIST_TIMEOUT);
 
-        final PagedIterable<BlobItem> blobItems = hrsBlobContainerClient.listBlobs(options, duration);
+        final PagedIterable<BlobItem> blobItems = hrsCvpBlobContainerClient.listBlobs(options, duration);
 
         return blobItems.streamByPage()
             .flatMap(x -> x.getValue().stream().map(BlobItem::getName))
@@ -99,10 +99,11 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     public void copyRecording(String sourceUri, final String filename) {
 
         try {
-            BlockBlobClient destinationBlobClient = hrsBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
+            BlockBlobClient destinationBlobClient =
+                hrsCvpBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
 
             LOGGER.info("########## Trying copy from URL for sourceUri {}", sourceUri);
-            LOGGER.info("##########  destinationBlobClient{}", hrsBlobContainerClient.getBlobContainerUrl());
+            LOGGER.info("##########  destinationBlobClient{}", hrsCvpBlobContainerClient.getBlobContainerUrl());
             if (Boolean.FALSE.equals(destinationBlobClient.exists())
                 || destinationBlobClient.getProperties().getBlobSize() == 0) {
                 if (useAdAuth) {
@@ -286,7 +287,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             .setDetails(hrsBlobListDetails);
         var hrsTodayItemCounter = new Counter();
 
-        long hrsItemCount = hrsBlobContainerClient.listBlobs(hrsOptions, duration)
+        long hrsItemCount = hrsCvpBlobContainerClient.listBlobs(hrsOptions, duration)
             .stream()
             .filter(blobItem -> blobItem.getName().contains("/"))
             .peek(blob -> {
