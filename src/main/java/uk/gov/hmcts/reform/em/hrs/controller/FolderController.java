@@ -52,6 +52,7 @@ public class FolderController {
         }
     )
     public ResponseEntity<RecordingFilenameDto> getFilenames(@PathVariable("name") final String folderName) {
+        LOGGER.info("GET getFilenames by folder Name{} ", folderName);
         var recordingFilenameDto = new RecordingFilenameDto(
             folderName,
             folderService.getStoredFiles(folderName)
