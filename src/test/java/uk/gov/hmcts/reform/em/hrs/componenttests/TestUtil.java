@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.domain.JobInProgress;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 
@@ -63,7 +64,7 @@ public class TestUtil {
     public static final HearingRecordingDto HEARING_RECORDING_DTO = HearingRecordingDto.builder()
         .folder(TEST_FOLDER_1_NAME)
         .caseRef(CASE_REFERENCE)
-        .recordingSource("CVP")
+        .recordingSource(HearingSource.CVP)
         .courtLocationCode("LC")
         .jurisdictionCode("JC")
         .hearingRoomRef("123")

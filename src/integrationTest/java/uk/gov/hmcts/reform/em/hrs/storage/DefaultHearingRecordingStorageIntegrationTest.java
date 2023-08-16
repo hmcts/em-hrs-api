@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static uk.gov.hmcts.reform.em.hrs.dto.HearingSource.CVP;
 
 @SpringBootTest(classes = {
     TestAzureStorageConfig.class,
@@ -86,7 +87,7 @@ class DefaultHearingRecordingStorageIntegrationTest {
         final String sourceUrl = azureIntegrationTestOperations.getBlobUrl(file);
 
         HearingRecordingDto hrDto =
-            HearingRecordingDto.builder().sourceBlobUrl(sourceUrl).filename(file).recordingSource("CVP").build();
+            HearingRecordingDto.builder().sourceBlobUrl(sourceUrl).filename(file).recordingSource(CVP).build();
         underTest.copyRecording(hrDto);
 
         await().atMost(TEN_SECONDS)
@@ -104,7 +105,7 @@ class DefaultHearingRecordingStorageIntegrationTest {
         final String sourceUrl = azureIntegrationTestOperations.getBlobUrl(file1);
 
         HearingRecordingDto hrDto =
-            HearingRecordingDto.builder().sourceBlobUrl(sourceUrl).filename(file1).recordingSource("CVP").build();
+            HearingRecordingDto.builder().sourceBlobUrl(sourceUrl).filename(file1).recordingSource(CVP).build();
         underTest.copyRecording(hrDto);
 
         await().atMost(TEN_SECONDS)

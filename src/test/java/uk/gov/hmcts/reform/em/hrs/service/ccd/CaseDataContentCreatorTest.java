@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
@@ -46,6 +47,7 @@ class CaseDataContentCreatorTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH.mm.ss.SSS");
         hearingRecordingDto = HearingRecordingDto.builder()
             .caseRef(RECORDING_REF)
+            .recordingSource(HearingSource.CVP)
             .filename("recording-file-1")
             .recordingDateTime(LocalDateTime.parse(dateString, formatter))
             .jurisdictionCode("FM")
