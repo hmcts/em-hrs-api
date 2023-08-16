@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.quartz.JobExecutionContext;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.service.IngestionService;
 import uk.gov.hmcts.reform.em.hrs.service.JobInProgressService;
 
@@ -26,7 +27,7 @@ import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.RECORDING_REFER
 class IngestionJobTest {
     private static final HearingRecordingDto HEARING_RECORDING_DTO = HearingRecordingDto.builder()
         .caseRef(CASE_REFERENCE)
-        .recordingSource("CVP")
+        .recordingSource(HearingSource.CVP)
         .courtLocationCode("LC")
         .jurisdictionCode("JC")
         .hearingRoomRef("123")

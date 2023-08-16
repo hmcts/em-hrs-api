@@ -15,7 +15,7 @@ public class HearingRecordingDto {
 
     private String folder;
     private String caseRef;
-    private String recordingSource;
+    private HearingSource recordingSource;
     private String hearingRoomRef;
     private String serviceCode;
     private String jurisdictionCode;

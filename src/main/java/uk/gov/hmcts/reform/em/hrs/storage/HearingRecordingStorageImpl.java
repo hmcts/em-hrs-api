@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.exception.BlobCopyException;
 
 import java.time.Duration;
@@ -107,7 +108,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
         String sourceUri = hrDto.getSourceBlobUrl();
         String filename = hrDto.getFilename();
-        String recordingSource =  hrDto.getRecordingSource();
+        HearingSource recordingSource =  hrDto.getRecordingSource();
 
         try {
             var containersToCopy = getCopyContainers(filename, recordingSource);
@@ -201,15 +202,15 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private record BlobClientsForCopy(BlockBlobClient source, BlockBlobClient destination) {
     }
 
-    private BlobClientsForCopy getCopyContainers(String fileName, String recordingSource) {
+    private BlobClientsForCopy getCopyContainers(String fileName, HearingSource recordingSource) {
         switch (recordingSource) {
-            case "CVP":
+            case CVP:
                 BlockBlobClient sourceBlobClient =
                     cvpBlobContainerClient.getBlobClient(fileName).getBlockBlobClient();
                 BlockBlobClient destinationBlobClient =
                     hrsCvpBlobContainerClient.getBlobClient(fileName).getBlockBlobClient();
                 return new BlobClientsForCopy(sourceBlobClient, destinationBlobClient);
-            case "VH":
+            case VH:
                 sourceBlobClient =
                     vhContainerClient.getBlobClient(fileName).getBlockBlobClient();
                 destinationBlobClient =
@@ -220,8 +221,8 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         }
     }
 
-    private String generateReadSas(String fileName, String recordingSource) {
-        if (recordingSource.equals("CVP")) {
+    private String generateReadSas(String fileName, HearingSource recordingSource) {
+        if (HearingSource.CVP == recordingSource) {
             return generateReadSas(fileName, this.cvpBlobContainerClient, this.cvpConnectionString);
         } else {
             return generateReadSas(fileName, this.vhContainerClient, this.vhConnectionString);

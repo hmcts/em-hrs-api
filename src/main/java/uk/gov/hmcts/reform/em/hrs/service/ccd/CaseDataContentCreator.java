@@ -40,7 +40,7 @@ public class CaseDataContentCreator {
                     .map(LocalDateTime::toLocalDate).orElse(null)
             )
             .recordingTimeOfDay(getRecordingTimeOfDay(hearingRecordingDto))
-            .hearingSource(hearingRecordingDto.getRecordingSource())
+            .hearingSource(hearingRecordingDto.getRecordingSource().name())
             .hearingRoomRef(hearingRecordingDto.getHearingRoomRef())
             .serviceCode(hearingRecordingDto.getServiceCode())
             .jurisdictionCode(hearingRecordingDto.getJurisdictionCode())

@@ -105,7 +105,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
             .caseRef(recordingDto.getCaseRef())
             .hearingLocationCode(recordingDto.getCourtLocationCode())
             .hearingRoomRef(recordingDto.getHearingRoomRef())
-            .hearingSource(recordingDto.getRecordingSource())
+            .hearingSource(recordingDto.getRecordingSource().name())
             .jurisdictionCode(recordingDto.getJurisdictionCode())
             .serviceCode(recordingDto.getServiceCode())
             .createdOn(LocalDateTime.now())
