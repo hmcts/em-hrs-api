@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestApplicationConfig;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestAzureStorageConfig;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.exception.BlobCopyException;
 import uk.gov.hmcts.reform.em.hrs.helper.AzureIntegrationTestOperations;
 
@@ -22,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static uk.gov.hmcts.reform.em.hrs.dto.HearingSource.CVP;
 
 @SpringBootTest(classes = {
     TestAzureStorageConfig.class,
@@ -84,7 +86,9 @@ class DefaultHearingRecordingStorageIntegrationTest {
         azureIntegrationTestOperations.uploadToCvpContainer(file);
         final String sourceUrl = azureIntegrationTestOperations.getBlobUrl(file);
 
-        underTest.copyRecording(sourceUrl, file);
+        HearingRecordingDto hrDto =
+            HearingRecordingDto.builder().sourceBlobUrl(sourceUrl).filename(file).recordingSource(CVP).build();
+        underTest.copyRecording(hrDto);
 
         await().atMost(TEN_SECONDS)
             .untilAsserted(() -> assertThat(azureIntegrationTestOperations.getHrsBlobsFrom(folder))
@@ -100,7 +104,9 @@ class DefaultHearingRecordingStorageIntegrationTest {
         azureIntegrationTestOperations.populateCvpContainer(Set.of(file1, file2));
         final String sourceUrl = azureIntegrationTestOperations.getBlobUrl(file1);
 
-        underTest.copyRecording(sourceUrl, file1);
+        HearingRecordingDto hrDto =
+            HearingRecordingDto.builder().sourceBlobUrl(sourceUrl).filename(file1).recordingSource(CVP).build();
+        underTest.copyRecording(hrDto);
 
         await().atMost(TEN_SECONDS)
             .untilAsserted(() -> assertThat(azureIntegrationTestOperations.getHrsBlobsFrom(folder))
@@ -120,7 +126,9 @@ class DefaultHearingRecordingStorageIntegrationTest {
     void testShouldEmitCopyFailedMessage() {
         final String file = UUID.randomUUID().toString() + "/" + UUID.randomUUID().toString() + ".txt";
         final String sourceUrl = azureIntegrationTestOperations.getBlobUrl(file);
-        assertThatExceptionOfType(BlobCopyException.class).isThrownBy(() -> underTest.copyRecording(sourceUrl, file));
+        HearingRecordingDto hrDto =
+            HearingRecordingDto.builder().sourceBlobUrl(sourceUrl).filename(file).build();
+        assertThatExceptionOfType(BlobCopyException.class).isThrownBy(() -> underTest.copyRecording(hrDto));
     }
 
 

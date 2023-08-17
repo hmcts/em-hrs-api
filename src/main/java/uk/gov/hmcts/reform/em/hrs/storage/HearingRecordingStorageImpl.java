@@ -28,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.exception.BlobCopyException;
 
 import java.time.Duration;
@@ -51,9 +53,11 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private static final Duration POLLING_INTERVAL = Duration.ofSeconds(3);
 
     private final BlobContainerClient hrsCvpBlobContainerClient;
+    private final BlobContainerClient hrsVhBlobContainerClient;
     private final BlobContainerClient cvpBlobContainerClient;
     private final BlobContainerClient vhContainerClient;
     private final String cvpConnectionString;
+    private final String vhConnectionString;
     private final boolean useAdAuth;
 
     @Value("${vh.enable-report}")
@@ -62,15 +66,19 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     @Autowired
     public HearingRecordingStorageImpl(
         final @Qualifier("HrsCvpBlobContainerClient") BlobContainerClient hrsCvpContainerClient,
+        final @Qualifier("HrsVhBlobContainerClient") BlobContainerClient hrsVhContainerClient,
         final @Qualifier("CvpBlobContainerClient") BlobContainerClient cvpContainerClient,
         final @Qualifier("VhBlobContainerClient") BlobContainerClient vhContainerClient,
         @Value("${azure.storage.cvp.connection-string}") String cvpConnectionString,
+        @Value("${azure.storage.vh.connection-string}") String vhConnectionString,
         @Value("${azure.storage.use-ad-auth}") boolean useAdAuth
     ) {
         this.hrsCvpBlobContainerClient = hrsCvpContainerClient;
+        this.hrsVhBlobContainerClient = hrsVhContainerClient;
         this.cvpBlobContainerClient = cvpContainerClient;
         this.vhContainerClient = vhContainerClient;
         this.cvpConnectionString = cvpConnectionString;
+        this.vhConnectionString = vhConnectionString;
         this.useAdAuth = useAdAuth;
     }
 
@@ -96,23 +104,26 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     }
 
     @Override
-    public void copyRecording(String sourceUri, final String filename) {
+    public void copyRecording(HearingRecordingDto hrDto) {
+
+        String sourceUri = hrDto.getSourceBlobUrl();
+        String filename = hrDto.getFilename();
+        HearingSource recordingSource =  hrDto.getRecordingSource();
 
         try {
-            BlockBlobClient destinationBlobClient =
-                hrsCvpBlobContainerClient.getBlobClient(filename).getBlockBlobClient();
+            var containersToCopy = getCopyContainers(filename, recordingSource);
+            BlockBlobClient destinationBlobClient = containersToCopy.destination;
+            BlockBlobClient sourceBlob = containersToCopy.source;
 
             LOGGER.info("########## Trying copy from URL for sourceUri {}", sourceUri);
-            LOGGER.info("##########  destinationBlobClient{}", hrsCvpBlobContainerClient.getBlobContainerUrl());
             if (Boolean.FALSE.equals(destinationBlobClient.exists())
                 || destinationBlobClient.getProperties().getBlobSize() == 0) {
                 if (useAdAuth) {
                     LOGGER.info("Generating and appending SAS token for copy for filename{}", filename);
-                    String sasToken = generateReadSasForCvp(filename);
+                    String sasToken = generateReadSas(filename, recordingSource);
                     sourceUri = sourceUri + "?" + sasToken;
                     LOGGER.info("Generated SasToken {}", sasToken);
                 } else {
-                    BlobClient sourceBlob = cvpBlobContainerClient.getBlobClient(filename);
 
                     String sasToken = sourceBlob
                         .generateSas(
@@ -129,14 +140,12 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 LOGGER.info("SAS token created for filename{}", filename);
                 PollResponse<BlobCopyInfo> poll = null;
                 try {
-
                     LOGGER.info("get cvpBlobContainerClient for filename {}", filename);
 
                     LOGGER.info(
-                        "file name {}, getBlobContainerName {}, exists {}",
+                        "file name {}, exists {}",
                         filename,
-                        cvpBlobContainerClient.getBlobContainerName(),
-                        cvpBlobContainerClient.exists()
+                        sourceBlob.exists()
                     );
                     SyncPoller<BlobCopyInfo, Void> poller = destinationBlobClient.beginCopy(
                         sourceUri,
@@ -190,11 +199,41 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         }
     }
 
-    private String generateReadSasForCvp(String fileName) {
+    private record BlobClientsForCopy(BlockBlobClient source, BlockBlobClient destination) {
+    }
 
-        LOGGER.debug("Attempting to generate SAS for container name {}", cvpBlobContainerClient.getBlobContainerName());
+    private BlobClientsForCopy getCopyContainers(String fileName, HearingSource recordingSource) {
+        switch (recordingSource) {
+            case CVP:
+                BlockBlobClient sourceBlobClient =
+                    cvpBlobContainerClient.getBlobClient(fileName).getBlockBlobClient();
+                BlockBlobClient destinationBlobClient =
+                    hrsCvpBlobContainerClient.getBlobClient(fileName).getBlockBlobClient();
+                return new BlobClientsForCopy(sourceBlobClient, destinationBlobClient);
+            case VH:
+                sourceBlobClient =
+                    vhContainerClient.getBlobClient(fileName).getBlockBlobClient();
+                destinationBlobClient =
+                    hrsVhBlobContainerClient.getBlobClient(fileName).getBlockBlobClient();
+                return new BlobClientsForCopy(sourceBlobClient, destinationBlobClient);
+            default:
+                throw new RuntimeException("Source Container" + recordingSource + "not Found");
+        }
+    }
 
-        BlobServiceClient blobServiceClient = cvpBlobContainerClient.getServiceClient();
+    private String generateReadSas(String fileName, HearingSource recordingSource) {
+        if (HearingSource.CVP == recordingSource) {
+            return generateReadSas(fileName, this.cvpBlobContainerClient, this.cvpConnectionString);
+        } else {
+            return generateReadSas(fileName, this.vhContainerClient, this.vhConnectionString);
+        }
+    }
+
+    private String generateReadSas(String fileName,BlobContainerClient blobContainerClient, String connectionString) {
+
+        LOGGER.debug("Attempting to generate SAS for container name {}", blobContainerClient.getBlobContainerName());
+
+        BlobServiceClient blobServiceClient = blobContainerClient.getServiceClient();
 
         if (useAdAuth) {
             LOGGER.info("Getting a fresh MI token for Blob Service Client");
@@ -205,7 +244,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             var tenantId = configuration.get(Configuration.PROPERTY_AZURE_TENANT_ID);
             var managedIdentityClientId = configuration.get(Configuration.PROPERTY_AZURE_CLIENT_ID);
             LOGGER.info("Configuration tenantId {}, managedIdentityClientId {}", tenantId, managedIdentityClientId);
-            builder.endpoint(cvpConnectionString);
+            builder.endpoint(connectionString);
             builder.credential(credential);
             blobServiceClient = builder.buildClient();
         }
@@ -221,7 +260,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         //get SAS String for blobfile
         LOGGER.info("get SAS String using BlobClient for blobfile: {}", fileName);
 
-        BlobClient sourceBlob = cvpBlobContainerClient.getBlobClient(fileName);
+        BlobClient sourceBlob = blobContainerClient.getBlobClient(fileName);
         // generate sas token
         OffsetDateTime expiryTime = OffsetDateTime.now().plusMinutes(95);
         BlobSasPermission permission = new BlobSasPermission().setReadPermission(true);
@@ -229,7 +268,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         BlobServiceSasSignatureValues signatureValues = new BlobServiceSasSignatureValues(expiryTime, permission)
             .setStartTime(OffsetDateTime.now().minusMinutes(95));
         String accountName =
-            extractAccountFromUrl(cvpConnectionString);//TODO this is hardcoded for perftest enviro
+            extractAccountFromUrl(connectionString);//TODO this is hardcoded for perftest enviro
         LOGGER.info("GenerateUserDelegationSas for blobfile: {}", fileName);
         return sourceBlob.generateUserDelegationSas(signatureValues, userDelegationKey, accountName, Context.NONE);
     }
