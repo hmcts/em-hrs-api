@@ -109,6 +109,21 @@ resource "azurerm_storage_container" "vh_container" {
   container_access_type = "private"
 }
 
+// test container for CVP
+resource "azurerm_storage_container" "cvpsimulator" {
+  count                 = var.env != "prod" ? 1 : 0
+  name                  = "cvpsimulator"
+  storage_account_name  = module.storage_account.storageaccount_name
+  container_access_type = "private"
+}
+// test container for VH
+resource "azurerm_storage_container" "vhsimulator" {
+  count                 = var.env != "prod" ? 1 : 0
+  name                  = "vhsimulator"
+  storage_account_name  = module.storage_account.storageaccount_name
+  container_access_type = "private"
+}
+
 resource "azurerm_key_vault_secret" "storage_account_id" {
   name         = "storage-account-id"
   value        = module.storage_account.storageaccount_id
