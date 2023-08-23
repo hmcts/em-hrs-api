@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.componenttests;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.em.hrs.domain.Folder;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
@@ -184,7 +184,7 @@ public class TestUtil {
     public static String convertObjectToJsonString(Object object) throws IOException {
         final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules();
-        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.KEBAB_CASE);
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
         return objectMapper.writeValueAsString(object);
     }
 }
