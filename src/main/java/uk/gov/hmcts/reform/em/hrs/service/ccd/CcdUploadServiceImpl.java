@@ -9,10 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.exception.CcdUploadException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
+import uk.gov.hmcts.reform.em.hrs.storage.BlobIndexMarker;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -27,16 +29,20 @@ public class CcdUploadServiceImpl implements CcdUploadService {
     private final HearingRecordingRepository recordingRepository;
     private final HearingRecordingSegmentRepository segmentRepository;
     private final FolderService folderService;
+    private final BlobIndexMarker blobIndexMarker;
 
     @Autowired
     public CcdUploadServiceImpl(final CcdDataStoreApiClient ccdDataStoreApiClient,
                                 final HearingRecordingRepository recordingRepository,
                                 final HearingRecordingSegmentRepository segmentRepository,
-                                final FolderService folderService) {
+                                final FolderService folderService,
+                                final BlobIndexMarker blobIndexMarker
+                                ) {
         this.ccdDataStoreApiClient = ccdDataStoreApiClient;
         this.recordingRepository = recordingRepository;
         this.segmentRepository = segmentRepository;
         this.folderService = folderService;
+        this.blobIndexMarker = blobIndexMarker;
     }
 
     @Override
@@ -59,7 +65,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
 
     private void updateCase(final HearingRecording recording, final HearingRecordingDto recordingDto) {
 
-        UUID id = recording.getId();
+
         Long ccdCaseId = recording.getCcdCaseId();
         String recordingRef = recordingDto.getRecordingRef();
         String folder = recordingDto.getFolder();
@@ -72,10 +78,24 @@ public class CcdUploadServiceImpl implements CcdUploadService {
             return;
         }
 
+        if (recordingDto.getRecordingSource() == HearingSource.VH
+            && ccdCaseId != null
+            && recording.getSegments().stream()
+            .anyMatch(segment -> recordingDto.getSourceBlobUrl().equals(segment.getIngestionFileSourceUri()))
+        ) {
+            LOGGER.info(
+                "Skip blob: {}, it is already added to case: {}",
+                recordingDto.getSourceBlobUrl(),
+                recording.getCcdCaseId()
+            );
+            blobIndexMarker.setProcessed(recordingDto.getSourceBlobUrl());
+            return;
+        }
+
         LOGGER.info(
             "adding  recording (ref {}) in folder {} to case (ccdId {})", recordingRef, folder, ccdCaseId);
 
-
+        UUID id = recording.getId();
         Long caseDetailsId =
             ccdDataStoreApiClient.updateCaseData(ccdCaseId, id, recordingDto);
 
@@ -84,7 +104,9 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         try {
             HearingRecordingSegment segment = createSegment(recording, recordingDto);
             segmentRepository.saveAndFlush(segment);
-
+            if (HearingSource.VH == recordingDto.getRecordingSource()) {
+                blobIndexMarker.setProcessed(recordingDto.getSourceBlobUrl());
+            }
         } catch (ConstraintViolationException e) {
             LOGGER.warn(
                 "Segment not added to database, which is acceptable for duplicate segments (ref {}), (ccdId {})",
@@ -136,6 +158,9 @@ public class CcdUploadServiceImpl implements CcdUploadService {
 
         HearingRecordingSegment segment = createSegment(recording, recordingDto);
         segmentRepository.saveAndFlush(segment);
+        if (HearingSource.VH == recordingDto.getRecordingSource()) {
+            blobIndexMarker.setProcessed(recordingDto.getSourceBlobUrl());
+        }
     }
 
     private HearingRecordingSegment createSegment(final HearingRecording recording,
