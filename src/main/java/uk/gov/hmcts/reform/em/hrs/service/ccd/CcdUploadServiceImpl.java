@@ -81,7 +81,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         if (recordingDto.getRecordingSource() == HearingSource.VH
             && ccdCaseId != null
             && recording.getSegments().stream()
-            .anyMatch(x -> recordingDto.getSourceBlobUrl().equals(x.getIngestionFileSourceUri()))
+            .anyMatch(segment -> recordingDto.getSourceBlobUrl().equals(segment.getIngestionFileSourceUri()))
         ) {
             LOGGER.info(
                 "Skip blob: {}, it is already added to case: {}",
