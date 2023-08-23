@@ -75,6 +75,7 @@ class CcdUploadServiceImplTest {
         verify(ccdDataStoreApiClient).createCase(recording.getId(), HEARING_RECORDING_DTO);
         verify(recordingRepository, times(2)).saveAndFlush(any(HearingRecording.class));
         verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
+        verify(blobIndexMarker, never()).setProcessed(VH_HEARING_RECORDING_DTO.getSourceBlobUrl());
     }
 
     @Test
@@ -104,6 +105,7 @@ class CcdUploadServiceImplTest {
             .createCase(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3.getId(), HEARING_RECORDING_DTO);
         verify(recordingRepository, never()).saveAndFlush(any(HearingRecording.class));
         verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
+        verify(blobIndexMarker, never()).setProcessed(VH_HEARING_RECORDING_DTO.getSourceBlobUrl());
     }
 
     @Test
@@ -174,6 +176,7 @@ class CcdUploadServiceImplTest {
             .createCase(any(UUID.class), any(HearingRecordingDto.class));
         verify(recordingRepository, never()).saveAndFlush(any(HearingRecording.class));
         verify(segmentRepository, never()).saveAndFlush(any(HearingRecordingSegment.class));
+        verify(blobIndexMarker, times(1)).setProcessed(VH_HEARING_RECORDING_DTO.getSourceBlobUrl());
     }
 
     @Test

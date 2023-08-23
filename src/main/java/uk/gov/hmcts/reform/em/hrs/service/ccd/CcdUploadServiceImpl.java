@@ -88,6 +88,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
                 recordingDto.getSourceBlobUrl(),
                 recording.getCcdCaseId()
             );
+            blobIndexMarker.setProcessed(recordingDto.getSourceBlobUrl());
             return;
         }
 
