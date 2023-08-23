@@ -36,7 +36,7 @@ public class BlobstoreClientImpl implements BlobstoreClient {
                              final OutputStream outputStream) {
 
         blockBlobClient(filename)
-            .downloadWithResponse(
+            .downloadStreamWithResponse(
                 outputStream,
                 blobRange,
                 new DownloadRetryOptions().setMaxRetryRequests(5),
