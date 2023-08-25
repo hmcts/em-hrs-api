@@ -163,8 +163,10 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         }
     }
 
-    private HearingRecordingSegment createSegment(final HearingRecording recording,
-                                                  final HearingRecordingDto recordingDto) {
+    private HearingRecordingSegment createSegment(
+        final HearingRecording recording,
+        final HearingRecordingDto recordingDto
+    ) {
         return HearingRecordingSegment.builder()
             .filename(recordingDto.getFilename())
             .fileExtension(recordingDto.getFilenameExtension())
@@ -173,6 +175,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
             .ingestionFileSourceUri(recordingDto.getSourceBlobUrl())
             .recordingSegment(recordingDto.getSegment())
             .hearingRecording(recording)
+            .interpreter(recordingDto.getInterpreter())
             .build();
     }
 

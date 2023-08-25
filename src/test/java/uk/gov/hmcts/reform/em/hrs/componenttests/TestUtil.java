@@ -109,6 +109,7 @@ public class TestUtil {
         .segment(0)
         .sourceBlobUrl(VH_BLOB_SEGMENT2_URI)
         .checkSum("erI2foA30B==")
+        .interpreter("Interpreter1")
         .build();
     public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(
         MediaType.APPLICATION_JSON.getType(),

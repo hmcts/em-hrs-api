@@ -28,6 +28,7 @@ public class HearingRecordingDto {
     private Long fileSize;
     private int segment;
     private String checkSum;
+    private String interpreter;
 
     @JsonFormat(pattern = "yyyy-MM-dd-HH.mm.ss.SSS")
     @DateTimeFormat(pattern = "yyyy-MM-dd-HH.mm.ss.SSS")
