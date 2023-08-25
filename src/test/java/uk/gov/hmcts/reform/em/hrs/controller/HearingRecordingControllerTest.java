@@ -134,6 +134,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
             .andExpect(status().isAccepted())
             .andReturn();
     }
+
     @Test
     void testShouldReturnTooManyRequests() throws Exception {
         final String path = "/segments";
