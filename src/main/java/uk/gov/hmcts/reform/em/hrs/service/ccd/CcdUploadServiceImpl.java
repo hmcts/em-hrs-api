@@ -159,7 +159,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         HearingRecordingSegment segment = createSegment(recording, recordingDto);
         segmentRepository.saveAndFlush(segment);
         if (HearingSource.VH == recordingDto.getRecordingSource()) {
-            blobIndexMarker.setProcessed(recordingDto.getSourceBlobUrl());
+            blobIndexMarker.setProcessed(recordingDto.getFilename());
         }
     }
 

@@ -125,7 +125,7 @@ class CcdUploadServiceImplTest {
         verify(ccdDataStoreApiClient).createCase(recording.getId(), VH_HEARING_RECORDING_DTO);
         verify(recordingRepository, times(2)).saveAndFlush(any(HearingRecording.class));
         verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
-        verify(blobIndexMarker, times(1)).setProcessed(VH_HEARING_RECORDING_DTO.getSourceBlobUrl());
+        verify(blobIndexMarker, times(1)).setProcessed(VH_HEARING_RECORDING_DTO.getFilename());
     }
 
     @Test
