@@ -71,6 +71,7 @@ public class HearingRecordingSegment {
 
     private Integer recordingLengthMins;
     private Integer recordingSegment;
+    private String interpreter;
 
 
     public HearingRecordingSegment(HearingRecording hearingRecording, UUID id, String createdBy,
@@ -84,7 +85,8 @@ public class HearingRecordingSegment {
                                    String fileExtension, String fileMd5Checksum, Long fileSizeMb,
                                    String ingestionFileSourceUri,
                                    Integer recordingLengthMins,
-                                   Integer recordingSegment) {
+                                   Integer recordingSegment,
+                                   String interpreter) {
         setHearingRecording(hearingRecording);
         setId(id);
         setCreatedBy(createdBy);
@@ -110,6 +112,7 @@ public class HearingRecordingSegment {
 
         setRecordingLengthMins(recordingLengthMins);
         setRecordingSegment(recordingSegment);
+        setInterpreter(interpreter);
     }
 
     public HearingRecordingSegment() {
