@@ -88,7 +88,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
                 recordingDto.getSourceBlobUrl(),
                 recording.getCcdCaseId()
             );
-            blobIndexMarker.setProcessed(recordingDto.getSourceBlobUrl());
+            blobIndexMarker.setProcessed(recordingDto.getFilename());
             return;
         }
 
@@ -105,7 +105,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
             HearingRecordingSegment segment = createSegment(recording, recordingDto);
             segmentRepository.saveAndFlush(segment);
             if (HearingSource.VH == recordingDto.getRecordingSource()) {
-                blobIndexMarker.setProcessed(recordingDto.getSourceBlobUrl());
+                blobIndexMarker.setProcessed(recordingDto.getFilename());
             }
         } catch (ConstraintViolationException e) {
             LOGGER.warn(
@@ -159,7 +159,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         HearingRecordingSegment segment = createSegment(recording, recordingDto);
         segmentRepository.saveAndFlush(segment);
         if (HearingSource.VH == recordingDto.getRecordingSource()) {
-            blobIndexMarker.setProcessed(recordingDto.getSourceBlobUrl());
+            blobIndexMarker.setProcessed(recordingDto.getFilename());
         }
     }
 
