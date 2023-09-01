@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -370,6 +371,16 @@ public abstract class BaseTest {
 
     protected String filename(String caseRef, int segment) {
         return FOLDER + "/" + JURISDICTION + "-" + LOCATION_CODE + "-" + caseRef + "_" + TIME
+            + "-UTC_" + segment + ".mp4";
+    }
+
+    protected String vhFileName(String caseRef, int segment, String interpreter) {
+        if (interpreter != null && interpreter.toLowerCase().startsWith("interpreter")) {
+            interpreter = interpreter + "_";
+        } else {
+            interpreter = "";
+        }
+        return JURISDICTION + "-" + caseRef + "-" + UUID.randomUUID() + "_" + interpreter + TIME
             + "-UTC_" + segment + ".mp4";
     }
 

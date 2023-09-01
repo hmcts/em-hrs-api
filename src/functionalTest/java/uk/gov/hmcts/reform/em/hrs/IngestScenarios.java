@@ -86,6 +86,41 @@ public class IngestScenarios extends BaseTest {
 
     }
 
+    @Test
+    public void shouldCreateHearingRecordingSegmentsForVh() throws Exception {
+        String caseRef = timebasedCaseRef();
+        Set<String> filenames = new HashSet<>();
+
+        for (int segmentIndex = 0; segmentIndex < SEGMENT_COUNT; segmentIndex++) {
+            String filename = vhFileName(caseRef, segmentIndex, "interpreter12");
+            filenames.add(filename);
+            testUtil.uploadFileFromPathToVhContainer(filename,"data/test_data.mp4");
+        }
+
+        LOGGER.info("************* CHECKING VH HAS UPLOADED **********");
+        testUtil.checkIfUploadedToStore(filenames, testUtil.vhBlobContainerClient);
+        LOGGER.info("************* Files loaded to vh storage **********");
+
+        for (int segmentIndex = 0; segmentIndex < SEGMENT_COUNT; segmentIndex++) {
+            postRecordingSegment(caseRef, segmentIndex)
+                .then()
+                .log().all()
+                .statusCode(202);
+        }
+
+        LOGGER.info("*********** CHECKING HRS HAS COPIED TO STORE VH container *********");
+        testUtil.checkIfUploadedToStore(filenames, testUtil.hrsVhBlobContainerClient);
+
+        long vhFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.vhBlobContainerClient);
+        long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsVhBlobContainerClient);
+        Assert.assertEquals(hrsFileSize, vhFileSize);
+
+        uploadToCcd(filenames, caseRef);
+
+        LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
+        SleepHelper.sleepForSeconds(20);
+
+    }
 
     @Test
     public void shouldIngestPartiallyCopiedHearingRecordingSegments() throws Exception {
