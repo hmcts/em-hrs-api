@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 import uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper;
 
@@ -102,7 +103,7 @@ public class IngestScenarios extends BaseTest {
         LOGGER.info("************* Files loaded to vh storage **********");
 
         for (int segmentIndex = 0; segmentIndex < SEGMENT_COUNT; segmentIndex++) {
-            postRecordingSegment(caseRef, segmentIndex)
+            postRecordingSegment(caseRef, segmentIndex, HearingSource.VH)
                 .then()
                 .log().all()
                 .statusCode(202);

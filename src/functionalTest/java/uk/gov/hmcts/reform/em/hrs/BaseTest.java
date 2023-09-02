@@ -28,6 +28,7 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.Event;
 import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
 import uk.gov.hmcts.reform.em.EmTestConfig;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 import uk.gov.hmcts.reform.em.hrs.testutil.AuthTokenGeneratorConfiguration;
 import uk.gov.hmcts.reform.em.hrs.testutil.AzureStorageContainerClientBeans;
@@ -209,7 +210,11 @@ public abstract class BaseTest {
     }
 
     protected Response postRecordingSegment(String caseRef, int segment) {
-        final JsonNode segmentPayload = createSegmentPayload(caseRef, segment);
+        return postRecordingSegment(caseRef, segment, HearingSource.CVP);
+    }
+
+    protected Response postRecordingSegment(String caseRef, int segment, HearingSource hearingSource) {
+        final JsonNode segmentPayload = createSegmentPayload(caseRef, segment, hearingSource);
         return postRecordingSegment(segmentPayload);
     }
 
@@ -272,7 +277,7 @@ public abstract class BaseTest {
             .get(recordingUrl + "/sharee");
     }
 
-    protected JsonNode createSegmentPayload(String caseRef, int segment) {
+    protected JsonNode createSegmentPayload(String caseRef, int segment, HearingSource hearingSource) {
         return createRecordingSegment(
             FOLDER,
             JURISDICTION,
@@ -280,20 +285,32 @@ public abstract class BaseTest {
             caseRef,
             TIME,
             segment,
-            FILE_EXT
+            FILE_EXT,
+            hearingSource
         );
     }
 
-    protected JsonNode createRecordingSegment(String folder,
-                                              String jurisdictionCode, String locationCode, String caseRef,
-                                              String recordingTime, int segment, String fileExt) {
+    protected JsonNode createSegmentPayload(String caseRef, int segment) {
+        return createSegmentPayload(caseRef, segment, HearingSource.CVP);
+    }
+
+    protected JsonNode createRecordingSegment(
+        String folder,
+        String jurisdictionCode,
+        String locationCode,
+        String caseRef,
+        String recordingTime,
+        int segment,
+        String fileExt,
+        HearingSource hearingSource
+    ) {
         String recordingRef =
             folder + "/" + jurisdictionCode + "-" + locationCode + "-" + caseRef + "_" + recordingTime;
         String filename = recordingRef + "-UTC_" + segment + "." + fileExt;
         return JsonNodeFactory.instance.objectNode()
             .put("folder", folder)
             .put("recording-ref", recordingRef)
-            .put("recording-source", "CVP")
+            .put("recording-source", hearingSource.toString())
             .put("court-location-code", locationCode)
             .put("service-code", "PROBATE")
             .put("hearing-room-ref", "London")
