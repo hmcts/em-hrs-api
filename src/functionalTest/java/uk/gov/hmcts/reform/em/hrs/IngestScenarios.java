@@ -126,7 +126,7 @@ public class IngestScenarios extends BaseTest {
         long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsVhBlobContainerClient);
         Assert.assertEquals(hrsFileSize, vhFileSize);
 
-        uploadToCcd(filenames, caseRef);
+        uploadToCcd(filenames, caseRef, "VH");
 
         LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
         SleepHelper.sleepForSeconds(20);
@@ -176,6 +176,10 @@ public class IngestScenarios extends BaseTest {
     }
 
     private void uploadToCcd(Set<String> filenames, String caseRef) {
+        uploadToCcd(filenames, caseRef, FOLDER);
+    }
+
+    private void uploadToCcd(Set<String> filenames, String caseRef, String folder) {
         //IN AAT hrs is running on 8 / minute uploads, so need to wait at least 8 secs per segment
         //giving it 10 secs per segment, plus an additional segment
         int secondsToWaitForCcdUploadsToComplete =
@@ -188,10 +192,10 @@ public class IngestScenarios extends BaseTest {
 
 
         LOGGER.info("************* CHECKING HRS HAS IT IN DATABASE AND RETURNS EXPECTED FILES VIA API**********");
-        getFilenamesCompletedOrInProgress(FOLDER)
+        getFilenamesCompletedOrInProgress(folder)
             .assertThat().log().all()
             .statusCode(200)
-            .body("folder-name", equalTo(FOLDER))
+            .body("folder-name", equalTo(folder))
             .body("filenames", hasItems(filenames.toArray()));
 
         LOGGER.info("*****************************");
