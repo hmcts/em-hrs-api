@@ -96,6 +96,8 @@ public abstract class BaseTest {
     protected static final String FOLDER = "audiostream123455";
     protected static final String TIME = "2020-11-04-14.56.32.819";
     public static final String CASEREF_PREFIX = "FUNCTEST_";
+
+    public static final String VH_CASEREF_PREFIX = "VH/FUNCT-";
     protected static final String CLOSE_CASE = "closeCase";
 
     protected static int FIND_CASE_TIMEOUT = 30;
@@ -107,6 +109,7 @@ public abstract class BaseTest {
 
     //The format "yyyy-MM-dd---HH-MM-ss---SSS" will render "07-30-2021---16-07-35---485"
     DateTimeFormatter datePartFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    DateTimeFormatter dateTimePartFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHMMssSSS");
     DateTimeFormatter timePartFormatter = DateTimeFormatter.ofPattern("HH-MM-ss---SSS");
 
     @Rule
@@ -418,6 +421,15 @@ public abstract class BaseTest {
         String time = timePartFormatter.format(now);
         //yyyy-MM-dd---HH-MM-ss---SSS=07-30-2021---16-07-35---485
         return CASEREF_PREFIX + date + "---" + time;
+    }
+
+    protected String timeVhBasedCaseRef() {
+
+        ZonedDateTime now = ZonedDateTime.now();
+
+        String dateTime = dateTimePartFormatter.format(now);
+        //yyyy-MM-dd---HH-MM-ss---SSS=07-30-2021---16-07-35---485
+        return VH_CASEREF_PREFIX + dateTime;
     }
 
     protected String filename(String caseRef, int segment) {

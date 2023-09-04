@@ -90,7 +90,7 @@ public class IngestScenarios extends BaseTest {
 
     @Test
     public void shouldCreateHearingRecordingSegmentsForVh() throws Exception {
-        String caseRef = timebasedCaseRef();
+        String caseRef = timeVhBasedCaseRef();
         Set<String> filenames;
         List<String> filenameList = new ArrayList<String>();
         List<UUID> hearingRefs = new ArrayList<UUID>();
