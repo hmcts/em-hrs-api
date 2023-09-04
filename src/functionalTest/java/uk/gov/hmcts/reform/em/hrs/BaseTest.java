@@ -118,7 +118,7 @@ public abstract class BaseTest {
     @Value("${azure.storage.cvp.container-url}")
     private String cvpContainerUrl;
 
-    @Value("${azure.storage.cvp.container-url}")
+    @Value("${azure.storage.vh.container-url}")
     private String vhContainerUrl;
 
     @Autowired
