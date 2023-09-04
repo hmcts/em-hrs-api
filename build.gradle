@@ -237,9 +237,10 @@ dependencyManagement {
       entry 'commons-fileupload'
     }
 
-    //CVE-2023-41080 & CVE-2023-41080
+    //CVE-2023-41080
     dependencySet(group: 'org.apache.tomcat.embed', version: '10.1.13') {
       entry 'tomcat-embed-core'
+      entry 'tomcat-embed-websocket'
     }
   }
 }
