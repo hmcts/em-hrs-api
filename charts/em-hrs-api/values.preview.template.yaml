@@ -14,22 +14,22 @@ java:
           alias: S2S_KEY
   secrets:
     CVP_BLOB_ACCOUNT_NAME:
-      secretRef: storage-account-cvp-{{ .Release.Name }}
+      secretRef: storage-account-cvp-storage
       key: storage_account_name
     CVP_BLOB_ACCESS_KEY:
-      secretRef: storage-secret-cvp-{{ .Release.Name }}
+      secretRef: storage-secret-cvp-storage
       key: accessKey
     VH_BLOB_ACCOUNT_NAME:
-      secretRef: storage-account-vh-{{ .Release.Name }}
+      secretRef: storage-account-vh-storage
       key: storage_account_name
     VH_BLOB_ACCESS_KEY:
-      secretRef: storage-secret-vh-{{ .Release.Name }}
+      secretRef: storage-secret-vh-storage
       key: accessKey
     HRS_BLOB_ACCOUNT_NAME:
-      secretRef: storage-account-hrs-{{ .Release.Name }}
+      secretRef: storage-account-hrs-storage
       key: storage_account_name
     HRS_BLOB_ACCESS_KEY:
-      secretRef: storage-secret-hrs-{{ .Release.Name }}
+      secretRef: storage-secret-hrs-storage
       key: accessKey
   environment:
     HRS_CVP_DEST_CONTAINER_NAME: hrs-cvp
