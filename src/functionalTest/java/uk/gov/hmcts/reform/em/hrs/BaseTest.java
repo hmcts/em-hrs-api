@@ -28,7 +28,6 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.Event;
 import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
 import uk.gov.hmcts.reform.em.EmTestConfig;
-import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 import uk.gov.hmcts.reform.em.hrs.testutil.AuthTokenGeneratorConfiguration;
 import uk.gov.hmcts.reform.em.hrs.testutil.AzureStorageContainerClientBeans;
@@ -82,6 +81,8 @@ public abstract class BaseTest {
     protected static final String CASE_TYPE = "HearingRecordings";
     protected static final String BEARER = "Bearer ";
     protected static final String FILE_EXT = "mp4";
+    protected static final String INTERPRETER = "interpreter12";
+
 
     public static String SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION =
         "hrs.functional.system.user@hmcts.net";
@@ -116,6 +117,9 @@ public abstract class BaseTest {
 
     @Value("${azure.storage.cvp.container-url}")
     private String cvpContainerUrl;
+
+    @Value("${azure.storage.cvp.container-url}")
+    private String vhContainerUrl;
 
     @Autowired
     protected IdamClient idamClient;
@@ -210,11 +214,7 @@ public abstract class BaseTest {
     }
 
     protected Response postRecordingSegment(String caseRef, int segment) {
-        return postRecordingSegment(caseRef, segment, HearingSource.CVP);
-    }
-
-    protected Response postRecordingSegment(String caseRef, int segment, HearingSource hearingSource) {
-        final JsonNode segmentPayload = createSegmentPayload(caseRef, segment, hearingSource);
+        final JsonNode segmentPayload = createSegmentPayload(caseRef, segment);
         return postRecordingSegment(segmentPayload);
     }
 
@@ -226,6 +226,11 @@ public abstract class BaseTest {
             .body(segmentPayload)
             .when().log().all()
             .post("/segments");
+    }
+
+    protected Response postVhRecordingSegment(String caseRef, int segment, UUID hearingRef, String fileName) {
+        final JsonNode segmentPayload = createVhSegmentPayload(caseRef, segment, hearingRef, fileName);
+        return postRecordingSegment(segmentPayload);
     }
 
     protected Response shareRecording(String sharerUserName, CallbackRequest callbackRequest) {
@@ -277,7 +282,48 @@ public abstract class BaseTest {
             .get(recordingUrl + "/sharee");
     }
 
-    protected JsonNode createSegmentPayload(String caseRef, int segment, HearingSource hearingSource) {
+    protected JsonNode createVhSegmentPayload(String caseRef, int segment, UUID hearingRef, String fileName) {
+        return createVhRecordingSegment(
+            JURISDICTION,
+            LOCATION_CODE,
+            caseRef,
+            TIME,
+            segment,
+            FILE_EXT,
+            fileName,
+            hearingRef.toString()
+        );
+    }
+
+    protected JsonNode createVhRecordingSegment(
+        String jurisdictionCode,
+        String locationCode,
+        String caseRef,
+        String recordingTime,
+        int segment,
+        String fileExt,
+        String fileName,
+        String recordingRef
+    ) {
+
+        return JsonNodeFactory.instance.objectNode()
+            .put("folder", "VH")
+            .put("recording-ref", recordingRef)
+            .put("recording-source", "VH")
+            .put("court-location-code", locationCode)
+            .put("service-code", "PROBATE")
+            .put("hearing-room-ref", "London")
+            .put("jurisdiction-code", jurisdictionCode)
+            .put("case-ref", caseRef)
+            .put("source-blob-url", vhContainerUrl + fileName)
+            .put("filename", fileName)
+            .put("filename-extension", fileExt)
+            .put("file-size", 200724364L)
+            .put("segment", segment)
+            .put("recording-date-time", recordingTime);
+    }
+
+    protected JsonNode createSegmentPayload(String caseRef, int segment) {
         return createRecordingSegment(
             FOLDER,
             JURISDICTION,
@@ -285,32 +331,20 @@ public abstract class BaseTest {
             caseRef,
             TIME,
             segment,
-            FILE_EXT,
-            hearingSource
+            FILE_EXT
         );
     }
 
-    protected JsonNode createSegmentPayload(String caseRef, int segment) {
-        return createSegmentPayload(caseRef, segment, HearingSource.CVP);
-    }
-
-    protected JsonNode createRecordingSegment(
-        String folder,
-        String jurisdictionCode,
-        String locationCode,
-        String caseRef,
-        String recordingTime,
-        int segment,
-        String fileExt,
-        HearingSource hearingSource
-    ) {
+    protected JsonNode createRecordingSegment(String folder,
+                                              String jurisdictionCode, String locationCode, String caseRef,
+                                              String recordingTime, int segment, String fileExt) {
         String recordingRef =
             folder + "/" + jurisdictionCode + "-" + locationCode + "-" + caseRef + "_" + recordingTime;
         String filename = recordingRef + "-UTC_" + segment + "." + fileExt;
         return JsonNodeFactory.instance.objectNode()
             .put("folder", folder)
             .put("recording-ref", recordingRef)
-            .put("recording-source", hearingSource.toString())
+            .put("recording-source", "CVP")
             .put("court-location-code", locationCode)
             .put("service-code", "PROBATE")
             .put("hearing-room-ref", "London")
@@ -391,13 +425,13 @@ public abstract class BaseTest {
             + "-UTC_" + segment + ".mp4";
     }
 
-    protected String vhFileName(String caseRef, int segment, String interpreter) {
+    protected String vhFileName(String caseRef, int segment, String interpreter, UUID hearingRef) {
         if (interpreter != null && interpreter.toLowerCase().startsWith("interpreter")) {
             interpreter = interpreter + "_";
         } else {
             interpreter = "";
         }
-        return JURISDICTION + "-" + caseRef + "-" + UUID.randomUUID() + "_" + interpreter + TIME
+        return JURISDICTION + "-" + caseRef + "-" + hearingRef + "_" + interpreter + TIME
             + "-UTC_" + segment + ".mp4";
     }
 

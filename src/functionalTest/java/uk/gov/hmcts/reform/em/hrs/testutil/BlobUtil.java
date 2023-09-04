@@ -90,7 +90,7 @@ public class BlobUtil {
         final InputStream inStream = new ByteArrayInputStream(bytes);
 
         final BlobClient blobClient = vhBlobContainerClient.getBlobClient(blobName);
-        LOGGER.debug("cvpBlobContainerClient url {}", vhBlobContainerClient.getBlobContainerUrl());
+        LOGGER.info("vhBlobContainerClient url {}", vhBlobContainerClient.getBlobContainerUrl());
         blobClient.upload(new BufferedInputStream(inStream), bytes.length);
     }
 

@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
-import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 import uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper;
 
@@ -17,6 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
@@ -90,23 +91,30 @@ public class IngestScenarios extends BaseTest {
     @Test
     public void shouldCreateHearingRecordingSegmentsForVh() throws Exception {
         String caseRef = timebasedCaseRef();
-        Set<String> filenames = new HashSet<>();
+        Set<String> filenames;
+        List<String> filenameList = new ArrayList<String>();
+        List<UUID> hearingRefs = new ArrayList<UUID>();
 
         for (int segmentIndex = 0; segmentIndex < SEGMENT_COUNT; segmentIndex++) {
-            String filename = vhFileName(caseRef, segmentIndex, "interpreter12");
-            filenames.add(filename);
+            UUID hearingRef = UUID.randomUUID();
+            String filename = vhFileName(caseRef, segmentIndex, INTERPRETER, hearingRef);
+            hearingRefs.add(hearingRef);
+            filenameList.add(filename);
             testUtil.uploadFileFromPathToVhContainer(filename,"data/test_data.mp4");
         }
+        filenames = filenameList.stream().collect(Collectors.toSet());
 
         LOGGER.info("************* CHECKING VH HAS UPLOADED **********");
         testUtil.checkIfUploadedToStore(filenames, testUtil.vhBlobContainerClient);
         LOGGER.info("************* Files loaded to vh storage **********");
 
         for (int segmentIndex = 0; segmentIndex < SEGMENT_COUNT; segmentIndex++) {
-            postRecordingSegment(caseRef, segmentIndex, HearingSource.VH)
-                .then()
-                .log().all()
-                .statusCode(202);
+            postVhRecordingSegment(
+                caseRef,
+                segmentIndex,
+                hearingRefs.get(segmentIndex),
+                filenameList.get(segmentIndex)
+            ).then().log().all().statusCode(202);
         }
 
         LOGGER.info("*********** CHECKING HRS HAS COPIED TO STORE VH container *********");
