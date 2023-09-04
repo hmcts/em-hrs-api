@@ -69,7 +69,7 @@ vhblobstorage:
   location: uksouth
   setup:
     containers:
-      - vh
+      - vhrecordings
 
 hrsblobstorage:
   enabled: true
