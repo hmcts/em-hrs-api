@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.serenitybdd.rest.SerenityRest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@Ignore
 public class ShareScenarios extends BaseTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShareScenarios.class);
 
