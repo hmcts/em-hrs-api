@@ -112,6 +112,9 @@ public abstract class BaseTest {
     DateTimeFormatter dateTimePartFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHMMssSSS");
     DateTimeFormatter timePartFormatter = DateTimeFormatter.ofPattern("HH-MM-ss---SSS");
 
+    @Rule
+    public RetryRule retryRule = new RetryRule(3);//3 is standard across hmcts projects
+
     @Value("${test.url}")
     protected String testUrl;
 
