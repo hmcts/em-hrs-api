@@ -95,7 +95,7 @@ public abstract class BaseTest {
     protected static final String TIME = "2020-11-04-14.56.32.819";
     public static final String CASEREF_PREFIX = "FUNCTEST_";
 
-    public static final String VH_CASEREF_PREFIX = "VH/FUNCT-";
+    public static final String VH_CASEREF_PREFIX = "VH-FUNCT-";
     protected static final String CLOSE_CASE = "closeCase";
 
     protected static int FIND_CASE_TIMEOUT = 30;
