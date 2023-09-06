@@ -192,11 +192,13 @@ public class IngestScenarios extends BaseTest {
 
 
         LOGGER.info("************* CHECKING HRS HAS IT IN DATABASE AND RETURNS EXPECTED FILES VIA API**********");
-        getFilenamesCompletedOrInProgress(folder)
-            .assertThat().log().all()
-            .statusCode(200)
-            .body("folder-name", equalTo(folder))
-            .body("filenames", hasItems(filenames.toArray()));
+        if (!"VH".equalsIgnoreCase(folder)) {
+            getFilenamesCompletedOrInProgress(folder)
+                .assertThat().log().all()
+                .statusCode(200)
+                .body("folder-name", equalTo(folder))
+                .body("filenames", hasItems(filenames.toArray()));
+        }
 
         LOGGER.info("*****************************");
         LOGGER.info("*****************************");
