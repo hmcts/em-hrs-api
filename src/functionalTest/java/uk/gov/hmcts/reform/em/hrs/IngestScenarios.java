@@ -96,8 +96,8 @@ public class IngestScenarios extends BaseTest {
         Set<String> filenames;
         List<String> filenameList = new ArrayList<String>();
         List<UUID> hearingRefs = new ArrayList<UUID>();
-
-        for (int segmentIndex = 0; segmentIndex < SEGMENT_COUNT; segmentIndex++) {
+        int segmentCount = 2;
+        for (int segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
             UUID hearingRef = UUID.randomUUID();
             String filename = vhFileName(caseRef, segmentIndex, INTERPRETER, hearingRef);
             hearingRefs.add(hearingRef);
@@ -110,7 +110,7 @@ public class IngestScenarios extends BaseTest {
         testUtil.checkIfUploadedToStore(filenames, testUtil.vhBlobContainerClient);
         LOGGER.info("************* Files loaded to vh storage **********");
 
-        for (int segmentIndex = 0; segmentIndex < SEGMENT_COUNT; segmentIndex++) {
+        for (int segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
             postVhRecordingSegment(
                 caseRef,
                 segmentIndex,
