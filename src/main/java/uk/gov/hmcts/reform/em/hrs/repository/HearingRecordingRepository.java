@@ -17,6 +17,8 @@ public interface HearingRecordingRepository extends JpaRepository<HearingRecordi
 
     Optional<HearingRecording> findByRecordingRefAndFolderName(String recordingReference, String folderName);
 
+    Optional<HearingRecording> findByCaseRefAndFolderName(String caseRef, String folderName);
+
     Optional<HearingRecording> findByCcdCaseId(Long caseId);
 
     @Modifying
