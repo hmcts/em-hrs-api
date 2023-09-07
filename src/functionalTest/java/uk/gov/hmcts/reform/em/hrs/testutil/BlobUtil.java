@@ -27,14 +27,22 @@ public class BlobUtil {
     public static final int FIND_BLOB_TIMEOUT = 30;
     public final BlobContainerClient hrsCvpBlobContainerClient;
     public final BlobContainerClient cvpBlobContainerClient;
+    public final BlobContainerClient vhBlobContainerClient;
+    public final BlobContainerClient hrsVhBlobContainerClient;
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
 
     @Autowired
     public BlobUtil(@Qualifier("hrsCvpBlobContainerClient") BlobContainerClient hrsCvpBlobContainerClient,
-                    @Qualifier("cvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient) {
+                    @Qualifier("cvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient,
+                    @Qualifier("VhBlobContainerClient") BlobContainerClient vhBlobContainerClient,
+                    @Qualifier("hrsVhBlobContainerClient") BlobContainerClient hrsVhBlobContainerClient
+                    ) {
         this.hrsCvpBlobContainerClient = hrsCvpBlobContainerClient;
         this.cvpBlobContainerClient = cvpBlobContainerClient;
+        this.vhBlobContainerClient = vhBlobContainerClient;
+        this.hrsVhBlobContainerClient = hrsVhBlobContainerClient;
     }
 
 
@@ -76,6 +84,15 @@ public class BlobUtil {
         blobClient.upload(new BufferedInputStream(inStream), bytes.length);
     }
 
+    public void uploadFileFromPathToVhContainer(final String blobName, final String pathToFile) throws Exception {
+        final FileInputStream fileInputStream = getFileFromPath(pathToFile);
+        final byte[] bytes = fileInputStream.readAllBytes();
+        final InputStream inStream = new ByteArrayInputStream(bytes);
+
+        final BlobClient blobClient = vhBlobContainerClient.getBlobClient(blobName);
+        LOGGER.info("vhBlobContainerClient url {}", vhBlobContainerClient.getBlobContainerUrl());
+        blobClient.upload(new BufferedInputStream(inStream), bytes.length);
+    }
 
     public void uploadFileFromPathToHrsContainer(final String blobName, final String pathToFile) throws Exception {
         final FileInputStream fileInputStream =  getFileFromPath(pathToFile);
