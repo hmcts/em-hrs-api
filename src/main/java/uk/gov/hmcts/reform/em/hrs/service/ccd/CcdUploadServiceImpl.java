@@ -134,8 +134,6 @@ public class CcdUploadServiceImpl implements CcdUploadService {
             .build();
 
         try {
-            LOGGER.info("folder: {}", folder.getName());
-
             recording = recordingRepository.saveAndFlush(recording);
 
         } catch (ConstraintViolationException e) {
@@ -159,8 +157,6 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         LOGGER.info("Created case in CCD: {} for  {} ", caseId, recordingDto.getRecordingSource());
 
         HearingRecordingSegment segment = createSegment(recording, recordingDto);
-        LOGGER.info("segment folder: {}", segment.getHearingRecording().getFolder().getName());
-
         segmentRepository.saveAndFlush(segment);
         if (HearingSource.VH == recordingDto.getRecordingSource()) {
             blobIndexMarker.setProcessed(recordingDto.getFilename());
