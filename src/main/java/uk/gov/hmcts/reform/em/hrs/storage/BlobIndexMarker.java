@@ -22,7 +22,7 @@ public class BlobIndexMarker {
     public boolean setProcessed(String blobName) {
         var blobClient = blobContainerClient.getBlobClient(blobName);
         var tags = blobClient.getTags();
-        LOGGER.info("blobName{} existing tags {}", blobName, tags);
+        LOGGER.info("blobName {} existing tags {}", blobName, tags);
         tags.put(PROCESSED, "true");
         blobClient.setTags(tags);
         LOGGER.info("setTags done for {}", blobName);

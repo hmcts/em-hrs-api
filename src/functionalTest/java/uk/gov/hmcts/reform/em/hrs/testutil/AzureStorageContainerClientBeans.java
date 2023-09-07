@@ -38,7 +38,7 @@ public class AzureStorageContainerClientBeans {
 
     @Bean(name = "hrsCvpBlobContainerClient")
     public BlobContainerClient hrsCvpBlobContainerClient() {
-        LOGGER.info("HRS ConnectionString: {}, HRS Container: {} ", hrsConnectionString, hrsCvpContainer);
+        LOGGER.info("HRS ConnectionString: {}, HRS cvp Container: {} ", hrsConnectionString, hrsCvpContainer);
         return new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
             .containerName(hrsCvpContainer)
@@ -47,7 +47,7 @@ public class AzureStorageContainerClientBeans {
 
     @Bean(name = "hrsVhBlobContainerClient")
     public BlobContainerClient hrsVhBlobContainerClient() {
-        LOGGER.info("HRS ConnectionString: {}, HRS Container: {} ", hrsConnectionString, hrsVhContainer);
+        LOGGER.info("HRS ConnectionString: {}, HRS vh Container: {} ", hrsConnectionString, hrsVhContainer);
         return new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
             .containerName(hrsVhContainer)
