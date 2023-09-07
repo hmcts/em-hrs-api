@@ -34,8 +34,8 @@ def secrets = [
   'em-hrs-api-${env}': [
       secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING'),
       secret('vh-storage-connection-string', 'VH_STORAGE_CONNECTION_STRING'),
-
       secret('cvp-storage-container-name', 'CVP_STORAGE_CONTAINER_NAME'),
+      secret('vh-storage-container-name', 'VH_STORAGE_CONTAINER_NAME'),
       secret('storage-account-primary-connection-string', 'HRS_STORAGEACCOUNT_CONNECTION_STRING'),
       secret('hrs-storage-container-name', 'HRS_CVP_DEST_CONTAINER_NAME'),
       secret('notification-api-key', 'NOTIFICATION_API_KEY'),
@@ -102,6 +102,7 @@ withPipeline(type, product, component) {
   }
 
   env.CVP_STORAGE_URL= "https://emhrsapiaat.blob.core.windows.net/cvpsimulator/"
+  env.VH_STORAGE_URL= "https://emhrsapiaat.blob.core.windows.net/vhsimulator/"
   before('smoketest:preview') {
     withAksClient('nonprod', product) {
       def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME, env.GIT_COMMIT, env.LAST_COMMIT_TIMESTAMP)
