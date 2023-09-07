@@ -112,7 +112,7 @@ class CcdUploadServiceImplTest {
     void testVhShouldCreateNewCaseInCcdAndPersistRecordingAndSegmentToPostgresWhenHearingRecordingIsNotInDatabase() {
         HearingRecording recording = hearingRecordingWithNoDataBuilder();
         doReturn(Optional.empty()).when(recordingRepository)
-            .findByCaseRefAndFolderName(VH_HEARING_RECORDING_DTO.getCaseRef(), VH_FOLDER_NAME);
+            .findByRecordingRefAndFolderName(RECORDING_REFERENCE, VH_FOLDER_NAME);
         doReturn(VH_FOLDER).when(folderService).getFolderByName(VH_FOLDER_NAME);
 
         doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).createCase(recording.getId(), VH_HEARING_RECORDING_DTO);
@@ -121,7 +121,7 @@ class CcdUploadServiceImplTest {
 
         underTest.upload(VH_HEARING_RECORDING_DTO);
 
-        verify(recordingRepository).findByCaseRefAndFolderName(VH_HEARING_RECORDING_DTO.getCaseRef(), VH_FOLDER_NAME);
+        verify(recordingRepository).findByRecordingRefAndFolderName(RECORDING_REFERENCE, VH_FOLDER_NAME);
         verify(ccdDataStoreApiClient).createCase(recording.getId(), VH_HEARING_RECORDING_DTO);
         verify(recordingRepository, times(2)).saveAndFlush(any(HearingRecording.class));
         verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
@@ -131,8 +131,7 @@ class CcdUploadServiceImplTest {
     @Test
     void testVhShouldUpdateCaseInCcdAndPersistSegmentToPostgresWhenHearingRecordingReferenceExistsInDatabase() {
         doReturn(Optional.of(VH_HEARING_RECORDING_WITH_SEGMENTS_1_3)).when(recordingRepository)
-            .findByCaseRefAndFolderName(VH_HEARING_RECORDING_DTO.getCaseRef(), VH_FOLDER_NAME);
-
+            .findByRecordingRefAndFolderName(RECORDING_REFERENCE, VH_FOLDER_NAME);
 
         doReturn(CCD_CASE_ID)
             .when(ccdDataStoreApiClient)
@@ -145,7 +144,7 @@ class CcdUploadServiceImplTest {
 
         underTest.upload(VH_HEARING_RECORDING_DTO);
 
-        verify(recordingRepository).findByCaseRefAndFolderName(VH_HEARING_RECORDING_DTO.getCaseRef(), VH_FOLDER_NAME);
+        verify(recordingRepository).findByRecordingRefAndFolderName(RECORDING_REFERENCE, VH_FOLDER_NAME);
         verify(ccdDataStoreApiClient)
             .updateCaseData(
                 anyLong(),
@@ -162,11 +161,11 @@ class CcdUploadServiceImplTest {
     @Test
     void testVhShouldNotUpdateCaseInCcdWhenHearingRecordingExistWithCcdIdInDatabase() {
         doReturn(Optional.of(VH_HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3)).when(recordingRepository)
-            .findByCaseRefAndFolderName(VH_HEARING_RECORDING_DTO.getCaseRef(), VH_FOLDER_NAME);
+            .findByRecordingRefAndFolderName(RECORDING_REFERENCE, VH_FOLDER_NAME);
 
         underTest.upload(VH_HEARING_RECORDING_DTO);
 
-        verify(recordingRepository).findByCaseRefAndFolderName(VH_HEARING_RECORDING_DTO.getCaseRef(), VH_FOLDER_NAME);
+        verify(recordingRepository).findByRecordingRefAndFolderName(RECORDING_REFERENCE, VH_FOLDER_NAME);
         verify(ccdDataStoreApiClient, never())
             .updateCaseData(
                 anyLong(),
