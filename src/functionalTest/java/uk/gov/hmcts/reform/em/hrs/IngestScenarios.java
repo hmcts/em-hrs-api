@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 
@@ -81,7 +82,7 @@ public class IngestScenarios extends BaseTest {
         long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsCvpBlobContainerClient);
         Assert.assertEquals(hrsFileSize, cvpFileSize);
 
-        uploadToCcd(filenames, caseRef);
+        uploadToCcd(filenames, caseRef, FOLDER, SEGMENT_COUNT);
 
         LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
         SleepHelper.sleepForSeconds(20);
@@ -124,7 +125,7 @@ public class IngestScenarios extends BaseTest {
         long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsVhBlobContainerClient);
         Assert.assertEquals(hrsFileSize, vhFileSize);
 
-        uploadToCcd(filenames, caseRef, "VH");
+        uploadToCcd(filenames, caseRef, "VH", segmentCount);
 
         LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
         SleepHelper.sleepForSeconds(20);
@@ -168,15 +169,11 @@ public class IngestScenarios extends BaseTest {
         long hrsFileSize = testUtil.getFileSizeFromStore(filename, testUtil.hrsCvpBlobContainerClient);
         Assert.assertEquals(hrsFileSize, cvpFileSize);
 
-        uploadToCcd(filenames, caseRef);
+        uploadToCcd(filenames, caseRef, FOLDER, 1);
 
     }
 
-    private void uploadToCcd(Set<String> filenames, String caseRef) {
-        uploadToCcd(filenames, caseRef, FOLDER);
-    }
-
-    private void uploadToCcd(Set<String> filenames, String caseRef, String folder) {
+    private void uploadToCcd(Set<String> filenames, String caseRef, String folder, int segmentCount) {
         //IN AAT hrs is running on 8 / minute uploads, so need to wait at least 8 secs per segment
         //giving it 10 secs per segment, plus an additional segment
         int secondsToWaitForCcdUploadsToComplete =
@@ -210,6 +207,7 @@ public class IngestScenarios extends BaseTest {
         Map<String, Object> data = caseDetails.getData();
         LOGGER.info("data size: " + data.size()); //TODO when posting multisegment - this needs to match
         List recordingFiles = (ArrayList) data.get("recordingFiles");
+        assertThat(recordingFiles.size()).isEqualTo(segmentCount);
         LOGGER.info("num recordings: " + recordingFiles.size());
     }
 
