@@ -16,7 +16,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 
@@ -79,13 +82,86 @@ public class IngestScenarios extends BaseTest {
         long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsCvpBlobContainerClient);
         Assert.assertEquals(hrsFileSize, cvpFileSize);
 
-        uploadToCcd(filenames, caseRef);
+        uploadToCcd(filenames, caseRef, FOLDER, SEGMENT_COUNT);
 
         LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
         SleepHelper.sleepForSeconds(20);
 
     }
 
+    @Test
+    public void shouldCreateHearingRecordingSegmentForVh() throws Exception {
+        String caseRef = timeVhBasedCaseRef();
+        UUID hearingRef = UUID.randomUUID();
+        String filename = vhFileName(caseRef, 0, INTERPRETER, hearingRef);
+        testUtil.uploadFileFromPathToVhContainer(filename, "data/test_data.mp4");
+
+        Set<String> filenames = Set.of(filename);
+        LOGGER.info("************* CHECKING VH HAS UPLOADED **********");
+        testUtil.checkIfUploadedToStore(filenames, testUtil.vhBlobContainerClient);
+        LOGGER.info("************* Files loaded to vh storage **********");
+
+        postVhRecordingSegment(
+            caseRef,
+            0,
+            hearingRef,
+            filename
+        ).then().log().all().statusCode(202);
+
+        LOGGER.info("*********** CHECKING HRS HAS COPIED TO STORE VH container *********");
+        testUtil.checkIfUploadedToStore(filenames, testUtil.hrsVhBlobContainerClient);
+
+        long vhFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.vhBlobContainerClient);
+        long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsVhBlobContainerClient);
+        Assert.assertEquals(hrsFileSize, vhFileSize);
+
+        uploadToCcd(filenames, caseRef, "VH", 1);
+
+        LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
+        SleepHelper.sleepForSeconds(20);
+
+    }
+
+    @Test
+    public void shouldCreateHearingRecordingMultipleSegmentsForVh() throws Exception {
+        String caseRef = timeVhBasedCaseRef();
+        Set<String> filenames;
+        List<String> filenameList = new ArrayList<String>();
+        UUID hearingRef = UUID.randomUUID();
+        int segmentCount = 2;
+        for (int segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
+            String filename = vhFileName(caseRef, segmentIndex, INTERPRETER, hearingRef);
+            filenameList.add(filename);
+            testUtil.uploadFileFromPathToVhContainer(filename,"data/test_data.mp4");
+        }
+        filenames = filenameList.stream().collect(Collectors.toSet());
+
+        LOGGER.info("************* CHECKING VH HAS UPLOADED **********");
+        testUtil.checkIfUploadedToStore(filenames, testUtil.vhBlobContainerClient);
+        LOGGER.info("************* Files loaded to vh storage **********");
+
+        for (int segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
+            postVhRecordingSegment(
+                caseRef,
+                segmentIndex,
+                hearingRef,
+                filenameList.get(segmentIndex)
+            ).then().log().all().statusCode(202);
+        }
+
+        LOGGER.info("*********** CHECKING HRS HAS COPIED TO STORE VH container *********");
+        testUtil.checkIfUploadedToStore(filenames, testUtil.hrsVhBlobContainerClient);
+
+        long vhFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.vhBlobContainerClient);
+        long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsVhBlobContainerClient);
+        Assert.assertEquals(hrsFileSize, vhFileSize);
+
+        uploadToCcd(filenames, caseRef, "VH", segmentCount);
+
+        LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
+        SleepHelper.sleepForSeconds(20);
+
+    }
 
     @Test
     public void shouldIngestPartiallyCopiedHearingRecordingSegments() throws Exception {
@@ -124,11 +200,11 @@ public class IngestScenarios extends BaseTest {
         long hrsFileSize = testUtil.getFileSizeFromStore(filename, testUtil.hrsCvpBlobContainerClient);
         Assert.assertEquals(hrsFileSize, cvpFileSize);
 
-        uploadToCcd(filenames, caseRef);
+        uploadToCcd(filenames, caseRef, FOLDER, 1);
 
     }
 
-    private void uploadToCcd(Set<String> filenames, String caseRef) {
+    private void uploadToCcd(Set<String> filenames, String caseRef, String folder, int segmentCount) {
         //IN AAT hrs is running on 8 / minute uploads, so need to wait at least 8 secs per segment
         //giving it 10 secs per segment, plus an additional segment
         int secondsToWaitForCcdUploadsToComplete =
@@ -141,11 +217,13 @@ public class IngestScenarios extends BaseTest {
 
 
         LOGGER.info("************* CHECKING HRS HAS IT IN DATABASE AND RETURNS EXPECTED FILES VIA API**********");
-        getFilenamesCompletedOrInProgress(FOLDER)
-            .assertThat().log().all()
-            .statusCode(200)
-            .body("folder-name", equalTo(FOLDER))
-            .body("filenames", hasItems(filenames.toArray()));
+        if (!"VH".equalsIgnoreCase(folder)) {
+            getFilenamesCompletedOrInProgress(folder)
+                .assertThat().log().all()
+                .statusCode(200)
+                .body("folder-name", equalTo(folder))
+                .body("filenames", hasItems(filenames.toArray()));
+        }
 
         LOGGER.info("*****************************");
         LOGGER.info("*****************************");
@@ -160,6 +238,7 @@ public class IngestScenarios extends BaseTest {
         Map<String, Object> data = caseDetails.getData();
         LOGGER.info("data size: " + data.size()); //TODO when posting multisegment - this needs to match
         List recordingFiles = (ArrayList) data.get("recordingFiles");
+        assertThat(recordingFiles.size()).isEqualTo(segmentCount);
         LOGGER.info("num recordings: " + recordingFiles.size());
     }
 
