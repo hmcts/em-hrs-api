@@ -53,13 +53,8 @@ public class CcdUploadServiceImpl implements CcdUploadService {
 
         LOGGER.info("determining if recording (ref {}) in folder {}) has entry in CCD", recordingRef, folder);
 
-        final Optional<HearingRecording> hearingRecording;
-        if (HearingSource.VH.equals(recordingDto.getRecordingSource())) {
-            hearingRecording = recordingRepository.findByCaseRefAndFolderName(recordingDto.getCaseRef(), folder);
-        } else {
-            hearingRecording = recordingRepository.findByRecordingRefAndFolderName(recordingRef, folder);
-        }
-
+        final Optional<HearingRecording> hearingRecording =
+            recordingRepository.findByRecordingRefAndFolderName(recordingRef, folder);
 
         hearingRecording.ifPresentOrElse(
             x -> updateCase(x, recordingDto),

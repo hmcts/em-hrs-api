@@ -127,12 +127,10 @@ public class IngestScenarios extends BaseTest {
         String caseRef = timeVhBasedCaseRef();
         Set<String> filenames;
         List<String> filenameList = new ArrayList<String>();
-        List<UUID> hearingRefs = new ArrayList<UUID>();
+        UUID hearingRef = UUID.randomUUID();
         int segmentCount = 2;
         for (int segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
-            UUID hearingRef = UUID.randomUUID();
             String filename = vhFileName(caseRef, segmentIndex, INTERPRETER, hearingRef);
-            hearingRefs.add(hearingRef);
             filenameList.add(filename);
             testUtil.uploadFileFromPathToVhContainer(filename,"data/test_data.mp4");
         }
@@ -146,7 +144,7 @@ public class IngestScenarios extends BaseTest {
             postVhRecordingSegment(
                 caseRef,
                 segmentIndex,
-                hearingRefs.get(segmentIndex),
+                hearingRef,
                 filenameList.get(segmentIndex)
             ).then().log().all().statusCode(202);
         }
