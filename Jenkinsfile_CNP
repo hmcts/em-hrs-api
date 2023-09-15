@@ -108,14 +108,15 @@ withPipeline(type, product, component) {
     withAksClient('nonprod', product) {
       def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME, env.GIT_COMMIT, env.LAST_COMMIT_TIMESTAMP)
       def subscription = env.SUBSCRIPTION_NAME
+      def aksServiceName = dockerImage.getAksServiceName().toLowerCase()
+      def hrsStorageSecret = "storage-secret-hrs-${aksServiceName}"
+      def cvpStorageSecret = "storage-secret-cvp-${aksServiceName}"
+      def vhStorageSecret = "storage-secret-vh-${aksServiceName}"
 
-      def hrsStorageSecret = "storage-secret-hrs-storage"
-      def cvpStorageSecret = "storage-secret-cvp-storage"
-      def vhStorageSecret = "storage-secret-vh-storage"
+      def hrsStorageSecretName = "storage-account-hrs-${aksServiceName}"
+      def cvpStorageSecretName = "storage-account-cvp-${aksServiceName}"
+      def vhStorageSecretName = "storage-account-vh-${aksServiceName}"
 
-      def hrsStorageSecretName = "storage-account-hrs-storage"
-      def cvpStorageSecretName = "storage-account-cvp-storage"
-      def vhStorageSecretName = "storage-account-vh-storage"
 
       def namespace = new TeamConfig(this).getNameSpace(product)
       def kubectl = new Kubectl(this, subscription, namespace)
