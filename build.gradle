@@ -255,7 +255,7 @@ def versions = [
   serenity           : '3.7.0',
   serenityreporter   : '3.7.0',
   serenityRestAssured : '3.7.0',
-  lombok             : '1.18.20',
+  lombok             : '1.18.28',
   reformLogging      : '6.0.1',
   log4JVersion       : "2.17.1",
   postgresql         : '42.5.1',
@@ -375,7 +375,7 @@ dependencies {
 
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.24.2'
-  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '3.0.0'
+  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '3.2.2'
 
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: versions.testcontainers
   testImplementation group: 'org.testcontainers', name: 'postgresql', version: versions.testcontainers
@@ -405,7 +405,7 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '1.21.9'
+  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '1.21.10'
 
 
 /***********************************************************************************************************************
