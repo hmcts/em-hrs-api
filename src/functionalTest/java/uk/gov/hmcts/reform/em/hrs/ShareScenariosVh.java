@@ -58,12 +58,21 @@ public class ShareScenariosVh extends BaseTest {
         caseDetails = findCaseWithAutoRetryWithUserWithSearcherRole(caseRef);
         ccdCaseId = caseDetails.getId();
         //used in tests to verify file is fully downloaded
-        LOGGER.info("SET UP: CHECKING FILE SIZE UPLOADED TO CVP");
+        LOGGER.info("SET UP: CHECKING FILE SIZE UPLOADED TO VH");
         expectedFileSize = blobUtil.getFileFromPath("data/test_data.mp4").readAllBytes().length;
         assertThat(expectedFileSize, is(not(0)));
 
         LOGGER.info("SET UP: SCENARIO DATA READY FOR TESTING");
 
+    }
+
+    @After
+    public void clearUp() {
+        LOGGER.info("closeCcdCase AfterEach ====> {}", closeCcdCase);
+        if (closeCcdCase) {
+            LOGGER.info("Closing CCD case, case id {}", ccdCaseId);
+            extendedCcdHelper.closeCcdCase(ccdCaseId);
+        }
     }
 
     @Test
@@ -89,13 +98,45 @@ public class ShareScenariosVh extends BaseTest {
         assertThat(actualFileSize, is(expectedFileSize));
     }
 
-    @After
-    public void clearUp() {
-        LOGGER.info("closeCcdCase AfterEach ====> {}", closeCcdCase);
-        if (closeCcdCase) {
-            LOGGER.info("Closing CCD case, case id {}", ccdCaseId);
-            extendedCcdHelper.closeCcdCase(ccdCaseId);
-        }
+    @Test
+    public void shareeWithOnlyCaseworkerRoleShouldBeAbleToDownloadRecordings() {
+        final CallbackRequest callbackRequest =
+            addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY);
+        shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
+            .then()
+            .log().all()
+            .assertThat()
+            .statusCode(200);
+
+        final byte[] downloadedFileBytes =
+            downloadShareeRecording(USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY, caseDetails.getData())
+                .then()
+                .statusCode(200)
+                .extract().response()
+                .body().asByteArray();
+
+        final int actualFileSize = downloadedFileBytes.length;
+        assertThat(actualFileSize, is(expectedFileSize));
+    }
+
+    @Test
+    public void shareeWithCitizenRoleIsAbleToDownloadRecordings() {
+        final CallbackRequest callbackRequest =
+            addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_NONACCESS_ROLE__CITIZEN);
+        shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
+            .then()
+            .log().all()
+            .statusCode(200);
+
+        final byte[] downloadedFileBytes =
+            downloadShareeRecording(USER_WITH_NONACCESS_ROLE__CITIZEN, caseDetails.getData())
+                .then()
+                .statusCode(200)
+                .extract().response()
+                .body().asByteArray();
+
+        final int actualFileSize = downloadedFileBytes.length;
+        assertThat(actualFileSize, is(expectedFileSize));
     }
 
 }
