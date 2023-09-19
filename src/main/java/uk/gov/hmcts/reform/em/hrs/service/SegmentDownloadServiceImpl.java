@@ -46,16 +46,18 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
     private final ShareesRepository shareesRepository;
     private final SecurityService securityService;
 
-
     @Value("${shareelink.ttl}")
     private final int validityInHours;
 
     @Autowired
-    public SegmentDownloadServiceImpl(HearingRecordingSegmentRepository segmentRepository,
-                                      BlobstoreClient blobstoreClient, AuditEntryService auditEntryService,
-                                      ShareesRepository shareesRepository,
-                                      SecurityService securityService,
-                                      @Value("${shareelink.ttl}") int validityInHours) {
+    public SegmentDownloadServiceImpl(
+        HearingRecordingSegmentRepository segmentRepository,
+        BlobstoreClient blobstoreClient,
+        AuditEntryService auditEntryService,
+        ShareesRepository shareesRepository,
+        SecurityService securityService,
+        @Value("${shareelink.ttl}") int validityInHours
+    ) {
         this.segmentRepository = segmentRepository;
         this.blobstoreClient = blobstoreClient;
         this.auditEntryService = auditEntryService;
@@ -66,8 +68,12 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
 
     @Override
-    public HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentNumber(UUID recordingId, Integer segmentNo,
-                                                                             String userToken, boolean isSharee) {
+    public HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentNumber(
+        UUID recordingId,
+        Integer segmentNo,
+        String userToken,
+        boolean isSharee
+    ) {
 
         if (isSharee) {
             //Check if user access has expired
@@ -106,9 +112,10 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
                          HttpServletResponse response) throws IOException {
 
         auditEntryService.createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_REQUESTED);
-
+        var hearingRecording = segment.getHearingRecording();
+        String hearingSource = hearingRecording.getHearingSource();
         String filename = segment.getFilename();
-        BlobInfo blobInfo = blobstoreClient.fetchBlobInfo(filename);
+        BlobInfo blobInfo = blobstoreClient.fetchBlobInfo(filename, hearingSource);
         long fileSize = blobInfo.getFileSize();
         String contentType = blobInfo.getContentType();
         String attachmentFilename = String.format("attachment; filename=%s", filename);
@@ -122,7 +129,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
             .logHttpHeaders(request);//keep during early life support to assist with any range or other issues.
 
         String rangeHeader = HttpHeaderProcessor.getHttpHeaderByCaseSensitiveAndLowerCase(request, HttpHeaders.RANGE);
-        LOGGER.info("Range header for filename {} = {}", filename, rangeHeader);
+        LOGGER.info("hearing source {}, Range header for filename {} = {}", hearingSource, filename, rangeHeader);
 
         BlobRange blobRange = null;
         if (rangeHeader == null) {
@@ -164,7 +171,10 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
             }
         }
         ServletOutputStream outputStream = response.getOutputStream();
-        blobstoreClient.downloadFile(filename, blobRange, outputStream);
+
+
+        blobstoreClient.downloadFile(filename, blobRange, outputStream, hearingSource);
+
         auditEntryService.createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
     }
 

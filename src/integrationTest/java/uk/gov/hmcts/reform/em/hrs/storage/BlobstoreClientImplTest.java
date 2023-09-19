@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestAzureStorageConfig;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.helper.AzureIntegrationTestOperations;
 
 import java.io.InputStream;
@@ -37,33 +38,65 @@ class BlobstoreClientImplTest {
     }
 
     @Test
-    void testShouldDownloadFile() throws Exception {
+    void testShouldDownloadHrsCvpFile() throws Exception {
         final String filePath = ONE_ITEM_FOLDER + "/" + UUID.randomUUID() + ".txt";
-        azureIntegrationTestOperations.populateHrsContainer(filePath, TEST_DATA);
+        azureIntegrationTestOperations.populateHrsCvpContainer(filePath, TEST_DATA);
 
         BlobRange blobRange = null;
         try (final PipedInputStream pipedInput = new PipedInputStream();
              final PipedOutputStream output = new PipedOutputStream(pipedInput)) {
-            underTest.downloadFile(filePath, null, output);
+            underTest.downloadFile(filePath, null, output, HearingSource.CVP.name());
             assertThat(pipedInput).satisfies(this::assertStreamContent);
         }
 
         try (final PipedInputStream pipedInput = new PipedInputStream();
              final PipedOutputStream output = new PipedOutputStream(pipedInput)) {
             blobRange = new BlobRange(0, 3L);
-            underTest.downloadFile(filePath, blobRange, output);
+            underTest.downloadFile(filePath, blobRange, output, HearingSource.CVP.name());
             assertThat(pipedInput).satisfies(this::assertPartialStreamContent);
         }
     }
 
     @Test
-    void testShouldFetchBlobInfo() throws Exception {
+    void testShouldFetchHrsCvpBlobInfo() throws Exception {
         final String filePath = ONE_ITEM_FOLDER + "/" + UUID.randomUUID() + ".txt";
-        azureIntegrationTestOperations.populateHrsContainer(filePath, TEST_DATA);
+        azureIntegrationTestOperations.populateHrsCvpContainer(filePath, TEST_DATA);
         try (final PipedInputStream pipedInput = new PipedInputStream();
              final PipedOutputStream output = new PipedOutputStream(pipedInput)) {
-            underTest.downloadFile(filePath, null, output);
-            underTest.fetchBlobInfo(filePath);
+            underTest.downloadFile(filePath, null, output, HearingSource.CVP.name());
+            underTest.fetchBlobInfo(filePath, HearingSource.CVP.name());
+            assertThat(pipedInput).satisfies(this::assertStreamContent);
+        }
+    }
+
+    @Test
+    void testShouldDownloadHrsVhFile() throws Exception {
+        final String filePath = UUID.randomUUID() + ".txt";
+        azureIntegrationTestOperations.populateHrsVhContainer(filePath, TEST_DATA);
+
+        BlobRange blobRange;
+        try (final PipedInputStream pipedInput = new PipedInputStream();
+             final PipedOutputStream output = new PipedOutputStream(pipedInput)) {
+            underTest.downloadFile(filePath, null, output, HearingSource.VH.name());
+            assertThat(pipedInput).satisfies(this::assertStreamContent);
+        }
+
+        try (final PipedInputStream pipedInput = new PipedInputStream();
+             final PipedOutputStream output = new PipedOutputStream(pipedInput)) {
+            blobRange = new BlobRange(0, 3L);
+            underTest.downloadFile(filePath, blobRange, output, HearingSource.VH.name());
+            assertThat(pipedInput).satisfies(this::assertPartialStreamContent);
+        }
+    }
+
+    @Test
+    void testShouldFetchHrsVhBlobInfo() throws Exception {
+        final String filePath = UUID.randomUUID() + ".txt";
+        azureIntegrationTestOperations.populateHrsVhContainer(filePath, TEST_DATA);
+        try (final PipedInputStream pipedInput = new PipedInputStream();
+             final PipedOutputStream output = new PipedOutputStream(pipedInput)) {
+            underTest.downloadFile(filePath, null, output, HearingSource.VH.name());
+            underTest.fetchBlobInfo(filePath, HearingSource.VH.name());
             assertThat(pipedInput).satisfies(this::assertStreamContent);
         }
     }
