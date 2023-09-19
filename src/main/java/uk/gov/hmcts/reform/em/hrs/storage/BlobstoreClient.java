@@ -6,7 +6,7 @@ import java.io.OutputStream;
 
 public interface BlobstoreClient {
 
-    BlobInfo fetchBlobInfo(String filename);
+    BlobInfo fetchBlobInfo(String filename, String hearingSource);
 
-    void downloadFile(String filename, BlobRange blobRange, final OutputStream outputStream);
+    void downloadFile(String filename, BlobRange blobRange, final OutputStream outputStream, String hearingSource);
 }
