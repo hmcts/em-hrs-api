@@ -9,7 +9,7 @@ plugins {
   id 'org.sonarqube' version '4.3.1.3277'
   id 'org.flywaydb.flyway' version '9.22.0'
   id 'au.com.dius.pact' version '4.2.14'
-  id "info.solidsoft.pitest" version '1.9.0'
+  id "info.solidsoft.pitest" version '1.9.11'
   id 'com.github.hmcts.rse-cft-lib' version '0.19.804'
   id 'uk.gov.hmcts.java' version '0.12.45'
   id 'org.owasp.dependencycheck' version '8.4.0'
