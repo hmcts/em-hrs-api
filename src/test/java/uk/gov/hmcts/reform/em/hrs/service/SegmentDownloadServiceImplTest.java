@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegmentAuditEntry;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.exception.InvalidRangeRequestException;
 import uk.gov.hmcts.reform.em.hrs.exception.ValidationErrorException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
@@ -102,6 +103,7 @@ class SegmentDownloadServiceImplTest {
         segment.setRecordingSegment(0);
         HearingRecording hr = new HearingRecording();
         hr.setCcdCaseId(TestUtil.CCD_CASE_ID);
+        hr.setHearingSource(HearingSource.CVP.name());
         segment.setHearingRecording(hr);
     }
 
@@ -166,18 +168,34 @@ class SegmentDownloadServiceImplTest {
     }
 
     @Test
-    void testDownload() throws IOException {
+    void testDownloadForCVP() throws IOException {
         doReturn(segment).when(segmentRepository).findByFilename(segment.getFilename());
-        when(blobstoreClient.fetchBlobInfo(any())).thenReturn(new BlobInfo(1000L, null));
+        when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
         doReturn(hearingRecordingSegmentAuditEntry)
             .when(auditEntryService).createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
 
-        doNothing().when(blobstoreClient).downloadFile(segment.getFilename(), null, null);
+        doNothing().when(blobstoreClient).downloadFile(segment.getFilename(), null, null, "CVP");
         when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
 
         segmentDownloadService.download(segment, request, response);
 
-        verify(blobstoreClient, times(1)).downloadFile(segment.getFilename(), null, null);
+        verify(blobstoreClient, times(1)).downloadFile(segment.getFilename(), null, null, "CVP");
+    }
+
+    @Test
+    void testDownloadForVH() throws IOException {
+        segment.getHearingRecording().setHearingSource(HearingSource.VH.name());
+        doReturn(segment).when(segmentRepository).findByFilename(segment.getFilename());
+        when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
+        doReturn(hearingRecordingSegmentAuditEntry)
+            .when(auditEntryService).createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
+
+        doNothing().when(blobstoreClient).downloadFile(segment.getFilename(), null, null, "VH");
+        when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
+
+        segmentDownloadService.download(segment, request, response);
+
+        verify(blobstoreClient, times(1)).downloadFile(segment.getFilename(), null, null, "VH");
     }
 
     @Test
@@ -185,7 +203,7 @@ class SegmentDownloadServiceImplTest {
         assertThrows(InvalidRangeRequestException.class, () -> {
             when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=A-Z");
             when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
-            when(blobstoreClient.fetchBlobInfo(any())).thenReturn(new BlobInfo(1000L, null));
+            when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
 
             segmentDownloadService.download(segment, request, response);
         });
@@ -196,7 +214,7 @@ class SegmentDownloadServiceImplTest {
         assertThrows(InvalidRangeRequestException.class, () -> {
             when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=1023-0");
             when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
-            when(blobstoreClient.fetchBlobInfo(any())).thenReturn(new BlobInfo(1000L, null));
+            when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
             segmentDownloadService.download(segment, request, response);
         });
     }
@@ -205,7 +223,7 @@ class SegmentDownloadServiceImplTest {
     public void loadsRangedBlobTooLargeRangeHeader() throws IOException {
         when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=0-1023");
         when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
-        when(blobstoreClient.fetchBlobInfo(any())).thenReturn(new BlobInfo(1000L, null));
+        when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
         segmentDownloadService.download(segment, request, response);
 
         Mockito.verify(response, Mockito.times(1)).setStatus(HttpStatus.PARTIAL_CONTENT.value());
@@ -219,7 +237,7 @@ class SegmentDownloadServiceImplTest {
     public void loadsRangedBlobValidRangeHeader() throws IOException {
         when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=0-1023");
         when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
-        when(blobstoreClient.fetchBlobInfo(any())).thenReturn(new BlobInfo(2000L, null));
+        when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(2000L, null));
         segmentDownloadService.download(segment, request, response);
         Mockito.verify(response, Mockito.times(1)).setStatus(HttpStatus.PARTIAL_CONTENT.value());
         Mockito.verify(response, Mockito.times(1))
