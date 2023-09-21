@@ -387,10 +387,10 @@ dependencies {
 
   functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.9.3'
   functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.9.3'
-  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
+  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
   functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
 
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
   testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
 
 
@@ -429,7 +429,7 @@ dependencies {
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.0.10'
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-gradle', version: '4.0.10'
 
-  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
+  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.10.0"
   contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.1"
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: versions.junitPlatform
 
