@@ -152,7 +152,7 @@ def coverageExclusionList = [
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '10.12.3'
+  toolVersion = '10.4.0'
   getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
 }
 
@@ -236,7 +236,7 @@ dependencyManagement {
     dependencySet(group: 'commons-fileupload', version: '1.5') {
       entry 'commons-fileupload'
     }
-    
+
     //CVE-2023-41080
     dependencySet(group: 'org.apache.tomcat.embed', version: '10.1.13') {
       entry 'tomcat-embed-core'
