@@ -346,6 +346,9 @@ dependencies {
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: versions.junit
   testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: versions.junitPlatform
   testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: versions.junitPlatform
+  functionalTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: versions.junit
+  functionalTestImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: versions.junitPlatform
+  functionalTestImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: versions.junitPlatform
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'
