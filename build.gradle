@@ -152,7 +152,7 @@ def coverageExclusionList = [
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '10.4.0'
+  toolVersion = '10.12.3'
   getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
 }
 
@@ -221,11 +221,6 @@ configurations.all {
 }
 dependencyManagement {
   dependencies {
-
-    dependencySet(group: 'com.google.guava', version: '32.1.2-jre') {
-      // Guava CVE-2018-10237 - Unbounded memory allocation
-      entry 'guava'
-    }
 
     //CVE-2022-1471
     dependencySet(group: 'org.yaml', version: '2.2') {
@@ -360,19 +355,14 @@ dependencies {
 
   testImplementation libraries.junit5
 
-  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
-    exclude group: 'junit', module: 'junit'
-    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-  }
+  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
 
-  functionalTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
-    exclude group: 'junit', module: 'junit'
-    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-  }
+  functionalTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
 
   functionalTestImplementation 'com.github.hmcts:em-test-helper:2.0.4'
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
 
+  testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.24.2'
   testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '3.2.2'
