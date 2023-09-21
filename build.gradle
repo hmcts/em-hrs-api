@@ -261,7 +261,7 @@ def versions = [
   postgresql         : '42.6.0',
   pact_version       : '3.6.15',
   restAssured        : '5.3.0',
-  junit              : '5.8.1',
+  junit              : '5.10.0',
   junitPlatform      : '1.10.0',
   springSecurity     : '6.1.4',
   shedlock           : '5.4.0',
