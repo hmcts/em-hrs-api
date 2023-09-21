@@ -264,16 +264,6 @@ def versions = [
   springCloud        : '4.0.4'
 ]
 
-ext.libraries = [
-  junit5: [
-    "org.junit.jupiter:junit-jupiter-api:${versions.junit}",
-    "org.junit.jupiter:junit-jupiter-engine:${versions.junit}",
-    "org.junit.jupiter:junit-jupiter-params:${versions.junit}",
-    "org.junit.platform:junit-platform-commons:${versions.junitPlatform}",
-    "org.junit.platform:junit-platform-engine:${versions.junitPlatform}"
-  ]
-]
-
 dependencies {
 
   def withoutStuff = {
@@ -353,7 +343,9 @@ dependencies {
  * TEST DEPENDENCIES
  **********************************************************************************************************************/
 
-  testImplementation libraries.junit5
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: versions.junit
+  testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: versions.junitPlatform
+  testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: versions.junitPlatform
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'
