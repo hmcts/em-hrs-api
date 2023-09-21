@@ -260,7 +260,7 @@ def versions = [
   junitPlatform      : '1.10.0',
   springSecurity     : '6.1.4',
   shedlock           : '5.8.0',
-  testcontainers     : '1.18.3',
+  testcontainers     : '1.19.0',
   springCloud        : '4.0.4'
 ]
 
@@ -311,7 +311,7 @@ dependencies {
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.2.0'
 //azure components
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.23.1'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.24.0'
   implementation group: 'com.azure', name: 'azure-identity', version: '1.10.1'
 
   // Job scheduling
@@ -396,7 +396,7 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '1.21.10'
+  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '2.0.4'
 
 
 /***********************************************************************************************************************
