@@ -55,6 +55,7 @@ public class SecurityConfiguration {
             "/health/readiness",
             "/status/health",
             "/loggers/**",
+            "/report/**",
             "/");
     }
 
