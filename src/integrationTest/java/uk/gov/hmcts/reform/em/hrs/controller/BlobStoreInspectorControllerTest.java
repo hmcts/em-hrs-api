@@ -61,8 +61,7 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
 
     @Test
     public void inspectEndpointReturns401ErrorIfApiKeyMissing() throws Exception {
-        mockMvc.perform(get("/report")
-                            .header(AUTHORIZATION, "Bearer " + testDummyKey))
+        mockMvc.perform(get("/report"))
             .andDo(print())
             .andExpect(status().isUnauthorized());
     }

@@ -62,9 +62,7 @@ public class BlobStoreInspectorController {
             String receivedApiKey = authorizationKey.replace("Bearer ", "");
             byte[] decodedBytes = Base64.getDecoder().decode(receivedApiKey);
             String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
-            System.out.println(decodedString);
             String[] parts = decodedString.split(":");
-            System.out.println(parts[1]);
             if (parts.length == 2) {
                 String extractedApiKey = parts[0];
                 long expirationTimeMillis = Long.parseLong(parts[1]);
