@@ -6,13 +6,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.helper.TestClockProvider;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
+import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorageImpl;
 import uk.gov.hmcts.reform.em.hrs.storage.StorageReport;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -36,16 +40,20 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
 
     private String testDummyKey = "RkI2ejoxNjk1OTA2MjM0MDcx";
 
+    private void stopTime() {
+        Instant stopPastTime = ZonedDateTime
+            .of(2012, 1, 1, 1, 1, 1, 1, EUROPE_LONDON_ZONE_ID)
+            .withHour(5).toInstant();
+        TestClockProvider.stoppedInstant = stopPastTime;
+    }
+
     @Test
     public void inspectEndpointReturnsResponse() throws Exception {
 
         var today = LocalDate.now();
         var storageReport = new StorageReport(today, 1567, 1232, 332, 232);
 
-        Instant stopPastTime = ZonedDateTime
-            .of(2012, 1, 1, 1, 1, 1, 1, EUROPE_LONDON_ZONE_ID)
-            .withHour(5).toInstant();
-        givenTheRequestWasMadeAt(stopPastTime);
+        stopTime();
 
         when(hearingRecordingStorage.getStorageReport()).thenReturn(storageReport);
         mockMvc.perform(get("/report")
@@ -82,7 +90,30 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
             .andExpect(status().isUnauthorized());
     }
 
-    private void givenTheRequestWasMadeAt(Instant time) {
-        TestClockProvider.stoppedInstant = time;
+    @Test
+    public void findBlobEndpointReturnsResponse() throws Exception {
+        stopTime();
+        String blobName = UUID.randomUUID() + ".txt";
+        OffsetDateTime time = OffsetDateTime.now();
+        String blobUrl = "http://cvp.blob/" + blobName;
+        when(hearingRecordingStorage.findBlob(HearingSource.VH, blobName)).thenReturn(
+            new HearingRecordingStorageImpl.BlobDetail(blobUrl, 10, time)
+        );
+        mockMvc.perform(get("/report/hrs/VH/" + blobName)
+                            .header(AUTHORIZATION, "Bearer " + testDummyKey))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.blob-url").value(blobUrl))
+            .andExpect(jsonPath("$.blob-size").value(10))
+            .andExpect(jsonPath("$.last-modified").value(time + ""));
+    }
+
+    @Test
+    public void findBlobEndpointReturns401ErrorIfApiKeyInvalid() throws Exception {
+        String blobName = UUID.randomUUID() + ".txt";
+        mockMvc.perform(get("/report/hrs/VH/" + blobName)
+                            .header(AUTHORIZATION, "Bearer invalid"))
+            .andDo(print())
+            .andExpect(status().isUnauthorized());
     }
 }

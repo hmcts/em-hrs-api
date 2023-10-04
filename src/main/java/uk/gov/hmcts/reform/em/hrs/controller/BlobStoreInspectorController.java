@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.controller;
 
 import jakarta.validation.ClockProvider;
+import jakarta.validation.constraints.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.exception.InvalidApiKeyException;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
+import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorageImpl;
 import uk.gov.hmcts.reform.em.hrs.storage.StorageReport;
 
 import java.nio.charset.StandardCharsets;
@@ -40,6 +44,18 @@ public class BlobStoreInspectorController {
         validateAuthorization(authHeader);
         log.info("BlobStoreInspector Controller");
         return hearingRecordingStorage.getStorageReport();
+    }
+
+    @GetMapping(value = "/report/hrs/{hearingSource}/{blobName}", consumes = MediaType.ALL_VALUE)
+    public HearingRecordingStorageImpl.BlobDetail findBlob(
+        @RequestHeader(value = AUTHORIZATION, required = false) String authHeader,
+        @PathVariable @Pattern(regexp = "^(VH|CVP)$", message = "Container must be 'VH' or 'CVP'")
+        HearingSource hearingSource,
+        @PathVariable String blobName
+    ) {
+        validateAuthorization(authHeader);
+        log.info("BlobStoreInspector Controller");
+        return hearingRecordingStorage.findBlob(hearingSource, blobName);
     }
 
     private void validateAuthorization(String authorizationKey) {

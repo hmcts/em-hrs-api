@@ -48,8 +48,8 @@ public class AzureIntegrationTestOperations {
         filePaths.forEach(this::uploadToHrsContainer);
     }
 
-    public void populateHrsCvpContainer(final String blobName, final String content) {
-        uploadToHrsCvpContainer(blobName, content.getBytes(StandardCharsets.UTF_8));
+    public String populateHrsCvpContainer(final String blobName, final String content) {
+        return uploadToHrsCvpContainer(blobName, content.getBytes(StandardCharsets.UTF_8));
     }
 
     public void populateHrsVhContainer(final String blobName, final String content) {
@@ -64,11 +64,12 @@ public class AzureIntegrationTestOperations {
         uploadToContainer(Container.HRS, filePath);
     }
 
-    private void uploadToHrsCvpContainer(final String blobName, final byte[] data) {
+    private String uploadToHrsCvpContainer(final String blobName, final byte[] data) {
         final InputStream inStream = new ByteArrayInputStream(data);
 
         final BlobClient blobClient = hrsCvpBlobContainerClient.getBlobClient(blobName);
         blobClient.upload(new BufferedInputStream(inStream), data.length);
+        return blobClient.getBlobUrl();
     }
 
     private void uploadToHrsVhContainer(final String blobName, final byte[] data) {

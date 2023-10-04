@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.exception.BlobCopyException;
+import uk.gov.hmcts.reform.em.hrs.exception.BlobNotFoundException;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -101,6 +102,29 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         return blobItems.streamByPage()
             .flatMap(x -> x.getValue().stream().map(BlobItem::getName))
             .collect(Collectors.toUnmodifiableSet());
+    }
+
+    @Override
+    public BlobDetail findBlob(final HearingSource hearingSource, final String blobName) {
+
+        BlobClient blobClient;
+        if (hearingSource == HearingSource.VH) {
+            blobClient = hrsVhBlobContainerClient.getBlobClient(blobName);
+        } else if (hearingSource == HearingSource.CVP) {
+            blobClient = hrsCvpBlobContainerClient.getBlobClient(blobName);
+        } else {
+            throw new BlobNotFoundException("hearingSource", "" + hearingSource);
+        }
+
+        if (!blobClient.exists()) {
+            throw new BlobNotFoundException("blobName", blobName);
+        }
+        var prop = blobClient.getProperties();
+
+        return new BlobDetail(blobClient.getBlobUrl(), prop.getBlobSize(), prop.getLastModified());
+    }
+
+    public record BlobDetail(String blobUrl, long blobSize, OffsetDateTime lastModified) {
     }
 
     @Override

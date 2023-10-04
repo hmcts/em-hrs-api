@@ -9,10 +9,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestApplicationConfig;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestAzureStorageConfig;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.exception.BlobCopyException;
+import uk.gov.hmcts.reform.em.hrs.exception.BlobNotFoundException;
 import uk.gov.hmcts.reform.em.hrs.helper.AzureIntegrationTestOperations;
 
 import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -22,6 +25,7 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.hmcts.reform.em.hrs.dto.HearingSource.CVP;
 
@@ -129,6 +133,40 @@ class DefaultHearingRecordingStorageIntegrationTest {
         HearingRecordingDto hrDto =
             HearingRecordingDto.builder().sourceBlobUrl(sourceUrl).filename(file).build();
         assertThatExceptionOfType(BlobCopyException.class).isThrownBy(() -> underTest.copyRecording(hrDto));
+    }
+
+    @Test
+    void testFindBlobShouldThrowBlobNotFoundException() {
+        final String file = UUID.randomUUID() + ".txt";
+        BlobNotFoundException exception =
+            assertThrows(BlobNotFoundException.class,() ->  underTest.findBlob(HearingSource.CVP, file));
+
+        String expectedMessage = "Resource with blobName: " + file + " could not be found";
+        assertThat(exception.getMessage()).isEqualTo(expectedMessage);
+    }
+
+    @Test
+    void testFindBlobShouldThrowHearingSourceException() {
+        final String file = UUID.randomUUID() + ".txt";
+        BlobNotFoundException exception =
+            assertThrows(BlobNotFoundException.class, () -> underTest.findBlob(null, file));
+
+        String expectedMessage = "Resource with hearingSource: null could not be found";
+        assertThat(exception.getMessage()).isEqualTo(expectedMessage);
+    }
+
+    @Test
+    void testShouldFindBlob() {
+        final String file = UUID.randomUUID() + ".txt";
+        String testData = "Test data - cvp data";
+        var time = OffsetDateTime.now();
+        final String sourceUrl = azureIntegrationTestOperations.populateHrsCvpContainer(file, testData);
+
+        var foundBlob = underTest.findBlob(HearingSource.CVP, file);
+        assertThat(foundBlob.blobSize()).isEqualTo(testData.length());
+        assertThat(foundBlob.blobUrl()).isEqualTo(sourceUrl);
+        assertThat(foundBlob.lastModified()).isAfter(time);
+        assertThat(foundBlob.lastModified()).isBefore(OffsetDateTime.now());
     }
 
 
