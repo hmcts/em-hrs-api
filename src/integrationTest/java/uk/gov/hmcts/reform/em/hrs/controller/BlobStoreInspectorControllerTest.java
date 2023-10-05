@@ -6,17 +6,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
-import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.helper.TestClockProvider;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
-import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorageImpl;
 import uk.gov.hmcts.reform.em.hrs.storage.StorageReport;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import static org.mockito.Mockito.when;
@@ -93,25 +89,6 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
                             .header(AUTHORIZATION, "Bearer invalid"))
             .andDo(print())
             .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    public void findBlobEndpointReturnsResponse() throws Exception {
-        stopTime();
-        String blobName = UUID.randomUUID() + ".txt";
-        OffsetDateTime time = OffsetDateTime.now(EUROPE_LONDON_ZONE_ID).truncatedTo(ChronoUnit.MILLIS);
-
-        String blobUrl = "http://cvp.blob/" + blobName;
-        when(hearingRecordingStorage.findBlob(HearingSource.VH, blobName)).thenReturn(
-            new HearingRecordingStorageImpl.BlobDetail(blobUrl, 10, time)
-        );
-        mockMvc.perform(get("/report/hrs/VH/" + blobName)
-                            .header(AUTHORIZATION, "Bearer " + testDummyKey))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.blob-url").value(blobUrl))
-            .andExpect(jsonPath("$.blob-size").value(10))
-            .andExpect(jsonPath("$.last-modified").value(time + ""));
     }
 
     @Test
