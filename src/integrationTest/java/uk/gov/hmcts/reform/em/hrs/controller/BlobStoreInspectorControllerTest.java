@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import static org.mockito.Mockito.when;
@@ -94,7 +95,8 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
     public void findBlobEndpointReturnsResponse() throws Exception {
         stopTime();
         String blobName = UUID.randomUUID() + ".txt";
-        OffsetDateTime time = OffsetDateTime.now();
+        OffsetDateTime time = OffsetDateTime.now(EUROPE_LONDON_ZONE_ID).truncatedTo(ChronoUnit.SECONDS);
+
         String blobUrl = "http://cvp.blob/" + blobName;
         when(hearingRecordingStorage.findBlob(HearingSource.VH, blobName)).thenReturn(
             new HearingRecordingStorageImpl.BlobDetail(blobUrl, 10, time)
