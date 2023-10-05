@@ -99,7 +99,7 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
     public void findBlobEndpointReturnsResponse() throws Exception {
         stopTime();
         String blobName = UUID.randomUUID() + ".txt";
-        OffsetDateTime time = OffsetDateTime.now(EUROPE_LONDON_ZONE_ID).truncatedTo(ChronoUnit.SECONDS);
+        OffsetDateTime time = OffsetDateTime.now(EUROPE_LONDON_ZONE_ID).truncatedTo(ChronoUnit.MILLIS);
 
         String blobUrl = "http://cvp.blob/" + blobName;
         when(hearingRecordingStorage.findBlob(HearingSource.VH, blobName)).thenReturn(
