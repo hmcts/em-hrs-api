@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.em.hrs.helper.AzureIntegrationTestOperations;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -159,7 +160,7 @@ class DefaultHearingRecordingStorageIntegrationTest {
     void testShouldFindBlob() {
         final String file = UUID.randomUUID() + ".txt";
         String testData = "Test data - cvp data";
-        var time = OffsetDateTime.now();
+        var time = OffsetDateTime.now().minus(2, ChronoUnit.MINUTES);
         final String sourceUrl = azureIntegrationTestOperations.populateHrsCvpContainer(file, testData);
 
         var foundBlob = underTest.findBlob(HearingSource.CVP, file);
