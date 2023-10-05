@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.controller;
 
-import jakarta.validation.ClockProvider;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -37,9 +37,13 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
     @MockBean
     private HearingRecordingStorage hearingRecordingStorage;
 
-    private ClockProvider clockProvider;
-
     private String testDummyKey = "RkI2ejoxNjk1OTA2MjM0MDcx";
+
+    @BeforeEach
+    public void setup() {
+        super.setup();
+        TestClockProvider.stoppedInstant = ZonedDateTime.now().toInstant();
+    }
 
     private void stopTime() {
         Instant stopPastTime = ZonedDateTime
