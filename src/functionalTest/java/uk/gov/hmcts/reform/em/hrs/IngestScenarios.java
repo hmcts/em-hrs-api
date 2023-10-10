@@ -241,6 +241,8 @@ public class IngestScenarios extends BaseTest {
         LOGGER.info("data size: " + data.size()); //TODO when posting multisegment - this needs to match
         List recordingFiles = (ArrayList) data.get("recordingFiles");
         assertThat(recordingFiles.size()).isEqualTo(segmentCount);
+        String hearingSource = (String)data.get("hearingSource");
+        assertThat(hearingSource).isEqualTo("VH".equalsIgnoreCase(folder) ? "VH" : "CVP");
         LOGGER.info("num recordings: " + recordingFiles.size());
     }
 
