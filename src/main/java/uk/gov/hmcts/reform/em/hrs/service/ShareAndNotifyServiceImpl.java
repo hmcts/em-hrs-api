@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class ShareAndNotifyServiceImpl implements ShareAndNotifyService {
+    private static Logger LOGGER =  LoggerFactory.getLogger(ShareAndNotifyServiceImpl.class);
     private final HearingRecordingRepository hearingRecordingRepository;
     private final ShareeService shareeService;
     private final NotificationService notificationService;
@@ -53,6 +56,12 @@ public class ShareAndNotifyServiceImpl implements ShareAndNotifyService {
             throw new ValidationErrorException(Map.of("recipientEmailAddress", caseData.getShareeEmail()));
         }
 
+        final HearingRecording recording = hearingRecordingRepository.findByCcdCaseId(caseId)
+            .orElseThrow(() -> new HearingRecordingNotFoundException(caseId));
+
+        final HearingRecordingSharee sharee = shareeService.createAndSaveEntry(caseData.getShareeEmail(), recording);
+        auditEntryService.createAndSaveEntry(sharee, AuditActions.SHARE_GRANT_OK);
+
         List<String> segmentUrls = caseDataCreator.extractCaseDocuments(caseData).stream()
             .map(caseDocument ->  caseDocument.getBinaryUrl())
             .map(url -> {
@@ -61,13 +70,7 @@ public class ShareAndNotifyServiceImpl implements ShareAndNotifyService {
             })
             .collect(Collectors.toList());
 
-        final HearingRecording recording = hearingRecordingRepository.findByCcdCaseId(caseId)
-            .orElseThrow(() -> new HearingRecordingNotFoundException(caseId));
-
-        final HearingRecordingSharee sharee = shareeService.createAndSaveEntry(caseData.getShareeEmail(), recording);
-        auditEntryService.createAndSaveEntry(sharee, AuditActions.SHARE_GRANT_OK);
-
-
+        LOGGER.info("segmentUrls {}", segmentUrls);
         try {
             notificationService.sendEmailNotification(recording.getCaseRef(), List.copyOf(segmentUrls),
                                                       caseData.getRecordingDate(), caseData.getRecordingTimeOfDay(),
