@@ -68,16 +68,16 @@ public class FolderServiceImpl implements FolderService {
 
         Tuple2<FilesInDatabase, Set<String>> databaseRecords = getFilesetsFromDatabase(folder);
         FilesInDatabase filesInDatabase = databaseRecords.getT1();
-        LOGGER.info("Files In Database folder={}, {}", folder.getName(), filesInDatabase);
+        LOGGER.debug("Files In Database folder={}, {}", folder.getName(), filesInDatabase);
 
         Set<String> filesInBlobstore = hearingRecordingStorage.findByFolderName(folder.getName());
-        LOGGER.info("Files In Blob Store for folder={}, {}", folder.getName(), filesInBlobstore);
+        LOGGER.debug("Files In Blob Store for folder={}, {}", folder.getName(), filesInBlobstore);
 
         Set<String> completedFiles = filesInDatabase.intersect(filesInBlobstore);
-        LOGGER.info("Completed Files={}", completedFiles);
+        LOGGER.debug("Completed Files={}", completedFiles);
 
         Set<String> filesInProgress = databaseRecords.getT2();
-        LOGGER.info("FilesInProgress {}", filesInProgress);
+        LOGGER.debug("FilesInProgress {}", filesInProgress);
 
         return SetUtils.union(completedFiles, filesInProgress);
     }
