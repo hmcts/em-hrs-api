@@ -56,14 +56,21 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         final Optional<HearingRecording> hearingRecording =
             recordingRepository.findByRecordingRefAndFolderName(recordingRef, folder);
 
-        hearingRecording.ifPresentOrElse(
-            x -> updateCase(x, recordingDto),
-            () -> createCaseinCcdAndPersist(recordingDto)
+        Long caseId;
+        if(hearingRecording.isPresent()){
+            caseId = updateCase(hearingRecording.get(), recordingDto);
+        }else{
+            caseId = createCaseinCcdAndPersist(recordingDto);
+        }
+        // this is for dynatrace, do not change
+        LOGGER.info("Hearing recording processed successfully, ref:{}, source: {}, ccd caseId:{}",
+                    recordingRef,
+                    recordingDto.getRecordingSource(),
+                    caseId
         );
-
     }
 
-    private void updateCase(final HearingRecording recording, final HearingRecordingDto recordingDto) {
+    private Long updateCase(final HearingRecording recording, final HearingRecordingDto recordingDto) {
 
 
         Long ccdCaseId = recording.getCcdCaseId();
@@ -75,7 +82,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
                 "Recording Ref {} in folder {}, has no ccd id, case still being created in CCD or has been rejected",
                 recordingRef, folder
             );
-            return;
+            return null;
         }
 
         if (recordingDto.getRecordingSource() == HearingSource.VH
@@ -89,7 +96,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
                 recording.getCcdCaseId()
             );
             blobIndexMarker.setProcessed(recordingDto.getFilename());
-            return;
+            return null;
         }
 
         LOGGER.info(
@@ -114,9 +121,11 @@ public class CcdUploadServiceImpl implements CcdUploadService {
                 ccdCaseId
             );
         }
+
+        return caseDetailsId;
     }
 
-    private void createCaseinCcdAndPersist(final HearingRecordingDto recordingDto) {
+    private Long createCaseinCcdAndPersist(final HearingRecordingDto recordingDto) {
         LOGGER.info("creating a new case for recording: {}", recordingDto.getRecordingRef());
 
         var folder = folderService.getFolderByName(recordingDto.getFolder());
@@ -161,6 +170,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         if (HearingSource.VH == recordingDto.getRecordingSource()) {
             blobIndexMarker.setProcessed(recordingDto.getFilename());
         }
+        return caseId;
     }
 
     private HearingRecordingSegment createSegment(
