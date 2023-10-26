@@ -57,16 +57,17 @@ public class CcdUploadServiceImpl implements CcdUploadService {
             recordingRepository.findByRecordingRefAndFolderName(recordingRef, folder);
 
         Long caseId;
-        if(hearingRecording.isPresent()){
+        if (hearingRecording.isPresent()) {
             caseId = updateCase(hearingRecording.get(), recordingDto);
-        }else{
+        } else {
             caseId = createCaseinCcdAndPersist(recordingDto);
         }
         // this is for dynatrace, do not change
-        LOGGER.info("Hearing recording processed successfully, ref:{}, source: {}, ccd caseId:{}",
-                    recordingRef,
-                    recordingDto.getRecordingSource(),
-                    caseId
+        LOGGER.info(
+            "Hearing recording processed successfully, ref:{}, source: {}, ccd caseId:{}",
+            recordingRef,
+            recordingDto.getRecordingSource(),
+            caseId
         );
     }
 
