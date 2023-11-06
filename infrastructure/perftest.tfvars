@@ -1,2 +1,2 @@
 //v14 DB
-pgsql_sku = "GP_Standard_D4s_v4"
+pgsql_sku = "GP_Standard_D4ds_v4"
