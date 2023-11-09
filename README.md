@@ -11,6 +11,7 @@ To be able to run the application locally, you will need to be able to run the d
 for CCD and other services.
 
 You will need to be able to run this command:
+
 az login
 
 So standard az cli tools are needed, as well as @hmcts.net log in with appropriate roles
