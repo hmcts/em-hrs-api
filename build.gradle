@@ -282,7 +282,7 @@ def versions = [
   junit              : '5.10.1',
   junitPlatform      : '1.10.1',
   springSecurity     : '6.1.5',
-  shedlock           : '5.9.1',
+  shedlock           : '5.10.0',
   testcontainers     : '1.19.1',
   springCloud        : '4.0.4'
 ]
@@ -335,7 +335,7 @@ dependencies {
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.2.0'
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.24.1'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.10.4'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.11.0'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.5.0-rc1'
