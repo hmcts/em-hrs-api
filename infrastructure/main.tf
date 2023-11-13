@@ -58,41 +58,6 @@ module "db" {
   sku_capacity       = var.sku_capacity
 }
 
-resource "azurerm_key_vault_secret" "POSTGRES-USER" {
-  count        = local.db_count
-  name         = "${var.component}-POSTGRES-USER"
-  value        = module.db.user_name
-  key_vault_id = module.key-vault.key_vault_id
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
-  count        = local.db_count
-  name         = "${var.component}-POSTGRES-PASS"
-  value        = module.db.postgresql_password
-  key_vault_id = module.key-vault.key_vault_id
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
-  count        = local.db_count
-  name         = "${var.component}-POSTGRES-HOST"
-  value        = module.db.host_name
-  key_vault_id = module.key-vault.key_vault_id
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
-  count        = local.db_count
-  name         = "${var.component}-POSTGRES-PORT"
-  value        = module.db.postgresql_listen_port
-  key_vault_id = module.key-vault.key_vault_id
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
-  count        = local.db_count
-  name         = "${var.component}-POSTGRES-DATABASE"
-  value        = module.db.postgresql_database
-  key_vault_id = module.key-vault.key_vault_id
-}
-
 module "storage_account" {
   source                    = "git@github.com:hmcts/cnp-module-storage-account?ref=master"
   env                       = var.env
