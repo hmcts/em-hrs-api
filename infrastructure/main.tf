@@ -1,9 +1,5 @@
 provider "azurerm" {
-  features {
-    resource_group {
-      prevent_deletion_if_contains_resources = false
-    }
-  }
+  features {}
 }
 
 provider "azurerm" {
@@ -16,7 +12,6 @@ provider "azurerm" {
 locals {
   app_full_name = "${var.product}-${var.component}"
   tags          = var.common_tags
-  db_count      = var.env == "prod" ? 1 : 0
 }
 
 resource "azurerm_resource_group" "rg" {
@@ -43,7 +38,6 @@ data "azurerm_user_assigned_identity" "em-shared-identity" {
 }
 
 module "db" {
-  count = local.db_count
   source = "git@github.com:hmcts/cnp-module-postgres?ref=master"
   product = var.product
   component = var.component
@@ -60,6 +54,36 @@ module "db" {
   subscription = var.subscription
   sku_name           = var.sku_name
   sku_capacity       = var.sku_capacity
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES-USER" {
+  name         = "${var.component}-POSTGRES-USER"
+  value        = module.db.user_name
+  key_vault_id = module.key-vault.key_vault_id
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
+  name         = "${var.component}-POSTGRES-PASS"
+  value        = module.db.postgresql_password
+  key_vault_id = module.key-vault.key_vault_id
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
+  name         = "${var.component}-POSTGRES-HOST"
+  value        = module.db.host_name
+  key_vault_id = module.key-vault.key_vault_id
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
+  name         = "${var.component}-POSTGRES-PORT"
+  value        = module.db.postgresql_listen_port
+  key_vault_id = module.key-vault.key_vault_id
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
+  name         = "${var.component}-POSTGRES-DATABASE"
+  value        = module.db.postgresql_database
+  key_vault_id = module.key-vault.key_vault_id
 }
 
 module "storage_account" {
@@ -247,12 +271,6 @@ resource "azurerm_key_vault_secret" "POSTGRES_PORT-V15" {
 
 resource "azurerm_key_vault_secret" "POSTGRES_DATABASE-V15" {
   name         = "${var.component}-POSTGRES-DATABASE-V15"
-  value        = "emhrs"
-  key_vault_id = module.key-vault.key_vault_id
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
-  name         = "${var.component}-POSTGRES-DATABASE"
   value        = "emhrs"
   key_vault_id = module.key-vault.key_vault_id
 }
