@@ -250,3 +250,9 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE-V15" {
   value        = "emhrs"
   key_vault_id = module.key-vault.key_vault_id
 }
+
+resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
+  name         = "${var.component}-POSTGRES-DATABASE"
+  value        = "emhrs"
+  key_vault_id = module.key-vault.key_vault_id
+}
