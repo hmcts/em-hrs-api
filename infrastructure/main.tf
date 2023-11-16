@@ -37,52 +37,33 @@ data "azurerm_user_assigned_identity" "em-shared-identity" {
   resource_group_name = "managed-identities-${var.env}-rg"
 }
 
-module "db" {
-  source = "git@github.com:hmcts/cnp-module-postgres?ref=master"
-  product = var.product
-  component = var.component
-  name = join("-", [
-    var.product,
-    var.component,
-    "postgres-v11-db"])
-  postgresql_version = 11
-  location = var.location
-  env = var.env
-  postgresql_user = var.postgresql_user
-  database_name = var.database_name
-  common_tags = var.common_tags
-  subscription = var.subscription
-  sku_name           = var.sku_name
-  sku_capacity       = var.sku_capacity
-}
-
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
   name         = "${var.component}-POSTGRES-USER"
-  value        = module.db.user_name
+  value        = module.db-v15.username
   key_vault_id = module.key-vault.key_vault_id
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
   name         = "${var.component}-POSTGRES-PASS"
-  value        = module.db.postgresql_password
+  value        = module.db-v15.password
   key_vault_id = module.key-vault.key_vault_id
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
   name         = "${var.component}-POSTGRES-HOST"
-  value        = module.db.host_name
+  value        = module.db-v15.fqdn
   key_vault_id = module.key-vault.key_vault_id
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
   name         = "${var.component}-POSTGRES-PORT"
-  value        = module.db.postgresql_listen_port
+  value        = "5432"
   key_vault_id = module.key-vault.key_vault_id
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   name         = "${var.component}-POSTGRES-DATABASE"
-  value        = module.db.postgresql_database
+  value        = "emhrs"
   key_vault_id = module.key-vault.key_vault_id
 }
 
