@@ -20,5 +20,25 @@
    ]]></notes>
    <packageUrl regex="true">^pkg:maven/com\.azure/azure\-identity@.*$</packageUrl>
    <cve>CVE-2023-36415</cve>
-</suppress>
+  </suppress>
+  <suppress until="2024-01-15">
+  <notes><![CDATA[file name: azure-json-1.1.0.jar]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.azure/azure\-json@.*$</packageUrl>
+    <cve>CVE-2023-36052</cve>
+  </suppress>
+  <suppress until="2024-01-15">
+    <notes><![CDATA[file name: azure-identity-1.11.0.jar]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.azure/azure\-identity@.*$</packageUrl>
+    <cve>CVE-2023-36052</cve>
+  </suppress>
+  <suppress until="2024-01-15">
+    <notes><![CDATA[file name: azure-core-http-netty-1.13.10.jar]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.azure/azure\-core\-http\-netty@.*$</packageUrl>
+    <cve>CVE-2023-36052</cve>
+  </suppress>
+  <suppress until="2024-01-15">
+    <notes><![CDATA[file name: azure-core-1.45.0.jar]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.azure/azure\-core@.*$</packageUrl>
+    <cve>CVE-2023-36052</cve>
+  </suppress>
 </suppressions>
