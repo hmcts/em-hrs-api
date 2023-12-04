@@ -46,16 +46,16 @@ public class BlobStoreInspectorController {
         return hearingRecordingStorage.getStorageReport();
     }
 
-    @GetMapping(value = "/report/hrs/{hearingSource}/{blobName}", consumes = MediaType.ALL_VALUE)
+    @GetMapping(value = "/report/hrs/{hearingSourceStr}/{blobName}", consumes = MediaType.ALL_VALUE)
     public HearingRecordingStorageImpl.BlobDetail findBlob(
         @RequestHeader(value = AUTHORIZATION, required = false) String authHeader,
         @PathVariable @Pattern(regexp = "^(VH|CVP)$", message = "Container must be 'VH' or 'CVP'")
-        HearingSource hearingSource,
+        String hearingSourceStr,
         @PathVariable String blobName
     ) {
         validateAuthorization(authHeader);
         log.info("BlobStoreInspector Controller");
-        return hearingRecordingStorage.findBlob(hearingSource, blobName);
+        return hearingRecordingStorage.findBlob(HearingSource.valueOf(hearingSourceStr), blobName);
     }
 
     private void validateAuthorization(String authorizationKey) {
