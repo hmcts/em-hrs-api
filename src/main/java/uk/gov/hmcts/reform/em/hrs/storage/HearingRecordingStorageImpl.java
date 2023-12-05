@@ -53,6 +53,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private static final int BLOB_LIST_TIMEOUT = 5;
     private static final Duration POLLING_INTERVAL = Duration.ofSeconds(3);
 
+    private static final int COUNT_LAST_89_DAYS = 89;
     private final BlobContainerClient hrsCvpBlobContainerClient;
     private final BlobContainerClient hrsVhBlobContainerClient;
     private final BlobContainerClient cvpBlobContainerClient;
@@ -132,7 +133,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
         String sourceUri = hrDto.getSourceBlobUrl();
         String filename = hrDto.getFilename();
-        HearingSource recordingSource =  hrDto.getRecordingSource();
+        HearingSource recordingSource = hrDto.getRecordingSource();
 
         try {
             var containersToCopy = getCopyContainers(filename, recordingSource);
@@ -253,7 +254,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         }
     }
 
-    private String generateReadSas(String fileName,BlobContainerClient blobContainerClient, String connectionString) {
+    private String generateReadSas(String fileName, BlobContainerClient blobContainerClient, String connectionString) {
 
         LOGGER.debug("Attempting to generate SAS for container name {}", blobContainerClient.getBlobContainerName());
 
@@ -312,14 +313,24 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         LocalDate today = LocalDate.now();
 
         var cvpTodayItemCounter = new Counter();
-        Set cvpItems  = cvpBlobItems
+        Set cvpItems = cvpBlobItems
             .stream()
             .filter(blobItem -> blobItem.getName().contains("/") && blobItem.getName().contains(".mp"))
-            .peek(blob -> {
-                if (isCreatedToday(blob, today)) {
-                    cvpTodayItemCounter.count++;
+            .filter(
+                blobItem -> {
+                    OffsetDateTime creationTime = blobItem.getProperties().getCreationTime();
+
+                    if (isCreatedToday(creationTime, today)) {
+                        cvpTodayItemCounter.count++;
+                    }
+                    return creationTime.isAfter(
+                        OffsetDateTime.of(
+                            LocalDate.now().minusDays(COUNT_LAST_89_DAYS),
+                            LocalTime.MIDNIGHT,
+                            ZoneOffset.UTC
+                        ));
                 }
-            })
+            )
             .map(blb -> blb.getName())
             .collect(Collectors.toSet());
 
@@ -353,12 +364,21 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         long hrsItemCount = hrsCvpBlobContainerClient.listBlobs(hrsOptions, duration)
             .stream()
             .filter(blobItem -> blobItem.getName().contains("/"))
-            .peek(blob -> {
-                cvpItems.remove(blob.getName());
-                if (isCreatedToday(blob, today)) {
-                    hrsTodayItemCounter.count++;
+            .filter(
+                blobItem -> {
+                    OffsetDateTime creationTime = blobItem.getProperties().getCreationTime();
+                    cvpItems.remove(blobItem.getName());
+                    if (isCreatedToday(creationTime, today)) {
+                        hrsTodayItemCounter.count++;
+                    }
+                    return creationTime.isAfter(
+                        OffsetDateTime.of(
+                            LocalDate.now().minusDays(COUNT_LAST_89_DAYS),
+                            LocalTime.MIDNIGHT,
+                            ZoneOffset.UTC
+                        ));
                 }
-            }).count();
+            ).count();
 
         LOGGER.info("CVP-HRS difference {}", cvpItems);
         LOGGER.info(
@@ -379,6 +399,15 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
     private boolean isCreatedToday(BlobItem blobItem, LocalDate today) {
         return blobItem.getProperties().getCreationTime().isAfter(
+            OffsetDateTime.of(
+                today,
+                LocalTime.MIDNIGHT,
+                ZoneOffset.UTC
+            ));
+    }
+
+    private boolean isCreatedToday(OffsetDateTime creationTime, LocalDate today) {
+        return creationTime.isAfter(
             OffsetDateTime.of(
                 today,
                 LocalTime.MIDNIGHT,
