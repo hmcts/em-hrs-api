@@ -53,7 +53,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private static final int BLOB_LIST_TIMEOUT = 5;
     private static final Duration POLLING_INTERVAL = Duration.ofSeconds(3);
 
-    private static final int COUNT_LAST_90_DAYS = 90;
+    private static final int COUNT_LAST_89_DAYS = 89;
     private final BlobContainerClient hrsCvpBlobContainerClient;
     private final BlobContainerClient hrsVhBlobContainerClient;
     private final BlobContainerClient cvpBlobContainerClient;
@@ -325,7 +325,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                     }
                     return creationTime.isAfter(
                         OffsetDateTime.of(
-                            LocalDate.now().minusDays(COUNT_LAST_90_DAYS),
+                            LocalDate.now().minusDays(COUNT_LAST_89_DAYS),
                             LocalTime.MIDNIGHT,
                             ZoneOffset.UTC
                         ));
@@ -373,7 +373,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                     }
                     return creationTime.isAfter(
                         OffsetDateTime.of(
-                            LocalDate.now().minusDays(COUNT_LAST_90_DAYS),
+                            LocalDate.now().minusDays(COUNT_LAST_89_DAYS),
                             LocalTime.MIDNIGHT,
                             ZoneOffset.UTC
                         ));
