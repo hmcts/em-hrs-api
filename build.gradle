@@ -268,7 +268,7 @@ def versions = [
   springSecurity     : '6.2.0',
   shedlock           : '5.10.2',
   testcontainers     : '1.19.3',
-  springCloud        : '4.1.0-RC1'
+  springCloud        : '4.1.0'
 ]
 
 dependencies {
