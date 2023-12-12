@@ -1,8 +1,5 @@
 provider "azurerm" {
   features {
-    resource_group {
-      prevent_deletion_if_contains_resources = false
-    }
   }
 }
 
@@ -228,34 +225,4 @@ module "db-v15" {
   pgsql_sku            = var.pgsql_sku
   pgsql_storage_mb     = var.pgsql_storage_mb
   force_user_permissions_trigger = "2"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES-USER-V15" {
-  name         = "${var.component}-POSTGRES-USER-V15"
-  value        = module.db-v15.username
-  key_vault_id = module.key-vault.key_vault_id
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES-PASS-V15" {
-  name         = "${var.component}-POSTGRES-PASS-V15"
-  value        = module.db-v15.password
-  key_vault_id = module.key-vault.key_vault_id
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_HOST-V15" {
-  name         = "${var.component}-POSTGRES-HOST-V15"
-  value        = module.db-v15.fqdn
-  key_vault_id = module.key-vault.key_vault_id
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_PORT-V15" {
-  name         = "${var.component}-POSTGRES-PORT-V15"
-  value        = "5432"
-  key_vault_id = module.key-vault.key_vault_id
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_DATABASE-V15" {
-  name         = "${var.component}-POSTGRES-DATABASE-V15"
-  value        = "emhrs"
-  key_vault_id = module.key-vault.key_vault_id
 }
