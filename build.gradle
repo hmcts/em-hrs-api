@@ -227,17 +227,6 @@ dependencyManagement {
       entry 'snakeyaml'
     }
 
-    //CVE-2023-24998
-    dependencySet(group: 'commons-fileupload', version: '1.5') {
-      entry 'commons-fileupload'
-    }
-
-    //CVE-2023-41080
-    dependencySet(group: 'org.apache.tomcat.embed', version: '10.1.16') {
-      entry 'tomcat-embed-core'
-      entry 'tomcat-embed-websocket'
-    }
-
     // CVE-2023-6378
     dependencySet(group: 'ch.qos.logback', version: '1.4.14') {
       entry 'logback-classic'
