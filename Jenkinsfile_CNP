@@ -166,6 +166,7 @@ withPipeline(type, product, component) {
             sh ./publish-swagger-docs.sh
              '''
     }
+    echo "POSTGRES_HOST : ${env.POSTGRES_HOST}"
   }
 
   onMaster()
