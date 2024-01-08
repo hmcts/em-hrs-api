@@ -90,7 +90,7 @@ def vaultOverrides = [
 ]
 
 withPipeline(type, product, component) {
-  enableDbMigration('em-hrs-api')
+  enableDbMigration('hrs-api')
   overrideVaultEnvironments(vaultOverrides)
 
   onNonPR() {
