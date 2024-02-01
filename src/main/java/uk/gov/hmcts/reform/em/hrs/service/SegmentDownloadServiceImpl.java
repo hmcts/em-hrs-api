@@ -133,7 +133,9 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
         BlobRange blobRange = null;
         if (rangeHeader == null) {
+            LOGGER.info("Download whole, file size: {}", fileSize);
             response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileSize));
+            response.setStatus(HttpStatus.OK.value());
         } else {
             try {
                 response.setStatus(HttpStatus.PARTIAL_CONTENT.value());
