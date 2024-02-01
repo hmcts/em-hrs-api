@@ -175,11 +175,17 @@ public class HearingRecordingController {
                                            HttpServletResponse response) {
         try {
             //TODO this should return a 403 if its not in database
+            LOGGER.info(
+                "getSegmentBinary, start downloading, recordingId: {},segmentNo {}:",
+                recordingId,
+                segmentNo
+            );
             HearingRecordingSegment segment = segmentDownloadService
                 .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, false);
 
 
             segmentDownloadService.download(segment, request, response);
+            response.flushBuffer();
         } catch (AccessDeniedException e) {
             LOGGER.warn(
                 "User does not have permission to download recording {}",
@@ -221,6 +227,12 @@ public class HearingRecordingController {
         HttpServletResponse response
     ) {
         try {
+            LOGGER.info(
+                "getSegmentBinaryForSharee, start downloading, recordingId: {}, segment:{}",
+                recordingId,
+                segmentNo
+            );
+
             //TODO this should return a 403 if its not in database
             HearingRecordingSegment segment = segmentDownloadService
                 .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, true);
