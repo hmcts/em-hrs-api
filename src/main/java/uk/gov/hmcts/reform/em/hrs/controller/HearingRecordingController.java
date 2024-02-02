@@ -184,8 +184,10 @@ public class HearingRecordingController {
                 .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, false);
 
 
-            segmentDownloadService.download(segment, request, response);
-            response.flushBuffer();
+            var res = segmentDownloadService.download(segment, request, response);
+            if (res != null) {
+                return res;
+            }
         } catch (AccessDeniedException e) {
             LOGGER.warn(
                 "User does not have permission to download recording {}",

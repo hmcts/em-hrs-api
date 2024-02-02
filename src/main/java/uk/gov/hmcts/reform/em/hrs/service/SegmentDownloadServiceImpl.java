@@ -8,9 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRange;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
@@ -108,8 +111,8 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
     @Override
     @PreAuthorize("hasPermission(#segment,'READ')")
-    public void download(HearingRecordingSegment segment, HttpServletRequest request,
-                         HttpServletResponse response) throws IOException {
+    public ResponseEntity<InputStreamResource> download(HearingRecordingSegment segment, HttpServletRequest request,
+                                                        HttpServletResponse response) throws IOException {
 
         auditEntryService.createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_REQUESTED);
         var hearingRecording = segment.getHearingRecording();
@@ -120,11 +123,6 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         String contentType = blobInfo.getContentType();
         String attachmentFilename = String.format("attachment; filename=%s", filename);
 
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, attachmentFilename);
-        response.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
-        response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
-        response.setBufferSize(DEFAULT_BUFFER_SIZE);
-
         HttpHeadersLogging
             .logHttpHeaders(request);//keep during early life support to assist with any range or other issues.
 
@@ -134,10 +132,26 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         BlobRange blobRange = null;
         if (rangeHeader == null) {
             LOGGER.info("Download whole, file size: {}", fileSize);
-            response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileSize));
-            response.setStatus(HttpStatus.OK.value());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentLength(fileSize);
+            headers.set("Content-Disposition", "attachment; filename=" + filename);
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+            var inputStreamResource = blobstoreClient.downloadAsStream(filename, hearingSource);
+            auditEntryService.createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .headers(headers)
+                .body(inputStreamResource);
+
         } else {
             try {
+                response.setHeader(HttpHeaders.CONTENT_DISPOSITION, attachmentFilename);
+                response.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
+                response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
+                response.setBufferSize(DEFAULT_BUFFER_SIZE);
+
                 response.setStatus(HttpStatus.PARTIAL_CONTENT.value());
 
                 // Range headers can request a multipart range but this is not to be supported yet
@@ -178,6 +192,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         blobstoreClient.downloadFile(filename, blobRange, outputStream, hearingSource);
 
         auditEntryService.createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
+        return null;
     }
 
     private boolean isAccessValid(LocalDateTime sharedOn, String userEmail) {
