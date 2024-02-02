@@ -44,11 +44,11 @@ public class BlobstoreClientImpl implements BlobstoreClient {
         BlobRange blobRange,
         final OutputStream outputStream,
         String hearingSource
-    ) {
-        try {
-            IOUtils.copy(blockBlobClient(filename, hearingSource).openInputStream(), outputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    ) throws IOException {
+        try (var blobStream = blockBlobClient(filename, hearingSource).openInputStream()) {
+            IOUtils.copy(blobStream, outputStream);
+        } catch (Exception e) {
+            throw new IOException(e);
         }
 
     }
