@@ -4,6 +4,8 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobRange;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,8 @@ public class BlobstoreClientImpl implements BlobstoreClient {
 
     private final BlobContainerClient hrsCvpBlobContainerClient;
     private final BlobContainerClient hrsVhBlobContainerClient;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlobstoreClientImpl.class);
 
     @Autowired
     public BlobstoreClientImpl(
@@ -46,7 +50,10 @@ public class BlobstoreClientImpl implements BlobstoreClient {
         String hearingSource
     ) throws IOException {
         try (var blobStream = blockBlobClient(filename, hearingSource).openInputStream()) {
+            LOGGER.info("Start copy filename {}", filename);
             IOUtils.copy(blobStream, outputStream);
+            outputStream.flush();
+            LOGGER.info("END copy filename {}", filename);
         } catch (Exception e) {
             throw new IOException(e);
         }
