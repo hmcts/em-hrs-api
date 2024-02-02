@@ -53,11 +53,11 @@ public class BlobstoreClientImpl implements BlobstoreClient {
             LOGGER.info("Start downloadFile filename {}", filename);
             var count = IOUtils.copyLarge(blobStream, outputStream);
             LOGGER.info("blobStream.read() {}", blobStream.read());
-            blobStream.close();
             LOGGER.info("END downloadFile filename {}, count {}",
                         filename,
                         count
             );
+            outputStream.flush();
         } catch (Exception e) {
             throw new IOException(e);
         }
