@@ -3,11 +3,13 @@ package uk.gov.hmcts.reform.em.hrs.storage;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobRange;
 import com.azure.storage.blob.specialized.BlockBlobClient;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 @Component
@@ -43,11 +45,12 @@ public class BlobstoreClientImpl implements BlobstoreClient {
         final OutputStream outputStream,
         String hearingSource
     ) {
+        try {
+            IOUtils.copy(blockBlobClient(filename, hearingSource).openInputStream(), outputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        blockBlobClient(filename, hearingSource)
-            .downloadStream(
-                outputStream
-            );
     }
 
     private BlockBlobClient blockBlobClient(String id, String hearingSource) {
