@@ -50,10 +50,18 @@ public class BlobstoreClientImpl implements BlobstoreClient {
     ) throws IOException {
         try (var blobStream = blockBlobClient(filename, hearingSource).openInputStream()) {
             LOGGER.info("Start downloadFile filename {}", filename);
-            blobStream.transferTo(outputStream);
 
-            LOGGER.info("blobStream.read() {}", blobStream.read());
-            LOGGER.info("END downloadFile filename--> {}", filename);
+            byte[] buf = new byte[8192];
+            int length;
+            long count = 0;
+            while ((length = blobStream.read(buf)) != -1) {
+                outputStream.write(buf, 0, length);
+                buf = new byte[8192];
+                count += length;
+            }
+            outputStream.flush();
+            outputStream.close();
+            LOGGER.info("END downloadFile filename--> {},count:{}", filename, count);
         } catch (Exception e) {
             throw new IOException(e);
         }

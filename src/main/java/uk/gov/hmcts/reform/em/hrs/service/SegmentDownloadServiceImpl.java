@@ -118,7 +118,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         BlobInfo blobInfo = blobstoreClient.fetchBlobInfo(filename, hearingSource);
         long fileSize = blobInfo.getFileSize();
         String contentType = blobInfo.getContentType();
-        String attachmentFilename = String.format("attachment; filename=%s", filename);
+        String attachmentFilename = String.format("attachment; filename=%s", filename.replace("/","-"));
 
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, attachmentFilename);
         response.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
