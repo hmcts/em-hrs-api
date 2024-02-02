@@ -68,10 +68,12 @@ public class SecurityConfiguration {
             .logout(AbstractHttpConfigurer::disable)
             .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(authorizedUrl ->
-                authorizedUrl.requestMatchers(HttpMethod.GET, "/hearing-recordings/**").authenticated())
-            .authorizeHttpRequests(authorizedUrl ->
-                authorizedUrl.requestMatchers(HttpMethod.POST, "/sharees").authenticated())
+            .authorizeHttpRequests(matcherRegistry ->
+                matcherRegistry.requestMatchers(HttpMethod.GET, "/hearing-recordings/**").authenticated())
+            .authorizeHttpRequests(matcherRegistry ->
+                matcherRegistry.requestMatchers(HttpMethod.POST, "/sharees").authenticated())
+            .authorizeHttpRequests(matcherRegistry ->
+                matcherRegistry.requestMatchers("/error").authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
             .oauth2Client(withDefaults());
         return http.build();
