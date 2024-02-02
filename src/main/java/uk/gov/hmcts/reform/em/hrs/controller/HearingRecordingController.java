@@ -176,7 +176,7 @@ public class HearingRecordingController {
         try {
             //TODO this should return a 403 if its not in database
             LOGGER.info(
-                "getSegmentBinary, start downloading, recordingId: {},segmentNo {}:",
+                "getSegmentBinary, start downloading, recordingId: {},segmentNo:{}",
                 recordingId,
                 segmentNo
             );

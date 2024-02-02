@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.em.hrs.storage;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobRange;
-import com.azure.storage.blob.models.DownloadRetryOptions;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,14 +45,8 @@ public class BlobstoreClientImpl implements BlobstoreClient {
     ) {
 
         blockBlobClient(filename, hearingSource)
-            .downloadStreamWithResponse(
-                outputStream,
-                blobRange,
-                new DownloadRetryOptions().setMaxRetryRequests(5),
-                null,
-                false,
-                null,
-                null
+            .downloadStream(
+                outputStream
             );
     }
 
