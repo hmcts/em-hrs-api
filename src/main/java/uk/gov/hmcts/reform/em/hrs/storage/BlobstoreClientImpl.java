@@ -52,8 +52,8 @@ public class BlobstoreClientImpl implements BlobstoreClient {
         try (var blobStream = blockBlobClient(filename, hearingSource).openInputStream()) {
             LOGGER.info("Start downloadFile filename {}", filename);
             var count = IOUtils.copyLarge(blobStream, outputStream);
-            blobStream.read();
-            outputStream.flush();
+            LOGGER.info("blobStream.read() {}", blobStream.read());
+            blobStream.close();
             LOGGER.info("END downloadFile filename {}, count {}",
                         filename,
                         count
