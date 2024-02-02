@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.em.hrs.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -12,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil;
+import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegmentAuditEntry;
@@ -40,11 +40,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = {SegmentDownloadServiceImpl.class})
-@Ignore
 class SegmentDownloadServiceImplTest {
 
     @MockBean
@@ -163,6 +165,37 @@ class SegmentDownloadServiceImplTest {
         } catch (ValidationErrorException validationErrorException) {
             assertEquals(Constants.SHARED_EXPIRED_LINK_MSG, validationErrorException.getData().get("error"));
         }
+    }
+
+    @Test
+    void testDownloadForCVP() throws IOException {
+        doReturn(segment).when(segmentRepository).findByFilename(segment.getFilename());
+        when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
+        doReturn(hearingRecordingSegmentAuditEntry)
+            .when(auditEntryService).createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
+
+        doNothing().when(blobstoreClient).downloadFile(segment.getFilename(), null, null, "CVP");
+        when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
+
+        segmentDownloadService.download(segment, request, response);
+
+        verify(blobstoreClient, times(1)).downloadFile(segment.getFilename(), null, null, "CVP");
+    }
+
+    @Test
+    void testDownloadForVH() throws IOException {
+        segment.getHearingRecording().setHearingSource(HearingSource.VH.name());
+        doReturn(segment).when(segmentRepository).findByFilename(segment.getFilename());
+        when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
+        doReturn(hearingRecordingSegmentAuditEntry)
+            .when(auditEntryService).createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
+
+        doNothing().when(blobstoreClient).downloadFile(segment.getFilename(), null, null, "VH");
+        when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
+
+        segmentDownloadService.download(segment, request, response);
+
+        verify(blobstoreClient, times(1)).downloadFile(segment.getFilename(), null, null, "VH");
     }
 
     @Test

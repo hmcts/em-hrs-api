@@ -10,7 +10,6 @@ import jakarta.annotation.PostConstruct;
 import net.serenitybdd.rest.SerenityRest;
 import net.thucydides.core.annotations.WithTag;
 import net.thucydides.core.annotations.WithTags;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -73,7 +72,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
     "uk.gov.hmcts.reform.em.test",
     "uk.gov.hmcts.reform.document"
 })
-@Ignore
 public abstract class BaseTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);

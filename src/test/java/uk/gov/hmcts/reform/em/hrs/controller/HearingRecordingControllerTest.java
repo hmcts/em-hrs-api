@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.em.hrs.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,6 +11,7 @@ import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.componenttests.AbstractBaseTest;
 import uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil;
+import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegmentAuditEntry;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
@@ -52,7 +52,6 @@ import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHAREE_EMAIL_AD
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.VH_HEARING_RECORDING_DTO;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.convertObjectToJsonString;
 
-@Ignore
 class HearingRecordingControllerTest extends AbstractBaseTest {
 
     @MockBean
@@ -149,6 +148,22 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
     }
 
     @Test
+    void testShouldDownloadSegment() throws Exception {
+        UUID recordingId = UUID.randomUUID();
+        doNothing().when(segmentDownloadService)
+            .download(any(HearingRecordingSegment.class), any(HttpServletRequest.class),
+                      any(HttpServletResponse.class));
+        doReturn(hearingRecordingSegmentAuditEntry)
+            .when(auditEntryService)
+            .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
+
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0))
+                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
+            .andExpect(status().isOk())
+            .andReturn();
+    }
+
+    @Test
     void testShouldHandleSegmentDownloadException() throws Exception {
         UUID recordingId = UUID.randomUUID();
         HearingRecordingSegment segment = new HearingRecordingSegment();
@@ -176,6 +191,22 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
         mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0))
                             .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isInternalServerError())
+            .andReturn();
+    }
+
+    @Test
+    void testShouldDownloadSegmentForSharee() throws Exception {
+        UUID recordingId = UUID.randomUUID();
+        doNothing().when(segmentDownloadService)
+            .download(any(HearingRecordingSegment.class), any(HttpServletRequest.class),
+                      any(HttpServletResponse.class));
+        doReturn(hearingRecordingSegmentAuditEntry)
+            .when(auditEntryService)
+            .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
+
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d/sharee", recordingId, 0))
+                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
+            .andExpect(status().isOk())
             .andReturn();
     }
 
