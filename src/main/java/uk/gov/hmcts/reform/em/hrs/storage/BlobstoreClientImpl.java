@@ -59,8 +59,6 @@ public class BlobstoreClientImpl implements BlobstoreClient {
                 buf = new byte[8192];
                 count += length;
             }
-            outputStream.flush();
-            outputStream.close();
             LOGGER.info("END downloadFile filename--> {},count:{}", filename, count);
         } catch (Exception e) {
             throw new IOException(e);
