@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.em.hrs.storage;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobRange;
 import com.azure.storage.blob.specialized.BlockBlobClient;
+import com.google.common.io.ByteStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,19 +51,8 @@ public class BlobstoreClientImpl implements BlobstoreClient {
     ) throws IOException {
         try (var blobStream = blockBlobClient(filename, hearingSource).openInputStream()) {
             LOGGER.info("Start downloadFile filename {}", filename);
-
-            byte[] buf = new byte[8192];
-            int length;
-            long count = 0;
-            while ((length = blobStream.read(buf)) != -1) {
-                outputStream.write(buf, 0, length);
-                buf = new byte[8192];
-                count += length;
-            }
-            outputStream.flush();
-            outputStream.close();
-            blobStream.close();
-            LOGGER.info("END downloadFile filename--> {},count:{}", filename, count);
+            ByteStreams.copy(blobStream, outputStream);
+            LOGGER.info("END downloadFile filename {}", filename);
         } catch (Exception e) {
             throw new IOException(e);
         }
