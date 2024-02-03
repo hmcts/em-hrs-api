@@ -118,11 +118,12 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         BlobInfo blobInfo = blobstoreClient.fetchBlobInfo(filename, hearingSource);
         long fileSize = blobInfo.getFileSize();
         String contentType = blobInfo.getContentType();
-        String attachmentFilename = String.format("attachment; filename=%s", filename.replace("/","-"));
+        String attachmentFilename = String.format("attachment; filename=%s", filename);
 
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, attachmentFilename);
         response.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
-
+        response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
+        response.setBufferSize(DEFAULT_BUFFER_SIZE);
 
         HttpHeadersLogging
             .logHttpHeaders(request);//keep during early life support to assist with any range or other issues.
@@ -132,13 +133,9 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
         BlobRange blobRange = null;
         if (rangeHeader == null) {
-            LOGGER.info("Download whole, file size: {}", fileSize);
             response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileSize));
-            response.setStatus(HttpStatus.OK.value());
         } else {
             try {
-                response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
-                response.setBufferSize(DEFAULT_BUFFER_SIZE);
                 response.setStatus(HttpStatus.PARTIAL_CONTENT.value());
 
                 // Range headers can request a multipart range but this is not to be supported yet
