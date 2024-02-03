@@ -13,4 +13,7 @@ public interface HearingRecordingStorage {
     StorageReport getStorageReport();
 
     HearingRecordingStorageImpl.BlobDetail findBlob(final HearingSource hearingSource, final String blobName);
+
+    String generateReadSas(String fileName, HearingSource recordingSource);
+
 }

@@ -246,7 +246,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         }
     }
 
-    private String generateReadSas(String fileName, HearingSource recordingSource) {
+    public String generateReadSas(String fileName, HearingSource recordingSource) {
         if (HearingSource.CVP == recordingSource) {
             return generateReadSas(fileName, this.cvpBlobContainerClient, this.cvpConnectionString);
         } else {
