@@ -135,7 +135,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
         BlobRange blobRange = null;
         if (rangeHeader == null) {
-            String sasToken = hearingRecordingStorage.generateReadSas(
+            String sasToken = hearingRecordingStorage.generateHrsReadSas(
                 filename,
                 HearingSource.valueOf(hearingSource)
             );
