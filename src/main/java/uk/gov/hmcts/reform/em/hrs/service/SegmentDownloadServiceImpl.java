@@ -47,8 +47,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
     private final ShareesRepository shareesRepository;
     private final SecurityService securityService;
 
-    @Autowired
-    private HearingRecordingStorage hearingRecordingStorageImpl;
+    private HearingRecordingStorage hearingRecordingStorage;
     @Value("${shareelink.ttl}")
     private final int validityInHours;
 
@@ -59,7 +58,8 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         AuditEntryService auditEntryService,
         ShareesRepository shareesRepository,
         SecurityService securityService,
-        @Value("${shareelink.ttl}") int validityInHours
+        @Value("${shareelink.ttl}") int validityInHours,
+        HearingRecordingStorage hearingRecordingStorage
     ) {
         this.segmentRepository = segmentRepository;
         this.blobstoreClient = blobstoreClient;
@@ -67,6 +67,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         this.shareesRepository = shareesRepository;
         this.securityService = securityService;
         this.validityInHours = validityInHours;
+        this.hearingRecordingStorage = hearingRecordingStorage;
     }
 
 
@@ -134,8 +135,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
         BlobRange blobRange = null;
         if (rangeHeader == null) {
-            // response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileSize));
-            String sasToken = hearingRecordingStorageImpl.generateReadSas(
+            String sasToken = hearingRecordingStorage.generateReadSas(
                 filename,
                 HearingSource.valueOf(hearingSource)
             );
