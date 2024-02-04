@@ -144,7 +144,6 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
             LOGGER.info("redirect URL {}", url);
 
             response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM.toString());
-            response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileSize));
             response.sendRedirect(url);
         } else {
             try {
