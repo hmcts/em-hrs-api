@@ -123,8 +123,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, attachmentFilename);
         response.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
-        response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
-        response.setBufferSize(DEFAULT_BUFFER_SIZE);
+
 
         HttpHeadersLogging
             .logHttpHeaders(request);//keep during early life support to assist with any range or other issues.
@@ -134,10 +133,14 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
         BlobRange blobRange = null;
         if (rangeHeader == null) {
-            response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            LOGGER.info("hearing source {},CONTENT_LENGTH {}", hearingSource, fileSize);
+            response.setHeader("OriginalFileName", filename);
+            response.setHeader("data-source", "contentURI");
+
             response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileSize));
+            LOGGER.info("hearing source {},CONTENT_LENGTH {}", hearingSource, fileSize);
         } else {
+            response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
+            response.setBufferSize(DEFAULT_BUFFER_SIZE);
             try {
                 response.setStatus(HttpStatus.PARTIAL_CONTENT.value());
 
