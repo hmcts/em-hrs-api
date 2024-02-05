@@ -246,27 +246,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         }
     }
 
-    public String generateHrsReadSas(String fileName, HearingSource recordingSource) {
-        if (HearingSource.CVP == recordingSource) {
-            return generateHrsReadSas(fileName, this.hrsCvpBlobContainerClient);
-        } else {
-            return generateHrsReadSas(fileName, this.hrsVhBlobContainerClient);
-        }
-    }
-
-    private String generateHrsReadSas(String fileName, BlobContainerClient blobContainerClient) {
-
-        BlobClient sourceBlob = blobContainerClient.getBlobClient(fileName);
-
-        OffsetDateTime expiryTime = OffsetDateTime.now().plusMinutes(10);
-        BlobSasPermission permission = new BlobSasPermission().setReadPermission(true);
-
-        BlobServiceSasSignatureValues signatureValues = new BlobServiceSasSignatureValues(expiryTime, permission)
-            .setStartTime(OffsetDateTime.now().minusMinutes(95));
-
-        return sourceBlob.generateSas(signatureValues);
-    }
-
     private String generateReadSas(String fileName, HearingSource recordingSource) {
         if (HearingSource.CVP == recordingSource) {
             return generateReadSas(fileName, this.cvpBlobContainerClient, this.cvpConnectionString);

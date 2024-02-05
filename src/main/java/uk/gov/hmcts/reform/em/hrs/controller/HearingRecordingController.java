@@ -52,8 +52,6 @@ public class HearingRecordingController {
     private final SegmentDownloadService segmentDownloadService;
     private final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
 
-
-
     @Autowired
     public HearingRecordingController(
         final ShareAndNotifyService shareAndNotifyService,
@@ -180,8 +178,14 @@ public class HearingRecordingController {
             HearingRecordingSegment segment = segmentDownloadService
                 .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, false);
 
-
+            LOGGER.info(
+                "start download recordingId:{}, fileName:{}",
+                recordingId,
+                segment == null ? null : segment.getFilename()
+            );
             segmentDownloadService.download(segment, request, response);
+            response.flushBuffer();
+            LOGGER.info("FINISH download recordingId:{}, fileName:{}", recordingId, segment.getFilename());
         } catch (AccessDeniedException e) {
             LOGGER.warn(
                 "User does not have permission to download recording {}",

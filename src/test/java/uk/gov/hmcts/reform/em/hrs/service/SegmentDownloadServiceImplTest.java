@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
-import com.azure.storage.blob.models.BlobProperties;
-import com.azure.storage.blob.specialized.BlockBlobClient;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +21,8 @@ import uk.gov.hmcts.reform.em.hrs.exception.InvalidRangeRequestException;
 import uk.gov.hmcts.reform.em.hrs.exception.ValidationErrorException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
+import uk.gov.hmcts.reform.em.hrs.storage.BlobInfo;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobstoreClient;
-import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -44,17 +42,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = {SegmentDownloadServiceImpl.class})
 class SegmentDownloadServiceImplTest {
-
-
-    @MockBean
-    private HearingRecordingStorage hearingRecordingStorage;
 
     @MockBean
     private HearingRecordingSegmentRepository segmentRepository;
@@ -91,12 +84,9 @@ class SegmentDownloadServiceImplTest {
     private static final UUID SEGMENT22_ID = UUID.randomUUID();
 
     private static final String FILE_NAME = "XYZ";
-    private BlockBlobClient mockBlockBlobClient = mock(BlockBlobClient.class);
-    private BlobProperties mockBlobProperties = mock(BlobProperties.class);
 
     @Autowired
     private SegmentDownloadServiceImpl segmentDownloadService;
-
 
     private Enumeration<String> generateEmptyHeaders() {
         // define the headers you want to be returned
@@ -115,7 +105,6 @@ class SegmentDownloadServiceImplTest {
         hr.setCcdCaseId(TestUtil.CCD_CASE_ID);
         hr.setHearingSource(HearingSource.CVP.name());
         segment.setHearingRecording(hr);
-
     }
 
     @Test
@@ -181,10 +170,7 @@ class SegmentDownloadServiceImplTest {
     @Test
     void testDownloadForCVP() throws IOException {
         doReturn(segment).when(segmentRepository).findByFilename(segment.getFilename());
-        when(blobstoreClient.getBlockBlobClient(any(), any())).thenReturn(mockBlockBlobClient);
-        when(mockBlockBlobClient.getProperties()).thenReturn(mockBlobProperties);
-        when(mockBlobProperties.getBlobSize()).thenReturn(1000L);
-
+        when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
         doReturn(hearingRecordingSegmentAuditEntry)
             .when(auditEntryService).createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
 
@@ -200,10 +186,7 @@ class SegmentDownloadServiceImplTest {
     void testDownloadForVH() throws IOException {
         segment.getHearingRecording().setHearingSource(HearingSource.VH.name());
         doReturn(segment).when(segmentRepository).findByFilename(segment.getFilename());
-        when(blobstoreClient.getBlockBlobClient(any(), any())).thenReturn(mockBlockBlobClient);
-        when(mockBlockBlobClient.getProperties()).thenReturn(mockBlobProperties);
-        when(mockBlobProperties.getBlobSize()).thenReturn(1000L);
-
+        when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
         doReturn(hearingRecordingSegmentAuditEntry)
             .when(auditEntryService).createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
 
@@ -220,9 +203,8 @@ class SegmentDownloadServiceImplTest {
         assertThrows(InvalidRangeRequestException.class, () -> {
             when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=A-Z");
             when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
-            when(blobstoreClient.getBlockBlobClient(any(), any())).thenReturn(mockBlockBlobClient);
-            when(mockBlockBlobClient.getProperties()).thenReturn(mockBlobProperties);
-            when(mockBlobProperties.getBlobSize()).thenReturn(1000L);
+            when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
+
             segmentDownloadService.download(segment, request, response);
         });
     }
@@ -232,11 +214,7 @@ class SegmentDownloadServiceImplTest {
         assertThrows(InvalidRangeRequestException.class, () -> {
             when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=1023-0");
             when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
-
-            when(blobstoreClient.getBlockBlobClient(any(), any())).thenReturn(mockBlockBlobClient);
-            when(mockBlockBlobClient.getProperties()).thenReturn(mockBlobProperties);
-            when(mockBlobProperties.getBlobSize()).thenReturn(1000L);
-
+            when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
             segmentDownloadService.download(segment, request, response);
         });
     }
@@ -245,11 +223,7 @@ class SegmentDownloadServiceImplTest {
     public void loadsRangedBlobTooLargeRangeHeader() throws IOException {
         when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=0-1023");
         when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
-
-        when(blobstoreClient.getBlockBlobClient(any(), any())).thenReturn(mockBlockBlobClient);
-        when(mockBlockBlobClient.getProperties()).thenReturn(mockBlobProperties);
-        when(mockBlobProperties.getBlobSize()).thenReturn(1000L);
-
+        when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
         segmentDownloadService.download(segment, request, response);
 
         Mockito.verify(response, Mockito.times(1)).setStatus(HttpStatus.PARTIAL_CONTENT.value());
@@ -263,11 +237,7 @@ class SegmentDownloadServiceImplTest {
     public void loadsRangedBlobValidRangeHeader() throws IOException {
         when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=0-1023");
         when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
-
-        when(blobstoreClient.getBlockBlobClient(any(), any())).thenReturn(mockBlockBlobClient);
-        when(mockBlockBlobClient.getProperties()).thenReturn(mockBlobProperties);
-        when(mockBlobProperties.getBlobSize()).thenReturn(2000L);
-
+        when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(2000L, null));
         segmentDownloadService.download(segment, request, response);
         Mockito.verify(response, Mockito.times(1)).setStatus(HttpStatus.PARTIAL_CONTENT.value());
         Mockito.verify(response, Mockito.times(1))

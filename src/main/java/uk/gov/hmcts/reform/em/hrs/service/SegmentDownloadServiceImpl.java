@@ -18,13 +18,12 @@ import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
-import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.exception.InvalidRangeRequestException;
 import uk.gov.hmcts.reform.em.hrs.exception.ValidationErrorException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
+import uk.gov.hmcts.reform.em.hrs.storage.BlobInfo;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobstoreClient;
-import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 import uk.gov.hmcts.reform.em.hrs.util.HttpHeaderProcessor;
 import uk.gov.hmcts.reform.em.hrs.util.debug.HttpHeadersLogging;
 
@@ -48,7 +47,6 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
     private final ShareesRepository shareesRepository;
     private final SecurityService securityService;
 
-    private HearingRecordingStorage hearingRecordingStorage;
     @Value("${shareelink.ttl}")
     private final int validityInHours;
 
@@ -59,8 +57,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         AuditEntryService auditEntryService,
         ShareesRepository shareesRepository,
         SecurityService securityService,
-        @Value("${shareelink.ttl}") int validityInHours,
-        HearingRecordingStorage hearingRecordingStorage
+        @Value("${shareelink.ttl}") int validityInHours
     ) {
         this.segmentRepository = segmentRepository;
         this.blobstoreClient = blobstoreClient;
@@ -68,7 +65,6 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         this.shareesRepository = shareesRepository;
         this.securityService = securityService;
         this.validityInHours = validityInHours;
-        this.hearingRecordingStorage = hearingRecordingStorage;
     }
 
 
@@ -120,13 +116,15 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         var hearingRecording = segment.getHearingRecording();
         String hearingSource = hearingRecording.getHearingSource();
         String filename = segment.getFilename();
-        var blockBlobClient = blobstoreClient.getBlockBlobClient(filename, hearingSource);
-        var properties = blockBlobClient.getProperties();
-        long fileSize = properties.getBlobSize();
-        String contentType = properties.getContentType();
+        BlobInfo blobInfo = blobstoreClient.fetchBlobInfo(filename, hearingSource);
+        long fileSize = blobInfo.getFileSize();
+        String contentType = blobInfo.getContentType();
         String attachmentFilename = String.format("attachment; filename=%s", filename);
 
-
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, attachmentFilename);
+        response.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
+        response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
+        response.setBufferSize(DEFAULT_BUFFER_SIZE);
 
         HttpHeadersLogging
             .logHttpHeaders(request);//keep during early life support to assist with any range or other issues.
@@ -136,23 +134,11 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
         BlobRange blobRange = null;
         if (rangeHeader == null) {
-            String sasToken = hearingRecordingStorage.generateHrsReadSas(
-                filename,
-                HearingSource.valueOf(hearingSource)
-            );
-            String url = blockBlobClient.getBlobUrl() + "?" + sasToken;
-            LOGGER.info("redirect URL {}", url);
-
-            response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM.toString());
-            response.setHeader(HttpHeaders.CONTENT_DISPOSITION, attachmentFilename);
-            response.sendRedirect(url);
+            response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            LOGGER.info("hearing source {},CONTENT_LENGTH {}", hearingSource, fileSize);
+            response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileSize));
         } else {
             try {
-                response.setHeader(HttpHeaders.CONTENT_DISPOSITION, attachmentFilename);
-                response.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
-                response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
-                response.setBufferSize(DEFAULT_BUFFER_SIZE);
-
                 response.setStatus(HttpStatus.PARTIAL_CONTENT.value());
 
                 // Range headers can request a multipart range but this is not to be supported yet
