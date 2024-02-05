@@ -185,7 +185,11 @@ public class HearingRecordingController {
             );
             segmentDownloadService.download(segment, request, response);
             response.flushBuffer();
-            LOGGER.info("FINISH download recordingId:{}, fileName:{}", recordingId, segment.getFilename());
+            LOGGER.info(
+                "FINISH download recordingId:{}, fileName:{}",
+                recordingId,
+                segment == null ? null : segment.getFilename()
+            );
         } catch (AccessDeniedException e) {
             LOGGER.warn(
                 "User does not have permission to download recording {}",
