@@ -3,15 +3,21 @@ package uk.gov.hmcts.reform.em.hrs.storage;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobRange;
 import com.azure.storage.blob.specialized.BlockBlobClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 
 @Component
 public class BlobstoreClientImpl implements BlobstoreClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlobstoreClientImpl.class);
 
     private final BlobContainerClient hrsCvpBlobContainerClient;
     private final BlobContainerClient hrsVhBlobContainerClient;
@@ -43,8 +49,14 @@ public class BlobstoreClientImpl implements BlobstoreClient {
         final OutputStream outputStream,
         String hearingSource
     ) {
+        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
         blockBlobClient(filename, hearingSource)
-            .downloadStream(outputStream);
+            .downloadStream(byteOutputStream);
+        try {
+            byteOutputStream.writeTo(outputStream);
+        } catch (IOException e) {
+            LOGGER.error("ByteArrayOutputStream failes", e);
+        }
     }
 
     private BlockBlobClient blockBlobClient(String id, String hearingSource) {
