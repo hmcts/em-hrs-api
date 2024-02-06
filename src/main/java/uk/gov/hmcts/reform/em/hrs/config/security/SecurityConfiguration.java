@@ -73,6 +73,8 @@ public class SecurityConfiguration {
             .authorizeHttpRequests(matcherRegistry ->
                 matcherRegistry.requestMatchers(HttpMethod.GET, "/folders/*").authenticated())
             .authorizeHttpRequests(matcherRegistry ->
+                matcherRegistry.requestMatchers(HttpMethod.POST, "/segments").authenticated())
+            .authorizeHttpRequests(matcherRegistry ->
                 matcherRegistry.requestMatchers(HttpMethod.POST, "/sharees").authenticated())
             .authorizeHttpRequests(matcherRegistry ->
                 matcherRegistry.requestMatchers("/error").authenticated())
