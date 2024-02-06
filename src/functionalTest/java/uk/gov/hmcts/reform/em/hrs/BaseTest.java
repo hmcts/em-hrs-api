@@ -222,7 +222,7 @@ public abstract class BaseTest {
     }
 
     protected Response postRecordingSegment(JsonNode segmentPayload) {
-        return s2sAuthRequest()
+        return authRequestForSearcherRole()
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
