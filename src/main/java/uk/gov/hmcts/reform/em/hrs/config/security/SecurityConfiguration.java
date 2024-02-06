@@ -56,6 +56,7 @@ public class SecurityConfiguration {
             "/status/health",
             "/loggers/**",
             "/report/**",
+            "/hearing-recordings/**",
             "/");
     }
 
@@ -68,7 +69,6 @@ public class SecurityConfiguration {
             .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeRequests()
-            .requestMatchers(HttpMethod.GET, "/hearing-recordings/**").authenticated()
             .requestMatchers(HttpMethod.POST, "/sharees").authenticated()
             .and()
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
