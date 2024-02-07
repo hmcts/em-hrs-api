@@ -8,9 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRange;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
@@ -27,6 +30,7 @@ import uk.gov.hmcts.reform.em.hrs.util.HttpHeaderProcessor;
 import uk.gov.hmcts.reform.em.hrs.util.debug.HttpHeadersLogging;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -183,13 +187,42 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         auditEntryService.createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
     }
 
+    public ResponseEntity<InputStreamResource> streamBlobToHttp(HearingRecordingSegment segment) {
+        var hearingRecording = segment.getHearingRecording();
+        String hearingSource = hearingRecording.getHearingSource();
+        String filename = segment.getFilename();
+
+        var blobClient = blobstoreClient.getBlobClient(filename, hearingSource);
+        var properties = blobClient.getProperties();
+        long fileSize = properties.getBlobSize();
+
+        InputStream blobStream = blobClient.openInputStream();
+
+        // Set up headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentLength(fileSize);
+
+        String attachmentFilename = String.format("attachment; filename=%s", filename);
+
+        headers.set("Content-Disposition", attachmentFilename);
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+        InputStreamResource inputStreamResource = new InputStreamResource(blobStream);
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .headers(headers)
+            .body(inputStreamResource);
+    }
+
     private boolean isAccessValid(LocalDateTime sharedOn, String userEmail) {
         LocalDateTime expiryTime = sharedOn.plusHours(validityInHours);
         LocalDateTime presentTime = LocalDateTime.now();
 
         LOGGER.debug("sharedOn value is  {} with expiryTime as {} and presentTime as {} resulted in {} for email {}",
-                     sharedOn, expiryTime, presentTime, presentTime.isBefore(expiryTime), userEmail);
-        return  presentTime.isBefore(expiryTime);
+                     sharedOn, expiryTime, presentTime, presentTime.isBefore(expiryTime), userEmail
+        );
+        return presentTime.isBefore(expiryTime);
     }
 
     private boolean getHearingRecordingShareeSegment(HearingRecording hearingRecording,

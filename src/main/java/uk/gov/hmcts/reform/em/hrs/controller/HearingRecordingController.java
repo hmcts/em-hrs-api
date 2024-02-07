@@ -168,7 +168,7 @@ public class HearingRecordingController {
         {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")}
     )
-    public ResponseEntity<Object>  getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
+    public ResponseEntity<?>  getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
                                            @PathVariable("segment") Integer segmentNo,
                                            @RequestHeader(Constants.AUTHORIZATION) final String userToken,
                                            HttpServletRequest request,
@@ -183,20 +183,14 @@ public class HearingRecordingController {
                 recordingId,
                 segment == null ? null : segment.getFilename()
             );
-            segmentDownloadService.download(segment, request, response);
-            response.flushBuffer();
-            LOGGER.info(
-                "FINISH download recordingId:{}, fileName:{}",
-                recordingId,
-                segment == null ? null : segment.getFilename()
-            );
+            return segmentDownloadService.streamBlobToHttp(segment);
         } catch (AccessDeniedException e) {
             LOGGER.warn(
                 "User does not have permission to download recording {}",
                 e.getMessage()
             );
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (UncheckedIOException | IOException e) {
+        } catch (UncheckedIOException e) {
             LOGGER.warn(
                 "IOException streaming response for recording ID: {} IOException message: {}",
                 recordingId, e.getMessage()

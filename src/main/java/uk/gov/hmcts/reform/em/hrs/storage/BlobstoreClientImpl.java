@@ -44,6 +44,16 @@ public class BlobstoreClientImpl implements BlobstoreClient {
         return new BlobInfo(fileSize, contentType);
     }
 
+
+    @Override
+    public BlockBlobClient getBlobClient(String filename, String hearingSource) {
+        return
+            getBlobContainerClient(hearingSource)
+                .getBlobClient(filename)
+                .getBlockBlobClient();
+
+    }
+
     @Override
     public void downloadFile(
         final String filename,
