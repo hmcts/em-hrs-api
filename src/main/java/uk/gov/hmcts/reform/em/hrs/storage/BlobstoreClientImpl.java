@@ -63,9 +63,10 @@ public class BlobstoreClientImpl implements BlobstoreClient {
             );
 
         LOGGER.info(
-            "filename:{}, getStatusCode {} size{}",
+            "filename:{}, getStatusCode:{},getHeaders:{}, size{}",
             filename,
             res.getStatusCode(),
+            res.getHeaders().toMap().toString(),
             blockBlobClient.getProperties().getBlobSize()
         );
     }
