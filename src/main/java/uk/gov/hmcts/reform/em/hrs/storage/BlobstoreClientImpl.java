@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.storage;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobRange;
+import com.azure.storage.blob.specialized.BlobInputStream;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,12 +49,19 @@ public class BlobstoreClientImpl implements BlobstoreClient {
         final OutputStream outputStream,
         String hearingSource
     ) {
+
+        var blockBlobClient = blockBlobClient(filename, hearingSource);
+        BlobInputStream blobInputStream = null;
         try {
-            var blockBlobClient = blockBlobClient(filename, hearingSource);
-            var count = blockBlobClient.openInputStream(blobRange, null).transferTo(outputStream);
+            blobInputStream = blockBlobClient.openInputStream(blobRange, null);
+            var count = blobInputStream.transferTo(outputStream);
             LOGGER.info("filename, copied {} size{}", count, blockBlobClient.getProperties().getBlobSize());
         } catch (IOException e) {
             LOGGER.error("error ", e);
+        } finally {
+            if (blobInputStream != null) {
+                blobInputStream.close();
+            }
         }
     }
 
