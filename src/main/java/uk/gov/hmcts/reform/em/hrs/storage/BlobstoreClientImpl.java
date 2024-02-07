@@ -55,12 +55,18 @@ public class BlobstoreClientImpl implements BlobstoreClient {
         try {
             blobInputStream = blockBlobClient.openInputStream(blobRange, null);
             var count = blobInputStream.transferTo(outputStream);
-            LOGGER.info("filename, copied {} size{}", count, blockBlobClient.getProperties().getBlobSize());
+            LOGGER.info(
+                "filename:{}, copied {} size{}",
+                filename,
+                count,
+                blockBlobClient.getProperties().getBlobSize()
+            );
         } catch (IOException e) {
             LOGGER.error("error ", e);
         } finally {
             if (blobInputStream != null) {
                 blobInputStream.close();
+                LOGGER.info("filename: {} stream closed", filename);
             }
         }
     }
