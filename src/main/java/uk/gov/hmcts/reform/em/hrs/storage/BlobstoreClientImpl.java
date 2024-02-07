@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.storage;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobRange;
-import com.azure.storage.blob.specialized.BlobInputStream;
+import com.azure.storage.blob.models.DownloadRetryOptions;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 @Component
@@ -51,24 +50,24 @@ public class BlobstoreClientImpl implements BlobstoreClient {
     ) {
 
         var blockBlobClient = blockBlobClient(filename, hearingSource);
-        BlobInputStream blobInputStream = null;
-        try {
-            blobInputStream = blockBlobClient.openInputStream(blobRange, null);
-            var count = blobInputStream.transferTo(outputStream);
-            LOGGER.info(
-                "filename:{}, copied {} size{}",
-                filename,
-                count,
-                blockBlobClient.getProperties().getBlobSize()
+
+        var res = blockBlobClient
+            .downloadStreamWithResponse(
+                outputStream,
+                blobRange,
+                new DownloadRetryOptions().setMaxRetryRequests(5),
+                null,
+                false,
+                null,
+                null
             );
-        } catch (IOException e) {
-            LOGGER.error("error ", e);
-        } finally {
-            if (blobInputStream != null) {
-                blobInputStream.close();
-                LOGGER.info("filename: {} stream closed", filename);
-            }
-        }
+
+        LOGGER.info(
+            "filename:{}, getStatusCode {} size{}",
+            filename,
+            res.getStatusCode(),
+            blockBlobClient.getProperties().getBlobSize()
+        );
     }
 
     private BlockBlobClient blockBlobClient(String id, String hearingSource) {
