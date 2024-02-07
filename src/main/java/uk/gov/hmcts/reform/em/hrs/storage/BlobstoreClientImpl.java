@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.em.hrs.storage;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobRange;
+import com.azure.storage.blob.models.ConsistentReadControl;
+import com.azure.storage.blob.options.BlobInputStreamOptions;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -52,7 +54,11 @@ public class BlobstoreClientImpl implements BlobstoreClient {
 
         var blockBlobClient = blockBlobClient(filename, hearingSource);
         int count;
-        try (var blobStream = blockBlobClient.openInputStream()) {
+        BlobInputStreamOptions blobInputStreamOptions = new BlobInputStreamOptions();
+        blobInputStreamOptions.setBlockSize(8192);
+        blobInputStreamOptions.setConsistentReadControl(ConsistentReadControl.NONE);
+        blobInputStreamOptions.setRange(blobRange);
+        try (var blobStream = blockBlobClient.openInputStream(blobInputStreamOptions)) {
             count = IOUtils.copy(blobStream, outputStream);
         } catch (Exception e) {
             LOGGER.error("Failed IOUtils.copy");
