@@ -2,8 +2,8 @@ package uk.gov.hmcts.reform.em.hrs.storage;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobRange;
-import com.azure.storage.blob.models.DownloadRetryOptions;
 import com.azure.storage.blob.specialized.BlockBlobClient;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 @Component
@@ -47,26 +48,21 @@ public class BlobstoreClientImpl implements BlobstoreClient {
         BlobRange blobRange,
         final OutputStream outputStream,
         String hearingSource
-    ) {
+    ) throws IOException {
 
         var blockBlobClient = blockBlobClient(filename, hearingSource);
-
-        var res = blockBlobClient
-            .downloadStreamWithResponse(
-                outputStream,
-                blobRange,
-                new DownloadRetryOptions().setMaxRetryRequests(5),
-                null,
-                false,
-                null,
-                null
-            );
+        int count;
+        try (var blobStream = blockBlobClient.openInputStream()) {
+            count = IOUtils.copy(blobStream, outputStream);
+        } catch (Exception e) {
+            LOGGER.error("Failed IOUtils.copy");
+            throw new IOException("Failed IOUtils.copy");
+        }
 
         LOGGER.info(
-            "filename:{}, getStatusCode:{},getHeaders:{}, size{}",
+            "filename:{}, file size{},copy size{}",
             filename,
-            res.getStatusCode(),
-            res.getHeaders().toMap().toString(),
+            count,
             blockBlobClient.getProperties().getBlobSize()
         );
     }

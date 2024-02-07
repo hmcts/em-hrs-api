@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestAzureStorageConfig;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.helper.AzureIntegrationTestOperations;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -17,6 +18,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertThrows;
 
 @SpringBootTest(classes = {
     TestAzureStorageConfig.class,
@@ -54,6 +56,17 @@ class BlobstoreClientImplTest {
             blobRange = new BlobRange(0, 3L);
             underTest.downloadFile(filePath, blobRange, output, HearingSource.CVP.name());
             assertThat(pipedInput).satisfies(this::assertPartialStreamContent);
+        }
+    }
+
+    @Test
+    void testShouldThrowException() throws Exception {
+        final String filePath = "";
+        try (final PipedInputStream pipedInput = new PipedInputStream();
+             final PipedOutputStream output = new PipedOutputStream(pipedInput)) {
+            assertThrows(IOException.class, () ->
+                underTest.downloadFile(filePath, null, output, HearingSource.CVP.name()));
+
         }
     }
 
