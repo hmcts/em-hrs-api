@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.em.hrs.storage;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobRange;
 import com.azure.storage.blob.specialized.BlockBlobClient;
-import com.google.common.io.ByteStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,12 +50,8 @@ public class BlobstoreClientImpl implements BlobstoreClient {
     ) {
         try {
             var blockBlobClient = blockBlobClient(filename, hearingSource);
-            long count = ByteStreams
-                .copy(
-                    blockBlobClient.openInputStream(blobRange, null),
-                    outputStream
-                );
-            LOGGER.info("filename, copied {}, getBlobSize {}", count, blockBlobClient.getProperties().getBlobSize());
+            var count = blockBlobClient.openInputStream(blobRange, null).transferTo(outputStream);
+            LOGGER.info("filename, copied {} size{}", count, blockBlobClient.getProperties().getBlobSize());
         } catch (IOException e) {
             LOGGER.error("error ", e);
         }
