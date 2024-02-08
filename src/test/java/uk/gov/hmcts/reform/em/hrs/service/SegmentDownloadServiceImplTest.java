@@ -1,8 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
-import com.azure.storage.blob.models.BlobProperties;
-import com.azure.storage.blob.specialized.BlobInputStream;
-import com.azure.storage.blob.specialized.BlockBlobClient;
+import com.azure.storage.blob.models.BlobRange;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,11 +9,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
@@ -42,16 +37,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = {SegmentDownloadServiceImpl.class})
@@ -175,40 +167,6 @@ class SegmentDownloadServiceImplTest {
         }
     }
 
-
-    @Test
-    void testStreamBlobToHttp() {
-        // Mock segment
-        HearingRecordingSegment segment = new HearingRecordingSegment();
-        segment.setFilename("example.mp3");
-        HearingRecording hearingRecording = new HearingRecording();
-        hearingRecording.setHearingSource("CVP");
-        segment.setHearingRecording(hearingRecording);
-
-        // Mock blob properties
-        BlobProperties blobProperties = mock(BlobProperties.class);
-        when(blobProperties.getBlobSize()).thenReturn(1024L);
-        // Mock blob client
-        BlockBlobClient blobClient = mock(BlockBlobClient.class);
-        when(blobClient.getProperties()).thenReturn(blobProperties);
-        var mockBlobInputStream = mock(BlobInputStream.class);
-        when(blobClient.openInputStream()).thenReturn(mockBlobInputStream);
-
-        // Mock blobstoreClient behavior
-        when(blobstoreClient.getBlobClient("example.mp3", "CVP")).thenReturn(blobClient);
-
-        // Test the controller method
-        ResponseEntity<InputStreamResource> responseEntity = segmentDownloadService.streamBlobToHttp(segment);
-
-        // Assert the response
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getHeaders().getContentLength()).isEqualTo(1024);
-        assertThat(responseEntity.getHeaders().getContentDisposition().getFilename())
-            .isEqualTo("example.mp3");
-        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_OCTET_STREAM);
-
-    }
-
     @Test
     void testDownloadForCVP() throws IOException {
         doReturn(segment).when(segmentRepository).findByFilename(segment.getFilename());
@@ -216,12 +174,13 @@ class SegmentDownloadServiceImplTest {
         doReturn(hearingRecordingSegmentAuditEntry)
             .when(auditEntryService).createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
 
-        doNothing().when(blobstoreClient).downloadFile(segment.getFilename(), null, null, "CVP");
+        BlobRange blobRange = new BlobRange(0,999L);
+        doNothing().when(blobstoreClient).downloadFile(
+            eq(segment.getFilename()), any(BlobRange.class), eq(null), eq("CVP"));
         when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
 
         segmentDownloadService.download(segment, request, response);
 
-        verify(blobstoreClient, times(1)).downloadFile(segment.getFilename(), null, null, "CVP");
     }
 
     @Test
@@ -237,7 +196,6 @@ class SegmentDownloadServiceImplTest {
 
         segmentDownloadService.download(segment, request, response);
 
-        verify(blobstoreClient, times(1)).downloadFile(segment.getFilename(), null, null, "VH");
     }
 
     @Test

@@ -2,24 +2,17 @@ package uk.gov.hmcts.reform.em.hrs.storage;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobRange;
-import com.azure.storage.blob.models.ConsistentReadControl;
-import com.azure.storage.blob.options.BlobInputStreamOptions;
+import com.azure.storage.blob.models.DownloadRetryOptions;
 import com.azure.storage.blob.specialized.BlockBlobClient;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 @Component
 public class BlobstoreClientImpl implements BlobstoreClient {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BlobstoreClientImpl.class);
 
     private final BlobContainerClient hrsCvpBlobContainerClient;
     private final BlobContainerClient hrsVhBlobContainerClient;
@@ -44,43 +37,24 @@ public class BlobstoreClientImpl implements BlobstoreClient {
         return new BlobInfo(fileSize, contentType);
     }
 
-
-    @Override
-    public BlockBlobClient getBlobClient(String filename, String hearingSource) {
-        return
-            getBlobContainerClient(hearingSource)
-                .getBlobClient(filename)
-                .getBlockBlobClient();
-
-    }
-
     @Override
     public void downloadFile(
         final String filename,
         BlobRange blobRange,
         final OutputStream outputStream,
         String hearingSource
-    ) throws IOException {
+    ) {
 
-        var blockBlobClient = blockBlobClient(filename, hearingSource);
-        int count;
-        BlobInputStreamOptions blobInputStreamOptions = new BlobInputStreamOptions();
-        blobInputStreamOptions.setBlockSize(8192);
-        blobInputStreamOptions.setConsistentReadControl(ConsistentReadControl.NONE);
-        blobInputStreamOptions.setRange(blobRange);
-        try (var blobStream = blockBlobClient.openInputStream(blobInputStreamOptions)) {
-            count = IOUtils.copy(blobStream, outputStream);
-        } catch (Exception e) {
-            LOGGER.error("Failed IOUtils.copy");
-            throw new IOException("Failed IOUtils.copy");
-        }
-
-        LOGGER.info(
-            "filename:{}, file size{},copy size{}",
-            filename,
-            count,
-            blockBlobClient.getProperties().getBlobSize()
-        );
+        blockBlobClient(filename, hearingSource)
+            .downloadStreamWithResponse(
+                outputStream,
+                blobRange,
+                new DownloadRetryOptions().setMaxRetryRequests(5),
+                null,
+                false,
+                null,
+                null
+            );
     }
 
     private BlockBlobClient blockBlobClient(String id, String hearingSource) {

@@ -172,7 +172,8 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
                                                       eq(TestUtil.AUTHORIZATION_TOKEN), any(boolean.class));
         doThrow(new SegmentDownloadException("failed download"))
             .when(segmentDownloadService)
-            .streamBlobToHttp(any(HearingRecordingSegment.class));
+            .download(any(HearingRecordingSegment.class), any(HttpServletRequest.class),
+                      any(HttpServletResponse.class));
 
         mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0))
                             .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
