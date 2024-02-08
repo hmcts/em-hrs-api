@@ -145,6 +145,11 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
             response.setStatus(HttpStatus.PARTIAL_CONTENT.value());
             response.setHeader("Content-Range", "bytes " + start + "-" + end + "/" + fileSize);
             response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(contentLength));
+
+            String contentRangeResponse = "bytes " + start + "-" + contentLength + "/" + fileSize;
+
+            response.setHeader(HttpHeaders.CONTENT_RANGE, contentRangeResponse);
+
             blobRange = new BlobRange(start, contentLength);
             LOGGER.info(
                 "hearing source {}, Range header for filename:{} end:{},start:{}",

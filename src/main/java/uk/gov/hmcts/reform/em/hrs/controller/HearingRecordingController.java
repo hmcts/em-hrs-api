@@ -168,7 +168,7 @@ public class HearingRecordingController {
         {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")}
     )
-    public ResponseEntity getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
+    public ResponseEntity<?> getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
                                            @PathVariable("segment") Integer segmentNo,
                                            @RequestHeader(Constants.AUTHORIZATION) final String userToken,
                                            HttpServletRequest request,
@@ -192,7 +192,7 @@ public class HearingRecordingController {
                 recordingId, e.getMessage()
             );//Exceptions are thrown during partial requests from front door (it throws client abort)
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return null;
     }
 
     @GetMapping(
