@@ -6,12 +6,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -22,6 +24,7 @@ import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -61,6 +64,24 @@ public class SecurityConfiguration {
     }
 
     @Bean
+    @Order(1)
+    public SecurityFilterChain s2sFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/segments", "/folders/*");
+        http.headers(hd -> hd.cacheControl(HeadersConfigurer.CacheControlConfig::disable))
+            .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(
+                authorizationManagerRequestMatcherRegistry ->
+                    authorizationManagerRequestMatcherRegistry.requestMatchers(
+                            RegexRequestMatcher.regexMatcher(HttpMethod.POST, "/segments"),
+                            RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/folders/*")
+                        )
+                        .authenticated());
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http.csrf(AbstractHttpConfigurer::disable)
@@ -70,10 +91,6 @@ public class SecurityConfiguration {
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(matcherRegistry ->
                 matcherRegistry.requestMatchers(HttpMethod.GET, "/hearing-recordings/**").authenticated())
-            .authorizeHttpRequests(matcherRegistry ->
-                matcherRegistry.requestMatchers(HttpMethod.GET, "/folders/*").authenticated())
-            .authorizeHttpRequests(matcherRegistry ->
-                matcherRegistry.requestMatchers(HttpMethod.POST, "/segments").authenticated())
             .authorizeHttpRequests(matcherRegistry ->
                 matcherRegistry.requestMatchers(HttpMethod.POST, "/sharees").authenticated())
             .authorizeHttpRequests(matcherRegistry ->
