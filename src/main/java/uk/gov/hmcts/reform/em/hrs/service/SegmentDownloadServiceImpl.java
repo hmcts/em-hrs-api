@@ -135,27 +135,23 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         BlobRange blobRange;
         if (rangeHeader == null) {
             long start = 0;
-            long end = fileSize - 1;
-            if (fileSize > DEFAULT_BUFFER_SIZE) {
-                end = start + DEFAULT_BUFFER_SIZE - 1;
+
+            long contentLength = DEFAULT_BUFFER_SIZE;
+            if (fileSize < DEFAULT_BUFFER_SIZE) {
+                contentLength = fileSize;
             }
 
-            long contentLength = end - start + 1;
-
             response.setStatus(HttpStatus.PARTIAL_CONTENT.value());
-            response.setHeader("Content-Range", "bytes " + start + "-" + end + "/" + fileSize);
+            response.setHeader("Content-Range",
+                               "bytes " + start + "-" + (contentLength - 1) + "/" + fileSize);
             response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(contentLength));
-
-            String contentRangeResponse = "bytes " + start + "-" + contentLength + "/" + fileSize;
-
-            response.setHeader(HttpHeaders.CONTENT_RANGE, contentRangeResponse);
 
             blobRange = new BlobRange(start, contentLength);
             LOGGER.info(
                 "hearing source {}, Range header for filename:{} end:{},start:{}",
                 hearingSource,
                 filename,
-                end,
+                contentLength,
                 start
             );
 
@@ -180,12 +176,12 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
                 response.setHeader(HttpHeaders.CONTENT_RANGE, contentRangeResponse);
                 response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(byteRangeCount));
 
-                LOGGER.debug(
+                LOGGER.info(
                     "Calc Blob Values: blobStart {}, blobLength {}",
                     blobRange.getOffset(),
                     blobRange.getCount()
                 );
-                LOGGER.debug(
+                LOGGER.info(
                     "Calc Http Header Values: CONTENT_RANGE {}, CONTENT_LENGTH {}",
                     request.getHeader(HttpHeaders.CONTENT_RANGE),
                     request.getHeader(HttpHeaders.CONTENT_LENGTH)
