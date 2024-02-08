@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.AccessDeniedException;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
@@ -172,8 +173,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
                                                       eq(TestUtil.AUTHORIZATION_TOKEN), any(boolean.class));
         doThrow(new SegmentDownloadException("failed download"))
             .when(segmentDownloadService)
-            .download(any(HearingRecordingSegment.class), any(HttpServletRequest.class),
-                      any(HttpServletResponse.class));
+            .streamBlobToHttp(any(HearingRecordingSegment.class), any(HttpHeaders.class));
 
         mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0))
                             .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
