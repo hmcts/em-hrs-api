@@ -44,10 +44,8 @@ public class SecurityScenarios extends BaseTest {
 
     @Test
     public void getFolderShouldReturn200WhenS2STokenIsValid() {
-        var userToken = idamHelper.authenticateUser(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS);
         SerenityRest
             .given()
-            .header("Authorization", userToken)
             .header("ServiceAuthorization", hrsS2sAuth)
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
