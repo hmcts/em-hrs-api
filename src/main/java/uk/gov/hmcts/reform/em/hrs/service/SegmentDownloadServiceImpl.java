@@ -201,7 +201,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         // Set up headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentLength(fileSize);
-
+        headers.set("Keep-Alive", "timeout=600");
         String attachmentFilename = String.format("attachment; filename=%s", filename);
 
         headers.set("Content-Disposition", attachmentFilename);
