@@ -169,11 +169,11 @@ public class HearingRecordingController {
         {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")}
     )
-    public ResponseEntity<?> getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
-                                              @PathVariable("segment") Integer segmentNo,
-                                              @RequestHeader(Constants.AUTHORIZATION) final String userToken,
-                                              @RequestHeader HttpHeaders headers
-                                              ) {
+    public ResponseEntity getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
+                                           @PathVariable("segment") Integer segmentNo,
+                                           @RequestHeader(Constants.AUTHORIZATION) final String userToken,
+                                           @RequestHeader HttpHeaders headers
+    ) {
         try {
             //TODO this should return a 403 if its not in database
             HearingRecordingSegment segment = segmentDownloadService
@@ -197,7 +197,7 @@ public class HearingRecordingController {
                 recordingId, e.getMessage()
             );//Exceptions are thrown during partial requests from front door (it throws client abort)
         }
-        return null;
+        return new ResponseEntity<>(HttpStatus.PARTIAL_CONTENT);
     }
 
     @GetMapping(

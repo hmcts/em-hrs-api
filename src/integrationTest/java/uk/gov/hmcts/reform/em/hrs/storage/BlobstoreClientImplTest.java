@@ -64,6 +64,7 @@ class BlobstoreClientImplTest {
         try (final PipedInputStream pipedInput = new PipedInputStream();
              final PipedOutputStream output = new PipedOutputStream(pipedInput)) {
             underTest.downloadFile(filePath, null, output, HearingSource.CVP.name());
+            underTest.getBlobClient(filePath,  HearingSource.CVP.name());
             underTest.fetchBlobInfo(filePath, HearingSource.CVP.name());
             assertThat(pipedInput).satisfies(this::assertStreamContent);
         }
