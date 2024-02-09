@@ -8,14 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRange;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.MediaTypeFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
@@ -32,7 +27,6 @@ import uk.gov.hmcts.reform.em.hrs.util.HttpHeaderProcessor;
 import uk.gov.hmcts.reform.em.hrs.util.debug.HttpHeadersLogging;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +39,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SegmentDownloadServiceImpl.class);
-    private static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
+    private static final int DEFAULT_BUFFER_SIZE = 20480; // ..bytes = 20KB.
     private final HearingRecordingSegmentRepository segmentRepository;
     private final BlobstoreClient blobstoreClient;
     private final AuditEntryService auditEntryService;
@@ -128,7 +122,8 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, attachmentFilename);
         response.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
-
+        response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
+        response.setBufferSize(DEFAULT_BUFFER_SIZE);
 
         HttpHeadersLogging
             .logHttpHeaders(request);//keep during early life support to assist with any range or other issues.
@@ -138,14 +133,8 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
         BlobRange blobRange = null;
         if (rangeHeader == null) {
-            response.setHeader("OriginalFileName", filename);
-            response.setHeader("data-source", "contentURI");
-
             response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileSize));
-            LOGGER.info("hearing source {},CONTENT_LENGTH {}", hearingSource, fileSize);
         } else {
-            response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
-            response.setBufferSize(DEFAULT_BUFFER_SIZE);
             try {
                 response.setStatus(HttpStatus.PARTIAL_CONTENT.value());
 
@@ -189,56 +178,13 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         auditEntryService.createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
     }
 
-    public ResponseEntity<ResourceRegion> streamBlobToHttp(
-        HearingRecordingSegment segment,
-        HttpHeaders headers
-    ) {
-        var hearingRecording = segment.getHearingRecording();
-        String hearingSource = hearingRecording.getHearingSource();
-        String filename = segment.getFilename();
-
-        var blobClient = blobstoreClient.getBlobClient(filename, hearingSource);
-        var properties = blobClient.getProperties();
-        long fileSize = properties.getBlobSize();
-
-        InputStream blobStream = blobClient.openInputStream();
-
-        // Set up headers
-        InputStreamResource inputStreamResource = new InputStreamResource(blobStream);
-        ResourceRegion region = resourceRegion(inputStreamResource, headers, fileSize);
-        LOGGER.info("getting region filename:{},fileSize:{}", filename, fileSize);
-
-        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
-            .contentType(MediaTypeFactory
-                             .getMediaType(filename)
-                             .orElse(MediaType.APPLICATION_OCTET_STREAM))
-            .body(region);
-    }
-
-    private ResourceRegion resourceRegion(InputStreamResource video, HttpHeaders headers, long fileSize) {
-        long contentLength = fileSize;
-        Optional<HttpRange> range = headers.getRange().stream().findFirst();
-        if (range.isPresent()) {
-            long start = range.get().getRangeStart(contentLength);
-            long end = range.get().getRangeEnd(contentLength);
-            long rangeLength = Math.min(DEFAULT_BUFFER_SIZE, end - start + 1);
-            LOGGER.info("start:{},end:{},rangeLength:{}fileSize:{}", start, end, rangeLength, fileSize);
-            return new ResourceRegion(video, start, rangeLength);
-        } else {
-            var rangeLength = Math.min(DEFAULT_BUFFER_SIZE, contentLength);
-            LOGGER.info("rangeLength:{},fileSize:{}", rangeLength, fileSize);
-            return new ResourceRegion(video, 0, rangeLength);
-        }
-    }
-
     private boolean isAccessValid(LocalDateTime sharedOn, String userEmail) {
         LocalDateTime expiryTime = sharedOn.plusHours(validityInHours);
         LocalDateTime presentTime = LocalDateTime.now();
 
         LOGGER.debug("sharedOn value is  {} with expiryTime as {} and presentTime as {} resulted in {} for email {}",
-                     sharedOn, expiryTime, presentTime, presentTime.isBefore(expiryTime), userEmail
-        );
-        return presentTime.isBefore(expiryTime);
+                     sharedOn, expiryTime, presentTime, presentTime.isBefore(expiryTime), userEmail);
+        return  presentTime.isBefore(expiryTime);
     }
 
     private boolean getHearingRecordingShareeSegment(HearingRecording hearingRecording,

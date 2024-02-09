@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -172,32 +171,28 @@ public class HearingRecordingController {
     public ResponseEntity getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
                                            @PathVariable("segment") Integer segmentNo,
                                            @RequestHeader(Constants.AUTHORIZATION) final String userToken,
-                                           @RequestHeader HttpHeaders headers
-    ) {
+                                           HttpServletRequest request,
+                                           HttpServletResponse response) {
         try {
             //TODO this should return a 403 if its not in database
             HearingRecordingSegment segment = segmentDownloadService
                 .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, false);
 
-            LOGGER.info(
-                "start download recordingId:{}, fileName:{}",
-                recordingId,
-                segment == null ? null : segment.getFilename()
-            );
-            return segmentDownloadService.streamBlobToHttp(segment, headers);
+
+            segmentDownloadService.download(segment, request, response);
         } catch (AccessDeniedException e) {
             LOGGER.warn(
                 "User does not have permission to download recording {}",
                 e.getMessage()
             );
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (UncheckedIOException e) {
+        } catch (UncheckedIOException | IOException e) {
             LOGGER.warn(
                 "IOException streaming response for recording ID: {} IOException message: {}",
                 recordingId, e.getMessage()
             );//Exceptions are thrown during partial requests from front door (it throws client abort)
         }
-        return new ResponseEntity<>(HttpStatus.PARTIAL_CONTENT);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping(
