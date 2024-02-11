@@ -39,7 +39,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SegmentDownloadServiceImpl.class);
-    private static final int DEFAULT_BUFFER_SIZE = 20480; // ..bytes = 20KB.
+    private static final int DEFAULT_BUFFER_SIZE = 1024 * 8; // ..bytes = 20KB.
     private final HearingRecordingSegmentRepository segmentRepository;
     private final BlobstoreClient blobstoreClient;
     private final AuditEntryService auditEntryService;

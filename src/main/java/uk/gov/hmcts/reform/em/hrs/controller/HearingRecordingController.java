@@ -188,8 +188,8 @@ public class HearingRecordingController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         } catch (UncheckedIOException | IOException e) {
             LOGGER.warn(
-                "IOException streaming response for recording ID: {} IOException message: {}",
-                recordingId, e.getMessage()
+                "IOException streaming response for recording ID: {}, exception",
+                recordingId, e
             );//Exceptions are thrown during partial requests from front door (it throws client abort)
         }
         return new ResponseEntity<>(HttpStatus.OK);
