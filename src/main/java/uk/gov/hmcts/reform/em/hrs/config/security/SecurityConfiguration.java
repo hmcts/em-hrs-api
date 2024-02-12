@@ -14,7 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
+//import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -27,8 +27,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
+//import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -80,25 +79,25 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    @Bean
-    @Order(2)
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http.csrf(AbstractHttpConfigurer::disable)
-            .formLogin(AbstractHttpConfigurer::disable)
-            .logout(AbstractHttpConfigurer::disable)
-            .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(matcherRegistry ->
-                matcherRegistry.requestMatchers(HttpMethod.GET, "/hearing-recordings/**").authenticated())
-            .authorizeHttpRequests(matcherRegistry ->
-                matcherRegistry.requestMatchers(HttpMethod.POST, "/sharees").authenticated())
-            .authorizeHttpRequests(matcherRegistry ->
-                matcherRegistry.requestMatchers("/error").authenticated())
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
-            .oauth2Client(withDefaults());
-        return http.build();
-    }
+    //    @Bean
+    //    @Order(2)
+    //    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    //
+    //        http.csrf(AbstractHttpConfigurer::disable)
+    //            .formLogin(AbstractHttpConfigurer::disable)
+    //            .logout(AbstractHttpConfigurer::disable)
+    //            .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
+    //            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+    //            .authorizeHttpRequests(matcherRegistry ->
+    //                matcherRegistry.requestMatchers(HttpMethod.GET, "/hearing-recordings/**").authenticated())
+    //            .authorizeHttpRequests(matcherRegistry ->
+    //                matcherRegistry.requestMatchers(HttpMethod.POST, "/sharees").authenticated())
+    //            .authorizeHttpRequests(matcherRegistry ->
+    //                matcherRegistry.requestMatchers("/error").authenticated())
+    //            .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
+    //            .oauth2Client(withDefaults());
+    //        return http.build();
+    //    }
 
     @Bean
     JwtDecoder jwtDecoder() {
