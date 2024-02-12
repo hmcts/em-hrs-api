@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 
 import java.io.OutputStream;
+import java.time.Duration;
 
 @Component
 public class BlobstoreClientImpl implements BlobstoreClient {
@@ -44,7 +45,7 @@ public class BlobstoreClientImpl implements BlobstoreClient {
         final OutputStream outputStream,
         String hearingSource
     ) {
-
+        Duration timeout = Duration.ofMinutes(20);
         blockBlobClient(filename, hearingSource)
             .downloadStreamWithResponse(
                 outputStream,
@@ -52,7 +53,7 @@ public class BlobstoreClientImpl implements BlobstoreClient {
                 new DownloadRetryOptions().setMaxRetryRequests(5),
                 null,
                 false,
-                null,
+                timeout,
                 null
             );
     }
