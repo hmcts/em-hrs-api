@@ -65,7 +65,7 @@ public class SecurityConfiguration {
     @Bean
     @Order(1)
     public SecurityFilterChain s2sFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/segments", "/folders/*");
+//        http.securityMatcher("/segments", "/folders/*");
         http.headers(hd -> hd.cacheControl(HeadersConfigurer.CacheControlConfig::disable))
             .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
             .csrf(AbstractHttpConfigurer::disable)
