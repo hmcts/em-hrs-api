@@ -74,7 +74,6 @@ public class SecurityConfiguration {
                             RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/folders/*")
                         )
                         .permitAll());
-        http.httpBasic(Customizer.withDefaults());
         return http.build();
     }
 
