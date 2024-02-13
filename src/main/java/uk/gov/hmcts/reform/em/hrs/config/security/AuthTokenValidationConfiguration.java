@@ -29,8 +29,8 @@ public class AuthTokenValidationConfiguration {
     @Bean
     @ConditionalOnProperty("idam.s2s-authorised.services")
     public EmServiceAuthFilter emServiceAuthFilter(ServiceAuthorisationApi authorisationApi,
-                                                   @Value("${idam.s2s-authorised.services}") List<String> authorisedServices,
-                                                   AuthenticationManager authenticationManager) {
+                @Value("${idam.s2s-authorised.services}") List<String> authorisedServices,
+                AuthenticationManager authenticationManager) {
 
         AuthTokenValidator authTokenValidator = new ServiceAuthTokenValidator(authorisationApi);
         EmServiceAuthFilter emServiceAuthFilter = new EmServiceAuthFilter(authTokenValidator, authorisedServices);
