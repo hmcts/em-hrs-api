@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,7 +22,8 @@ import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.util.matcher.RegexRequestMatcher;
+
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 
 @Configuration
@@ -63,16 +63,19 @@ public class SecurityConfiguration {
     @Order(1)
     public SecurityFilterChain s2sFilterChain(HttpSecurity http) throws Exception {
         //        http.securityMatcher("/segments", "/folders/*");
-        http.headers(hd -> hd.cacheControl(HeadersConfigurer.CacheControlConfig::disable))
+        http.headers(httpSecurityHeadersConfigurer ->
+                         httpSecurityHeadersConfigurer.cacheControl(HeadersConfigurer.CacheControlConfig::disable));
+
+        http.securityMatchers(requestMatcherConfigurer ->
+                                  requestMatcherConfigurer.requestMatchers("/segments", "/folders/*"))
             .addFilterBefore(emServiceAuthFilter, AnonymousAuthenticationFilter.class)
+            .sessionManagement(httpSecuritySessionManagementConfigurer ->
+                                   httpSecuritySessionManagementConfigurer.sessionCreationPolicy(STATELESS))
             .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(
-                authorizationManagerRequestMatcherRegistry ->
-                    authorizationManagerRequestMatcherRegistry.requestMatchers(
-                            RegexRequestMatcher.regexMatcher(HttpMethod.POST, "/segments"),
-                            RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/folders/*")
-                        )
-                        .permitAll());
+            .formLogin(AbstractHttpConfigurer::disable)
+            .logout(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
+                                       authorizationManagerRequestMatcherRegistry.anyRequest().authenticated());
         return http.build();
     }
 
