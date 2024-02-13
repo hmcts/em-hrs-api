@@ -24,7 +24,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
-import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
 
 
 @Configuration
@@ -38,10 +37,10 @@ public class SecurityConfiguration {
     @Value("${spring.security.oauth2.client.provider.oidc.issuer-uri}")
     private String issuerUri;
 
-    private final ServiceAuthFilter serviceAuthFilter;
+    private final EmServiceAuthFilter emServiceAuthFilter;
 
-    public SecurityConfiguration(final ServiceAuthFilter serviceAuthFilter) {
-        this.serviceAuthFilter = serviceAuthFilter;
+    public SecurityConfiguration(final EmServiceAuthFilter emServiceAuthFilter) {
+        this.emServiceAuthFilter = emServiceAuthFilter;
     }
 
     @Bean
@@ -65,7 +64,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain s2sFilterChain(HttpSecurity http) throws Exception {
         //        http.securityMatcher("/segments", "/folders/*");
         http.headers(hd -> hd.cacheControl(HeadersConfigurer.CacheControlConfig::disable))
-            .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
+            .addFilterBefore(emServiceAuthFilter, BearerTokenAuthenticationFilter.class)
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(
                 authorizationManagerRequestMatcherRegistry ->
