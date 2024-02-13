@@ -73,7 +73,7 @@ public class SecurityConfiguration {
                             RegexRequestMatcher.regexMatcher(HttpMethod.POST, "/segments"),
                             RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/folders/*")
                         )
-                        .authenticated());
+                        .permitAll());
         http.httpBasic(Customizer.withDefaults());
         return http.build();
     }
