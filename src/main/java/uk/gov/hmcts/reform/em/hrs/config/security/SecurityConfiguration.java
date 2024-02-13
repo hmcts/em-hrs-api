@@ -21,8 +21,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 
@@ -64,7 +64,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain s2sFilterChain(HttpSecurity http) throws Exception {
         //        http.securityMatcher("/segments", "/folders/*");
         http.headers(hd -> hd.cacheControl(HeadersConfigurer.CacheControlConfig::disable))
-            .addFilterBefore(emServiceAuthFilter, BearerTokenAuthenticationFilter.class)
+            .addFilterBefore(emServiceAuthFilter, AnonymousAuthenticationFilter.class)
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(
                 authorizationManagerRequestMatcherRegistry ->
