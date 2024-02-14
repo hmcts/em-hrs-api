@@ -140,7 +140,11 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             BlockBlobClient destinationBlobClient = containersToCopy.destination;
             BlockBlobClient sourceBlob = containersToCopy.source;
 
-            LOGGER.info("########## Trying copy from URL for sourceUri {}", sourceUri);
+            LOGGER.info(
+                "########## Trying copy from URL for sourceUri:{}, to destination:{}",
+                sourceUri,
+                destinationBlobClient.getBlobUrl()
+            );
             if (Boolean.FALSE.equals(destinationBlobClient.exists())
                 || destinationBlobClient.getProperties().getBlobSize() == 0) {
                 if (useAdAuth) {
@@ -165,8 +169,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 LOGGER.info("SAS token created for filename{}", filename);
                 PollResponse<BlobCopyInfo> poll = null;
                 try {
-                    LOGGER.info("get cvpBlobContainerClient for filename {}", filename);
-
                     LOGGER.info(
                         "file name {}, exists {}",
                         filename,
