@@ -262,7 +262,7 @@ def versions = [
   junit              : '5.10.2',
   junitPlatform      : '1.10.2',
   springSecurity     : '6.2.1',
-  shedlock           : '5.10.2',
+  shedlock           : '5.11.0',
   testcontainers     : '1.19.5',
   springCloud        : '4.1.0'
 ]
@@ -370,7 +370,7 @@ dependencies {
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.25.3'
-  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '3.2.2'
+  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '3.2.4'
 
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: versions.testcontainers
   testImplementation group: 'org.testcontainers', name: 'postgresql', version: versions.testcontainers
