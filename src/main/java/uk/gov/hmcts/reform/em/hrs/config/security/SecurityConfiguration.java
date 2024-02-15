@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -43,8 +44,12 @@ public class SecurityConfiguration {
 
     private final EmServiceAuthFilter emServiceAuthFilter;
 
-    public SecurityConfiguration(final EmServiceAuthFilter emServiceAuthFilter) {
+    private final ServiceAuthFilter serviceAuthFilter;
+
+    public SecurityConfiguration(final EmServiceAuthFilter emServiceAuthFilter,
+                                 final ServiceAuthFilter serviceAuthFilter) {
         this.emServiceAuthFilter = emServiceAuthFilter;
+        this.serviceAuthFilter = serviceAuthFilter;
     }
 
     @Bean
@@ -67,7 +72,6 @@ public class SecurityConfiguration {
     @Bean
     @Order(1)
     public SecurityFilterChain s2sFilterChain(HttpSecurity http) throws Exception {
-        //        http.securityMatcher("/segments", "/folders/*");
         http.headers(httpSecurityHeadersConfigurer ->
                          httpSecurityHeadersConfigurer.cacheControl(HeadersConfigurer.CacheControlConfig::disable));
 
@@ -91,7 +95,7 @@ public class SecurityConfiguration {
         http.csrf(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
             .logout(AbstractHttpConfigurer::disable)
-            .addFilterBefore(emServiceAuthFilter, BearerTokenAuthenticationFilter.class)
+            .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(matcherRegistry ->
                                        matcherRegistry.requestMatchers(
