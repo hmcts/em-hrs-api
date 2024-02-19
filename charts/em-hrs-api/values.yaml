@@ -1,7 +1,5 @@
 java:
   postgresql:
-    postgresqlUsername: emhrs
-    postgresqlPassword: emhrs
     nameOverride: em-hrs-db
   applicationPort: 8080
   image: 'hmctspublic.azurecr.io/em/hrs-api:latest'
