@@ -32,13 +32,16 @@ java:
       secretRef: storage-secret-hrs-{{ .Release.Name }}
       key: accessKey
   environment:
+    SPRING_DATASOURCE_HOST: "{{ .Release.Name }}-postgresql"
+    SPRING_DATASOURCE_NAME: "{{ .Values.postgresql.auth.database}}"
+    SPRING_DATASOURCE_OPTIONS: "?ssl=disable"
+    SPRING_DATASOURCE_USERNAME: "{{ .Values.postgresql.postgresqlUsername}}"
+    SPRING_DATASOURCE_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     HRS_CVP_DEST_CONTAINER_NAME: hrs-cvp
     HRS_VH_DEST_CONTAINER_NAME: hrs-vh
     CVP_STORAGE_CONTAINER_NAME: cvp
     VH_STORAGE_CONTAINER_NAME: vhrecordings
     SPRING_DATASOURCE_URL: jdbc:postgresql://{{ .Release.Name }}-{{ .Values.postgresql.nameOverride}}:5432/javadatabase?ssl=disable
-    SPRING_DATASOURCE_USERNAME: "{{ .Values.postgresql.postgresqlUsername}}"
-    SPRING_DATASOURCE_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     OPEN_ID_API_BASE_URI: https://idam-web-public.aat.platform.hmcts.net/o
     ENABLE_DB_MIGRATE: true
     RUN_DB_MIGRATION_ON_STARTUP: true
