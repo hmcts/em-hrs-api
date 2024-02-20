@@ -35,8 +35,8 @@ java:
     SPRING_DATASOURCE_HOST: "{{ .Release.Name }}-postgresql"
     SPRING_DATASOURCE_NAME: "{{ .Values.postgresql.auth.database}}"
     SPRING_DATASOURCE_OPTIONS: "?ssl=disable"
-    SPRING_DATASOURCE_USERNAME: "{{ .Values.postgresql.postgresqlUsername}}"
-    SPRING_DATASOURCE_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
+    SPRING_DATASOURCE_USERNAME: "{{ .Values.postgresql.auth.username}}"
+    SPRING_DATASOURCE_PASSWORD: "{{ .Values.postgresql.auth.password}}"
     HRS_CVP_DEST_CONTAINER_NAME: hrs-cvp
     HRS_VH_DEST_CONTAINER_NAME: hrs-vh
     CVP_STORAGE_CONTAINER_NAME: cvp
