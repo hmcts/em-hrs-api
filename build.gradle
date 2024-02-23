@@ -10,7 +10,7 @@ plugins {
   id 'checkstyle'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.1.4'
-  id 'org.springframework.boot' version '3.2.2'
+  id 'org.springframework.boot' version '3.2.3'
   id 'com.github.ben-manes.versions' version '0.51.0'
   id 'org.sonarqube' version '4.4.1.3373'
   id 'org.flywaydb.flyway' version '10.8.1'
@@ -263,7 +263,7 @@ def versions = [
   junitPlatform      : '1.10.2',
   springSecurity     : '6.2.2',
   shedlock           : '5.11.0',
-  testcontainers     : '1.19.5',
+  testcontainers     : '1.19.6',
   springCloud        : '4.1.0'
 ]
 
