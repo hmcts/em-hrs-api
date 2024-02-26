@@ -42,6 +42,7 @@ import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -93,7 +94,8 @@ public abstract class BaseTest {
     protected static final String USER_DEFAULT_PASSWORD = "4590fgvhbfgbDdffm3lk4j";//USED ONLY FOR TESTS in IDAM HELPER
     protected static final String EMAIL_ADDRESS_INVALID_FORMAT = "invalid@emailaddress";
 
-    protected static final String FOLDER = "audiostream123455";
+    protected static final String FOLDER =
+        "audiostream" + LocalDate.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"));
     protected static final String TIME = "2020-11-04-14.56.32.819";
     public static final String CASEREF_PREFIX = "FUNCTEST_";
 
