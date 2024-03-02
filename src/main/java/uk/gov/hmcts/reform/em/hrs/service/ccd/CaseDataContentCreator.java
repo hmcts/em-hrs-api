@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
-//import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
@@ -81,7 +80,6 @@ public class CaseDataContentCreator {
     private CaseRecordingFile createSegment(HearingRecordingDto hearingRecordingDto, UUID recordingId) {
 
         String documentUrl;
-        //if (hearingRecordingDto.getRecordingSource().equals(HearingSource.VH)) {
         if (hearingRecordingDto.getRecordingSource().equals("XYZ")) {
             documentUrl = String.format("%s/hearing-recordings/%s/%s/segments",
                                         hearingRecordingDto.getUrlDomain(), recordingId,
