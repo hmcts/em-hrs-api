@@ -196,7 +196,7 @@ public class HearingRecordingController {
     }
 
     @GetMapping(
-        path = "/hearing-recordings/{recordingId}/segments/{segmentName}",
+        path = "/hearing-recordings/{recordingId}/{segmentName}/segments",
         produces = APPLICATION_OCTET_STREAM_VALUE
     )
 
@@ -288,7 +288,7 @@ public class HearingRecordingController {
     }
 
     @GetMapping(
-        path = "/hearing-recordings/{recordingId}/segments/{segmentName}/sharee",
+        path = "/hearing-recordings/{recordingId}/{segmentName}/segments/sharee",
         produces = APPLICATION_OCTET_STREAM_VALUE
     )
     @ResponseBody

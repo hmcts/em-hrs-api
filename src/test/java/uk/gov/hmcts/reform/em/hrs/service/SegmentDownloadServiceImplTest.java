@@ -85,6 +85,8 @@ class SegmentDownloadServiceImplTest {
 
     private static final String FILE_NAME = "XYZ";
 
+    private static final String FILE_NAME_2 = "XYZ!";
+
     @Autowired
     private SegmentDownloadServiceImpl segmentDownloadService;
 
@@ -114,6 +116,18 @@ class SegmentDownloadServiceImplTest {
         doReturn(null).when(shareesRepository).findByShareeEmailIgnoreCase(anyString());
         HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(
             SEGMENT_ID, 0, TestUtil.AUTHORIZATION_TOKEN, false);
+        assertEquals(SEGMENT_ID, returnedSegment.getId());
+        assertEquals(FILE_NAME, returnedSegment.getFilename());
+        assertEquals(TestUtil.CCD_CASE_ID, returnedSegment.getHearingRecording().getCcdCaseId());
+    }
+
+    @Test
+    void testFetchSegmentByRecordingIdAndSegmentName() {
+        doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndFilename(SEGMENT_ID, FILE_NAME);
+        doReturn(TestUtil.SHARER_EMAIL_ADDRESS).when(securityService).getUserEmail(anyString());
+        doReturn(null).when(shareesRepository).findByShareeEmailIgnoreCase(anyString());
+        HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndSegmentName(
+            SEGMENT_ID, FILE_NAME, TestUtil.AUTHORIZATION_TOKEN, false);
         assertEquals(SEGMENT_ID, returnedSegment.getId());
         assertEquals(FILE_NAME, returnedSegment.getFilename());
         assertEquals(TestUtil.CCD_CASE_ID, returnedSegment.getHearingRecording().getCcdCaseId());
@@ -151,6 +165,24 @@ class SegmentDownloadServiceImplTest {
     }
 
     @Test
+    void testFetchSegmentByRecordingIdAndSegmentNameForNonExpiredLinkSharedAgain() {
+        List<HearingRecordingSharee> hearingRecordingSharees = createHearingRecordingSharees();
+        hearingRecordingSharees.stream().findFirst().get().setSharedOn(LocalDateTime.now().minusHours(74));
+        hearingRecordingSharees.stream()
+            .forEach(hearingRecordingSharee ->
+                         hearingRecordingSharee.getHearingRecording().setId(SEGMENT21_ID));
+        segment.setRecordingSegment(1);
+        doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndFilename(SEGMENT21_ID, FILE_NAME);
+        doReturn(TestUtil.SHARER_EMAIL_ADDRESS).when(securityService).getUserEmail(anyString());
+        doReturn(hearingRecordingSharees).when(shareesRepository).findByShareeEmailIgnoreCase(anyString());
+        HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndSegmentName(
+            SEGMENT21_ID, FILE_NAME, TestUtil.AUTHORIZATION_TOKEN, true);
+        assertEquals(SEGMENT_ID, returnedSegment.getId());
+        assertEquals(FILE_NAME, returnedSegment.getFilename());
+        assertEquals(TestUtil.CCD_CASE_ID, returnedSegment.getHearingRecording().getCcdCaseId());
+    }
+
+    @Test
     void testFetchSegmentByRecordingIdAndSegmentNumberForExpiredLink() {
         try {
             List<HearingRecordingSharee> hearingRecordingSharees = createHearingRecordingSharees();
@@ -162,6 +194,23 @@ class SegmentDownloadServiceImplTest {
             doReturn(hearingRecordingSharees).when(shareesRepository).findByShareeEmailIgnoreCase(anyString());
             HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(
                 SEGMENT21_ID, 1234, TestUtil.AUTHORIZATION_TOKEN, true);
+        } catch (ValidationErrorException validationErrorException) {
+            assertEquals(Constants.SHARED_EXPIRED_LINK_MSG, validationErrorException.getData().get("error"));
+        }
+    }
+
+    @Test
+    void testFetchSegmentByRecordingIdAndSegmentNameForExpiredLink() {
+        try {
+            List<HearingRecordingSharee> hearingRecordingSharees = createHearingRecordingSharees();
+            hearingRecordingSharees.stream()
+                .forEach(hearingRecordingSharee ->
+                             hearingRecordingSharee.setSharedOn(LocalDateTime.now().minusHours(73)));
+            doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndFilename(SEGMENT21_ID, FILE_NAME);
+            doReturn(TestUtil.SHARER_EMAIL_ADDRESS).when(securityService).getUserEmail(anyString());
+            doReturn(hearingRecordingSharees).when(shareesRepository).findByShareeEmailIgnoreCase(anyString());
+            HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndSegmentName(
+                SEGMENT21_ID, FILE_NAME, TestUtil.AUTHORIZATION_TOKEN, true);
         } catch (ValidationErrorException validationErrorException) {
             assertEquals(Constants.SHARED_EXPIRED_LINK_MSG, validationErrorException.getData().get("error"));
         }
@@ -256,9 +305,11 @@ class SegmentDownloadServiceImplTest {
         HearingRecordingSegment segment11 = new HearingRecordingSegment();
         segment11.setId(SEGMENT11_ID);
         segment11.setRecordingSegment(0);
+        segment11.setFilename(FILE_NAME);
         HearingRecordingSegment segment12 = new HearingRecordingSegment();
         segment12.setId(SEGMENT12_ID);
         segment12.setRecordingSegment(1);
+        segment12.setFilename(FILE_NAME_2);
         segment12.setCreatedOn(LocalDateTime.now());
 
         Set<HearingRecordingSegment> segment1Set = new HashSet<>();
@@ -275,9 +326,11 @@ class SegmentDownloadServiceImplTest {
         HearingRecordingSegment segment21 = new HearingRecordingSegment();
         segment21.setId(SEGMENT21_ID);
         segment21.setRecordingSegment(1);
+        segment21.setFilename(FILE_NAME);
         HearingRecordingSegment segment22 = new HearingRecordingSegment();
         segment22.setId(SEGMENT22_ID);
         segment22.setRecordingSegment(0);
+        segment22.setFilename(FILE_NAME_2);
 
         Set<HearingRecordingSegment> segment2Set = new HashSet<>();
         segment2Set.add(segment21);
