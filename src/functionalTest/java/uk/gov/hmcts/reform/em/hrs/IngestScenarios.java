@@ -93,7 +93,7 @@ public class IngestScenarios extends BaseTest {
     public void shouldCreateHearingRecordingSegmentForVh() throws Exception {
         String caseRef = timeVhBasedCaseRef();
         UUID hearingRef = UUID.randomUUID();
-        String filename = vhFileName(caseRef, 0, INTERPRETER, hearingRef);
+        String filename = vhFileName(caseRef, 0, INTERPRETER, hearingRef, TIME);
         testUtil.uploadFileFromPathToVhContainer(filename, "data/test_data.mp4");
 
         Set<String> filenames = Set.of(filename);
@@ -125,21 +125,24 @@ public class IngestScenarios extends BaseTest {
     @Test
     public void shouldCreateHearingRecordingMultipleSegmentsForVh() throws Exception {
         String caseRef = timeVhBasedCaseRef();
-        Set<String> filenames;
         List<String> filenameList = new ArrayList<String>();
         UUID hearingRef = UUID.randomUUID();
-        int segmentCount = 2;
-        for (int segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
-            String filename = vhFileName(caseRef, segmentIndex, INTERPRETER, hearingRef);
-            filenameList.add(filename);
-            testUtil.uploadFileFromPathToVhContainer(filename,"data/test_data.mp4");
-        }
-        filenames = filenameList.stream().collect(Collectors.toSet());
+
+        String filename = vhFileName(caseRef, 0, INTERPRETER, hearingRef, TIME);
+        filenameList.add(filename);
+        testUtil.uploadFileFromPathToVhContainer(filename,"data/test_data.mp4");
+
+        String filename2 = vhFileName(caseRef, 0, INTERPRETER, hearingRef, TIME_2_VH);
+        filenameList.add(filename2);
+        testUtil.uploadFileFromPathToVhContainer(filename,"data/test_data.mp4");
+
+        Set<String> filenames = filenameList.stream().collect(Collectors.toSet());
 
         LOGGER.info("************* CHECKING VH HAS UPLOADED **********");
         testUtil.checkIfUploadedToStore(filenames, testUtil.vhBlobContainerClient);
         LOGGER.info("************* Files loaded to vh storage **********");
 
+        int segmentCount = 2;
         for (int segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
             postVhRecordingSegment(
                 caseRef,

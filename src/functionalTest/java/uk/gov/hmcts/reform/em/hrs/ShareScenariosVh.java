@@ -42,7 +42,7 @@ public class ShareScenariosVh extends BaseTest {
         int segment = 0;
         UUID hearingRef = UUID.randomUUID();
 
-        filename = vhFileName(caseRef, segment, null, hearingRef);
+        filename = vhFileName(caseRef, segment, null, hearingRef, TIME);
         filenames.add(filename);
 
 

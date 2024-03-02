@@ -97,6 +97,8 @@ public abstract class BaseTest {
     protected static final String FOLDER =
         "audiostream" + LocalDate.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"));
     protected static final String TIME = "2020-11-04-14.56.32.819";
+
+    protected static final String TIME_2_VH = "2020-11-04-16.00.30.123";
     public static final String CASEREF_PREFIX = "FUNCTEST_";
 
     public static final String VH_CASEREF_PREFIX = "VH-FUNCT-";
@@ -439,13 +441,13 @@ public abstract class BaseTest {
             + "-UTC_" + segment + ".mp4";
     }
 
-    protected String vhFileName(String caseRef, int segment, String interpreter, UUID hearingRef) {
+    protected String vhFileName(String caseRef, int segment, String interpreter, UUID hearingRef, String time) {
         if (interpreter != null && interpreter.toLowerCase().startsWith("interpreter")) {
             interpreter = interpreter + "_";
         } else {
             interpreter = "";
         }
-        return JURISDICTION + "-" + caseRef + "-" + hearingRef + "_" + interpreter + TIME
+        return JURISDICTION + "-" + caseRef + "-" + hearingRef + "_" + interpreter + time
             + "-UTC_" + segment + ".mp4";
     }
 
