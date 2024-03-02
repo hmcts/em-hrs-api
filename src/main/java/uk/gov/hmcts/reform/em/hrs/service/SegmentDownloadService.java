@@ -13,6 +13,9 @@ public interface SegmentDownloadService {
                                                                       String userToken, boolean isSharee);
 
 
+    HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentName(UUID recordingId, String segmentName,
+                                                                      String userToken, boolean isSharee);
+
     void download(HearingRecordingSegment segment, HttpServletRequest request,
                   HttpServletResponse response) throws IOException;
 }

@@ -107,6 +107,45 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
     }
 
     @Override
+    public HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentName(
+        UUID recordingId,
+        String segmentName,
+        String userToken,
+        boolean isSharee
+    ) {
+
+        if (isSharee) {
+            //Check if user access has expired
+            String userEmail = securityService.getUserEmail(userToken);
+            List<HearingRecordingSharee> hearingRecordingSharees =
+                shareesRepository.findByShareeEmailIgnoreCase(userEmail);
+            LOGGER.debug("User  {} is trying to access the recordingId  {} with segment Number {}",
+                         userEmail, recordingId, segmentName);
+            if (!isEmpty(hearingRecordingSharees)) {
+                LOGGER.debug("User  {} has shared recordings", userEmail);
+                Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
+                    .filter(hearingRecordingSharee ->
+                                hearingRecordingSharee.getHearingRecording().getId().equals(recordingId))
+                    .filter(hearingRecordingSharee ->
+                                getHearingRecordingShareeSegmentName(hearingRecordingSharee.getHearingRecording(),
+                                                                 segmentName))
+                    .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn(), userEmail))
+                    .findAny();
+                if (recordingSharee.isEmpty()) {
+                    throw new ValidationErrorException(Map.of("error", Constants.SHARED_EXPIRED_LINK_MSG));
+                }
+            } else {
+                LOGGER.debug("No Shared recordings found for user {}", userEmail);
+            }
+        }
+
+        HearingRecordingSegment segment =
+            segmentRepository.findByHearingRecordingIdAndFilename(recordingId, segmentName);
+
+        return segment;
+    }
+
+    @Override
     @PreAuthorize("hasPermission(#segment,'READ')")
     public void download(HearingRecordingSegment segment, HttpServletRequest request,
                          HttpServletResponse response) throws IOException {
@@ -197,6 +236,19 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
             .isEmpty();
         LOGGER.debug("Segment Match for segment number {} for hearingRecording with {} was {} ",
                      segmentNo, hearingRecording.getId(), !segmentMatch);
+        return !segmentMatch;
+    }
+
+    private boolean getHearingRecordingShareeSegmentName(HearingRecording hearingRecording,
+                                                     String segmentName) {
+        //Need to check if the segment is associated with this Sharee.
+        boolean segmentMatch = hearingRecording.getSegments()
+            .stream()
+            .filter(segment -> segment.getFilename().equalsIgnoreCase(segmentName))
+            .findAny()
+            .isEmpty();
+        LOGGER.debug("Segment Match for segment name {} for hearingRecording with {} was {} ",
+                     segmentName, hearingRecording.getId(), !segmentMatch);
         return !segmentMatch;
     }
 }

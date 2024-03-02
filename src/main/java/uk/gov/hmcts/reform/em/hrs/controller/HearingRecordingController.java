@@ -196,6 +196,51 @@ public class HearingRecordingController {
     }
 
     @GetMapping(
+        path = "/hearing-recordings/{recordingId}/segments/{segmentName}",
+        produces = APPLICATION_OCTET_STREAM_VALUE
+    )
+
+    @Operation(summary = "Get hearing recording file",
+        description = "Return hearing recording file from the specified folder",
+        parameters = {
+            @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
+                description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string")),
+            @Parameter(in = ParameterIn.HEADER, name = "Authorization",
+                description = "Authorization (Idam Bearer token)", required = true,
+                schema = @Schema(type = "string"))})
+    @ApiResponses(value =
+        {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")}
+    )
+    public ResponseEntity getSegmentBinaryByFileName(@PathVariable("recordingId") UUID recordingId,
+                                           @PathVariable("segmentName") String segmentName,
+                                           @RequestHeader(Constants.AUTHORIZATION) final String userToken,
+                                           HttpServletRequest request,
+                                           HttpServletResponse response) {
+        try {
+            //TODO this should return a 403 if its not in database
+            HearingRecordingSegment segment = segmentDownloadService
+                .fetchSegmentByRecordingIdAndSegmentName(recordingId, segmentName, userToken, false);
+
+
+            segmentDownloadService.download(segment, request, response);
+        } catch (AccessDeniedException e) {
+            LOGGER.warn(
+                "User does not have permission to download recording {}",
+                e.getMessage()
+            );
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (UncheckedIOException | IOException e) {
+            LOGGER.warn(
+                "IOException streaming response for recording ID: {} IOException message: {}",
+                recordingId, e.getMessage()
+            );//Exceptions are thrown during partial requests from front door (it throws client abort)
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping(
         path = "/hearing-recordings/{recordingId}/segments/{segment}/sharee",
         produces = APPLICATION_OCTET_STREAM_VALUE
     )
@@ -224,6 +269,53 @@ public class HearingRecordingController {
             //TODO this should return a 403 if its not in database
             HearingRecordingSegment segment = segmentDownloadService
                 .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, true);
+
+
+            segmentDownloadService.download(segment, request, response);
+        } catch (AccessDeniedException e) {
+            LOGGER.warn(
+                "User does not have permission to download recording {}",
+                e.getMessage()
+            );
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (UncheckedIOException | IOException e) {
+            LOGGER.warn(
+                "IOException streaming response for recording ID: {} IOException message: {}",
+                recordingId, e.getMessage()
+            );//Exceptions are thrown during partial requests from front door (it throws client abort)
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping(
+        path = "/hearing-recordings/{recordingId}/segments/{segmentName}/sharee",
+        produces = APPLICATION_OCTET_STREAM_VALUE
+    )
+    @ResponseBody
+    @Operation(summary = "Get hearing recording file",
+        description = "Return hearing recording file from the specified folder",
+        parameters = {
+            @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
+                description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string")),
+            @Parameter(in = ParameterIn.HEADER, name = "Authorization",
+                description = "Authorization (Idam Bearer token)", required = true,
+                schema = @Schema(type = "string"))})
+    @ApiResponses(
+        value = {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")}
+    )
+    public ResponseEntity getSegmentBinaryForShareeSegmentName(
+        @PathVariable("recordingId") UUID recordingId,
+        @PathVariable("segmentName") String segmentName,
+        @RequestHeader(Constants.AUTHORIZATION) final String userToken,
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        try {
+            //TODO this should return a 403 if its not in database
+            HearingRecordingSegment segment = segmentDownloadService
+                .fetchSegmentByRecordingIdAndSegmentName(recordingId, segmentName, userToken, true);
 
 
             segmentDownloadService.download(segment, request, response);
