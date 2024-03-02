@@ -120,7 +120,8 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
             List<HearingRecordingSharee> hearingRecordingSharees =
                 shareesRepository.findByShareeEmailIgnoreCase(userEmail);
             LOGGER.info("User  {} is trying to access the recordingId  {} with segment Name {}",
-                         userEmail, recordingId, segmentName); // Needs to be changed to DEBUG level after validation on Prod.
+                         userEmail, recordingId, segmentName);
+            // Needs to be changed to DEBUG level after validation on Prod.
             if (!isEmpty(hearingRecordingSharees)) {
                 LOGGER.debug("User  {} has shared recordings", userEmail);
                 Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
