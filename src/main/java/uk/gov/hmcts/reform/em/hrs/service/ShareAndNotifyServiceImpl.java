@@ -67,6 +67,7 @@ public class ShareAndNotifyServiceImpl implements ShareAndNotifyService {
             .map(url -> {
                 String downloadPath = url.substring(url.indexOf("/hearing-recordings"));
                 return xuiDomain + downloadPath + Constants.SHAREE;
+                //No change required here for VH Segment name logic.
             })
             .collect(Collectors.toList());
 

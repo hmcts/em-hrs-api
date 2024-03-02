@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
@@ -79,11 +80,19 @@ public class CaseDataContentCreator {
 
     private CaseRecordingFile createSegment(HearingRecordingDto hearingRecordingDto, UUID recordingId) {
 
-        String documentUrl = String.format("%s/hearing-recordings/%s/segments/%d",
-                                           hearingRecordingDto.getUrlDomain(), recordingId,
-                                           hearingRecordingDto.getSegment());
+        String documentUrl;
+        if (hearingRecordingDto.getRecordingSource().equals(HearingSource.VH)) {
+            documentUrl = String.format("%s/hearing-recordings/%s/%s/segments",
+                                        hearingRecordingDto.getUrlDomain(), recordingId,
+                                        hearingRecordingDto.getFilename());
+            LOGGER.info("creating VH recording segment with url({})", documentUrl);
+        } else {
+            documentUrl = String.format("%s/hearing-recordings/%s/segments/%d",
+                                        hearingRecordingDto.getUrlDomain(), recordingId,
+                                        hearingRecordingDto.getSegment());
+            LOGGER.info("creating recording segment with url({})", documentUrl);
+        }
 
-        LOGGER.info("creating recording segment with url({})", documentUrl);
 
         CaseDocument recordingFile = CaseDocument.builder()
             .filename(hearingRecordingDto.getFilename())
