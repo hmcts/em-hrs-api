@@ -81,7 +81,8 @@ public class CaseDataContentCreator {
     private CaseRecordingFile createSegment(HearingRecordingDto hearingRecordingDto, UUID recordingId) {
 
         String documentUrl;
-        if (hearingRecordingDto.getRecordingSource().equals(HearingSource.VH)) {
+        //if (hearingRecordingDto.getRecordingSource().equals(HearingSource.VH)) {
+        if (hearingRecordingDto.getRecordingSource().equals("XYZ")) {
             documentUrl = String.format("%s/hearing-recordings/%s/%s/segments",
                                         hearingRecordingDto.getUrlDomain(), recordingId,
                                         hearingRecordingDto.getFilename());
