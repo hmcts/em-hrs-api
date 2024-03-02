@@ -109,9 +109,16 @@ public class CcdUploadServiceImpl implements CcdUploadService {
 
         LOGGER.info("Case Details (id {}) updated successfully", caseDetailsId);
 
+        Integer segment = 0;
+        if (HearingSource.CVP == recordingDto.getRecordingSource()) {
+            segment = recordingDto.getSegment();
+        } else {
+            segment = recording.getSegments().size() + 1;
+        }
+
         try {
-            HearingRecordingSegment segment = createSegment(recording, recordingDto);
-            segmentRepository.saveAndFlush(segment);
+            HearingRecordingSegment hearingRecordingSegment = createSegment(recording, recordingDto, segment);
+            segmentRepository.saveAndFlush(hearingRecordingSegment);
             if (HearingSource.VH == recordingDto.getRecordingSource()) {
                 blobIndexMarker.setProcessed(recordingDto.getFilename());
             }
@@ -166,8 +173,12 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         recording = recordingRepository.saveAndFlush(recording);
         LOGGER.info("Created case in CCD: {} for  {} ", caseId, recordingDto.getRecordingSource());
 
-        HearingRecordingSegment segment = createSegment(recording, recordingDto);
-        segmentRepository.saveAndFlush(segment);
+        Integer segment = 0;
+        if (HearingSource.CVP == recordingDto.getRecordingSource()) {
+            segment = recordingDto.getSegment();
+        }
+        HearingRecordingSegment hearingRecordingSegment = createSegment(recording, recordingDto, segment);
+        segmentRepository.saveAndFlush(hearingRecordingSegment);
         if (HearingSource.VH == recordingDto.getRecordingSource()) {
             blobIndexMarker.setProcessed(recordingDto.getFilename());
         }
@@ -176,15 +187,16 @@ public class CcdUploadServiceImpl implements CcdUploadService {
 
     private HearingRecordingSegment createSegment(
         final HearingRecording recording,
-        final HearingRecordingDto recordingDto
-    ) {
+        final HearingRecordingDto recordingDto,
+        int segment) {
+
         return HearingRecordingSegment.builder()
             .filename(recordingDto.getFilename())
             .fileExtension(recordingDto.getFilenameExtension())
             .fileSizeMb(recordingDto.getFileSize())
             .fileMd5Checksum(recordingDto.getCheckSum())
             .ingestionFileSourceUri(recordingDto.getSourceBlobUrl())
-            .recordingSegment(recordingDto.getSegment())
+            .recordingSegment(segment)
             .hearingRecording(recording)
             .interpreter(recordingDto.getInterpreter())
             .build();
