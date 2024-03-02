@@ -52,6 +52,11 @@ public class HearingRecordingController {
     private final SegmentDownloadService segmentDownloadService;
     private final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
 
+    private static final String USER_PERMISSION_MSG = "User does not have permission to download recording {}";
+
+    private static final String STREAMING_EXCEPTION_MSG =
+        "IOException streaming response for recording ID: {} IOException message: {}";
+
     @Autowired
     public HearingRecordingController(
         final ShareAndNotifyService shareAndNotifyService,
@@ -174,23 +179,17 @@ public class HearingRecordingController {
                                            HttpServletRequest request,
                                            HttpServletResponse response) {
         try {
-            //TODO this should return a 403 if its not in database
             HearingRecordingSegment segment = segmentDownloadService
                 .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, false);
 
 
             segmentDownloadService.download(segment, request, response);
         } catch (AccessDeniedException e) {
-            LOGGER.warn(
-                "User does not have permission to download recording {}",
-                e.getMessage()
-            );
+            LOGGER.warn(USER_PERMISSION_MSG, e.getMessage());
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         } catch (UncheckedIOException | IOException e) {
-            LOGGER.warn(
-                "IOException streaming response for recording ID: {} IOException message: {}",
-                recordingId, e.getMessage()
-            );//Exceptions are thrown during partial requests from front door (it throws client abort)
+            LOGGER.warn(STREAMING_EXCEPTION_MSG, recordingId, e.getMessage());
+            //Exceptions are thrown during partial requests from front door (it throws client abort)
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -219,23 +218,16 @@ public class HearingRecordingController {
                                            HttpServletRequest request,
                                            HttpServletResponse response) {
         try {
-            //TODO this should return a 403 if its not in database
             HearingRecordingSegment segment = segmentDownloadService
                 .fetchSegmentByRecordingIdAndSegmentName(recordingId, segmentName, userToken, false);
 
 
             segmentDownloadService.download(segment, request, response);
         } catch (AccessDeniedException e) {
-            LOGGER.warn(
-                "User does not have permission to download recording {}",
-                e.getMessage()
-            );
+            LOGGER.warn(USER_PERMISSION_MSG, e.getMessage());
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         } catch (UncheckedIOException | IOException e) {
-            LOGGER.warn(
-                "IOException streaming response for recording ID: {} IOException message: {}",
-                recordingId, e.getMessage()
-            );//Exceptions are thrown during partial requests from front door (it throws client abort)
+            LOGGER.warn(STREAMING_EXCEPTION_MSG, recordingId, e.getMessage());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -266,23 +258,17 @@ public class HearingRecordingController {
         HttpServletResponse response
     ) {
         try {
-            //TODO this should return a 403 if its not in database
             HearingRecordingSegment segment = segmentDownloadService
                 .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, true);
 
 
             segmentDownloadService.download(segment, request, response);
         } catch (AccessDeniedException e) {
-            LOGGER.warn(
-                "User does not have permission to download recording {}",
-                e.getMessage()
-            );
+            LOGGER.warn(USER_PERMISSION_MSG, e.getMessage());
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         } catch (UncheckedIOException | IOException e) {
-            LOGGER.warn(
-                "IOException streaming response for recording ID: {} IOException message: {}",
-                recordingId, e.getMessage()
-            );//Exceptions are thrown during partial requests from front door (it throws client abort)
+            LOGGER.warn(STREAMING_EXCEPTION_MSG, recordingId, e.getMessage());
+            //Exceptions are thrown during partial requests from front door (it throws client abort)
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -313,23 +299,16 @@ public class HearingRecordingController {
         HttpServletResponse response
     ) {
         try {
-            //TODO this should return a 403 if its not in database
             HearingRecordingSegment segment = segmentDownloadService
                 .fetchSegmentByRecordingIdAndSegmentName(recordingId, segmentName, userToken, true);
 
 
             segmentDownloadService.download(segment, request, response);
         } catch (AccessDeniedException e) {
-            LOGGER.warn(
-                "User does not have permission to download recording {}",
-                e.getMessage()
-            );
+            LOGGER.warn(USER_PERMISSION_MSG, e.getMessage());
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         } catch (UncheckedIOException | IOException e) {
-            LOGGER.warn(
-                "IOException streaming response for recording ID: {} IOException message: {}",
-                recordingId, e.getMessage()
-            );//Exceptions are thrown during partial requests from front door (it throws client abort)
+            LOGGER.warn(STREAMING_EXCEPTION_MSG, recordingId, e.getMessage());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -139,10 +139,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
             }
         }
 
-        HearingRecordingSegment segment =
-            segmentRepository.findByHearingRecordingIdAndFilename(recordingId, segmentName);
-
-        return segment;
+        return segmentRepository.findByHearingRecordingIdAndFilename(recordingId, segmentName);
     }
 
     @Override
