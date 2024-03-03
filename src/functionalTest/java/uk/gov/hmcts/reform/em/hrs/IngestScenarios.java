@@ -134,7 +134,7 @@ public class IngestScenarios extends BaseTest {
 
         String filename2 = vhFileName(caseRef, 0, INTERPRETER, hearingRef, TIME_2_VH);
         filenameList.add(filename2);
-        testUtil.uploadFileFromPathToVhContainer(filename,"data/test_data.mp4");
+        testUtil.uploadFileFromPathToVhContainer(filename2,"data/test_data.mp4");
 
         Set<String> filenames = filenameList.stream().collect(Collectors.toSet());
 
