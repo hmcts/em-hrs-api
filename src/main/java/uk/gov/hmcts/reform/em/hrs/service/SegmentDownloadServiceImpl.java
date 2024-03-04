@@ -150,7 +150,8 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
                 throw new ValidationErrorException(Map.of("error", Constants.SHARED_EXPIRED_LINK_MSG));
             }
         } else {
-            LOGGER.debug("No Shared recordings found for user {}", userEmail);
+            LOGGER.error("No Shared recordings found for user {}", userEmail);
+            throw new ValidationErrorException(Map.of("error", Constants.NO_SHARED_FILE_FOR_USER));
         }
     }
 
@@ -255,7 +256,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         //Need to check if the segment is associated with this Sharee.
         boolean segmentMatch = hearingRecording.getSegments()
             .stream()
-            .filter(segment -> segment.getFilename().equals(fileName))
+            .filter(segment -> fileName.equals(segment.getFilename()))
             .findAny()
             .isPresent();
         LOGGER.debug("Segment Match for fileName {} for hearingRecording with {} was {} ",

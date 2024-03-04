@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Supplier;
 
 import static org.springframework.http.HttpStatus.ACCEPTED;
 import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
@@ -173,26 +174,15 @@ public class HearingRecordingController {
                                            @RequestHeader(Constants.AUTHORIZATION) final String userToken,
                                            HttpServletRequest request,
                                            HttpServletResponse response) {
-        try {
-            //TODO this should return a 403 if its not in database
-            HearingRecordingSegment segment = segmentDownloadService
-                .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, false);
+        return this.downloadWrapper(
+            recordingId,
+            () ->
+                segmentDownloadService
+                    .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, false),
+            request,
+            response
+        );
 
-
-            segmentDownloadService.download(segment, request, response);
-        } catch (AccessDeniedException e) {
-            LOGGER.warn(
-                "User does not have permission to download recording {}",
-                e.getMessage()
-            );
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (UncheckedIOException | IOException e) {
-            LOGGER.warn(
-                "IOException streaming response for recording ID: {} IOException message: {}",
-                recordingId, e.getMessage()
-            );//Exceptions are thrown during partial requests from front door (it throws client abort)
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping(
@@ -218,24 +208,15 @@ public class HearingRecordingController {
         HttpServletRequest request,
         HttpServletResponse response) {
         LOGGER.info("recordingId:{}, fileName:{}", recordingId, fileName);
-        fileName = removeSlash(fileName);
-        try {
-            HearingRecordingSegment segment = segmentDownloadService
-                .fetchSegmentByRecordingIdAndFileName(recordingId, fileName);
-            segmentDownloadService.download(segment, request, response);
-        } catch (AccessDeniedException e) {
-            LOGGER.warn(
-                "User does not have permission to download recording {}",
-                e.getMessage()
-            );
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (UncheckedIOException | IOException e) {
-            LOGGER.warn(
-                "IOException streaming response for recording ID: {} IOException message: {}",
-                recordingId, e.getMessage()
-            );//Exceptions are thrown during partial requests from front door (it throws client abort)
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
+        var fileNameSanitised = removeSlash(fileName);
+        return this.downloadWrapper(
+            recordingId,
+            () ->
+                segmentDownloadService
+                    .fetchSegmentByRecordingIdAndFileName(recordingId, fileNameSanitised),
+            request,
+            response
+        );
     }
 
     @GetMapping(
@@ -263,25 +244,16 @@ public class HearingRecordingController {
         HttpServletRequest request,
         HttpServletResponse response
     ) {
-        fileName = removeSlash(fileName);
-        try {
-            HearingRecordingSegment segment = segmentDownloadService
-                .fetchSegmentByRecordingIdAndFileNameForSharee(recordingId, fileName, userToken);
+        var fileNameSanitised = removeSlash(fileName);
 
-            segmentDownloadService.download(segment, request, response);
-        } catch (AccessDeniedException e) {
-            LOGGER.warn(
-                "User does not have permission to download recording {}",
-                e.getMessage()
-            );
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (UncheckedIOException | IOException e) {
-            LOGGER.warn(
-                "IOException streaming response for recording ID: {} IOException message: {}",
-                recordingId, e.getMessage()
-            );//Exceptions are thrown during partial requests from front door (it throws client abort)
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return this.downloadWrapper(
+            recordingId,
+            () ->
+                segmentDownloadService
+                    .fetchSegmentByRecordingIdAndFileNameForSharee(recordingId, fileNameSanitised, userToken),
+            request,
+            response
+        );
     }
 
     @GetMapping(
@@ -309,12 +281,23 @@ public class HearingRecordingController {
         HttpServletRequest request,
         HttpServletResponse response
     ) {
+        return this.downloadWrapper(
+            recordingId,
+            () ->
+                segmentDownloadService
+                    .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, true),
+            request,
+            response
+        );
+    }
+
+    private ResponseEntity downloadWrapper(
+        UUID recordingId,
+        Supplier<HearingRecordingSegment> func,
+        HttpServletRequest request,
+        HttpServletResponse response) {
         try {
-            //TODO this should return a 403 if its not in database
-            HearingRecordingSegment segment = segmentDownloadService
-                .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, true);
-
-
+            HearingRecordingSegment segment = func.get();
             segmentDownloadService.download(segment, request, response);
         } catch (AccessDeniedException e) {
             LOGGER.warn(
@@ -330,7 +313,6 @@ public class HearingRecordingController {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 
     private String removeSlash(String input) {
         if (input.startsWith("/")) {
