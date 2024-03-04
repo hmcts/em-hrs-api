@@ -76,7 +76,7 @@ public class SecurityConfiguration {
                          httpSecurityHeadersConfigurer.cacheControl(HeadersConfigurer.CacheControlConfig::disable));
 
         http.securityMatchers(requestMatcherConfigurer ->
-                                  requestMatcherConfigurer.requestMatchers("/segments", "/folders/*"))
+                                  requestMatcherConfigurer.anyRequest())
             .addFilterBefore(emServiceAuthFilter, AnonymousAuthenticationFilter.class)
             .sessionManagement(httpSecuritySessionManagementConfigurer ->
                                    httpSecuritySessionManagementConfigurer.sessionCreationPolicy(STATELESS))
