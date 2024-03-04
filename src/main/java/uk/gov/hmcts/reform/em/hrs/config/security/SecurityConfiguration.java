@@ -100,7 +100,7 @@ public class SecurityConfiguration {
             .authorizeHttpRequests(matcherRegistry ->
                                        matcherRegistry.requestMatchers(
                                            HttpMethod.GET,
-                                           "/hearing-recordings/**"
+                                           "**/hearing-recordings/**"
                                        ).authenticated())
             .authorizeHttpRequests(matcherRegistry ->
                                        matcherRegistry.requestMatchers(HttpMethod.POST, "/sharees").authenticated())

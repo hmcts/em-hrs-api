@@ -196,6 +196,95 @@ public class HearingRecordingController {
     }
 
     @GetMapping(
+        path = "/hearing-recordings/{recordingId}/file/{*fileName}",
+        produces = APPLICATION_OCTET_STREAM_VALUE
+    )
+    @Operation(summary = "Get hearing recording file",
+        description = "Return hearing recording file",
+        parameters = {
+            @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
+                description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string")),
+            @Parameter(in = ParameterIn.HEADER, name = "Authorization",
+                description = "Authorization (Idam Bearer token)", required = true,
+                schema = @Schema(type = "string"))})
+    @ApiResponses(value =
+        {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")}
+    )
+    public ResponseEntity getSegmentBinaryByFileName(
+        @PathVariable("recordingId") UUID recordingId,
+        @PathVariable("fileName") String fileName,
+        HttpServletRequest request,
+        HttpServletResponse response) {
+        LOGGER.info("recordingId:{}, fileName:{}", recordingId, fileName);
+        fileName = removeSlash(fileName);
+        try {
+            HearingRecordingSegment segment = segmentDownloadService
+                .fetchSegmentByRecordingIdAndFileName(recordingId, fileName);
+            segmentDownloadService.download(segment, request, response);
+        } catch (AccessDeniedException e) {
+            LOGGER.warn(
+                "User does not have permission to download recording {}",
+                e.getMessage()
+            );
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (UncheckedIOException | IOException e) {
+            LOGGER.warn(
+                "IOException streaming response for recording ID: {} IOException message: {}",
+                recordingId, e.getMessage()
+            );//Exceptions are thrown during partial requests from front door (it throws client abort)
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping(
+        path = "/sharee/hearing-recordings/{recordingId}/file/{*fileName}",
+        produces = APPLICATION_OCTET_STREAM_VALUE
+    )
+    @ResponseBody
+    @Operation(summary = "Get hearing recording file",
+        description = "Return hearing recording file from the specified folder",
+        parameters = {
+            @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
+                description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string")),
+            @Parameter(in = ParameterIn.HEADER, name = "Authorization",
+                description = "Authorization (Idam Bearer token)", required = true,
+                schema = @Schema(type = "string"))})
+    @ApiResponses(
+        value = {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")}
+    )
+    public ResponseEntity getSegmentBinaryForShareeByFileName(
+        @PathVariable("recordingId") UUID recordingId,
+        @PathVariable("fileName") String fileName,
+        @RequestHeader(Constants.AUTHORIZATION) final String userToken,
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        fileName = removeSlash(fileName);
+        try {
+            HearingRecordingSegment segment = segmentDownloadService
+                .fetchSegmentByRecordingIdAndFileNameForSharee(recordingId, fileName, userToken);
+
+            segmentDownloadService.download(segment, request, response);
+        } catch (AccessDeniedException e) {
+            LOGGER.warn(
+                "User does not have permission to download recording {}",
+                e.getMessage()
+            );
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (UncheckedIOException | IOException e) {
+            LOGGER.warn(
+                "IOException streaming response for recording ID: {} IOException message: {}",
+                recordingId, e.getMessage()
+            );//Exceptions are thrown during partial requests from front door (it throws client abort)
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping(
         path = "/hearing-recordings/{recordingId}/segments/{segment}/sharee",
         produces = APPLICATION_OCTET_STREAM_VALUE
     )
@@ -242,4 +331,11 @@ public class HearingRecordingController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
+    private String removeSlash(String input) {
+        if (input.startsWith("/")) {
+            return input.substring(1);
+        }
+        return input;
+    }
 }

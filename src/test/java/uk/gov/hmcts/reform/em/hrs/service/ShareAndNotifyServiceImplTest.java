@@ -56,13 +56,14 @@ class ShareAndNotifyServiceImplTest {
 
     private static final String SHAREE_LINK = "/hearing-recordings/1234/segments/0/sharee";
     private static final String SHAREE_URL = "http://em-hrs-api.com/hearing-recordings/1234/segments/0";
-    private static final String XUI_SHAREE_URL = "https://xui.domain/hearing-recordings/1234/segments/0/sharee";
+    private static final String XUI_SHAREE_URL = "https://xui.domain/sharee/hearing-recordings/1234/segments/0";
 
     @Test
     void testShouldSendNotificationSuccessfullyForDuplicatedShare() throws Exception {
         CaseHearingRecording caseData = CaseHearingRecording.builder()
             .shareeEmail(SHAREE_EMAIL_ADDRESS)
             .recordingReference(CASE_REFERENCE)
+            .hearingSource("VH")
             .recordingDate(RECORDING_DATE)
             .recordingTimeOfDay(RECORDING_TIMEOFDAY)
             .recordingFiles(Collections.singletonList(Map.of("value", CASE_RECORDING_FILE))).build();

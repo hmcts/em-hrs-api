@@ -119,6 +119,17 @@ class SegmentDownloadServiceImplTest {
         assertEquals(TestUtil.CCD_CASE_ID, returnedSegment.getHearingRecording().getCcdCaseId());
     }
 
+
+    @Test
+    void testFetchSegmentByRecordingIdAndFileName() {
+        doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndFilename(SEGMENT_ID, FILE_NAME);
+        HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndFileName(
+            SEGMENT_ID, FILE_NAME);
+        assertEquals(SEGMENT_ID, returnedSegment.getId());
+        assertEquals(FILE_NAME, returnedSegment.getFilename());
+        assertEquals(TestUtil.CCD_CASE_ID, returnedSegment.getHearingRecording().getCcdCaseId());
+    }
+
     @Test
     void testFetchSegmentByRecordingIdAndSegmentNumberForNonExpiredLink() {
         segment.setRecordingSegment(1);
