@@ -16,8 +16,8 @@ plugins {
   id 'org.flywaydb.flyway' version '10.8.1'
   id 'au.com.dius.pact' version '4.2.14'
   id "info.solidsoft.pitest" version '1.15.0'
-  id 'com.github.hmcts.rse-cft-lib' version '0.19.1073'
-  id 'uk.gov.hmcts.java' version '0.12.56'
+  id 'com.github.hmcts.rse-cft-lib' version '0.19.1088'
+  id 'uk.gov.hmcts.java' version '0.12.57'
   id 'org.owasp.dependencycheck' version '9.0.9'
   id 'net.serenity-bdd.serenity-gradle-plugin' version '3.0.0'
 }
@@ -228,7 +228,7 @@ configurations.all {
 dependencyManagement {
   dependencies {
     // CVE-2023-6378
-    dependencySet(group: 'ch.qos.logback', version: '1.5.1') {
+    dependencySet(group: 'ch.qos.logback', version: '1.5.2') {
       entry 'logback-classic'
       entry 'logback-core'
     }
@@ -262,7 +262,7 @@ def versions = [
   junit              : '5.10.2',
   junitPlatform      : '1.10.2',
   springSecurity     : '6.2.2',
-  shedlock           : '5.11.0',
+  shedlock           : '5.12.0',
   testcontainers     : '1.19.6',
   springCloud        : '4.1.0'
 ]
@@ -315,7 +315,7 @@ dependencies {
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.3.0'
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.25.2'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.11.2'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.11.3'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.5.0-rc1'
