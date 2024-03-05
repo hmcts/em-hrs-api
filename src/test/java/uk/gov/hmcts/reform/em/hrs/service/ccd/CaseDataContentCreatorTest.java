@@ -16,6 +16,8 @@ import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -36,6 +38,9 @@ class CaseDataContentCreatorTest {
     HearingRecordingDto hearingRecordingDto;
     CaseDataContentCreator underTest;
 
+    private String fileName = "audiostream123/recording-file-1";
+    private String fileNameEncoded =  URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+
     @BeforeEach
     void setup() {
         objectMapper = JsonMapper.builder() // or different mapper for other format
@@ -48,7 +53,7 @@ class CaseDataContentCreatorTest {
         hearingRecordingDto = HearingRecordingDto.builder()
             .caseRef(RECORDING_REF)
             .recordingSource(HearingSource.CVP)
-            .filename("recording-file-1")
+            .filename(fileName)
             .recordingDateTime(LocalDateTime.parse(dateString, formatter))
             .jurisdictionCode("FM")
             .urlDomain("http://xui.com")
@@ -88,7 +93,7 @@ class CaseDataContentCreatorTest {
             String.format(
                 "http://xui.com/hearing-recordings/%s/file/%s",
                 RECORDING_ID,
-                hearingRecordingDto.getFilename()
+                fileNameEncoded
             ),
             actual.at("/recordingFiles/0/value/documentLink/document_url").asText()
         );
@@ -99,7 +104,7 @@ class CaseDataContentCreatorTest {
         Map<String, CaseRecordingFile> valueMap = new HashMap<>();
         valueMap.put("value", CaseRecordingFile.builder()
             .caseDocument(CaseDocument.builder()
-                .url("http://xui.com/hearing-recordings/12345/segments/1").filename("recording-file-2").build()
+                .url("http://xui.com/hearing-recordings/12345/segments/0").filename("recording-file-2").build()
             ).build()
         );
         List<Map> segmentList = new ArrayList<>();
@@ -111,7 +116,14 @@ class CaseDataContentCreatorTest {
 
         JsonNode resultNode = objectMapper.convertValue(actual, JsonNode.class);
 
-        assertEquals("http://xui.com/hearing-recordings/12345/segments/1",
-                     resultNode.at("/recordingFiles/0/value/documentLink/document_url").asText());
+        assertEquals(
+            "http://xui.com/hearing-recordings/12345/segments/0",
+            resultNode.at("/recordingFiles/0/value/documentLink/document_url").asText()
+        );
+
+        assertEquals(
+            "http://xui.com/hearing-recordings/" + RECORDING_ID + "/file/" + this.fileNameEncoded,
+            resultNode.at("/recordingFiles/1/value/documentLink/document_url").asText()
+        );
     }
 }

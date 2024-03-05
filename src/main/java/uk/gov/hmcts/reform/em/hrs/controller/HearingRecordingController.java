@@ -34,6 +34,8 @@ import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Supplier;
@@ -185,8 +187,7 @@ public class HearingRecordingController {
 
     }
 
-    @GetMapping(path = {"/hearing-recordings/{recordingId}/file/{fileName}",
-        "/hearing-recordings/{recordingId}/file/{folder}/{fileName}"},
+    @GetMapping(path = "/hearing-recordings/{recordingId}/file/{fileName}",
         produces = APPLICATION_OCTET_STREAM_VALUE)
     @Operation(summary = "Get hearing recording file",
         description = "Return hearing recording file",
@@ -203,25 +204,23 @@ public class HearingRecordingController {
     )
     public ResponseEntity getSegmentBinaryByFileName(
         @PathVariable("recordingId") UUID recordingId,
-        @PathVariable(name = "folder", required = false) String folder,
         @PathVariable("fileName") String fileName,
         HttpServletRequest request,
         HttpServletResponse response) {
         LOGGER.info("recordingId:{}, fileName:{}", recordingId, fileName);
-        var fileNameSanitised = appendFolderNameIfExists(folder, fileName);
+        var fileNameDecoded = decodeFileName(fileName);
         return this.downloadWrapper(
             recordingId,
             () ->
                 segmentDownloadService
-                    .fetchSegmentByRecordingIdAndFileName(recordingId, fileNameSanitised),
+                    .fetchSegmentByRecordingIdAndFileName(recordingId, fileNameDecoded),
             request,
             response
         );
     }
 
     @GetMapping(
-        path = {"/hearing-recordings/{recordingId}/file/{fileName}/sharee",
-                "/hearing-recordings/{recordingId}/file/{folder}/{fileName}/sharee"},
+        path = "/hearing-recordings/{recordingId}/file/{fileName}/sharee",
         produces = APPLICATION_OCTET_STREAM_VALUE
     )
     @ResponseBody
@@ -241,18 +240,17 @@ public class HearingRecordingController {
     public ResponseEntity getSegmentBinaryForShareeByFileName(
         @PathVariable("recordingId") UUID recordingId,
         @PathVariable("fileName") String fileName,
-        @PathVariable(name = "folder", required = false) String folder,
         @RequestHeader(Constants.AUTHORIZATION) final String userToken,
         HttpServletRequest request,
         HttpServletResponse response
     ) {
-        var fileNameSanitised = appendFolderNameIfExists(folder, fileName);
+        var fileNameDecoded = decodeFileName(fileName);
 
         return this.downloadWrapper(
             recordingId,
             () ->
                 segmentDownloadService
-                    .fetchSegmentByRecordingIdAndFileNameForSharee(recordingId, fileNameSanitised, userToken),
+                    .fetchSegmentByRecordingIdAndFileNameForSharee(recordingId, fileNameDecoded, userToken),
             request,
             response
         );
@@ -316,10 +314,7 @@ public class HearingRecordingController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private String appendFolderNameIfExists(String folder, String fileName) {
-        if (folder != null && !"".equals(folder)) {
-            return folder + "/" + fileName;
-        }
-        return fileName;
+    private String decodeFileName(String fileNameEncoded) {
+        return URLDecoder.decode(fileNameEncoded, StandardCharsets.UTF_8);
     }
 }

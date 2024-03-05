@@ -23,6 +23,8 @@ import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -167,6 +169,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
     void testShouldDownloadSegmentByName() throws Exception {
         UUID recordingId = UUID.randomUUID();
         String fileName = "stream2123/3221-3232_test_file-321321-1.mp4";
+
         HearingRecordingSegment segment = new HearingRecordingSegment();
         segment.setFilename(fileName);
 
@@ -177,8 +180,8 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
 
         doReturn(hearingRecordingSegmentAuditEntry).when(auditEntryService)
             .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
-
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/file/%s", recordingId, fileName))
+        String fileNameEncoded = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/file/%s", recordingId, fileNameEncoded))
                             .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isOk()).andReturn();
 
@@ -197,8 +200,8 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
             .fetchSegmentByRecordingIdAndFileName(recordingId, fileName);
         doThrow(new SegmentDownloadException("failed download")).when(segmentDownloadService)
             .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
-
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/file/%s", recordingId, fileName))
+        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/file/%s", recordingId, encodedFileName))
                             .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isInternalServerError())
             .andReturn();
@@ -275,8 +278,8 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
 
         doReturn(hearingRecordingSegmentAuditEntry).when(auditEntryService)
             .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
-
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/file/%s/sharee", recordingId, fileName))
+        String fileNameEncoded = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/file/%s/sharee", recordingId, fileNameEncoded))
                             .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isOk())
             .andReturn();

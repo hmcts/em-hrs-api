@@ -10,6 +10,8 @@ import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -79,10 +81,15 @@ public class CaseDataContentCreator {
 
     private CaseRecordingFile createSegment(HearingRecordingDto hearingRecordingDto, UUID recordingId) {
 
-        String documentUrl = String.format("%s/hearing-recordings/%s/file/%s",
-                                           hearingRecordingDto.getUrlDomain(),
-                                           recordingId,
-                                           hearingRecordingDto.getFilename());
+        String documentUrl = String.format(
+            "%s/hearing-recordings/%s/file/%s",
+            hearingRecordingDto.getUrlDomain(),
+            recordingId,
+            URLEncoder.encode(
+                hearingRecordingDto.getFilename(),
+                StandardCharsets.UTF_8
+            )
+        );
 
         LOGGER.info("creating recording segment with url({})", documentUrl);
 
