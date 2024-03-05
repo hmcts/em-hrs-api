@@ -66,7 +66,7 @@ public class ShareAndNotifyServiceImpl implements ShareAndNotifyService {
             .map(caseDocument ->  caseDocument.getBinaryUrl())
             .map(url -> {
                 String downloadPath = url.substring(url.indexOf("/hearing-recordings"));
-                return xuiDomain + Constants.SHAREE + downloadPath;
+                return xuiDomain + downloadPath + Constants.SHAREE;
             })
             .collect(Collectors.toList());
 

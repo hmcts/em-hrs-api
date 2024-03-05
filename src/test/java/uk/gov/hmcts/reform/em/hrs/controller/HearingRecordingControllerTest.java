@@ -276,7 +276,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
         doReturn(hearingRecordingSegmentAuditEntry).when(auditEntryService)
             .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
 
-        mockMvc.perform(get(String.format("/sharee/hearing-recordings/%s/file/%s", recordingId, fileName))
+        mockMvc.perform(get(String.format("/hearing-recordings/%s/file/%s/sharee", recordingId, fileName))
                             .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isOk())
             .andReturn();

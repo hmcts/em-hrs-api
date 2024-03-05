@@ -185,10 +185,9 @@ public class HearingRecordingController {
 
     }
 
-    @GetMapping(
-        path = "/hearing-recordings/{recordingId}/file/{*fileName}",
-        produces = APPLICATION_OCTET_STREAM_VALUE
-    )
+    @GetMapping(path = {"/hearing-recordings/{recordingId}/file/{fileName}",
+        "/hearing-recordings/{recordingId}/file/{folder}/{fileName}"},
+        produces = APPLICATION_OCTET_STREAM_VALUE)
     @Operation(summary = "Get hearing recording file",
         description = "Return hearing recording file",
         parameters = {
@@ -204,11 +203,12 @@ public class HearingRecordingController {
     )
     public ResponseEntity getSegmentBinaryByFileName(
         @PathVariable("recordingId") UUID recordingId,
+        @PathVariable(name = "folder", required = false) String folder,
         @PathVariable("fileName") String fileName,
         HttpServletRequest request,
         HttpServletResponse response) {
         LOGGER.info("recordingId:{}, fileName:{}", recordingId, fileName);
-        var fileNameSanitised = removeSlash(fileName);
+        var fileNameSanitised = appendFolderNameIfExists(folder, fileName);
         return this.downloadWrapper(
             recordingId,
             () ->
@@ -220,7 +220,8 @@ public class HearingRecordingController {
     }
 
     @GetMapping(
-        path = "/sharee/hearing-recordings/{recordingId}/file/{*fileName}",
+        path = {"/hearing-recordings/{recordingId}/file/{fileName}/sharee",
+                "/hearing-recordings/{recordingId}/file/{folder}/{fileName}/sharee"},
         produces = APPLICATION_OCTET_STREAM_VALUE
     )
     @ResponseBody
@@ -240,11 +241,12 @@ public class HearingRecordingController {
     public ResponseEntity getSegmentBinaryForShareeByFileName(
         @PathVariable("recordingId") UUID recordingId,
         @PathVariable("fileName") String fileName,
+        @PathVariable(name = "folder", required = false) String folder,
         @RequestHeader(Constants.AUTHORIZATION) final String userToken,
         HttpServletRequest request,
         HttpServletResponse response
     ) {
-        var fileNameSanitised = removeSlash(fileName);
+        var fileNameSanitised = appendFolderNameIfExists(folder, fileName);
 
         return this.downloadWrapper(
             recordingId,
@@ -314,10 +316,10 @@ public class HearingRecordingController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private String removeSlash(String input) {
-        if (input.startsWith("/")) {
-            return input.substring(1);
+    private String appendFolderNameIfExists(String folder, String fileName) {
+        if (folder != null && !"".equals(folder)) {
+            return folder + "/" + fileName;
         }
-        return input;
+        return fileName;
     }
 }
