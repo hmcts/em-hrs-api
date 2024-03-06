@@ -76,7 +76,11 @@ public class SecurityConfiguration {
                          httpSecurityHeadersConfigurer.cacheControl(HeadersConfigurer.CacheControlConfig::disable));
 
         http.securityMatchers(requestMatcherConfigurer ->
-                                  requestMatcherConfigurer.requestMatchers("/segments", "/folders/*"))
+                                  requestMatcherConfigurer.requestMatchers(
+                                      "/hearing-recordings",
+                                      "/segments",
+                                      "/folders/*"
+                                  ))
             .addFilterBefore(emServiceAuthFilter, AnonymousAuthenticationFilter.class)
             .sessionManagement(httpSecuritySessionManagementConfigurer ->
                                    httpSecuritySessionManagementConfigurer.sessionCreationPolicy(STATELESS))
