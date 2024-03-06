@@ -31,11 +31,10 @@ import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.service.Constants;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
+import uk.gov.hmcts.reform.em.hrs.util.FileNameCoder;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Supplier;
@@ -208,7 +207,7 @@ public class HearingRecordingController {
         HttpServletRequest request,
         HttpServletResponse response) {
         LOGGER.info("recordingId:{}, fileName:{}", recordingId, fileName);
-        var fileNameDecoded = decodeFileName(fileName);
+        var fileNameDecoded = FileNameCoder.decodeFileName(fileName);
         return this.downloadWrapper(
             recordingId,
             () ->
@@ -244,7 +243,7 @@ public class HearingRecordingController {
         HttpServletRequest request,
         HttpServletResponse response
     ) {
-        var fileNameDecoded = decodeFileName(fileName);
+        var fileNameDecoded = FileNameCoder.decodeFileName(fileName);
 
         return this.downloadWrapper(
             recordingId,
@@ -312,9 +311,5 @@ public class HearingRecordingController {
             );//Exceptions are thrown during partial requests from front door (it throws client abort)
         }
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    private String decodeFileName(String fileNameEncoded) {
-        return URLDecoder.decode(fileNameEncoded, StandardCharsets.UTF_8);
     }
 }

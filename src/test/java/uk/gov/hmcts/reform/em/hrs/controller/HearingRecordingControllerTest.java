@@ -21,10 +21,9 @@ import uk.gov.hmcts.reform.em.hrs.service.AuditEntryService;
 import uk.gov.hmcts.reform.em.hrs.service.Constants;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
+import uk.gov.hmcts.reform.em.hrs.util.FileNameCoder;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -180,7 +179,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
 
         doReturn(hearingRecordingSegmentAuditEntry).when(auditEntryService)
             .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
-        String fileNameEncoded = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+        String fileNameEncoded = FileNameCoder.encodeFileName(fileName);
         mockMvc.perform(get(String.format("/hearing-recordings/%s/file/%s", recordingId, fileNameEncoded))
                             .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isOk()).andReturn();
@@ -200,7 +199,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
             .fetchSegmentByRecordingIdAndFileName(recordingId, fileName);
         doThrow(new SegmentDownloadException("failed download")).when(segmentDownloadService)
             .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
-        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+        String encodedFileName = FileNameCoder.encodeFileName(fileName);
         mockMvc.perform(get(String.format("/hearing-recordings/%s/file/%s", recordingId, encodedFileName))
                             .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isInternalServerError())
@@ -278,7 +277,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
 
         doReturn(hearingRecordingSegmentAuditEntry).when(auditEntryService)
             .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
-        String fileNameEncoded = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+        String fileNameEncoded = FileNameCoder.encodeFileName(fileName);
         mockMvc.perform(get(String.format("/hearing-recordings/%s/file/%s/sharee", recordingId, fileNameEncoded))
                             .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isOk())

@@ -15,9 +15,8 @@ import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
+import uk.gov.hmcts.reform.em.hrs.util.FileNameCoder;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ class CaseDataContentCreatorTest {
     CaseDataContentCreator underTest;
 
     private String fileName = "audiostream123/recording-file-1";
-    private String fileNameEncoded =  URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+    private String fileNameEncoded =  FileNameCoder.encodeFileName(fileName);
 
     @BeforeEach
     void setup() {
