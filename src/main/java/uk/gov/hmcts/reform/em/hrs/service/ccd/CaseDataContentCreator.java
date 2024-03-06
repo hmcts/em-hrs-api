@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
@@ -110,5 +112,29 @@ public class CaseDataContentCreator {
         LOGGER.info("setting time of day from recording time ({}))", hearingRecordingDto.getRecordingDateTime());
         return Optional.ofNullable(hearingRecordingDto.getRecordingDateTime())
             .map(dateTime -> dateTime.getHour() < 12 ? "AM" : "PM").orElse("");
+    }
+
+
+    public static void main(String[]args){
+
+       String documentUrlValue= "http://em-hrs-api-demo.service.core-compute-demo.internal/hearing-recordings/c547a3f3-f3d7-4f0c-aa53-10e75e594522/file/1";
+
+
+
+        //^https?://(((?:api-gateway\.preprod\.dm\.reform\.hmcts\.net|dm-store-demo\.service\.core-compute-demo\.internal(?::\d+)?)\/documents\/[A-Za-z0-9-]+(?:\/binary)?)|(em-hrs-api-demo\.service\.core-compute-demo\.internal(?::\d+)?\/hearing-recordings\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\/((segments\/[0-9]+)|(file/\S+))))
+
+
+        String CCD_DOCUMENT_URL_PATTERN =
+          //"^https?://(((?:api-gateway\\.preprod\\.dm\\.reform\\.hmcts\\.net|dm-store-demo\\.service\\.core-compute-demo\\.internal(?::\\d+)?)\\/documents\\/[A-Za-z0-9-]+(?:\\/binary)?)|(em-hrs-api-demo\\.service\\.core-compute-demo\\.internal(?::\\d+)?\\/hearing-recordings\\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\/((segments/[0-9]+)|(file/\\S+))))";
+            "https?://(((?:api-gateway\\.preprod\\.dm\\.reform\\.hmcts\\.net|dm-store-demo\\.service\\.core-compute-demo\\.internal(?::\\d+)?)\\/documents\\/[A-Za-z0-9-]+(?:\\/binary)?)|(em-hrs-api-demo\\.service\\.core-compute-demo\\.internal(?::\\d+)?\\/hearing-recordings\\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\/((segments\\/[0-9]+)|(file/\\S+))))";
+        final Pattern urlPattern = Pattern.compile(CCD_DOCUMENT_URL_PATTERN);
+        final Matcher documentUrlMatcher = urlPattern.matcher(documentUrlValue);
+
+        if (!documentUrlMatcher.matches()) {
+            System.out.println("error ***********************");
+        }else
+        {
+            System.out.println("CORRECT");
+        }
     }
 }
