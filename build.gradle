@@ -315,7 +315,7 @@ dependencies {
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.3.0'
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.25.2'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.11.3'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.11.4'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.5.0-rc1'
