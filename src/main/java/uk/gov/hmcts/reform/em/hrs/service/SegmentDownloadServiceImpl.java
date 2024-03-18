@@ -165,7 +165,6 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         String hearingSource = hearingRecording.getHearingSource();
         String filename = segment.getFilename();
         BlobInfo blobInfo = blobstoreClient.fetchBlobInfo(filename, hearingSource);
-        long fileSize = blobInfo.getFileSize();
         String contentType = blobInfo.getContentType();
         String attachmentFilename = String.format("attachment; filename=%s", filename);
 
@@ -181,6 +180,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         LOGGER.info("hearing source {}, Range header for filename {} = {}", hearingSource, filename, rangeHeader);
 
         BlobRange blobRange = null;
+        long fileSize = blobInfo.getFileSize();
         if (rangeHeader == null) {
             response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileSize));
         } else {

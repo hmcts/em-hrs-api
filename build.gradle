@@ -17,8 +17,8 @@ plugins {
   id 'au.com.dius.pact' version '4.2.14'
   id "info.solidsoft.pitest" version '1.15.0'
   id 'com.github.hmcts.rse-cft-lib' version '0.19.1107'
-  id 'uk.gov.hmcts.java' version '0.12.57'
-  id 'org.owasp.dependencycheck' version '9.0.9'
+  id 'uk.gov.hmcts.java' version '0.12.58'
+  id 'org.owasp.dependencycheck' version '9.0.10'
   id 'net.serenity-bdd.serenity-gradle-plugin' version '3.0.0'
 }
 
@@ -157,7 +157,7 @@ def coverageExclusionList = [
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '10.14.0'
+  toolVersion = '10.14.2'
   getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
 }
 
@@ -233,7 +233,7 @@ dependencyManagement {
     }
 
     // CVE-2023-35116
-    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.16.2') {
+    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.17.0') {
       entry 'jackson-databind'
       entry 'jackson-annotations'
       entry 'jackson-core'
@@ -314,7 +314,7 @@ dependencies {
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.3.0'
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.25.2'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.11.3'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.11.4'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.5.0-rc1'
@@ -377,7 +377,7 @@ dependencies {
   testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.5', {
     exclude group: 'com.google.guava', module: 'guava'
   }
-  testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.2.0'
+  testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.2.1'
 
   functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.10.2'
   functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.10.2'
