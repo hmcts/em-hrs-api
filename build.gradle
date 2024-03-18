@@ -239,12 +239,6 @@ dependencyManagement {
       entry 'jackson-annotations'
       entry 'jackson-core'
     }
-
-    // CVE-2023-36052
-    dependencySet(group: 'com.azure', version: '1.14.1') {
-      entry 'azure-core-http-netty'
-    }
-
   }
 }
 
