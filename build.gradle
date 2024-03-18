@@ -378,7 +378,7 @@ dependencies {
   testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.5', {
     exclude group: 'com.google.guava', module: 'guava'
   }
-  testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.2.0'
+  testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.2.1'
 
   functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.10.2'
   functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.10.2'
