@@ -18,7 +18,7 @@ plugins {
   id "info.solidsoft.pitest" version '1.15.0'
   id 'com.github.hmcts.rse-cft-lib' version '0.19.1107'
   id 'uk.gov.hmcts.java' version '0.12.58'
-  id 'org.owasp.dependencycheck' version '9.0.9'
+  id 'org.owasp.dependencycheck' version '9.0.10'
   id 'net.serenity-bdd.serenity-gradle-plugin' version '3.0.0'
 }
 
