@@ -77,6 +77,8 @@ java:
     APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: DEBUG
     USE_AD_AUTH_FOR_SOURCE_BLOB_CONNECTION: false
     HRS_VH_DEST_CONTAINER_NAME: vhrecordings
+    DELETE_VH_ENABLED: false
+    DELETE_VH_CRON: "0 0 11 ? * *"
 hrsblobstorage:
   enabled: false
 cvpblobstorage:

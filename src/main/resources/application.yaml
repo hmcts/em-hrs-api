@@ -162,7 +162,9 @@ scheduling:
       enabled: ${DELETE_INPROGRESS_ENABLED:true}
       cron:  ${DELETE_INPROGRESS_CRON:0 0 */3 * * *}
       ttl-hours: 3
-
+    delete-vh-recordings:
+      enabled: ${DELETE_VH_ENABLED:false}
+      cron:  ${DELETE_VH_CRON:0 0 6 ? * *}
 report:
   recipients: ${SUMMARY_REPORT_RECIPIENTS:xxxx}
   from: ${SMTP_USERNAME:xxxx}
