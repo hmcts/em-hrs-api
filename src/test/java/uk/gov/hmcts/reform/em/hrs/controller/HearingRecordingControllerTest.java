@@ -21,7 +21,6 @@ import uk.gov.hmcts.reform.em.hrs.service.AuditEntryService;
 import uk.gov.hmcts.reform.em.hrs.service.Constants;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
-import uk.gov.hmcts.reform.em.hrs.util.FileNameCoder;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -167,21 +166,25 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
     @Test
     void testShouldDownloadSegmentByName() throws Exception {
         UUID recordingId = UUID.randomUUID();
-        String fileName = "stream2123/3221-3232_test_file-321321-1.mp4";
+        String folderName = "stream2123";
+        String fileName = "3221-3232_test_file-321321-1.mp4";
 
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        segment.setFilename(fileName);
+        segment.setFilename(folderName + "/" + fileName);
 
         doReturn(segment).when(segmentDownloadService)
-            .fetchSegmentByRecordingIdAndFileName(recordingId, fileName);
+            .fetchSegmentByRecordingIdAndFileName(recordingId, folderName + "/" + fileName);
         doNothing().when(segmentDownloadService)
             .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
 
         doReturn(hearingRecordingSegmentAuditEntry).when(auditEntryService)
             .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
-        String fileNameEncoded = FileNameCoder.encodeFileName(fileName);
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/file/%s", recordingId, fileNameEncoded))
-                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
+        mockMvc.perform(get(String.format(
+                "/hearing-recordings/%s/file/%s/%s",
+                recordingId,
+                folderName,
+                fileName
+            )).header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isOk()).andReturn();
 
         verify(segmentDownloadService, times(1))
@@ -191,19 +194,24 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
     @Test
     void testShouldHandleDownloadExceptionByName() throws Exception {
         UUID recordingId = UUID.randomUUID();
-        String fileName = "stream2123/3221-3232_test_file-321321-1.mp4";
+        String folderName = "stream2123";
+        String fileName = "3221-3232_test_file-321321-1.mp4";
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        segment.setFilename(fileName);
+        segment.setFilename(folderName + "/" + folderName);
 
         doReturn(segment).when(segmentDownloadService)
-            .fetchSegmentByRecordingIdAndFileName(recordingId, fileName);
+            .fetchSegmentByRecordingIdAndFileName(recordingId, folderName + "/" + fileName);
         doThrow(new SegmentDownloadException("failed download")).when(segmentDownloadService)
             .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
-        String encodedFileName = FileNameCoder.encodeFileName(fileName);
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/file/%s", recordingId, encodedFileName))
-                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
-            .andExpect(status().isInternalServerError())
-            .andReturn();
+        mockMvc.perform(get(String.format(
+            "/hearing-recordings/%s/file/%s/%s",
+            recordingId,
+            folderName,
+            fileName
+        )).header(
+            Constants.AUTHORIZATION,
+            TestUtil.AUTHORIZATION_TOKEN
+        )).andExpect(status().isInternalServerError()).andReturn();
 
         verify(segmentDownloadService, times(1))
             .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
@@ -265,23 +273,30 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
     @Test
     void testShouldDownloadSegmentForShareeByFileName() throws Exception {
         UUID recordingId = UUID.randomUUID();
-        String fileName = "stream2123/3221-3232_test_file-321321-1.mp4";
+        String folderName = "stream2123";
+        String fileName = "3221-3232_test_file-321321-1.mp4";
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        segment.setFilename(fileName);
+        segment.setFilename(folderName + "/" + fileName);
 
-        doReturn(segment).when(segmentDownloadService)
-            .fetchSegmentByRecordingIdAndFileNameForSharee(recordingId, fileName, TestUtil.AUTHORIZATION_TOKEN);
+        doReturn(segment)
+            .when(segmentDownloadService)
+            .fetchSegmentByRecordingIdAndFileNameForSharee(
+                recordingId,
+                folderName + "/" + fileName,
+                TestUtil.AUTHORIZATION_TOKEN
+            );
 
         doNothing().when(segmentDownloadService)
             .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
 
         doReturn(hearingRecordingSegmentAuditEntry).when(auditEntryService)
             .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
-        String fileNameEncoded = FileNameCoder.encodeFileName(fileName);
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/file/%s/sharee", recordingId, fileNameEncoded))
-                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
-            .andExpect(status().isOk())
-            .andReturn();
+        mockMvc.perform(get(String.format(
+            "/hearing-recordings/%s/file/%s/%s/sharee",
+            recordingId,
+            folderName,
+            fileName
+        )).header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN)).andExpect(status().isOk()).andReturn();
 
         verify(segmentDownloadService, times(1))
             .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));

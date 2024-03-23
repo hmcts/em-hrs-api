@@ -31,7 +31,6 @@ import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.service.Constants;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
-import uk.gov.hmcts.reform.em.hrs.util.FileNameCoder;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -186,7 +185,8 @@ public class HearingRecordingController {
 
     }
 
-    @GetMapping(path = "/hearing-recordings/{recordingId}/file/{fileName}",
+    @GetMapping(path = {"/hearing-recordings/{recordingId}/file/{fileName}",
+        "/hearing-recordings/{recordingId}/file/{folderName}/{fileName}"},
         produces = APPLICATION_OCTET_STREAM_VALUE)
     @Operation(summary = "Get hearing recording file",
         description = "Return hearing recording file",
@@ -203,11 +203,12 @@ public class HearingRecordingController {
     )
     public ResponseEntity getSegmentBinaryByFileName(
         @PathVariable("recordingId") UUID recordingId,
+        @PathVariable(value = "folderName", required = false) String folderName,
         @PathVariable("fileName") String fileName,
         HttpServletRequest request,
         HttpServletResponse response) {
         LOGGER.info("recordingId:{}, fileName:{}", recordingId, fileName);
-        var fileNameDecoded = FileNameCoder.decodeFileName(fileName);
+        var fileNameDecoded = folderName == null ? fileName : folderName + "/" + fileName;
         return this.downloadWrapper(
             recordingId,
             () ->
@@ -219,7 +220,8 @@ public class HearingRecordingController {
     }
 
     @GetMapping(
-        path = "/hearing-recordings/{recordingId}/file/{fileName}/sharee",
+        path = {"/hearing-recordings/{recordingId}/file/{fileName}/sharee",
+            "/hearing-recordings/{recordingId}/file/{folderName}/{fileName}/sharee"},
         produces = APPLICATION_OCTET_STREAM_VALUE
     )
     @ResponseBody
@@ -238,12 +240,13 @@ public class HearingRecordingController {
     )
     public ResponseEntity getSegmentBinaryForShareeByFileName(
         @PathVariable("recordingId") UUID recordingId,
+        @PathVariable(value = "folderName", required = false) String folderName,
         @PathVariable("fileName") String fileName,
         @RequestHeader(Constants.AUTHORIZATION) final String userToken,
         HttpServletRequest request,
         HttpServletResponse response
     ) {
-        var fileNameDecoded = FileNameCoder.decodeFileName(fileName);
+        var fileNameDecoded = folderName == null ? fileName : folderName + "/" + fileName;
 
         return this.downloadWrapper(
             recordingId,

@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
-import uk.gov.hmcts.reform.em.hrs.util.FileNameCoder;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -84,7 +83,7 @@ public class CaseDataContentCreator {
             "%s/hearing-recordings/%s/file/%s",
             hearingRecordingDto.getUrlDomain(),
             recordingId,
-            FileNameCoder.encodeFileName(hearingRecordingDto.getFilename())
+            hearingRecordingDto.getFilename()
         );
 
         LOGGER.info("creating recording segment with url({})", documentUrl);

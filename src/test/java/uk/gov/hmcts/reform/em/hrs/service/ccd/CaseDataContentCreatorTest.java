@@ -15,7 +15,6 @@ import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
-import uk.gov.hmcts.reform.em.hrs.util.FileNameCoder;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,13 +31,11 @@ class CaseDataContentCreatorTest {
 
     private static final UUID RECORDING_ID = UUID.randomUUID();
     private static final String RECORDING_REF = "FT-0111-testfile200M";
-
     private static ObjectMapper objectMapper;
     HearingRecordingDto hearingRecordingDto;
     CaseDataContentCreator underTest;
 
     private String fileName = "audiostream123/recording-file-1";
-    private String fileNameEncoded =  FileNameCoder.encodeFileName(fileName);
 
     @BeforeEach
     void setup() {
@@ -92,7 +89,7 @@ class CaseDataContentCreatorTest {
             String.format(
                 "http://xui.com/hearing-recordings/%s/file/%s",
                 RECORDING_ID,
-                fileNameEncoded
+                fileName
             ),
             actual.at("/recordingFiles/0/value/documentLink/document_url").asText()
         );
@@ -121,7 +118,7 @@ class CaseDataContentCreatorTest {
         );
 
         assertEquals(
-            "http://xui.com/hearing-recordings/" + RECORDING_ID + "/file/" + this.fileNameEncoded,
+            "http://xui.com/hearing-recordings/" + RECORDING_ID + "/file/" + this.fileName,
             resultNode.at("/recordingFiles/1/value/documentLink/document_url").asText()
         );
     }
