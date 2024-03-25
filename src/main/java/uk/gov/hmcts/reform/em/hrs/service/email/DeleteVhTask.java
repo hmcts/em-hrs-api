@@ -27,7 +27,7 @@ public class DeleteVhTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        int  num = hearingRecordingRepository.deleteVhRecordings();
-        logger.info("Finished {} job, delete item count {}", TASK_NAME, num);
+        hearingRecordingRepository.deleteVhRecordings();
+        logger.info("Finished {} job", TASK_NAME);
     }
 }
