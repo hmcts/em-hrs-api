@@ -62,6 +62,15 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         } else {
             caseId = createCaseinCcdAndPersist(recordingDto);
         }
+
+        // this is for dynatrace, do not change
+        LOGGER.info(
+            "Hearing recording processed successfully, source: {},ref:{}, ccd caseId:{}",
+            recordingDto.getRecordingSource(),
+            recordingRef,
+            caseId
+        );
+
         // this is for dynatrace, do not change
         LOGGER.info(
             "Hearing recording processed successfully, ref:{}, source: {}, ccd caseId:{}",
