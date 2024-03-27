@@ -10,7 +10,7 @@ import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
-@ConditionalOnProperty(value = "scheduling.task.delete-vh-blob.enabled")
+@ConditionalOnProperty(value = "scheduling.task.delete-vh-blobs.enabled")
 public class DeleteVhBlobsTask {
 
     private static final String TASK_NAME = "delete-vh-blob";
@@ -22,7 +22,7 @@ public class DeleteVhBlobsTask {
         this.hearingRecordingStorage = hearingRecordingStorage;
     }
 
-    @Scheduled(cron = "${scheduling.delete-vh-blob.cron}", zone = "Europe/London")
+    @Scheduled(cron = "${scheduling.delete-vh-blobs.cron}", zone = "Europe/London")
     @SchedulerLock(name = TASK_NAME)
     public void run() {
         logger.info("Started {} job", TASK_NAME);
