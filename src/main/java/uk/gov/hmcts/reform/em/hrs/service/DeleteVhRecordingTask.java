@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service.email;
+package uk.gov.hmcts.reform.em.hrs.service;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
@@ -7,18 +7,20 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 
+import java.util.UUID;
+
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 @ConditionalOnProperty(value = "scheduling.task.delete-vh-recordings.enabled")
-public class DeleteVhTask {
+public class DeleteVhRecordingTask {
 
     private static final String TASK_NAME = "delete-vh-recordings";
-    private static final Logger logger = getLogger(DeleteVhTask.class);
+    private static final Logger logger = getLogger(DeleteVhRecordingTask.class);
 
     private final HearingRecordingRepository hearingRecordingRepository;
 
-    public DeleteVhTask(HearingRecordingRepository hearingRecordingRepository) {
+    public DeleteVhRecordingTask(HearingRecordingRepository hearingRecordingRepository) {
         this.hearingRecordingRepository = hearingRecordingRepository;
     }
 
@@ -27,7 +29,7 @@ public class DeleteVhTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        hearingRecordingRepository.deleteVhRecordings();
+        hearingRecordingRepository.deleteVhRecordings(UUID.fromString("e1d00616-d98a-41db-b2bf-4a9a836265fe"));
         logger.info("Finished {} job", TASK_NAME);
     }
 }

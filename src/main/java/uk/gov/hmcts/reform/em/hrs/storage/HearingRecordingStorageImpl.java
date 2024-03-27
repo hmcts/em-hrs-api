@@ -397,6 +397,25 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         );
     }
 
+    @Override
+    public void listVHBlobs() {
+        final BlobListDetails hrsBlobListDetails = new BlobListDetails()
+            .setRetrieveDeletedBlobs(false)
+            .setRetrieveSnapshots(false);
+
+        final ListBlobsOptions hrsOptions = new ListBlobsOptions()
+            .setDetails(hrsBlobListDetails);
+        final Duration duration = Duration.ofMinutes(BLOB_LIST_TIMEOUT);
+
+        long hrsVhItemCount = hrsVhBlobContainerClient.listBlobs(hrsOptions, duration)
+            .stream()
+            .map(blob -> {
+                LOGGER.info("VH blob name {}", blob.getName());
+                return blob; }
+            ).count();
+        LOGGER.info("VH blob count {} ", hrsVhItemCount);
+    }
+
     private boolean isCreatedToday(BlobItem blobItem, LocalDate today) {
         return blobItem.getProperties().getCreationTime().isAfter(
             OffsetDateTime.of(

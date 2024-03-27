@@ -27,6 +27,7 @@ public interface HearingRecordingRepository extends JpaRepository<HearingRecordi
 
     @Modifying
     @Transactional
-    @Query("delete from HearingRecording s where s.hearingSource = 'VH' and s.hearingRoomRef ='0' ")
-    void deleteVhRecordings();
+    @Query("delete from HearingRecording s where s.hearingSource = 'VH' and s.hearingRoomRef='0' "
+        + " and s.id= :uuid")
+    void deleteVhRecordings(UUID uuid);
 }
