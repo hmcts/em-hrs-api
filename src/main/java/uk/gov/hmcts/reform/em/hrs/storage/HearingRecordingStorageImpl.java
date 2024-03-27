@@ -348,7 +348,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 })
                 .map(blb -> blb.getName())
                 .count();
-            LOGGER.info("VH count vhTotalCount {} vhTodayItemCounter{}", vhTotalCount, vhTodayItemCounter);
+            LOGGER.info("VH count vhTotalCount {} vhTodayItemCounter{}", vhTotalCount, vhTodayItemCounter.count);
         }
 
         long cvpItemCount = cvpItems.size();
