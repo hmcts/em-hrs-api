@@ -15,6 +15,7 @@ import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobListDetails;
 import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.models.UserDelegationKey;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
@@ -419,6 +420,22 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 return blob; }
             ).count();
         LOGGER.info("VH blob count {} ", hrsVhItemCount);
+        if ("vhrecordings".equals(hrsVhBlobContainerClient.getBlobContainerName())) {
+            LOGGER.info("Start deleting vh blobs");
+            hrsVhBlobContainerClient.listBlobs(hrsOptions, duration)
+                .stream()
+                .forEach(
+                    blobItem -> {
+                        LOGGER.info("Deleting vh blob {} ", blobItem.getName());
+                        hrsVhBlobContainerClient
+                            .getBlobClient(blobItem.getName())
+                            .deleteWithResponse(
+                                DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE
+                            );
+                        LOGGER.info("DELETED vh blob {} ", blobItem.getName());
+                    }
+                );
+        }
     }
 
     private boolean isCreatedToday(BlobItem blobItem, LocalDate today) {
