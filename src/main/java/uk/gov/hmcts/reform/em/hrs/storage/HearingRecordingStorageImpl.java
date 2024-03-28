@@ -424,7 +424,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             LOGGER.info("Start deleting vh blobs");
             hrsVhBlobContainerClient.listBlobs(hrsOptions, duration)
                 .stream()
-                .limit(1)
                 .forEach(
                     blobItem -> {
                         LOGGER.info("Deleting vh blob {} ", blobItem.getName());
