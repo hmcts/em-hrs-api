@@ -81,18 +81,19 @@ public class HearingRecordingController {
     })
     public ResponseEntity<Void> createHearingRecording(@RequestBody final HearingRecordingDto hearingRecordingDto) {
         LOGGER.info(
-            "posting segment with details:\n"
-                + "rec-ref  {}\n"
-                + "folder   {}\n"
-                + "case-ref {}\n"
-                + "filename {}\n"
-                + "file-ext {}\n"
-                + "segment no {}\n"
-                + "jurisdiction {}\n"
-                + "serviceCode {}\n"
-                + "RecordingSource {}\n"
-                + "sourceBlobUrl {}\n"
-                + "interpreter {}",
+            """
+                posting segment with details:
+                rec-ref  {}
+                folder   {}
+                case-ref {}
+                filename {}
+                file-ext {}
+                segment no {}
+                jurisdiction {}
+                serviceCode {}
+                RecordingSource {}
+                sourceBlobUrl {}
+                interpreter {}""",
             hearingRecordingDto.getRecordingRef(),
             hearingRecordingDto.getFolder(),
             hearingRecordingDto.getCaseRef(),
@@ -168,7 +169,7 @@ public class HearingRecordingController {
         {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")}
     )
-    public ResponseEntity getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
+    public ResponseEntity<Void> getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
                                            @PathVariable("segment") Integer segmentNo,
                                            @RequestHeader(Constants.AUTHORIZATION) final String userToken,
                                            HttpServletRequest request,
@@ -213,7 +214,7 @@ public class HearingRecordingController {
         value = {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")}
     )
-    public ResponseEntity getSegmentBinaryForSharee(
+    public ResponseEntity<Void> getSegmentBinaryForSharee(
         @PathVariable("recordingId") UUID recordingId,
         @PathVariable("segment") Integer segmentNo,
         @RequestHeader(Constants.AUTHORIZATION) final String userToken,
