@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -91,8 +91,7 @@ class SegmentDownloadServiceImplTest {
     private Enumeration<String> generateEmptyHeaders() {
         // define the headers you want to be returned
         Map<String, String> headers = new HashMap<>();
-        Enumeration<String> headerNames = Collections.enumeration(headers.keySet());
-        return headerNames;
+        return Collections.enumeration(headers.keySet());
     }
 
     @BeforeEach
@@ -136,7 +135,7 @@ class SegmentDownloadServiceImplTest {
     void testFetchSegmentByRecordingIdAndSegmentNumberForNonExpiredLinkSharedAgain() {
         List<HearingRecordingSharee> hearingRecordingSharees = createHearingRecordingSharees();
         hearingRecordingSharees.stream().findFirst().get().setSharedOn(LocalDateTime.now().minusHours(74));
-        hearingRecordingSharees.stream()
+        hearingRecordingSharees
             .forEach(hearingRecordingSharee ->
                          hearingRecordingSharee.getHearingRecording().setId(SEGMENT21_ID));
         segment.setRecordingSegment(1);
@@ -154,7 +153,7 @@ class SegmentDownloadServiceImplTest {
     void testFetchSegmentByRecordingIdAndSegmentNumberForExpiredLink() {
         try {
             List<HearingRecordingSharee> hearingRecordingSharees = createHearingRecordingSharees();
-            hearingRecordingSharees.stream()
+            hearingRecordingSharees
                 .forEach(hearingRecordingSharee ->
                              hearingRecordingSharee.setSharedOn(LocalDateTime.now().minusHours(73)));
             doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndRecordingSegment(SEGMENT21_ID, 1234);
@@ -200,21 +199,20 @@ class SegmentDownloadServiceImplTest {
 
     @Test
     public void loadsRangedBlobInvalidRangeHeaderStart() {
+        when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=A-Z");
+        when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
+        when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
         assertThrows(InvalidRangeRequestException.class, () -> {
-            when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=A-Z");
-            when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
-            when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
-
             segmentDownloadService.download(segment, request, response);
         });
     }
 
     @Test
     public void loadsRangedBlobInvalidRangeHeaderStartGreaterThanEnd() {
+        when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=1023-0");
+        when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
+        when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
         assertThrows(InvalidRangeRequestException.class, () -> {
-            when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=1023-0");
-            when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
-            when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
             segmentDownloadService.download(segment, request, response);
         });
     }

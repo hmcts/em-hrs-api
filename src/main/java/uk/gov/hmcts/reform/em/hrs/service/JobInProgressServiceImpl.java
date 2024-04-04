@@ -41,7 +41,7 @@ public class JobInProgressServiceImpl implements JobInProgressService {
         LOGGER.info("Ingestion: Registering Job In Progress for folderName/filename: {}/{}", filename, folderName);
         Optional<Folder> folder = folderRepository.findByName(folderName);
         if (folder.isEmpty()) {
-            throw new DatabaseStorageException("IllegalState - Folder not found in DB: " + String.valueOf(folderName));
+            throw new DatabaseStorageException("IllegalState - Folder not found in DB: " + folderName);
         } else {
             JobInProgress job = JobInProgress
                 .builder()

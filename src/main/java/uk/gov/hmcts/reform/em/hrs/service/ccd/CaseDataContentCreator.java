@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Component
 public class CaseDataContentCreator {
@@ -72,8 +71,8 @@ public class CaseDataContentCreator {
         return caseData.getRecordingFiles().stream()
             .map(mapItem -> mapItem.get("value"))
             .map(value -> objectMapper.convertValue(value, CaseRecordingFile.class))
-            .map(recordingFile -> recordingFile.getCaseDocument())
-            .collect(Collectors.toList());
+            .map(CaseRecordingFile::getCaseDocument)
+            .toList();
     }
 
 

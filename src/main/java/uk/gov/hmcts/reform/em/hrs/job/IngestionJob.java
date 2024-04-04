@@ -51,7 +51,7 @@ public class IngestionJob extends QuartzJobBean {
     @Override
     protected void executeInternal(final JobExecutionContext context) {
         Optional.ofNullable(ingestionQueue.poll())
-            .ifPresent(hrDto -> ingestGracefully(hrDto));
+            .ifPresent(this::ingestGracefully);
     }
 
     private void ingestGracefully(HearingRecordingDto hrDto) {

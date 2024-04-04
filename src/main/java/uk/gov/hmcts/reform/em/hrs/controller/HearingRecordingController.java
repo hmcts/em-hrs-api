@@ -68,7 +68,6 @@ public class HearingRecordingController {
         path = "/segments",
         consumes = APPLICATION_JSON_VALUE
     )
-    @ResponseBody
     @Operation(summary = "Post hearing recording segment", description = "Save hearing recording segment",
         parameters = {
             @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
@@ -117,7 +116,6 @@ public class HearingRecordingController {
         consumes = APPLICATION_JSON_VALUE,
         produces = APPLICATION_JSON_VALUE
     )
-    @ResponseBody
     @Operation(summary = "Create permissions record", description = "Create permissions record to the specified "
         + "hearing recording and notify user with the link to the resource via email",
         parameters = {
@@ -200,7 +198,6 @@ public class HearingRecordingController {
         path = "/hearing-recordings/{recordingId}/segments/{segment}/sharee",
         produces = APPLICATION_OCTET_STREAM_VALUE
     )
-    @ResponseBody
     @Operation(summary = "Get hearing recording file",
         description = "Return hearing recording file from the specified folder",
         parameters = {
