@@ -15,6 +15,7 @@ import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobListDetails;
 import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.models.UserDelegationKey;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
@@ -348,7 +349,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 })
                 .map(blb -> blb.getName())
                 .count();
-            LOGGER.info("VH count vhTotalCount {} vhTodayItemCounter{}", vhTotalCount, vhTodayItemCounter);
+            LOGGER.info("VH count vhTotalCount {} vhTodayItemCounter{}", vhTotalCount, vhTodayItemCounter.count);
         }
 
         long cvpItemCount = cvpItems.size();
@@ -395,6 +396,46 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             cvpTodayItemCounter.count,
             hrsTodayItemCounter.count
         );
+    }
+
+    @Override
+    public void listVHBlobs() {
+        final BlobListDetails hrsBlobListDetails = new BlobListDetails()
+            .setRetrieveDeletedBlobs(false)
+            .setRetrieveSnapshots(false);
+
+        final ListBlobsOptions hrsOptions = new ListBlobsOptions()
+            .setDetails(hrsBlobListDetails);
+        final Duration duration = Duration.ofMinutes(BLOB_LIST_TIMEOUT);
+
+        LOGGER.info(
+            "VH container detail {}",
+            hrsVhBlobContainerClient.getBlobContainerName(),
+            hrsVhBlobContainerClient.getBlobContainerUrl()
+        );
+        long hrsVhItemCount = hrsVhBlobContainerClient.listBlobs(hrsOptions, duration)
+            .stream()
+            .map(blob -> {
+                LOGGER.info("VH blob name {}", blob.getName());
+                return blob; }
+            ).count();
+        LOGGER.info("VH blob count {} ", hrsVhItemCount);
+        if ("vhrecordings".equals(hrsVhBlobContainerClient.getBlobContainerName())) {
+            LOGGER.info("Start deleting vh blobs");
+            hrsVhBlobContainerClient.listBlobs(hrsOptions, duration)
+                .stream()
+                .forEach(
+                    blobItem -> {
+                        LOGGER.info("Deleting vh blob {} ", blobItem.getName());
+                        hrsVhBlobContainerClient
+                            .getBlobClient(blobItem.getName())
+                            .deleteWithResponse(
+                                DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE
+                            );
+                        LOGGER.info("DELETED vh blob {} ", blobItem.getName());
+                    }
+                );
+        }
     }
 
     private boolean isCreatedToday(BlobItem blobItem, LocalDate today) {
