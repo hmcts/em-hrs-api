@@ -262,8 +262,7 @@ def versions = [
   junitPlatform      : '1.10.2',
   springSecurity     : '6.2.3',
   shedlock           : '5.13.0',
-  testcontainers     : '1.19.7',
-  springCloud        : '4.1.2'
+  testcontainers     : '1.19.7'
 ]
 
 dependencies {
@@ -282,8 +281,8 @@ dependencies {
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-core', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-config', version: versions.springSecurity
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: versions.springCloud
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: versions.springCloud
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.1.2'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.1.1'
 
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
