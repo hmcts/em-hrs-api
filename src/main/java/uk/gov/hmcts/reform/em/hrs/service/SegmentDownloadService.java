@@ -9,23 +9,10 @@ import java.util.UUID;
 
 public interface SegmentDownloadService {
 
-    HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentNumber(
-        UUID recordingId,
-        Integer segmentNo,
-        String userToken,
-        boolean isSharee
-    );
+    HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentNumber(UUID recordingId, Integer segmentNo,
+                                                                      String userToken, boolean isSharee);
 
-    HearingRecordingSegment fetchSegmentByRecordingIdAndFileNameForSharee(
-        UUID recordingId,
-        String fileName,
-        String userToken
-    );
 
-    HearingRecordingSegment fetchSegmentByRecordingIdAndFileName(UUID recordingId, String fileName);
-
-    void download(HearingRecordingSegment segment,
-                  HttpServletRequest request,
-                  HttpServletResponse response
-    ) throws IOException;
+    void download(HearingRecordingSegment segment, HttpServletRequest request,
+                  HttpServletResponse response) throws IOException;
 }

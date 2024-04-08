@@ -66,27 +66,6 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         this.validityInHours = validityInHours;
     }
 
-    @Override
-    public HearingRecordingSegment fetchSegmentByRecordingIdAndFileNameForSharee(
-        UUID recordingId,
-        String fileName,
-        String userToken
-    ) {
-        validateSharee(recordingId, fileName, userToken);
-        HearingRecordingSegment segment =
-            segmentRepository.findByHearingRecordingIdAndFilename(recordingId, fileName);
-        return segment;
-    }
-
-    @Override
-    public HearingRecordingSegment fetchSegmentByRecordingIdAndFileName(
-        UUID recordingId,
-        String fileName
-    ) {
-        HearingRecordingSegment segment =
-            segmentRepository.findByHearingRecordingIdAndFilename(recordingId, fileName);
-        return segment;
-    }
 
     @Override
     public HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentNumber(
@@ -125,34 +104,6 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
             segmentRepository.findByHearingRecordingIdAndRecordingSegment(recordingId, segmentNo);
 
         return segment;
-    }
-
-    private void validateSharee(UUID recordingId, String fileName, String userToken) {
-        String userEmail = securityService.getUserEmail(userToken);
-        List<HearingRecordingSharee> hearingRecordingSharees =
-            shareesRepository.findByShareeEmailIgnoreCase(userEmail);
-        LOGGER.debug("User  {} is trying to access the recordingId  {} with fileName {}",
-                     userEmail, recordingId, fileName
-        );
-        if (!isEmpty(hearingRecordingSharees)) {
-            LOGGER.debug("User  {} has shared recordings", userEmail);
-            Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
-                .filter(hearingRecordingSharee ->
-                            hearingRecordingSharee.getHearingRecording().getId().equals(recordingId))
-                .filter(hearingRecordingSharee ->
-                            getHearingRecordingShareeFile(
-                                hearingRecordingSharee.getHearingRecording(),
-                                fileName
-                            ))
-                .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn(), userEmail))
-                .findAny();
-            if (recordingSharee.isEmpty()) {
-                throw new ValidationErrorException(Map.of("error", Constants.SHARED_EXPIRED_LINK_MSG));
-            }
-        } else {
-            LOGGER.error("No Shared recordings found for user {}", userEmail);
-            throw new ValidationErrorException(Map.of("error", Constants.NO_SHARED_FILE_FOR_USER));
-        }
     }
 
     @Override
@@ -248,21 +199,4 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
                      segmentNo, hearingRecording.getId(), !segmentMatch);
         return !segmentMatch;
     }
-
-    private boolean getHearingRecordingShareeFile(
-        HearingRecording hearingRecording,
-        String fileName
-    ) {
-        //Need to check if the segment is associated with this Sharee.
-        boolean segmentMatch = hearingRecording.getSegments()
-            .stream()
-            .filter(segment -> fileName.equals(segment.getFilename()))
-            .findAny()
-            .isPresent();
-        LOGGER.debug("Segment Match for fileName {} for hearingRecording with {} was {} ",
-                     fileName, hearingRecording.getId(), segmentMatch
-        );
-        return segmentMatch;
-    }
-
 }

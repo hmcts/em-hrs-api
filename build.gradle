@@ -101,6 +101,7 @@ tasks.withType(Test) {
 }
 
 task functional(type: Test) {
+  failFast = true
   testLogging {
     events = ["passed", "failed", "skipped"]
     showStandardStreams = true

@@ -31,11 +31,10 @@ class CaseDataContentCreatorTest {
 
     private static final UUID RECORDING_ID = UUID.randomUUID();
     private static final String RECORDING_REF = "FT-0111-testfile200M";
+
     private static ObjectMapper objectMapper;
     HearingRecordingDto hearingRecordingDto;
     CaseDataContentCreator underTest;
-
-    private String fileName = "audiostream123/recording-file-1";
 
     @BeforeEach
     void setup() {
@@ -49,7 +48,7 @@ class CaseDataContentCreatorTest {
         hearingRecordingDto = HearingRecordingDto.builder()
             .caseRef(RECORDING_REF)
             .recordingSource(HearingSource.CVP)
-            .filename(fileName)
+            .filename("recording-file-1")
             .recordingDateTime(LocalDateTime.parse(dateString, formatter))
             .jurisdictionCode("FM")
             .urlDomain("http://xui.com")
@@ -85,14 +84,8 @@ class CaseDataContentCreatorTest {
         assertEquals(RECORDING_REF, actual.get("recordingReference").asText());
         assertEquals("1962-07-05", actual.get("recordingDate").asText());
         assertEquals("AM", actual.get("recordingTimeOfDay").asText());
-        assertEquals(
-            String.format(
-                "http://xui.com/hearing-recordings/%s/file/%s",
-                RECORDING_ID,
-                fileName
-            ),
-            actual.at("/recordingFiles/0/value/documentLink/document_url").asText()
-        );
+        assertEquals(String.format("http://xui.com/hearing-recordings/%s/segments/0", RECORDING_ID),
+                                actual.at("/recordingFiles/0/value/documentLink/document_url").asText());
     }
 
     @Test
@@ -100,7 +93,7 @@ class CaseDataContentCreatorTest {
         Map<String, CaseRecordingFile> valueMap = new HashMap<>();
         valueMap.put("value", CaseRecordingFile.builder()
             .caseDocument(CaseDocument.builder()
-                .url("http://xui.com/hearing-recordings/12345/segments/0").filename("recording-file-2").build()
+                .url("http://xui.com/hearing-recordings/12345/segments/1").filename("recording-file-2").build()
             ).build()
         );
         List<Map> segmentList = new ArrayList<>();
@@ -112,14 +105,7 @@ class CaseDataContentCreatorTest {
 
         JsonNode resultNode = objectMapper.convertValue(actual, JsonNode.class);
 
-        assertEquals(
-            "http://xui.com/hearing-recordings/12345/segments/0",
-            resultNode.at("/recordingFiles/0/value/documentLink/document_url").asText()
-        );
-
-        assertEquals(
-            "http://xui.com/hearing-recordings/" + RECORDING_ID + "/file/" + this.fileName,
-            resultNode.at("/recordingFiles/1/value/documentLink/document_url").asText()
-        );
+        assertEquals("http://xui.com/hearing-recordings/12345/segments/1",
+                     resultNode.at("/recordingFiles/0/value/documentLink/document_url").asText());
     }
 }

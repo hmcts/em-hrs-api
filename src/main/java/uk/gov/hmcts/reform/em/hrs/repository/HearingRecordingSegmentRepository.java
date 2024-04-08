@@ -18,8 +18,6 @@ public interface HearingRecordingSegmentRepository extends JpaRepository<Hearing
 
     HearingRecordingSegment findByHearingRecordingIdAndRecordingSegment(UUID recordingId, Integer segment);
 
-    HearingRecordingSegment findByHearingRecordingIdAndFilename(UUID recordingId, String filename);
-
     HearingRecordingSegment findByFilename(String filename);
 
 
