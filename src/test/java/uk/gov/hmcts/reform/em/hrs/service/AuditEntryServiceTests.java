@@ -83,6 +83,21 @@ public class AuditEntryServiceTests {
     }
 
     @Test
+    public void testCreateAndSaveEntryForHearingRecording() {
+        prepareMockSecurityService();
+
+        HearingRecordingAuditEntry entry = auditEntryService.createAndSaveEntry(
+            hearingRecording,
+            AuditActions.USER_DOWNLOAD_REQUESTED
+        );
+
+        assertSecurityServiceValues(entry);
+        assertLogFormatterInvoked();
+        verify(hearingRecordingAuditEntryRepository, times(1))
+            .save(any(HearingRecordingAuditEntry.class));
+    }
+
+    @Test
     public void testCreateAndSaveEntryForHearingRecordingSegment() {
         prepareMockSecurityService();
 
