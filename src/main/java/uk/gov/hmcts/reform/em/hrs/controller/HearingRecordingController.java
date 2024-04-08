@@ -289,7 +289,7 @@ public class HearingRecordingController {
         );
     }
 
-    private ResponseEntity downloadWrapper(
+    private ResponseEntity<Void> downloadWrapper(
         UUID recordingId,
         Supplier<HearingRecordingSegment> func,
         HttpServletRequest request,
@@ -302,13 +302,13 @@ public class HearingRecordingController {
                 "User does not have permission to download recording {}",
                 e.getMessage()
             );
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            return new ResponseEntity<Void>(HttpStatus.FORBIDDEN);
         } catch (UncheckedIOException | IOException e) {
             LOGGER.warn(
                 "IOException streaming response for recording ID: {} IOException message: {}",
                 recordingId, e.getMessage()
             );//Exceptions are thrown during partial requests from front door (it throws client abort)
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 }
