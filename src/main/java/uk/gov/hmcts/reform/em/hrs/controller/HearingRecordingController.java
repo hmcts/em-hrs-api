@@ -222,7 +222,6 @@ public class HearingRecordingController {
             "/hearing-recordings/{recordingId}/file/{folderName}/{fileName}/sharee"},
         produces = APPLICATION_OCTET_STREAM_VALUE
     )
-    @ResponseBody
     @Operation(summary = "Get hearing recording file",
         description = "Return hearing recording file from the specified folder",
         parameters = {
