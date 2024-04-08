@@ -94,7 +94,7 @@ public class AuditEntryServiceTests {
         assertSecurityServiceValues(entry);
         assertLogFormatterInvoked();
         verify(hearingRecordingAuditEntryRepository, times(1))
-            .save(any(HearingRecordingAuditEntry.class));
+            .save(entry);
     }
 
     @Test
@@ -109,7 +109,7 @@ public class AuditEntryServiceTests {
         assertSecurityServiceValues(entry);
         assertLogFormatterInvoked();
         verify(hearingRecordingSegmentAuditEntryRepository, times(1))
-            .save(any(HearingRecordingSegmentAuditEntry.class));
+            .save(entry);
     }
 
     @Test
@@ -125,7 +125,7 @@ public class AuditEntryServiceTests {
         assertLogFormatterInvoked();
 
         verify(shareesAuditEntryRepository, times(1))
-            .save(any(HearingRecordingShareeAuditEntry.class));
+            .save(entry);
 
     }
 
