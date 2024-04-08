@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
@@ -69,7 +68,6 @@ public class HearingRecordingController {
         path = "/segments",
         consumes = APPLICATION_JSON_VALUE
     )
-    @ResponseBody
     @Operation(summary = "Post hearing recording segment", description = "Save hearing recording segment",
         parameters = {
             @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
@@ -82,18 +80,19 @@ public class HearingRecordingController {
     })
     public ResponseEntity<Void> createHearingRecording(@RequestBody final HearingRecordingDto hearingRecordingDto) {
         LOGGER.info(
-            "posting segment with details:\n"
-                + "rec-ref  {}\n"
-                + "folder   {}\n"
-                + "case-ref {}\n"
-                + "filename {}\n"
-                + "file-ext {}\n"
-                + "segment no {}\n"
-                + "jurisdiction {}\n"
-                + "serviceCode {}\n"
-                + "RecordingSource {}\n"
-                + "sourceBlobUrl {}\n"
-                + "interpreter {}",
+            """
+                posting segment with details:
+                rec-ref  {}
+                folder   {}
+                case-ref {}
+                filename {}
+                file-ext {}
+                segment no {}
+                jurisdiction {}
+                serviceCode {}
+                RecordingSource {}
+                sourceBlobUrl {}
+                interpreter {}""",
             hearingRecordingDto.getRecordingRef(),
             hearingRecordingDto.getFolder(),
             hearingRecordingDto.getCaseRef(),
@@ -117,7 +116,6 @@ public class HearingRecordingController {
         consumes = APPLICATION_JSON_VALUE,
         produces = APPLICATION_JSON_VALUE
     )
-    @ResponseBody
     @Operation(summary = "Create permissions record", description = "Create permissions record to the specified "
         + "hearing recording and notify user with the link to the resource via email",
         parameters = {
@@ -169,7 +167,7 @@ public class HearingRecordingController {
         {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")}
     )
-    public ResponseEntity getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
+    public ResponseEntity<Void> getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
                                            @PathVariable("segment") Integer segmentNo,
                                            @RequestHeader(Constants.AUTHORIZATION) final String userToken,
                                            HttpServletRequest request,
@@ -262,7 +260,6 @@ public class HearingRecordingController {
         path = "/hearing-recordings/{recordingId}/segments/{segment}/sharee",
         produces = APPLICATION_OCTET_STREAM_VALUE
     )
-    @ResponseBody
     @Operation(summary = "Get hearing recording file",
         description = "Return hearing recording file from the specified folder",
         parameters = {
@@ -276,7 +273,7 @@ public class HearingRecordingController {
         value = {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")}
     )
-    public ResponseEntity getSegmentBinaryForSharee(
+    public ResponseEntity<Void> getSegmentBinaryForSharee(
         @PathVariable("recordingId") UUID recordingId,
         @PathVariable("segment") Integer segmentNo,
         @RequestHeader(Constants.AUTHORIZATION) final String userToken,

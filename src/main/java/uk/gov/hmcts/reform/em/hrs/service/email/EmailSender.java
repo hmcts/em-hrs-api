@@ -45,7 +45,7 @@ public class EmailSender implements MessageSender {
 
             mailSender.send(msg);
 
-            log.info(String.format("Message sent, subject %s", subject));
+            log.info("Message sent, subject {}", subject);
         } catch (Exception exc) {
             throw new SendEmailException(
                 String.format("Error sending message, subject %s", subject),

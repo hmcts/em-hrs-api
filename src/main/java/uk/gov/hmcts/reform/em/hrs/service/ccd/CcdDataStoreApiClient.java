@@ -150,10 +150,10 @@ public class CcdDataStoreApiClient {
             eventSummary
         );
         Object jsonData = caseData.getData();
-        LOGGER.info("caseData Raw: " + String.valueOf(jsonData));
+        LOGGER.info("caseData Raw: {}", jsonData);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String jsonOutput = gson.toJson(jsonData);
-        LOGGER.info("caseData Pretty: " + jsonOutput);
+        LOGGER.info("caseData Pretty: {}", jsonOutput);
     }
 
 

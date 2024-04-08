@@ -17,7 +17,7 @@ import java.util.UUID;
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(NotificationServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationServiceImpl.class);
     private final String templateId;
     private final NotificationClientApi notificationClient;
 

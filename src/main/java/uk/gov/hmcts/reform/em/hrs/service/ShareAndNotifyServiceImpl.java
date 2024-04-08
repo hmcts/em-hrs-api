@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.exception.GovNotifyErrorException;
 import uk.gov.hmcts.reform.em.hrs.exception.HearingRecordingNotFoundException;
 import uk.gov.hmcts.reform.em.hrs.exception.ValidationErrorException;
+import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.service.ccd.CaseDataContentCreator;
@@ -19,7 +20,6 @@ import uk.gov.service.notify.NotificationClientException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class ShareAndNotifyServiceImpl implements ShareAndNotifyService {
@@ -63,12 +63,12 @@ public class ShareAndNotifyServiceImpl implements ShareAndNotifyService {
         auditEntryService.createAndSaveEntry(sharee, AuditActions.SHARE_GRANT_OK);
 
         List<String> segmentUrls = caseDataCreator.extractCaseDocuments(caseData).stream()
-            .map(caseDocument ->  caseDocument.getBinaryUrl())
+            .map(CaseDocument::getBinaryUrl)
             .map(url -> {
                 String downloadPath = url.substring(url.indexOf("/hearing-recordings"));
                 return xuiDomain + downloadPath + Constants.SHAREE;
             })
-            .collect(Collectors.toList());
+            .toList();
 
         LOGGER.info("segmentUrls {}", segmentUrls);
         try {
