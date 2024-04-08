@@ -26,20 +26,27 @@ public class AuditEntryService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditEntryService.class);
 
-    @Autowired
-    private HearingRecordingAuditEntryRepository hearingRecordingAuditEntryRepository;
+    private final HearingRecordingAuditEntryRepository hearingRecordingAuditEntryRepository;
+
+    private final HearingRecordingSegmentAuditEntryRepository hearingRecordingSegmentAuditEntryRepository;
+
+    private final ShareesAuditEntryRepository hearingRecordingShareeAuditEntryRepository;
+
+    private final SecurityService securityService;
+
+    private final AuditLogFormatter auditLogFormatter;
 
     @Autowired
-    private HearingRecordingSegmentAuditEntryRepository hearingRecordingSegmentAuditEntryRepository;
-
-    @Autowired
-    private ShareesAuditEntryRepository hearingRecordingShareeAuditEntryRepository;
-
-    @Autowired
-    private SecurityService securityService;
-
-    @Autowired
-    private AuditLogFormatter auditLogFormatter;
+    public AuditEntryService(HearingRecordingAuditEntryRepository hearingRecordingAuditEntryRepository,
+                             HearingRecordingSegmentAuditEntryRepository hearingRecordingSegmentAuditEntryRepository,
+                             ShareesAuditEntryRepository hearingRecordingShareeAuditEntryRepository,
+                             SecurityService securityService, AuditLogFormatter auditLogFormatter) {
+        this.hearingRecordingAuditEntryRepository = hearingRecordingAuditEntryRepository;
+        this.hearingRecordingSegmentAuditEntryRepository = hearingRecordingSegmentAuditEntryRepository;
+        this.hearingRecordingShareeAuditEntryRepository = hearingRecordingShareeAuditEntryRepository;
+        this.securityService = securityService;
+        this.auditLogFormatter = auditLogFormatter;
+    }
 
     void logOnly(Long caseId, AuditActions action) {
         var entry = new LogOnlyAuditEntry();
@@ -48,7 +55,9 @@ public class AuditEntryService {
             action,
             caseId
         );
-        LOGGER.info(auditLogFormatter.format(entry));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(auditLogFormatter.format(entry));
+        }
 
     }
 
@@ -68,7 +77,9 @@ public class AuditEntryService {
             caseId
         );
 
-        LOGGER.info(auditLogFormatter.format(entry));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(auditLogFormatter.format(entry));
+        }
         hearingRecordingAuditEntryRepository.save(entry);
         return entry;
 
@@ -86,7 +97,9 @@ public class AuditEntryService {
             caseId
         );
 
-        LOGGER.info(auditLogFormatter.format(entry));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(auditLogFormatter.format(entry));
+        }
         hearingRecordingSegmentAuditEntryRepository.save(entry);
         return entry;
     }
@@ -104,7 +117,9 @@ public class AuditEntryService {
             caseId
         );
 
-        LOGGER.info(auditLogFormatter.format(entry));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(auditLogFormatter.format(entry));
+        }
         hearingRecordingShareeAuditEntryRepository.save(entry);
         return entry;
     }

@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -32,15 +31,19 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
     @Value("#{'${hrs.allowed-roles}'.split(',')}")
     List<String> allowedRoles;
 
-    @Autowired
-    private SecurityService securityService;
+    private final SecurityService securityService;
+
+    private final ShareesRepository shareesRepository;
+
+    private final AuditEntryService auditEntryService;
 
     @Autowired
-    private ShareesRepository shareesRepository;
-
-    @Autowired
-    private AuditEntryService auditEntryService;
-
+    public PermissionEvaluatorImpl(SecurityService securityService, ShareesRepository shareesRepository,
+                                   AuditEntryService auditEntryService) {
+        this.securityService = securityService;
+        this.shareesRepository = shareesRepository;
+        this.auditEntryService = auditEntryService;
+    }
 
     @Override
     public boolean hasPermission(@NotNull Authentication authenticationToken,
@@ -72,8 +75,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
             }
         }
 
-        if (segment instanceof HearingRecordingSegment) {
-            HearingRecordingSegment hrSegment = ((HearingRecordingSegment) segment);
+        if (segment instanceof HearingRecordingSegment hrSegment) {
             HearingRecording hr = hrSegment.getHearingRecording();
             UUID recordingId = hr.getId();
             String shareeEmail = securityService.getUserEmail(token);
@@ -87,7 +89,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
                 "recordings that are shared with the user: ({}) are ({})", shareeEmail,
                 sharedRecordings.stream()
                     .map(sharedRecording -> sharedRecording.getHearingRecording().getCaseRef())
-                    .collect(Collectors.toList())
+                    .toList()
             );
             if (!isEmpty(sharedRecordings)) {
                 Optional<HearingRecordingSharee> hearingRecording = sharedRecordings.stream()

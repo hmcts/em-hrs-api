@@ -155,16 +155,18 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
                 response.setHeader(HttpHeaders.CONTENT_RANGE, contentRangeResponse);
                 response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(byteRangeCount));
 
-                LOGGER.debug(
-                    "Calc Blob Values: blobStart {}, blobLength {}",
-                    blobRange.getOffset(),
-                    blobRange.getCount()
-                );
-                LOGGER.debug(
-                    "Calc Http Header Values: CONTENT_RANGE {}, CONTENT_LENGTH {}",
-                    request.getHeader(HttpHeaders.CONTENT_RANGE),
-                    request.getHeader(HttpHeaders.CONTENT_LENGTH)
-                );
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                        "Calc Blob Values: blobStart {}, blobLength {}",
+                        blobRange.getOffset(),
+                        blobRange.getCount()
+                    );
+                    LOGGER.debug(
+                        "Calc Http Header Values: CONTENT_RANGE {}, CONTENT_LENGTH {}",
+                        request.getHeader(HttpHeaders.CONTENT_RANGE),
+                        request.getHeader(HttpHeaders.CONTENT_LENGTH)
+                    );
+                }
             } catch (Exception e) {
                 auditEntryService.createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_FAIL);
                 throw new InvalidRangeRequestException(response, fileSize);
