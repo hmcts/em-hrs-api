@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
