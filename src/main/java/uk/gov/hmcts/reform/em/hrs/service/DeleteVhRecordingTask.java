@@ -29,8 +29,12 @@ public class DeleteVhRecordingTask {
     @SchedulerLock(name = TASK_NAME)
     public void run() {
         logger.info("Started {} job", TASK_NAME);
-        List recordsToDelete = hearingRecordingRepository.listVhRecordingsToDelete();
-        hearingRecordingRepository.deleteById(UUID.fromString("e1d00616-d98a-41db-b2bf-4a9a836265fe"));
+        List<UUID> recordsToDelete = hearingRecordingRepository.listVhRecordingsToDelete();
+        for(var id: recordsToDelete) {
+            logger.info("Deleting id {} ", id);
+            hearingRecordingRepository.deleteById(id);
+            logger.info("Deleted id {} ", id);
+        }
         logger.info("Finished {} job,record count {}", TASK_NAME, recordsToDelete);
     }
 }
