@@ -30,7 +30,7 @@ public class DeleteVhRecordingTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
         List<UUID> recordsToDelete = hearingRecordingRepository.listVhRecordingsToDelete();
-        for(var id: recordsToDelete) {
+        for (var id : recordsToDelete) {
             logger.info("Deleting id {} ", id);
             hearingRecordingRepository.deleteById(id);
             logger.info("Deleted id {} ", id);
