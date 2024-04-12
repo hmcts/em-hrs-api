@@ -17,7 +17,7 @@ plugins {
   id 'au.com.dius.pact' version '4.2.14'
   id "info.solidsoft.pitest" version '1.15.0'
   id 'com.github.hmcts.rse-cft-lib' version '0.19.1134'
-  id 'uk.gov.hmcts.java' version '0.12.59'
+  id 'uk.gov.hmcts.java' version '0.12.60'
   id 'org.owasp.dependencycheck' version '9.1.0'
   id 'net.serenity-bdd.serenity-gradle-plugin' version '3.0.0'
 }
@@ -101,7 +101,6 @@ tasks.withType(Test) {
 }
 
 task functional(type: Test) {
-  failFast = true
   testLogging {
     events = ["passed", "failed", "skipped"]
     showStandardStreams = true
@@ -228,7 +227,7 @@ configurations.all {
 dependencyManagement {
   dependencies {
     // CVE-2023-6378
-    dependencySet(group: 'ch.qos.logback', version: '1.5.3') {
+    dependencySet(group: 'ch.qos.logback', version: '1.5.4') {
       entry 'logback-classic'
       entry 'logback-core'
     }
@@ -262,9 +261,8 @@ def versions = [
   junit              : '5.10.2',
   junitPlatform      : '1.10.2',
   springSecurity     : '6.2.3',
-  shedlock           : '5.12.0',
-  testcontainers     : '1.19.7',
-  springCloud        : '4.1.0'
+  shedlock           : '5.13.0',
+  testcontainers     : '1.19.7'
 ]
 
 dependencies {
@@ -283,8 +281,8 @@ dependencies {
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-core', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-config', version: versions.springSecurity
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: versions.springCloud
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: versions.springCloud
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.1.2'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.1.1'
 
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
@@ -310,12 +308,12 @@ dependencies {
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-spring', version: '5.1.9'
 
 //gov notify email service
-  implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '5.0.0-RELEASE'
+  implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '5.0.1-RELEASE'
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.5.0'
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.25.3'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.11.4'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.12.0'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.5.0-rc1'

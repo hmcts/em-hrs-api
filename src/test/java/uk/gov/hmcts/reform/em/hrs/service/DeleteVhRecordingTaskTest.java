@@ -7,11 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 
-import java.util.UUID;
-
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
 
 @ExtendWith(MockitoExtension.class)
 class DeleteVhRecordingTaskTest {
@@ -26,6 +23,6 @@ class DeleteVhRecordingTaskTest {
     void run_ShouldDeleteVhRecordings_WhenCalled() {
         deleteVhRecordingTask.run();
         verify(hearingRecordingRepository, times(1))
-            .deleteVhRecordings(UUID.fromString("e1d00616-d98a-41db-b2bf-4a9a836265fe"));
+            .listVhRecordingsToDelete();
     }
 }

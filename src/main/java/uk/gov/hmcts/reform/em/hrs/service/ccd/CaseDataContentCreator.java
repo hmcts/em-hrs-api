@@ -78,9 +78,12 @@ public class CaseDataContentCreator {
 
     private CaseRecordingFile createSegment(HearingRecordingDto hearingRecordingDto, UUID recordingId) {
 
-        String documentUrl = String.format("%s/hearing-recordings/%s/segments/%d",
-                                           hearingRecordingDto.getUrlDomain(), recordingId,
-                                           hearingRecordingDto.getSegment());
+        String documentUrl = String.format(
+            "%s/hearing-recordings/%s/file/%s",
+            hearingRecordingDto.getUrlDomain(),
+            recordingId,
+            hearingRecordingDto.getFilename()
+        );
 
         LOGGER.info("creating recording segment with url({})", documentUrl);
 
