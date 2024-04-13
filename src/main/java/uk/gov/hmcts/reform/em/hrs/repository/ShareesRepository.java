@@ -14,6 +14,7 @@ import java.util.UUID;
 public interface ShareesRepository extends CrudRepository<HearingRecordingSharee, UUID> {
 
     List<HearingRecordingSharee> findByShareeEmailIgnoreCase(String shareeEmail);
+
     @Modifying
     @Transactional
     @Query("DELETE FROM HearingRecordingSharee hrs WHERE hrs.hearingRecording.id = :hearingRecordingId")
