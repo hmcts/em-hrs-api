@@ -21,22 +21,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class CcdUploadJob extends QuartzJobBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(CcdUploadJob.class);
 
-    @Autowired
-    @Qualifier("ccdUploadQueue")
     private LinkedBlockingQueue<HearingRecordingDto> ccdUploadQueue;
 
-    @Autowired
     private JobInProgressService jobInProgressService;
 
-    @Autowired
     private CcdUploadService ccdUploadService;
 
     // Required by Quartz
     public CcdUploadJob() {
     }
 
-    //POJO Constructor for mocked tests without dependency Autowiredion
-    CcdUploadJob(final LinkedBlockingQueue<HearingRecordingDto> ccdUploadQueue,
+    @Autowired
+    CcdUploadJob(@Qualifier("ccdUploadQueue") final LinkedBlockingQueue<HearingRecordingDto> ccdUploadQueue,
                  final CcdUploadService ccdUploadService,
                  final JobInProgressService jobInProgressService) {
         this.ccdUploadQueue = ccdUploadQueue;
@@ -56,7 +52,7 @@ public class CcdUploadJob extends QuartzJobBean {
         try {
             ccdUploadService.upload(hrDto);
         } catch (Exception e) {
-            LOGGER.error("Unhandled Exception: {}", e);
+            LOGGER.error("Unhandled Exception: {}", e.toString());
         }
         jobInProgressService.deRegister(hrDto);
     }

@@ -56,8 +56,11 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public String getUserToken() {
-        LOGGER.info("retrieving access token with these credentials ({}/{})",
-                    systemUsername, systemUserPassword.substring(0, 4).concat("*****"));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("retrieving access token with these credentials ({}/{})",
+                        systemUsername, systemUserPassword.substring(0, 4).concat("*****")
+            );
+        }
         return idamClient.getAccessToken(systemUsername, systemUserPassword);
     }
 
@@ -68,7 +71,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public String getUserId(String userAuthorization) {
-        return idamClient.getUserDetails(userAuthorization).getId();
+        return idamClient.getUserInfo(userAuthorization).getUid();
     }
 
     @Override
@@ -78,7 +81,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public String getUserEmail(String userAuthorization) {
-        return idamClient.getUserDetails(userAuthorization).getEmail();
+        return idamClient.getUserInfo(userAuthorization).getSub();
     }
 
     @Override
@@ -103,7 +106,9 @@ public class SecurityServiceImpl implements SecurityService {
             LOGGER.warn("Using dummy serviceName because token is blank");
             return DUMMY_NAME;
         }
-        LOGGER.info("Using token ({}) to get serviceName", s2sToken.substring(0, 15));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Using token ({}) to get serviceName", s2sToken.substring(0, 15));
+        }
         return getServiceName(s2sToken);
     }
 
