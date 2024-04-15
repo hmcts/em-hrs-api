@@ -111,7 +111,8 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
                     .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn(), userEmail))
                     .findAny();
                 if (recordingSharee.isEmpty()) {
-                    throw new ValidationErrorException(Map.of(VALIDATION_ERROR_STRING, Constants.SHARED_EXPIRED_LINK_MSG));
+                    throw new ValidationErrorException(
+                        Map.of(VALIDATION_ERROR_STRING, Constants.SHARED_EXPIRED_LINK_MSG));
                 }
             } else {
                 LOGGER.debug("No Shared recordings found for user {}", userEmail);
