@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
+import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,9 +21,14 @@ public class DeleteVhRecordingTask {
     private static final Logger logger = getLogger(DeleteVhRecordingTask.class);
 
     private final HearingRecordingRepository hearingRecordingRepository;
+    private final ShareesRepository shareesRepository;
 
-    public DeleteVhRecordingTask(HearingRecordingRepository hearingRecordingRepository) {
+    public DeleteVhRecordingTask(
+        HearingRecordingRepository hearingRecordingRepository,
+        ShareesRepository shareesRepository
+    ) {
         this.hearingRecordingRepository = hearingRecordingRepository;
+        this.shareesRepository = shareesRepository;
     }
 
     @Scheduled(cron = "${scheduling.task.delete-vh-recordings.cron}", zone = "Europe/London")
@@ -31,13 +37,11 @@ public class DeleteVhRecordingTask {
         logger.info("Started {} job", TASK_NAME);
         List<UUID> recordsToDelete = hearingRecordingRepository.listVhRecordingsToDelete();
         for (var id : recordsToDelete) {
-            try {
-                logger.info("Deleting id {} ", id);
-                hearingRecordingRepository.deleteById(id);
-                logger.info("Deleted id {} ", id);
-            } catch (Exception ex) {
-                logger.error("deleting failed", ex);
-            }
+            logger.info("Deleting id {} ", id);
+            shareesRepository.deleteByHearingRecordingId(id);
+            logger.info("sharee deleted for id {} ", id);
+            hearingRecordingRepository.deleteById(id);
+            logger.info("Deleted id {} ", id);
         }
         logger.info("Finished {} job,record count {}", TASK_NAME, recordsToDelete);
     }
