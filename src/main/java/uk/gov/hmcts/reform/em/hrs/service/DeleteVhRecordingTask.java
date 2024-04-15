@@ -37,14 +37,11 @@ public class DeleteVhRecordingTask {
         logger.info("Started {} job", TASK_NAME);
         List<UUID> recordsToDelete = hearingRecordingRepository.listVhRecordingsToDelete();
         for (var id : recordsToDelete) {
-            try {
-                logger.info("Deleting id {} ", id);
-                shareesRepository.deleteByHearingRecordingId(id);
-                hearingRecordingRepository.deleteById(id);
-                logger.info("Deleted id {} ", id);
-            } catch (Exception ex) {
-                logger.info("deleting failed", ex);
-            }
+            logger.info("Deleting id {} ", id);
+            shareesRepository.deleteByHearingRecordingId(id);
+            logger.info("sharee deleted for id {} ", id);
+            hearingRecordingRepository.deleteById(id);
+            logger.info("Deleted id {} ", id);
         }
         logger.info("Finished {} job,record count {}", TASK_NAME, recordsToDelete);
     }
