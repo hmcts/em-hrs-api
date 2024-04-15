@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -28,7 +29,16 @@ public class DeleteVhRecordingTask {
     @SchedulerLock(name = TASK_NAME)
     public void run() {
         logger.info("Started {} job", TASK_NAME);
-        List recordsToDelete = hearingRecordingRepository.listVhRecordingsToDelete();
+        List<UUID> recordsToDelete = hearingRecordingRepository.listVhRecordingsToDelete();
+        for (var id : recordsToDelete) {
+            try {
+                logger.info("Deleting id {} ", id);
+                hearingRecordingRepository.deleteById(id);
+                logger.info("Deleted id {} ", id);
+            } catch (Exception ex) {
+                logger.error("deleting failed", ex);
+            }
+        }
         logger.info("Finished {} job,record count {}", TASK_NAME, recordsToDelete);
     }
 }
