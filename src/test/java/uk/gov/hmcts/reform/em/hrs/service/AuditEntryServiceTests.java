@@ -31,7 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AuditEntryServiceTests {
+class AuditEntryServiceTests {
 
     private static final String USER_EMAIL = "email@hmcts.net.internal";
     private static final String SERVICE_NAME = "SUT";
@@ -71,7 +71,7 @@ public class AuditEntryServiceTests {
     }
 
     @Test
-    public void testFindHearingRecordingAudits() {
+    void testFindHearingRecordingAudits() {
         HearingRecording hearingRecording = TestUtil.hearingRecordingWithNoDataBuilder();
 
         when(hearingRecordingAuditEntryRepository
@@ -83,7 +83,7 @@ public class AuditEntryServiceTests {
     }
 
     @Test
-    public void testCreateAndSaveEntryForHearingRecording() {
+    void testCreateAndSaveEntryForHearingRecording() {
         prepareMockSecurityService();
 
         HearingRecordingAuditEntry entry = auditEntryService.createAndSaveEntry(
@@ -98,7 +98,7 @@ public class AuditEntryServiceTests {
     }
 
     @Test
-    public void testCreateAndSaveEntryForHearingRecordingSegment() {
+    void testCreateAndSaveEntryForHearingRecordingSegment() {
         prepareMockSecurityService();
 
         HearingRecordingSegmentAuditEntry entry = auditEntryService.createAndSaveEntry(
@@ -113,7 +113,7 @@ public class AuditEntryServiceTests {
     }
 
     @Test
-    public void testCreateAndSaveEntryForHearingRecordingSharee() {
+    void testCreateAndSaveEntryForHearingRecordingSharee() {
         prepareMockSecurityService();
 
         HearingRecordingShareeAuditEntry entry = auditEntryService.createAndSaveEntry(
@@ -130,7 +130,7 @@ public class AuditEntryServiceTests {
     }
 
     @Test
-    public void testLogsForNonEntity() {
+    void testLogsForNonEntity() {
         prepareMockSecurityService();
 
         auditEntryService.logOnly(

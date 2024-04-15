@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.util;
 
 public class FileNameCoder {
 
-    private static String SLASH_CODE = "__*__";
+    private static final String SLASH_CODE = "__*__";
 
     private FileNameCoder() {
     }

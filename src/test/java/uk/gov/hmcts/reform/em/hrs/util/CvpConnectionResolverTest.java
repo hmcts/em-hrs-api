@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.hmcts.reform.em.hrs.util.CvpConnectionResolver.extractAccountFromUrl;
 
-public class CvpConnectionResolverTest {
+class CvpConnectionResolverTest {
 
     @Test
     void testUrlWithSecondaryDnsWorks() {
