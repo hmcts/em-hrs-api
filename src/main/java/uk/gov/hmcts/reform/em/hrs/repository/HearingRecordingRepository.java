@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,14 +24,4 @@ public interface HearingRecordingRepository extends JpaRepository<HearingRecordi
     @Query("delete from HearingRecording s where s.createdOn < :#{#createddate} and s.ccdCaseId is null")
     void deleteStaleRecordsWithNullCcdCaseId(@Param("createddate") LocalDateTime createddate);
 
-
-    @Modifying
-    @Transactional
-    @Query("delete from HearingRecording s where s.hearingSource = 'VH' and s.hearingRoomRef='0' "
-        + " and s.id= :uuid")
-    void deleteVhRecordings(UUID uuid);
-
-
-    @Query("SELECT id FROM HearingRecording s WHERE s.hearingSource = 'VH' AND s.hearingRoomRef = '0'")
-    List<UUID> listVhRecordingsToDelete();
 }
