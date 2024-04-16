@@ -31,6 +31,7 @@ import uk.gov.hmcts.reform.em.hrs.service.Constants;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.UUID;
@@ -199,14 +200,14 @@ public class HearingRecordingController {
         {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")}
     )
-    public ResponseEntity getSegmentBinaryByFileName(
+    public ResponseEntity<Void> getSegmentBinaryByFileName(
         @PathVariable("recordingId") UUID recordingId,
         @PathVariable(value = "folderName", required = false) String folderName,
         @PathVariable("fileName") String fileName,
         HttpServletRequest request,
         HttpServletResponse response) {
         LOGGER.info("recordingId:{}, fileName:{}", recordingId, fileName);
-        var fileNameDecoded = folderName == null ? fileName : folderName + "/" + fileName;
+        var fileNameDecoded = folderName == null ? fileName : folderName + File.separator + fileName;
         return this.downloadWrapper(
             recordingId,
             () ->
@@ -235,7 +236,7 @@ public class HearingRecordingController {
         value = {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")}
     )
-    public ResponseEntity getSegmentBinaryForShareeByFileName(
+    public ResponseEntity<Void> getSegmentBinaryForShareeByFileName(
         @PathVariable("recordingId") UUID recordingId,
         @PathVariable(value = "folderName", required = false) String folderName,
         @PathVariable("fileName") String fileName,
@@ -243,7 +244,7 @@ public class HearingRecordingController {
         HttpServletRequest request,
         HttpServletResponse response
     ) {
-        var fileNameDecoded = folderName == null ? fileName : folderName + "/" + fileName;
+        var fileNameDecoded = folderName == null ? fileName : folderName + File.separator + fileName;
 
         return this.downloadWrapper(
             recordingId,
@@ -302,13 +303,13 @@ public class HearingRecordingController {
                 "User does not have permission to download recording {}",
                 e.getMessage()
             );
-            return new ResponseEntity<Void>(HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         } catch (UncheckedIOException | IOException e) {
             LOGGER.warn(
                 "IOException streaming response for recording ID: {} IOException message: {}",
                 recordingId, e.getMessage()
             );//Exceptions are thrown during partial requests from front door (it throws client abort)
         }
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

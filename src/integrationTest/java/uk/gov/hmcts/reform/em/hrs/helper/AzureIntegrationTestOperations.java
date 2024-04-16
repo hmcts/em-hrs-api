@@ -35,7 +35,7 @@ public class AzureIntegrationTestOperations {
         final @Qualifier("HrsCvpBlobContainerClient") BlobContainerClient hrsCvpBlobContainerClient,
         final @Qualifier("HrsVhBlobContainerClient") BlobContainerClient hrsVhBlobContainerClient,
         final @Qualifier("CvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient,
-        final @Qualifier("VhBlobContainerClient") BlobContainerClient vhBlobContainerClient
+        final @Qualifier("vhBlobContainerClient") BlobContainerClient vhBlobContainerClient
     ) {
         this.hrsCvpBlobContainerClient = hrsCvpBlobContainerClient;
         this.hrsVhBlobContainerClient = hrsVhBlobContainerClient;

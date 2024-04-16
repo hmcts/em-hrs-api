@@ -104,7 +104,7 @@ public class TestAzureStorageConfig {
     }
 
     @Primary
-    @Bean("VhBlobContainerClient")
+    @Bean("vhBlobContainerClient")
     public BlobContainerClient vhBlobContainerClient() {
         return createBlobClient(connectionString, VH_CONTAINER);
     }

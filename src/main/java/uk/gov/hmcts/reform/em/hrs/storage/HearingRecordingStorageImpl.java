@@ -71,7 +71,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         final @Qualifier("HrsCvpBlobContainerClient") BlobContainerClient hrsCvpContainerClient,
         final @Qualifier("HrsVhBlobContainerClient") BlobContainerClient hrsVhContainerClient,
         final @Qualifier("CvpBlobContainerClient") BlobContainerClient cvpContainerClient,
-        final @Qualifier("VhBlobContainerClient") BlobContainerClient vhContainerClient,
+        final @Qualifier("vhBlobContainerClient") BlobContainerClient vhContainerClient,
         @Value("${azure.storage.cvp.connection-string}") String cvpConnectionString,
         @Value("${azure.storage.vh.connection-string}") String vhConnectionString,
         @Value("${azure.storage.use-ad-auth}") boolean useAdAuth

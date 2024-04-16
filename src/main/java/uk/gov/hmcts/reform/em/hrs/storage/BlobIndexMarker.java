@@ -15,7 +15,7 @@ public class BlobIndexMarker {
     private final BlobContainerClient blobContainerClient;
 
     public BlobIndexMarker(
-        final @Qualifier("VhBlobContainerClient") BlobContainerClient blobContainerClient) {
+        final @Qualifier("vhBlobContainerClient") BlobContainerClient blobContainerClient) {
         this.blobContainerClient = blobContainerClient;
     }
 
