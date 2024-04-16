@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
+import uk.gov.hmcts.reform.em.hrs.repository.ShareesAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
 
 import java.util.List;
@@ -23,12 +24,16 @@ public class DeleteVhRecordingTask {
     private final HearingRecordingRepository hearingRecordingRepository;
     private final ShareesRepository shareesRepository;
 
+    private final ShareesAuditEntryRepository hearingRecordingShareeAuditEntryRepository;
+
     public DeleteVhRecordingTask(
         HearingRecordingRepository hearingRecordingRepository,
-        ShareesRepository shareesRepository
+        ShareesRepository shareesRepository,
+        ShareesAuditEntryRepository hearingRecordingShareeAuditEntryRepository
     ) {
         this.hearingRecordingRepository = hearingRecordingRepository;
         this.shareesRepository = shareesRepository;
+        this.hearingRecordingShareeAuditEntryRepository = hearingRecordingShareeAuditEntryRepository;
     }
 
     @Scheduled(cron = "${scheduling.task.delete-vh-recordings.cron}", zone = "Europe/London")
@@ -37,6 +42,12 @@ public class DeleteVhRecordingTask {
         logger.info("Started {} job", TASK_NAME);
         List<UUID> recordsToDelete = hearingRecordingRepository.listVhRecordingsToDelete();
         for (var id : recordsToDelete) {
+            var hearingRecOpt = hearingRecordingRepository.findById(id);
+            if (hearingRecOpt.isEmpty()) {
+                return;
+            }
+            var hearingRec = hearingRecOpt.get();
+            hearingRecordingShareeAuditEntryRepository.deleteByCaseRef(hearingRec.getCcdCaseId());
             logger.info("shareesRepository Deleting id {} ", id);
             shareesRepository.deleteByHearingRecordingId(id);
             logger.info("sharee deleted for id {} ", id);
