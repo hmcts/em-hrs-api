@@ -15,7 +15,7 @@ public interface ShareesAuditEntryRepository
 
     @Modifying
     @Transactional
-    @Query(value = "DELETE FROM audit_entry where caseId = :caseId",
+    @Query(value = "DELETE FROM audit_entry where case_id = :caseId",
         nativeQuery = true)
     void deleteByCaseRef(long caseId);
 }
