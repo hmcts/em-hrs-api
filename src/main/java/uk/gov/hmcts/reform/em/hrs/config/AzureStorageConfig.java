@@ -41,7 +41,7 @@ public class AzureStorageConfig {
     @Value("${azure.storage.use-ad-auth}")
     private boolean useAdAuth;
 
-    @Bean("HrsCvpBlobContainerClient")
+    @Bean("hrsCvpBlobContainerClient")
     public BlobContainerClient provideHrsCvpBlobContainerClient() {
         BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
@@ -59,7 +59,7 @@ public class AzureStorageConfig {
 
     }
 
-    @Bean("HrsVhBlobContainerClient")
+    @Bean("hrsVhBlobContainerClient")
     public BlobContainerClient provideHrsVhBlobContainerClient() {
         BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
             .connectionString(hrsConnectionString)
