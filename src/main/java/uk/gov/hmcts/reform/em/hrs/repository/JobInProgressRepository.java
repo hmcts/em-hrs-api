@@ -18,6 +18,5 @@ public interface JobInProgressRepository extends CrudRepository<JobInProgress, U
     @Query("delete from JobInProgress s where s.createdOn < :#{#dateTime} or s.createdOn is null")
     void deleteByCreatedOnLessThan(@Param("dateTime") LocalDateTime dateTime);
 
-    //TODO filename also contains the folder name - possibly this should be removed as a low value tech debt
     Set<JobInProgress> findByFolderNameAndFilename(String folderName, String fileName);
 }
