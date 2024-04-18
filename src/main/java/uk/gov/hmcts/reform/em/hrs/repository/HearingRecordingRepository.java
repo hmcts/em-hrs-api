@@ -24,14 +24,4 @@ public interface HearingRecordingRepository extends JpaRepository<HearingRecordi
     @Query("delete from HearingRecording s where s.createdOn < :#{#createddate} and s.ccdCaseId is null")
     void deleteStaleRecordsWithNullCcdCaseId(@Param("createddate") LocalDateTime createddate);
 
-
-    @Modifying
-    @Transactional
-    @Query("delete from HearingRecording s where s.hearingSource = 'VH' and s.hearingRoomRef='0' "
-        + " and s.id= :uuid")
-    void deleteVhRecordings(UUID uuid);
-
-
-    @Query("SELECT COUNT(*) FROM HearingRecording s WHERE s.hearingSource = 'VH' AND s.hearingRoomRef = '0'")
-    int getCountVhRecordings();
 }

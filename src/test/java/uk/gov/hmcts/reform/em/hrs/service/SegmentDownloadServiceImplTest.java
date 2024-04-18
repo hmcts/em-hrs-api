@@ -251,7 +251,7 @@ class SegmentDownloadServiceImplTest {
     }
 
     @Test
-    public void loadsRangedBlobInvalidRangeHeaderStart() {
+    void loadsRangedBlobInvalidRangeHeaderStart() {
         when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=A-Z");
         when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
         when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
@@ -261,7 +261,7 @@ class SegmentDownloadServiceImplTest {
     }
 
     @Test
-    public void loadsRangedBlobInvalidRangeHeaderStartGreaterThanEnd() {
+    void loadsRangedBlobInvalidRangeHeaderStartGreaterThanEnd() {
         when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=1023-0");
         when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
         when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
@@ -271,7 +271,7 @@ class SegmentDownloadServiceImplTest {
     }
 
     @Test
-    public void loadsRangedBlobTooLargeRangeHeader() throws IOException {
+    void loadsRangedBlobTooLargeRangeHeader() throws IOException {
         when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=0-1023");
         when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
         when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
@@ -285,7 +285,7 @@ class SegmentDownloadServiceImplTest {
     }
 
     @Test
-    public void loadsRangedBlobValidRangeHeader() throws IOException {
+    void loadsRangedBlobValidRangeHeader() throws IOException {
         when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=0-1023");
         when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
         when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(2000L, null));

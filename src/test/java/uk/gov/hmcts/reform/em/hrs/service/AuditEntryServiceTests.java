@@ -31,7 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AuditEntryServiceTests {
+class AuditEntryServiceTests {
 
     private static final String USER_EMAIL = "email@hmcts.net.internal";
     private static final String SERVICE_NAME = "SUT";
@@ -71,7 +71,7 @@ public class AuditEntryServiceTests {
     }
 
     @Test
-    public void testFindHearingRecordingAudits() {
+    void testFindHearingRecordingAudits() {
         HearingRecording hearingRecording = TestUtil.hearingRecordingWithNoDataBuilder();
 
         when(hearingRecordingAuditEntryRepository
@@ -83,7 +83,22 @@ public class AuditEntryServiceTests {
     }
 
     @Test
-    public void testCreateAndSaveEntryForHearingRecordingSegment() {
+    void testCreateAndSaveEntryForHearingRecording() {
+        prepareMockSecurityService();
+
+        HearingRecordingAuditEntry entry = auditEntryService.createAndSaveEntry(
+            hearingRecording,
+            AuditActions.USER_DOWNLOAD_REQUESTED
+        );
+
+        assertSecurityServiceValues(entry);
+        assertLogFormatterInvoked();
+        verify(hearingRecordingAuditEntryRepository, times(1))
+            .save(entry);
+    }
+
+    @Test
+    void testCreateAndSaveEntryForHearingRecordingSegment() {
         prepareMockSecurityService();
 
         HearingRecordingSegmentAuditEntry entry = auditEntryService.createAndSaveEntry(
@@ -94,11 +109,11 @@ public class AuditEntryServiceTests {
         assertSecurityServiceValues(entry);
         assertLogFormatterInvoked();
         verify(hearingRecordingSegmentAuditEntryRepository, times(1))
-            .save(any(HearingRecordingSegmentAuditEntry.class));
+            .save(entry);
     }
 
     @Test
-    public void testCreateAndSaveEntryForHearingRecordingSharee() {
+    void testCreateAndSaveEntryForHearingRecordingSharee() {
         prepareMockSecurityService();
 
         HearingRecordingShareeAuditEntry entry = auditEntryService.createAndSaveEntry(
@@ -110,12 +125,12 @@ public class AuditEntryServiceTests {
         assertLogFormatterInvoked();
 
         verify(shareesAuditEntryRepository, times(1))
-            .save(any(HearingRecordingShareeAuditEntry.class));
+            .save(entry);
 
     }
 
     @Test
-    public void testLogsForNonEntity() {
+    void testLogsForNonEntity() {
         prepareMockSecurityService();
 
         auditEntryService.logOnly(

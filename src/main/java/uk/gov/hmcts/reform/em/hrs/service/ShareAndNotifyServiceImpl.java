@@ -23,7 +23,7 @@ import java.util.Map;
 
 @Service
 public class ShareAndNotifyServiceImpl implements ShareAndNotifyService {
-    private static Logger LOGGER =  LoggerFactory.getLogger(ShareAndNotifyServiceImpl.class);
+    private static final Logger LOGGER =  LoggerFactory.getLogger(ShareAndNotifyServiceImpl.class);
     private final HearingRecordingRepository hearingRecordingRepository;
     private final ShareeService shareeService;
     private final NotificationService notificationService;

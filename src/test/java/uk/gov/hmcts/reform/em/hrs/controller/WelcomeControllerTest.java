@@ -9,12 +9,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class WelcomeControllerTest {
+class WelcomeControllerTest {
 
     private final WelcomeController welcomeController = new WelcomeController();
 
     @Test
-    public void testEndPointResponseCode() {
+    void testEndPointResponseCode() {
         ResponseEntity<Map<String, String>> responseEntity = welcomeController.welcome();
 
         Assertions.assertNotNull(responseEntity);
@@ -22,7 +22,7 @@ public class WelcomeControllerTest {
     }
 
     @Test
-    public void testEndpointResponseMessage() {
+    void testEndpointResponseMessage() {
         ResponseEntity<Map<String, String>> responseEntity = welcomeController.welcome();
 
         Map<String, String> expectedResponse = new HashMap<>();
