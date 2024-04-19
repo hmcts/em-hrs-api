@@ -335,9 +335,11 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             .map(blb -> blb.getName())
             .collect(Collectors.toSet());
 
+
         if (enableVhReport) {
             final PagedIterable<BlobItem> vhBlobItems = vhContainerClient.listBlobs(options, duration);
 
+            var vhCounter = new Counter();
             var vhTodayItemCounter = new Counter();
             long vhTotalCount = vhBlobItems
                 .stream()
@@ -347,8 +349,13 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                         vhTodayItemCounter.count++;
                     }
                 })
-                .map(blb -> blb.getName())
-                .count();
+                .map(blb -> {
+                    vhCounter.count++;
+                    if (vhCounter.count < 5) {
+                        LOGGER.info("VH blob name {}", blb.getName());
+                    }
+                    return blb.getName();
+                }).count();
             LOGGER.info("VH count vhTotalCount {} vhTodayItemCounter{}", vhTotalCount, vhTodayItemCounter.count);
         }
 
