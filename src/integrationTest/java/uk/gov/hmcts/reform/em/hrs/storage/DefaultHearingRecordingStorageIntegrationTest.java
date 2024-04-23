@@ -124,7 +124,7 @@ class DefaultHearingRecordingStorageIntegrationTest {
         StorageReport storageReport = underTest.getStorageReport();
         System.out.println(storageReport);
         assertEquals(storageReport.cvpItemCount, 0);
-        assertEquals(storageReport.hrsItemCount, 1);
+        assertEquals(storageReport.hrsCvpItemCount, 1);
     }
 
     @Test

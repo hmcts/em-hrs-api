@@ -66,15 +66,28 @@ public class SummaryReportService {
 
         return "<html><body><h1>Blobstores Inspected</h1><h5>TOTAL</h5> CVP Count = "
             + report.cvpItemCount
-            + " vs HRS Count = "
-            + report.hrsItemCount
+            + " vs HRS CVP Count = "
+            + report.hrsCvpItemCount
             + "<br><br>"
             + "<h5>TODAY "
             + report.today
             + "</h5> CVP Count = "
             + report.cvpItemCountToday
+            + " vs HRS CVP Count = "
+            + report.hrsCvpItemCountToday
+            + "<br>"
+            + "VH Count = "
+            + report.vhItemCount
+            + " vs HRS VH Count = "
+            + report.hrsVhItemCount
+            + "<br><br>"
+            + "<h5>TODAY "
+            + report.today
+            + "</h5> VH Count = "
+            + report.vhItemCountToday
             + " vs HRS Count = "
-            + report.hrsItemCountToday
-            + "<br><br><br></body></html>";
+            + report.hrsVhItemCountToday
+            + "<br>"
+            + "<br><br></body></html>";
     }
 }

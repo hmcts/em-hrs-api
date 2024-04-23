@@ -334,32 +334,24 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             )
             .map(blb -> blb.getName())
             .collect(Collectors.toSet());
-
-
+        var vhTodayItemCounter = new Counter();
+        long vhTotalCount = 0;
         if (enableVhReport) {
             final PagedIterable<BlobItem> vhBlobItems = vhContainerClient.listBlobs(options, duration);
 
-            var vhCounter = new Counter();
-            var vhTodayItemCounter = new Counter();
-            long vhTotalCount = vhBlobItems
+            vhTotalCount = vhBlobItems
                 .stream()
-                .filter(blobItem -> blobItem.getName().contains("/") && blobItem.getName().contains(".mp"))
+                .filter(blobItem -> blobItem.getName().contains(".mp"))
                 .peek(blob -> {
                     if (isCreatedToday(blob, today)) {
                         vhTodayItemCounter.count++;
                     }
                 })
-                .map(blb -> {
-                    vhCounter.count++;
-                    if (vhCounter.count < 5) {
-                        LOGGER.info("VH blob name {}", blb.getName());
-                    }
-                    return blb.getName();
-                }).count();
+                .map(blb -> blb.getName())
+                .count();
             LOGGER.info("VH count vhTotalCount {} vhTodayItemCounter{}", vhTotalCount, vhTodayItemCounter.count);
         }
 
-        long cvpItemCount = cvpItems.size();
         LOGGER.info("StorageReport CVP done");
 
         final BlobListDetails hrsBlobListDetails = new BlobListDetails()
@@ -367,9 +359,10 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             .setRetrieveSnapshots(false);
         final ListBlobsOptions hrsOptions = new ListBlobsOptions()
             .setDetails(hrsBlobListDetails);
-        var hrsTodayItemCounter = new Counter();
 
-        long hrsItemCount = hrsCvpBlobContainerClient.listBlobs(hrsOptions, duration)
+        var hrsCvpTodayItemCounter = new Counter();
+        long cvpItemCount = cvpItems.size();
+        long hrsCvpItemCount = hrsCvpBlobContainerClient.listBlobs(hrsOptions, duration)
             .stream()
             .filter(blobItem -> blobItem.getName().contains("/"))
             .filter(
@@ -377,7 +370,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                     OffsetDateTime creationTime = blobItem.getProperties().getCreationTime();
                     cvpItems.remove(blobItem.getName());
                     if (isCreatedToday(creationTime, today)) {
-                        hrsTodayItemCounter.count++;
+                        hrsCvpTodayItemCounter.count++;
                     }
                     return creationTime.isAfter(
                         OffsetDateTime.of(
@@ -387,21 +380,58 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                         ));
                 }
             ).count();
-
+        var hrsVhTodayItemCounter = new Counter();
+        long hrsVhItemCount = 0;
+        if (enableVhReport) {
+            hrsVhItemCount = hrsVhBlobContainerClient.listBlobs(hrsOptions, duration)
+                .stream()
+                .filter(
+                    blobItem -> {
+                        OffsetDateTime creationTime = blobItem.getProperties().getCreationTime();
+                        if (isCreatedToday(creationTime, today)) {
+                            hrsVhTodayItemCounter.count++;
+                        }
+                        return creationTime.isAfter(
+                            OffsetDateTime.of(
+                                LocalDate.now().minusDays(COUNT_LAST_89_DAYS),
+                                LocalTime.MIDNIGHT,
+                                ZoneOffset.UTC
+                            ));
+                    }
+                ).count();
+        }
         LOGGER.info("CVP-HRS difference {}", cvpItems);
         LOGGER.info(
             "StorageReport CVP Total Count= {} vs HRS Total Count= {}, Today CVP= {} vs HRS= {} ",
             cvpItemCount,
-            hrsItemCount,
+            hrsCvpItemCount,
             cvpTodayItemCounter.count,
-            hrsTodayItemCounter.count
+            hrsCvpTodayItemCounter.count
         );
+
+        LOGGER.info(
+            "StorageReport VH Total Count= {} vs HRS VH Total Count= {}, Today VH= {} vs HRS= {} ",
+            vhTotalCount,
+            hrsVhItemCount,
+            vhTodayItemCounter.count,
+            hrsVhTodayItemCounter.count
+        );
+
+
         return new StorageReport(
             today,
-            cvpItemCount,
-            hrsItemCount,
-            cvpTodayItemCounter.count,
-            hrsTodayItemCounter.count
+            new StorageReport.HrsSourceVsDestinationCounts(
+                cvpItemCount,
+                hrsCvpItemCount,
+                cvpTodayItemCounter.count,
+                hrsCvpTodayItemCounter.count
+            ),
+            new StorageReport.HrsSourceVsDestinationCounts(
+                vhTotalCount,
+                hrsVhItemCount,
+                vhTodayItemCounter.count,
+                hrsVhTodayItemCounter.count
+            )
         );
     }
 
