@@ -15,7 +15,6 @@ import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobListDetails;
 import com.azure.storage.blob.models.BlobStorageException;
-import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.models.UserDelegationKey;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
@@ -320,7 +319,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             .filter(
                 blobItem -> {
                     OffsetDateTime creationTime = blobItem.getProperties().getCreationTime();
-
                     if (isCreatedToday(creationTime, today)) {
                         cvpTodayItemCounter.count++;
                     }
@@ -343,7 +341,8 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 .stream()
                 .filter(blobItem -> blobItem.getName().contains(".mp"))
                 .peek(blob -> {
-                    if (isCreatedToday(blob, today)) {
+                    OffsetDateTime creationTime = blob.getProperties().getCreationTime();
+                    if (isCreatedToday(creationTime, today)) {
                         vhTodayItemCounter.count++;
                     }
                 })
@@ -385,18 +384,12 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         if (enableVhReport) {
             hrsVhItemCount = hrsVhBlobContainerClient.listBlobs(hrsOptions, duration)
                 .stream()
-                .filter(
+                .peek(
                     blobItem -> {
                         OffsetDateTime creationTime = blobItem.getProperties().getCreationTime();
                         if (isCreatedToday(creationTime, today)) {
                             hrsVhTodayItemCounter.count++;
                         }
-                        return creationTime.isAfter(
-                            OffsetDateTime.of(
-                                LocalDate.now().minusDays(COUNT_LAST_89_DAYS),
-                                LocalTime.MIDNIGHT,
-                                ZoneOffset.UTC
-                            ));
                     }
                 ).count();
         }
@@ -433,55 +426,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 hrsVhTodayItemCounter.count
             )
         );
-    }
-
-    @Override
-    public void listVHBlobs() {
-        final BlobListDetails hrsBlobListDetails = new BlobListDetails()
-            .setRetrieveDeletedBlobs(false)
-            .setRetrieveSnapshots(false);
-
-        final ListBlobsOptions hrsOptions = new ListBlobsOptions()
-            .setDetails(hrsBlobListDetails);
-        final Duration duration = Duration.ofMinutes(BLOB_LIST_TIMEOUT);
-
-        LOGGER.info(
-            "VH container detail {}",
-            hrsVhBlobContainerClient.getBlobContainerName(),
-            hrsVhBlobContainerClient.getBlobContainerUrl()
-        );
-        long hrsVhItemCount = hrsVhBlobContainerClient.listBlobs(hrsOptions, duration)
-            .stream()
-            .map(blob -> {
-                LOGGER.info("VH blob name {}", blob.getName());
-                return blob; }
-            ).count();
-        LOGGER.info("VH blob count {} ", hrsVhItemCount);
-        if ("vhrecordings".equals(hrsVhBlobContainerClient.getBlobContainerName())) {
-            LOGGER.info("Start deleting vh blobs");
-            hrsVhBlobContainerClient.listBlobs(hrsOptions, duration)
-                .stream()
-                .forEach(
-                    blobItem -> {
-                        LOGGER.info("Deleting vh blob {} ", blobItem.getName());
-                        hrsVhBlobContainerClient
-                            .getBlobClient(blobItem.getName())
-                            .deleteWithResponse(
-                                DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE
-                            );
-                        LOGGER.info("DELETED vh blob {} ", blobItem.getName());
-                    }
-                );
-        }
-    }
-
-    private boolean isCreatedToday(BlobItem blobItem, LocalDate today) {
-        return blobItem.getProperties().getCreationTime().isAfter(
-            OffsetDateTime.of(
-                today,
-                LocalTime.MIDNIGHT,
-                ZoneOffset.UTC
-            ));
     }
 
     private boolean isCreatedToday(OffsetDateTime creationTime, LocalDate today) {

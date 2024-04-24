@@ -69,21 +69,19 @@ public class SummaryReportService {
             + " vs HRS CVP Count = "
             + report.hrsCvpItemCount
             + "<br><br>"
+            + "VH Count = "
+            + report.vhItemCount
+            + " vs HRS VH Count = "
+            + report.hrsVhItemCount
+            + "<br><br><br>"
             + "<h5>TODAY "
             + report.today
             + "</h5> CVP Count = "
             + report.cvpItemCountToday
             + " vs HRS CVP Count = "
             + report.hrsCvpItemCountToday
-            + "<br>"
-            + "VH Count = "
-            + report.vhItemCount
-            + " vs HRS VH Count = "
-            + report.hrsVhItemCount
             + "<br><br>"
-            + "<h5>TODAY "
-            + report.today
-            + "</h5> VH Count = "
+            + "VH Count = "
             + report.vhItemCountToday
             + " vs HRS Count = "
             + report.hrsVhItemCountToday

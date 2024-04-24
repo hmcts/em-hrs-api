@@ -56,9 +56,9 @@ class SummaryReportServiceTest {
             .sendMessageWithAttachments(
                 contains(titleContains),
                 eq("<html><body><h1>Blobstores Inspected</h1><h5>TOTAL</h5> "
-                       + "CVP Count = 23 vs HRS CVP Count = 67<br>"
-                       + "<br><h5>TODAY " + today + "</h5> CVP Count = 55 vs HRS CVP Count = 45<br>"
-                       + "VH Count = 1123 vs HRS VH Count = 1107<br><br><h5>TODAY " + today + "</h5> "
+                       + "CVP Count = 23 vs HRS CVP Count = 67<br><br>VH Count = 1123 vs HRS VH Count = 1107"
+                       + "<br><br><br><h5>TODAY " + today
+                       + "</h5> CVP Count = 55 vs HRS CVP Count = 45<br><br>"
                        + "VH Count = 114 vs HRS Count = 105<br><br><br></body></html>"),
                 eq("d@e.com"),
                 eq(recipients),

@@ -170,17 +170,6 @@ class DefaultHearingRecordingStorageIntegrationTest {
         assertThat(foundBlob.lastModified()).isBefore(OffsetDateTime.now());
     }
 
-
-    @Test
-    void testShouldListVhBlobs() {
-        final String file = UUID.randomUUID() + ".txt";
-        String testData = "Test data - vh data";
-        var time = OffsetDateTime.now().minus(2, ChronoUnit.MINUTES);
-        azureIntegrationTestOperations.populateHrsVhContainer(file, testData);
-
-        underTest.listVHBlobs();
-    }
-
     private Set<String> generateFilePaths() {
         final Random random = new Random();
         final int number = random.nextInt(8) + 2;
