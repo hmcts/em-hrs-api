@@ -332,36 +332,10 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             )
             .map(blb -> blb.getName())
             .collect(Collectors.toSet());
-        var vhTodayItemCounter = new Counter();
-        long vhTotalCount = 0;
-        if (enableVhReport) {
-            final PagedIterable<BlobItem> vhBlobItems = vhContainerClient.listBlobs(options, duration);
-
-            vhTotalCount = vhBlobItems
-                .stream()
-                .filter(blobItem -> blobItem.getName().contains(".mp"))
-                .peek(blob -> {
-                    OffsetDateTime creationTime = blob.getProperties().getCreationTime();
-                    if (isCreatedToday(creationTime, today)) {
-                        vhTodayItemCounter.count++;
-                    }
-                })
-                .map(blb -> blb.getName())
-                .count();
-            LOGGER.info("VH count vhTotalCount {} vhTodayItemCounter{}", vhTotalCount, vhTodayItemCounter.count);
-        }
-
-        LOGGER.info("StorageReport CVP done");
-
-        final BlobListDetails hrsBlobListDetails = new BlobListDetails()
-            .setRetrieveDeletedBlobs(false)
-            .setRetrieveSnapshots(false);
-        final ListBlobsOptions hrsOptions = new ListBlobsOptions()
-            .setDetails(hrsBlobListDetails);
 
         var hrsCvpTodayItemCounter = new Counter();
         long cvpItemCount = cvpItems.size();
-        long hrsCvpItemCount = hrsCvpBlobContainerClient.listBlobs(hrsOptions, duration)
+        long hrsCvpItemCount = hrsCvpBlobContainerClient.listBlobs(options, duration)
             .stream()
             .filter(blobItem -> blobItem.getName().contains("/"))
             .filter(
@@ -379,10 +353,34 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                         ));
                 }
             ).count();
+        LOGGER.info("CVP-HRS difference {}", cvpItems);
+        LOGGER.info(
+            "StorageReport CVP Total Count= {} vs HRS Total Count= {}, Today CVP= {} vs HRS= {} ",
+            cvpItemCount,
+            hrsCvpItemCount,
+            cvpTodayItemCounter.count,
+            hrsCvpTodayItemCounter.count
+        );
+        var vhTodayItemCounter = new Counter();
+        long vhTotalCount = 0;
         var hrsVhTodayItemCounter = new Counter();
         long hrsVhItemCount = 0;
         if (enableVhReport) {
-            hrsVhItemCount = hrsVhBlobContainerClient.listBlobs(hrsOptions, duration)
+            final PagedIterable<BlobItem> vhBlobItems = vhContainerClient.listBlobs(options, duration);
+
+            vhTotalCount = vhBlobItems
+                .stream()
+                .filter(blobItem -> blobItem.getName().contains(".mp"))
+                .peek(blob -> {
+                    OffsetDateTime creationTime = blob.getProperties().getCreationTime();
+                    if (isCreatedToday(creationTime, today)) {
+                        vhTodayItemCounter.count++;
+                    }
+                })
+                .map(blb -> blb.getName())
+                .count();
+            LOGGER.info("VH count vhTotalCount {} vhTodayItemCounter{}", vhTotalCount, vhTodayItemCounter.count);
+            hrsVhItemCount = hrsVhBlobContainerClient.listBlobs(options, duration)
                 .stream()
                 .peek(
                     blobItem -> {
@@ -393,14 +391,8 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                     }
                 ).count();
         }
-        LOGGER.info("CVP-HRS difference {}", cvpItems);
-        LOGGER.info(
-            "StorageReport CVP Total Count= {} vs HRS Total Count= {}, Today CVP= {} vs HRS= {} ",
-            cvpItemCount,
-            hrsCvpItemCount,
-            cvpTodayItemCounter.count,
-            hrsCvpTodayItemCounter.count
-        );
+
+        LOGGER.info("StorageReport CVP done");
 
         LOGGER.info(
             "StorageReport VH Total Count= {} vs HRS VH Total Count= {}, Today VH= {} vs HRS= {} ",
@@ -409,7 +401,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             vhTodayItemCounter.count,
             hrsVhTodayItemCounter.count
         );
-
 
         return new StorageReport(
             today,
