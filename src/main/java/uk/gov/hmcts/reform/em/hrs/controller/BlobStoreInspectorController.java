@@ -29,13 +29,17 @@ public class BlobStoreInspectorController {
 
     private static final Logger log = LoggerFactory.getLogger(BlobStoreInspectorController.class);
 
-    @Autowired
-    private HearingRecordingStorage hearingRecordingStorage;
+    private final HearingRecordingStorage hearingRecordingStorage;
     @Value("${report.api-key}")
     private String apiKey;
 
+    private final ClockProvider clockProvider;
+
     @Autowired
-    private ClockProvider clockProvider;
+    public BlobStoreInspectorController(HearingRecordingStorage hearingRecordingStorage, ClockProvider clockProvider) {
+        this.hearingRecordingStorage = hearingRecordingStorage;
+        this.clockProvider = clockProvider;
+    }
 
     @GetMapping(value = "/report", consumes = MediaType.ALL_VALUE)
     public StorageReport inspect(

@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
@@ -32,10 +31,12 @@ import uk.gov.hmcts.reform.em.hrs.service.Constants;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Supplier;
 
 import static org.springframework.http.HttpStatus.ACCEPTED;
 import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
@@ -68,7 +69,6 @@ public class HearingRecordingController {
         path = "/segments",
         consumes = APPLICATION_JSON_VALUE
     )
-    @ResponseBody
     @Operation(summary = "Post hearing recording segment", description = "Save hearing recording segment",
         parameters = {
             @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
@@ -81,18 +81,19 @@ public class HearingRecordingController {
     })
     public ResponseEntity<Void> createHearingRecording(@RequestBody final HearingRecordingDto hearingRecordingDto) {
         LOGGER.info(
-            "posting segment with details:\n"
-                + "rec-ref  {}\n"
-                + "folder   {}\n"
-                + "case-ref {}\n"
-                + "filename {}\n"
-                + "file-ext {}\n"
-                + "segment no {}\n"
-                + "jurisdiction {}\n"
-                + "serviceCode {}\n"
-                + "RecordingSource {}\n"
-                + "sourceBlobUrl {}\n"
-                + "interpreter {}",
+            """
+                posting segment with details:
+                rec-ref  {}
+                folder   {}
+                case-ref {}
+                filename {}
+                file-ext {}
+                segment no {}
+                jurisdiction {}
+                serviceCode {}
+                RecordingSource {}
+                sourceBlobUrl {}
+                interpreter {}""",
             hearingRecordingDto.getRecordingRef(),
             hearingRecordingDto.getFolder(),
             hearingRecordingDto.getCaseRef(),
@@ -116,7 +117,6 @@ public class HearingRecordingController {
         consumes = APPLICATION_JSON_VALUE,
         produces = APPLICATION_JSON_VALUE
     )
-    @ResponseBody
     @Operation(summary = "Create permissions record", description = "Create permissions record to the specified "
         + "hearing recording and notify user with the link to the resource via email",
         parameters = {
@@ -168,38 +168,61 @@ public class HearingRecordingController {
         {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")}
     )
-    public ResponseEntity getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
+    public ResponseEntity<Void> getSegmentBinary(@PathVariable("recordingId") UUID recordingId,
                                            @PathVariable("segment") Integer segmentNo,
                                            @RequestHeader(Constants.AUTHORIZATION) final String userToken,
                                            HttpServletRequest request,
                                            HttpServletResponse response) {
-        try {
-            //TODO this should return a 403 if its not in database
-            HearingRecordingSegment segment = segmentDownloadService
-                .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, false);
+        return this.downloadWrapper(
+            recordingId,
+            () ->
+                segmentDownloadService
+                    .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, false),
+            request,
+            response
+        );
 
+    }
 
-            segmentDownloadService.download(segment, request, response);
-        } catch (AccessDeniedException e) {
-            LOGGER.warn(
-                "User does not have permission to download recording {}",
-                e.getMessage()
-            );
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (UncheckedIOException | IOException e) {
-            LOGGER.warn(
-                "IOException streaming response for recording ID: {} IOException message: {}",
-                recordingId, e.getMessage()
-            );//Exceptions are thrown during partial requests from front door (it throws client abort)
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
+    @GetMapping(path = {"/hearing-recordings/{recordingId}/file/{fileName}",
+        "/hearing-recordings/{recordingId}/file/{folderName}/{fileName}"},
+        produces = APPLICATION_OCTET_STREAM_VALUE)
+    @Operation(summary = "Get hearing recording file",
+        description = "Return hearing recording file",
+        parameters = {
+            @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
+                description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string")),
+            @Parameter(in = ParameterIn.HEADER, name = "Authorization",
+                description = "Authorization (Idam Bearer token)", required = true,
+                schema = @Schema(type = "string"))})
+    @ApiResponses(value =
+        {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")}
+    )
+    public ResponseEntity<Void> getSegmentBinaryByFileName(
+        @PathVariable("recordingId") UUID recordingId,
+        @PathVariable(value = "folderName", required = false) String folderName,
+        @PathVariable("fileName") String fileName,
+        HttpServletRequest request,
+        HttpServletResponse response) {
+        LOGGER.info("recordingId:{}, fileName:{}", recordingId, fileName);
+        var fileNameDecoded = folderName == null ? fileName : folderName + File.separator + fileName;
+        return this.downloadWrapper(
+            recordingId,
+            () ->
+                segmentDownloadService
+                    .fetchSegmentByRecordingIdAndFileName(recordingId, fileNameDecoded),
+            request,
+            response
+        );
     }
 
     @GetMapping(
-        path = "/hearing-recordings/{recordingId}/segments/{segment}/sharee",
+        path = {"/hearing-recordings/{recordingId}/file/{fileName}/sharee",
+            "/hearing-recordings/{recordingId}/file/{folderName}/{fileName}/sharee"},
         produces = APPLICATION_OCTET_STREAM_VALUE
     )
-    @ResponseBody
     @Operation(summary = "Get hearing recording file",
         description = "Return hearing recording file from the specified folder",
         parameters = {
@@ -213,19 +236,67 @@ public class HearingRecordingController {
         value = {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")}
     )
-    public ResponseEntity getSegmentBinaryForSharee(
+    public ResponseEntity<Void> getSegmentBinaryForShareeByFileName(
+        @PathVariable("recordingId") UUID recordingId,
+        @PathVariable(value = "folderName", required = false) String folderName,
+        @PathVariable("fileName") String fileName,
+        @RequestHeader(Constants.AUTHORIZATION) final String userToken,
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        var fileNameDecoded = folderName == null ? fileName : folderName + File.separator + fileName;
+
+        return this.downloadWrapper(
+            recordingId,
+            () ->
+                segmentDownloadService
+                    .fetchSegmentByRecordingIdAndFileNameForSharee(recordingId, fileNameDecoded, userToken),
+            request,
+            response
+        );
+    }
+
+    @GetMapping(
+        path = "/hearing-recordings/{recordingId}/segments/{segment}/sharee",
+        produces = APPLICATION_OCTET_STREAM_VALUE
+    )
+    @Operation(summary = "Get hearing recording file",
+        description = "Return hearing recording file from the specified folder",
+        parameters = {
+            @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
+                description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string")),
+            @Parameter(in = ParameterIn.HEADER, name = "Authorization",
+                description = "Authorization (Idam Bearer token)", required = true,
+                schema = @Schema(type = "string"))})
+    @ApiResponses(
+        value = {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")}
+    )
+    public ResponseEntity<Void> getSegmentBinaryForSharee(
         @PathVariable("recordingId") UUID recordingId,
         @PathVariable("segment") Integer segmentNo,
         @RequestHeader(Constants.AUTHORIZATION) final String userToken,
         HttpServletRequest request,
         HttpServletResponse response
     ) {
+        return this.downloadWrapper(
+            recordingId,
+            () ->
+                segmentDownloadService
+                    .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, true),
+            request,
+            response
+        );
+    }
+
+    private ResponseEntity<Void> downloadWrapper(
+        UUID recordingId,
+        Supplier<HearingRecordingSegment> func,
+        HttpServletRequest request,
+        HttpServletResponse response) {
         try {
-            //TODO this should return a 403 if its not in database
-            HearingRecordingSegment segment = segmentDownloadService
-                .fetchSegmentByRecordingIdAndSegmentNumber(recordingId, segmentNo, userToken, true);
-
-
+            HearingRecordingSegment segment = func.get();
             segmentDownloadService.download(segment, request, response);
         } catch (AccessDeniedException e) {
             LOGGER.warn(
@@ -241,5 +312,4 @@ public class HearingRecordingController {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 }

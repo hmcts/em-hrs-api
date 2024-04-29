@@ -124,7 +124,7 @@ class DefaultHearingRecordingStorageIntegrationTest {
         StorageReport storageReport = underTest.getStorageReport();
         System.out.println(storageReport);
         assertEquals(storageReport.cvpItemCount, 0);
-        assertEquals(storageReport.hrsItemCount, 1);
+        assertEquals(storageReport.hrsCvpItemCount, 1);
     }
 
     @Test
@@ -169,7 +169,6 @@ class DefaultHearingRecordingStorageIntegrationTest {
         assertThat(foundBlob.lastModified()).isAfter(time);
         assertThat(foundBlob.lastModified()).isBefore(OffsetDateTime.now());
     }
-
 
     private Set<String> generateFilePaths() {
         final Random random = new Random();

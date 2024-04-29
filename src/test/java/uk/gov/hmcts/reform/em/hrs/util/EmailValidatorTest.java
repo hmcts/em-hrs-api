@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.em.hrs.util;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,23 +15,10 @@ class EmailValidatorTest {
         assertThat(valid).isTrue();
     }
 
-    @Test
-    void testShouldRejectEmptyString() {
-        final boolean valid = EmailValidator.isValid("");
-
-        assertThat(valid).isFalse();
-    }
-
-    @Test
-    void testShouldRejectMalformedEmail() {
-        final boolean valid = EmailValidator.isValid("test@emailTest");
-
-        assertThat(valid).isFalse();
-    }
-
-    @Test
-    void testShouldRejectEmailWithSpecialCharacter() {
-        final boolean valid = EmailValidator.isValid("test@emailTest,com");
+    @ParameterizedTest
+    @ValueSource(strings = {"", "test@emailTest", "test@emailTest,com"})
+    void testShouldRejectInvalidEmailAddresses(String invalidEmail) {
+        final boolean valid = EmailValidator.isValid(invalidEmail);
 
         assertThat(valid).isFalse();
     }

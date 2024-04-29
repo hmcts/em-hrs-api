@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.em.hrs.service.FolderService;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobIndexMarker;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -87,7 +88,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         String recordingRef = recordingDto.getRecordingRef();
         String folder = recordingDto.getFolder();
 
-        if (ccdCaseId == null) {
+        if (Objects.isNull(ccdCaseId)) {
             LOGGER.info(
                 "Recording Ref {} in folder {}, has no ccd id, case still being created in CCD or has been rejected",
                 recordingRef, folder
@@ -96,7 +97,6 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         }
 
         if (recordingDto.getRecordingSource() == HearingSource.VH
-            && ccdCaseId != null
             && recording.getSegments().stream()
             .anyMatch(segment -> recordingDto.getSourceBlobUrl().equals(segment.getIngestionFileSourceUri()))
         ) {

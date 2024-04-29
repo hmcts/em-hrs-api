@@ -48,7 +48,7 @@ s2s:
     ccdGwServiceName: ${CCD_GW_SERVICE_NAME:ccd_gw}
 
 ccd-def:
-  file: ${CCD_DEFINITION_FILE:hrs_ccd_case_definition_v1.0_AAT.xlsx}
+  file: ${CCD_DEFINITION_FILE:CCD_HRS_v1.1-AAT.xslx}
   api:
     url: ${CCD_DEF_API:http://localhost:4451}
 

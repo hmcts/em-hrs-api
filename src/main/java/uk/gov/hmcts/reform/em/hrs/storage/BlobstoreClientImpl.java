@@ -19,8 +19,8 @@ public class BlobstoreClientImpl implements BlobstoreClient {
 
     @Autowired
     public BlobstoreClientImpl(
-        @Qualifier("HrsCvpBlobContainerClient") final BlobContainerClient hrsCvpBlobContainerClient,
-        @Qualifier("HrsVhBlobContainerClient") final BlobContainerClient hrsVhBlobContainerClient
+        @Qualifier("hrsCvpBlobContainerClient") final BlobContainerClient hrsCvpBlobContainerClient,
+        @Qualifier("hrsVhBlobContainerClient") final BlobContainerClient hrsVhBlobContainerClient
     ) {
         this.hrsCvpBlobContainerClient = hrsCvpBlobContainerClient;
         this.hrsVhBlobContainerClient = hrsVhBlobContainerClient;

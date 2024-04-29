@@ -48,6 +48,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
 
     @Value("${shareelink.ttl}")
     private final int validityInHours;
+    private static final String VALIDATION_ERROR_STRING = "error";
 
     @Autowired
     public SegmentDownloadServiceImpl(
@@ -66,6 +67,23 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         this.validityInHours = validityInHours;
     }
 
+    @Override
+    public HearingRecordingSegment fetchSegmentByRecordingIdAndFileNameForSharee(
+        UUID recordingId,
+        String fileName,
+        String userToken
+    ) {
+        validateSharee(recordingId, fileName, userToken);
+        return segmentRepository.findByHearingRecordingIdAndFilename(recordingId, fileName);
+    }
+
+    @Override
+    public HearingRecordingSegment fetchSegmentByRecordingIdAndFileName(
+        UUID recordingId,
+        String fileName
+    ) {
+        return segmentRepository.findByHearingRecordingIdAndFilename(recordingId, fileName);
+    }
 
     @Override
     public HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentNumber(
@@ -93,17 +111,43 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
                     .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn(), userEmail))
                     .findAny();
                 if (recordingSharee.isEmpty()) {
-                    throw new ValidationErrorException(Map.of("error", Constants.SHARED_EXPIRED_LINK_MSG));
+                    throw new ValidationErrorException(
+                        Map.of(VALIDATION_ERROR_STRING, Constants.SHARED_EXPIRED_LINK_MSG));
                 }
             } else {
                 LOGGER.debug("No Shared recordings found for user {}", userEmail);
             }
         }
 
-        HearingRecordingSegment segment =
-            segmentRepository.findByHearingRecordingIdAndRecordingSegment(recordingId, segmentNo);
+        return segmentRepository.findByHearingRecordingIdAndRecordingSegment(recordingId, segmentNo);
+    }
 
-        return segment;
+    private void validateSharee(UUID recordingId, String fileName, String userToken) {
+        String userEmail = securityService.getUserEmail(userToken);
+        List<HearingRecordingSharee> hearingRecordingSharees =
+            shareesRepository.findByShareeEmailIgnoreCase(userEmail);
+        LOGGER.debug("User  {} is trying to access the recordingId  {} with fileName {}",
+                     userEmail, recordingId, fileName
+        );
+        if (!isEmpty(hearingRecordingSharees)) {
+            LOGGER.debug("User  {} has shared recordings", userEmail);
+            Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
+                .filter(hearingRecordingSharee ->
+                            hearingRecordingSharee.getHearingRecording().getId().equals(recordingId))
+                .filter(hearingRecordingSharee ->
+                            getHearingRecordingShareeFile(
+                                hearingRecordingSharee.getHearingRecording(),
+                                fileName
+                            ))
+                .filter(hearingRecordingSharee -> isAccessValid(hearingRecordingSharee.getSharedOn(), userEmail))
+                .findAny();
+            if (recordingSharee.isEmpty()) {
+                throw new ValidationErrorException(Map.of(VALIDATION_ERROR_STRING, Constants.SHARED_EXPIRED_LINK_MSG));
+            }
+        } else {
+            LOGGER.error("No Shared recordings found for user {}", userEmail);
+            throw new ValidationErrorException(Map.of(VALIDATION_ERROR_STRING, Constants.NO_SHARED_FILE_FOR_USER));
+        }
     }
 
     @Override
@@ -116,7 +160,6 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         String hearingSource = hearingRecording.getHearingSource();
         String filename = segment.getFilename();
         BlobInfo blobInfo = blobstoreClient.fetchBlobInfo(filename, hearingSource);
-        long fileSize = blobInfo.getFileSize();
         String contentType = blobInfo.getContentType();
         String attachmentFilename = String.format("attachment; filename=%s", filename);
 
@@ -132,6 +175,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         LOGGER.info("hearing source {}, Range header for filename {} = {}", hearingSource, filename, rangeHeader);
 
         BlobRange blobRange = null;
+        long fileSize = blobInfo.getFileSize();
         if (rangeHeader == null) {
             response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileSize));
         } else {
@@ -155,16 +199,18 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
                 response.setHeader(HttpHeaders.CONTENT_RANGE, contentRangeResponse);
                 response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(byteRangeCount));
 
-                LOGGER.debug(
-                    "Calc Blob Values: blobStart {}, blobLength {}",
-                    blobRange.getOffset(),
-                    blobRange.getCount()
-                );
-                LOGGER.debug(
-                    "Calc Http Header Values: CONTENT_RANGE {}, CONTENT_LENGTH {}",
-                    request.getHeader(HttpHeaders.CONTENT_RANGE),
-                    request.getHeader(HttpHeaders.CONTENT_LENGTH)
-                );
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                        "Calc Blob Values: blobStart {}, blobLength {}",
+                        blobRange.getOffset(),
+                        blobRange.getCount()
+                    );
+                    LOGGER.debug(
+                        "Calc Http Header Values: CONTENT_RANGE {}, CONTENT_LENGTH {}",
+                        request.getHeader(HttpHeaders.CONTENT_RANGE),
+                        request.getHeader(HttpHeaders.CONTENT_LENGTH)
+                    );
+                }
             } catch (Exception e) {
                 auditEntryService.createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_FAIL);
                 throw new InvalidRangeRequestException(response, fileSize);
@@ -199,4 +245,19 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
                      segmentNo, hearingRecording.getId(), !segmentMatch);
         return !segmentMatch;
     }
+
+    private boolean getHearingRecordingShareeFile(
+        HearingRecording hearingRecording,
+        String fileName
+    ) {
+        //Need to check if the segment is associated with this Sharee.
+        boolean segmentMatch = hearingRecording.getSegments()
+            .stream()
+            .anyMatch(segment -> fileName.equals(segment.getFilename()));
+        LOGGER.debug("Segment Match for fileName {} for hearingRecording with {} was {} ",
+                     fileName, hearingRecording.getId(), segmentMatch
+        );
+        return segmentMatch;
+    }
+
 }

@@ -32,10 +32,10 @@ public class AzureIntegrationTestOperations {
 
     @Autowired
     public AzureIntegrationTestOperations(
-        final @Qualifier("HrsCvpBlobContainerClient") BlobContainerClient hrsCvpBlobContainerClient,
-        final @Qualifier("HrsVhBlobContainerClient") BlobContainerClient hrsVhBlobContainerClient,
+        final @Qualifier("hrsCvpBlobContainerClient") BlobContainerClient hrsCvpBlobContainerClient,
+        final @Qualifier("hrsVhBlobContainerClient") BlobContainerClient hrsVhBlobContainerClient,
         final @Qualifier("CvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient,
-        final @Qualifier("VhBlobContainerClient") BlobContainerClient vhBlobContainerClient
+        final @Qualifier("vhBlobContainerClient") BlobContainerClient vhBlobContainerClient
     ) {
         this.hrsCvpBlobContainerClient = hrsCvpBlobContainerClient;
         this.hrsVhBlobContainerClient = hrsVhBlobContainerClient;

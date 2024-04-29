@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Component
 public class CaseDataContentCreator {
@@ -72,16 +71,19 @@ public class CaseDataContentCreator {
         return caseData.getRecordingFiles().stream()
             .map(mapItem -> mapItem.get("value"))
             .map(value -> objectMapper.convertValue(value, CaseRecordingFile.class))
-            .map(recordingFile -> recordingFile.getCaseDocument())
-            .collect(Collectors.toList());
+            .map(CaseRecordingFile::getCaseDocument)
+            .toList();
     }
 
 
     private CaseRecordingFile createSegment(HearingRecordingDto hearingRecordingDto, UUID recordingId) {
 
-        String documentUrl = String.format("%s/hearing-recordings/%s/segments/%d",
-                                           hearingRecordingDto.getUrlDomain(), recordingId,
-                                           hearingRecordingDto.getSegment());
+        String documentUrl = String.format(
+            "%s/hearing-recordings/%s/file/%s",
+            hearingRecordingDto.getUrlDomain(),
+            recordingId,
+            hearingRecordingDto.getFilename()
+        );
 
         LOGGER.info("creating recording segment with url({})", documentUrl);
 

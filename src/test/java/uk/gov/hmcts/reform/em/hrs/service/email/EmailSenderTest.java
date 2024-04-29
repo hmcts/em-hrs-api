@@ -93,9 +93,9 @@ class EmailSenderTest {
         verify(mailSender).send(accountCaptor.capture());
 
         MimeMessage message = accountCaptor.getValue();
-        assertThat(message.getFrom()[0].toString()).isEqualTo(FROM_ADDRESS);
-        assertThat(message.getAllRecipients()[0].toString()).isEqualTo(RECIPIENT_1);
-        assertThat(message.getAllRecipients()[1].toString()).isEqualTo(RECIPIENT_2);
+        assertThat(message.getFrom()[0]).hasToString(FROM_ADDRESS);
+        assertThat(message.getAllRecipients()[0]).hasToString(RECIPIENT_1);
+        assertThat(message.getAllRecipients()[1]).hasToString(RECIPIENT_2);
         assertThat(message.getSubject()).isEqualTo(SUBJECT);
     }
 

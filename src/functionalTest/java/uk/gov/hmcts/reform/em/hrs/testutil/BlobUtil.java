@@ -36,7 +36,7 @@ public class BlobUtil {
     @Autowired
     public BlobUtil(@Qualifier("hrsCvpBlobContainerClient") BlobContainerClient hrsCvpBlobContainerClient,
                     @Qualifier("cvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient,
-                    @Qualifier("VhBlobContainerClient") BlobContainerClient vhBlobContainerClient,
+                    @Qualifier("vhBlobContainerClient") BlobContainerClient vhBlobContainerClient,
                     @Qualifier("hrsVhBlobContainerClient") BlobContainerClient hrsVhBlobContainerClient
                     ) {
         this.hrsCvpBlobContainerClient = hrsCvpBlobContainerClient;

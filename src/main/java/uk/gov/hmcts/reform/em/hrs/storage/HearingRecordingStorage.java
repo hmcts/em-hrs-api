@@ -13,4 +13,5 @@ public interface HearingRecordingStorage {
     StorageReport getStorageReport();
 
     HearingRecordingStorageImpl.BlobDetail findBlob(final HearingSource hearingSource, final String blobName);
+
 }

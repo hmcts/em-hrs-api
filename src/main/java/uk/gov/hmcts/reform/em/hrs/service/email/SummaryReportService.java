@@ -64,20 +64,28 @@ public class SummaryReportService {
 
     private String createBody(StorageReport report) {
 
-        var messageHtml = new StringBuffer("<html><body><h1>Blobstores Inspected</h1><h5>TOTAL</h5> CVP Count = ")
-            .append(report.cvpItemCount)
-            .append(" vs HRS Count = ")
-            .append(report.hrsItemCount)
-            .append("<br><br>")
-            .append("<h5>TODAY ")
-            .append(report.today)
-            .append("</h5> CVP Count = ")
-            .append(report.cvpItemCountToday)
-            .append(" vs HRS Count = ")
-            .append(report.hrsItemCountToday)
-            .append("<br><br><br></body></html>");
-
-
-        return messageHtml.toString();
+        return "<html><body><h1>Blobstores Inspected</h1><h5>TOTAL</h5> CVP Count = "
+            + report.cvpItemCount
+            + " vs HRS CVP Count = "
+            + report.hrsCvpItemCount
+            + "<br><br>"
+            + "VH Count = "
+            + report.vhItemCount
+            + " vs HRS VH Count = "
+            + report.hrsVhItemCount
+            + "<br><br><br>"
+            + "<h5>TODAY "
+            + report.today
+            + "</h5> CVP Count = "
+            + report.cvpItemCountToday
+            + " vs HRS CVP Count = "
+            + report.hrsCvpItemCountToday
+            + "<br><br>"
+            + "VH Count = "
+            + report.vhItemCountToday
+            + " vs HRS Count = "
+            + report.hrsVhItemCountToday
+            + "<br>"
+            + "<br><br></body></html>";
     }
 }

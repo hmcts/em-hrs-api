@@ -19,18 +19,13 @@ import java.util.concurrent.RejectedExecutionException;
 public class IngestionJob extends QuartzJobBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestionJob.class);
 
-    @Autowired
     @Qualifier("ingestionQueue")
     private LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
 
-    @Autowired
     private JobInProgressService jobInProgressService;
 
-    @Autowired
     private IngestionService ingestionService;
 
-    @Autowired
-    @Qualifier("ccdUploadQueue")
     private LinkedBlockingQueue<HearingRecordingDto> ccdUploadQueue;
 
 
@@ -38,10 +33,10 @@ public class IngestionJob extends QuartzJobBean {
     public IngestionJob() {
     }
 
-    //POJO Constructor for mocked tests without dependency injection
-    IngestionJob(final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue,
+    @Autowired
+    IngestionJob(@Qualifier("ingestionQueue") final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue,
                  final IngestionService ingestionService, final JobInProgressService jobInProgressService,
-                 LinkedBlockingQueue<HearingRecordingDto> ccdUploadQueue) {
+                 @Qualifier("ccdUploadQueue") LinkedBlockingQueue<HearingRecordingDto> ccdUploadQueue) {
         this.ingestionQueue = ingestionQueue;
         this.ingestionService = ingestionService;
         this.jobInProgressService = jobInProgressService;
@@ -51,7 +46,7 @@ public class IngestionJob extends QuartzJobBean {
     @Override
     protected void executeInternal(final JobExecutionContext context) {
         Optional.ofNullable(ingestionQueue.poll())
-            .ifPresent(hrDto -> ingestGracefully(hrDto));
+            .ifPresent(this::ingestGracefully);
     }
 
     private void ingestGracefully(HearingRecordingDto hrDto) {
@@ -66,10 +61,10 @@ public class IngestionJob extends QuartzJobBean {
                 jobInProgressService.deRegister(hrDto);
             }
         } catch (RejectedExecutionException re) {
-            LOGGER.warn("Execution Rejected: {}", re);//likely to be timeouts with azure copies of blobstore
+            LOGGER.warn("Execution Rejected: {}", re.toString());//likely to be timeouts with azure copies of blobstore
             jobInProgressService.deRegister(hrDto);
         } catch (Exception e) {
-            LOGGER.error("Unhandled Exception: {}", e);
+            LOGGER.error("Unhandled Exception: {}", e.toString());
             jobInProgressService.deRegister(hrDto);
         }
     }

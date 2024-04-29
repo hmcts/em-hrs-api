@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.em.hrs.auditlog;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditEntry;
@@ -11,6 +10,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 class AuditLogFormatterTest {
 
     private final AuditLogFormatter alf = new AuditLogFormatter();
@@ -19,15 +21,15 @@ class AuditLogFormatterTest {
     private final int numberOfFieldsInAuditEntryClass = 7;
 
     @Test
-    public void shouldFormatAuditEntryWithNoValuesPopulated() {
+    void shouldFormatAuditEntryWithNoValuesPopulated() {
         AuditEntry entry = new LogOnlyAuditEntry();
         String result = alf.format(entry);
         System.out.println("Log Format=" + result);
-        Assert.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
-    public void shouldFormatAuditEntryWithAllValuesPopulated() throws ParseException {
+    void shouldFormatAuditEntryWithAllValuesPopulated() throws ParseException {
         DateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS");
         Date now = format.parse("9/06/2021 08:52:52.422");
         AuditEntry entry = new LogOnlyAuditEntry();
@@ -40,21 +42,18 @@ class AuditLogFormatterTest {
         entry.setAction(AuditActions.USER_DOWNLOAD_OK);
 
         String result = alf.format(entry);
-        Assert.assertEquals(numberOfFieldsInAuditEntryClass, AuditEntry.class.getDeclaredFields().length);
+        assertEquals(numberOfFieldsInAuditEntryClass, AuditEntry.class.getDeclaredFields().length);
         System.out.println("Log Format=" + result);
-        Assert.assertEquals(
-            "HRS-API dateTime:2021-06-09T08:52:52.422,"
-                + "action:USER_DOWNLOAD_OK,"
-                + "clientIp:ip,"
-                + "service:SUT,"
-                + "user:userName@hmcts.net.internal,"
-                + "caseId:1234567890123456789",
-            result
-        );
+        assertEquals("HRS-API dateTime:2021-06-09T08:52:52.422,"
+            + "action:USER_DOWNLOAD_OK,"
+            + "clientIp:ip,"
+            + "service:SUT,"
+            + "user:userName@hmcts.net.internal,"
+            + "caseId:1234567890123456789", result);
     }
 
     @Test
-    public void shouldTruncateMillisecondsFromDateWhenEqualToZero() throws ParseException {
+    void shouldTruncateMillisecondsFromDateWhenEqualToZero() throws ParseException {
         DateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS");
         Date now = format.parse("9/06/2021 08:52:52.000");
         AuditEntry entry = new LogOnlyAuditEntry();
@@ -62,10 +61,7 @@ class AuditLogFormatterTest {
         entry.setEventDateTime(now);
         String result = alf.format(entry);
         System.out.println("Log Format=" + result);
-        Assert.assertEquals(
-            "HRS-API dateTime:2021-06-09T08:52:52",
-            result
-        );
+        assertEquals("HRS-API dateTime:2021-06-09T08:52:52", result);
     }
 
 
