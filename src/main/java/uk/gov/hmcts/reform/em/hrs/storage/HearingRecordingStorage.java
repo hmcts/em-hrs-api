@@ -14,5 +14,4 @@ public interface HearingRecordingStorage {
 
     HearingRecordingStorageImpl.BlobDetail findBlob(final HearingSource hearingSource, final String blobName);
 
-    void listVHBlobs();
 }

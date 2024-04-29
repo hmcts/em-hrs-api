@@ -11,10 +11,13 @@ import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 import uk.gov.hmcts.reform.em.hrs.storage.StorageReport;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -40,11 +43,27 @@ class SummaryReportServiceTest {
     @Test
     void should_process() throws SendEmailException {
         var today = LocalDate.now();
-        given(hearingRecordingStorage.getStorageReport())
-            .willReturn(new StorageReport(today, 23L, 67L, 14L, 45L));
+        given(hearingRecordingStorage.getStorageReport()).willReturn(new StorageReport(
+            today,
+            new StorageReport.HrsSourceVsDestinationCounts(23L, 67L, 55L, 45L),
+            new StorageReport.HrsSourceVsDestinationCounts(1123L, 1107L, 114L, 105L)
+        ));
         summaryReportService.sendReport();
         verify(hearingRecordingStorage).getStorageReport();
-        verify(emailSender).sendMessageWithAttachments(anyString(),anyString(),anyString(),any(),any());
+        String[] recipients = {"m@y.com", "q@z.com"};
+        String titleContains = "Summary-Report-" + LocalDate.now();
+        verify(emailSender)
+            .sendMessageWithAttachments(
+                contains(titleContains),
+                eq("<html><body><h1>Blobstores Inspected</h1><h5>TOTAL</h5> "
+                       + "CVP Count = 23 vs HRS CVP Count = 67<br><br>VH Count = 1123 vs HRS VH Count = 1107"
+                       + "<br><br><br><h5>TODAY " + today
+                       + "</h5> CVP Count = 55 vs HRS CVP Count = 45<br><br>"
+                       + "VH Count = 114 vs HRS Count = 105<br><br><br></body></html>"),
+                eq("d@e.com"),
+                eq(recipients),
+                eq(Map.of())
+            );
     }
 
     @Test
