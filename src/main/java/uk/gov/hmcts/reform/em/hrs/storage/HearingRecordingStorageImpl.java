@@ -368,7 +368,8 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         if (enableVhReport) {
             final PagedIterable<BlobItem> vhBlobItems = vhContainerClient.listBlobs(options, duration);
 
-            vhTotalCount = vhBlobItems
+
+            Set vhItems = vhBlobItems
                 .stream()
                 .filter(blobItem -> blobItem.getName().contains(".mp"))
                 .peek(blob -> {
@@ -378,21 +379,22 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                     }
                 })
                 .map(blb -> blb.getName())
-                .count();
+                .collect(Collectors.toSet());
+            vhTotalCount = vhItems.size();
             LOGGER.info("VH count vhTotalCount {} vhTodayItemCounter{}", vhTotalCount, vhTodayItemCounter.count);
             hrsVhItemCount = hrsVhBlobContainerClient.listBlobs(options, duration)
                 .stream()
                 .peek(
                     blobItem -> {
+                        vhItems.remove(blobItem.getName());
                         OffsetDateTime creationTime = blobItem.getProperties().getCreationTime();
                         if (isCreatedToday(creationTime, today)) {
                             hrsVhTodayItemCounter.count++;
                         }
                     }
                 ).count();
+            LOGGER.info("StorageReport VH difference {} ", vhItems);
         }
-
-        LOGGER.info("StorageReport CVP done");
 
         LOGGER.info(
             "StorageReport VH Total Count= {} vs HRS VH Total Count= {}, Today VH= {} vs HRS= {} ",
