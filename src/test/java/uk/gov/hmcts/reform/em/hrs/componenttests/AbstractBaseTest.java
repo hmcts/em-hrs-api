@@ -37,8 +37,6 @@ public abstract class AbstractBaseTest extends AbstractDataSourceTest {
 
     @BeforeEach
     public void setupMocks() {
-        // doReturn(authentication).when(securityContext).getAuthentication();
-        // SecurityContextHolder.setContext(securityContext);
         mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
 }

@@ -72,13 +72,13 @@ class AuditEntryServiceTests {
 
     @Test
     void testFindHearingRecordingAudits() {
-        HearingRecording hearingRecording = TestUtil.hearingRecordingWithNoDataBuilder();
+        HearingRecording testHearingRecording = TestUtil.hearingRecordingWithNoDataBuilder();
 
         when(hearingRecordingAuditEntryRepository
-                 .findByHearingRecordingOrderByEventDateTimeAsc(hearingRecording))
-            .thenReturn(Stream.of(new HearingRecordingAuditEntry()).collect(Collectors.toList()));
+                 .findByHearingRecordingOrderByEventDateTimeAsc(testHearingRecording))
+            .thenReturn(Stream.of(new HearingRecordingAuditEntry()).toList());
         List<HearingRecordingAuditEntry> entries =
-            auditEntryService.findHearingRecordingAudits(hearingRecording);
+            auditEntryService.findHearingRecordingAudits(testHearingRecording);
         Assertions.assertEquals(1, entries.size());
     }
 

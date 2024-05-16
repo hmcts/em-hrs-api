@@ -212,7 +212,6 @@ class CcdDataStoreApiClientTest {
         doReturn(startEventResponse).when(coreCaseDataApi).startEvent(
             USER_TOKEN, SERVICE_TOKEN, String.valueOf(CASE_ID), ADD_RECORDING_FILE
         );
-        CaseDetails caseDetails = CaseDetails.builder().id(CASE_ID).build();
 
         JsonNode data = JsonNodeFactory.instance.objectNode();
 

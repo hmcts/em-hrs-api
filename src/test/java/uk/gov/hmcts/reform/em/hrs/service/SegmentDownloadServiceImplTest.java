@@ -212,8 +212,9 @@ class SegmentDownloadServiceImplTest {
             doReturn(segment).when(segmentRepository).findByHearingRecordingIdAndRecordingSegment(SEGMENT21_ID, 1234);
             doReturn(TestUtil.SHARER_EMAIL_ADDRESS).when(securityService).getUserEmail(anyString());
             doReturn(hearingRecordingSharees).when(shareesRepository).findByShareeEmailIgnoreCase(anyString());
-            HearingRecordingSegment returnedSegment = segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(
+            segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(
                 SEGMENT21_ID, 1234, TestUtil.AUTHORIZATION_TOKEN, true);
+            assertEquals(1,2);
         } catch (ValidationErrorException validationErrorException) {
             assertEquals(Constants.SHARED_EXPIRED_LINK_MSG, validationErrorException.getData().get("error"));
         }
@@ -278,7 +279,7 @@ class SegmentDownloadServiceImplTest {
         segmentDownloadService.download(segment, request, response);
 
         Mockito.verify(response, Mockito.times(1)).setStatus(HttpStatus.PARTIAL_CONTENT.value());
-        //TODO verification needed....if the blob range is larger than the file, then the whole file is returned
+        //if the blob range is larger than the file, then the whole file is returned
         //should the status be partial content or not? given it is the complete content vs was a range request...
         Mockito.verify(response, Mockito.times(1)).setHeader(HttpHeaders.CONTENT_RANGE, "bytes 0-999/1000");
         Mockito.verify(response, Mockito.times(1)).setHeader(HttpHeaders.CONTENT_LENGTH, "1000");
