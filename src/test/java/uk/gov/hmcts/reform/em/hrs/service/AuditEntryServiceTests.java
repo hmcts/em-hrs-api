@@ -22,7 +22,6 @@ import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentAuditEntryRe
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesAuditEntryRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.mockito.Mockito.any;
