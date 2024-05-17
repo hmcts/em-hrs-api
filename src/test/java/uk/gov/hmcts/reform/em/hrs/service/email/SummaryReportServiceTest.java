@@ -50,7 +50,6 @@ class SummaryReportServiceTest {
         ));
         summaryReportService.sendReport();
         verify(hearingRecordingStorage).getStorageReport();
-        String[] recipients = {"m@y.com", "q@z.com"};
         String titleContains = "Summary-Report-" + LocalDate.now();
         verify(emailSender)
             .sendMessageWithAttachments(
@@ -61,7 +60,7 @@ class SummaryReportServiceTest {
                        + "</h5> CVP Count = 55 vs HRS CVP Count = 45<br><br>"
                        + "VH Count = 114 vs HRS Count = 105<br><br><br></body></html>"),
                 eq("d@e.com"),
-                eq(recipients),
+                eq(this.recipients),
                 eq(Map.of())
             );
     }

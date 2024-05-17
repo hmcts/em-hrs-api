@@ -1,8 +1,4 @@
 java:
-  postgresql:
-    postgresqlUsername: emhrs
-    postgresqlPassword: emhrs
-    nameOverride: em-hrs-db
   applicationPort: 8080
   image: 'hmctspublic.azurecr.io/em/hrs-api:latest'
   ingressHost: em-hrs-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
@@ -77,8 +73,6 @@ java:
     APPLICATIONINSIGHTS_INSTRUMENTATION_LOGGING_LEVEL: DEBUG
     USE_AD_AUTH_FOR_SOURCE_BLOB_CONNECTION: false
     HRS_VH_DEST_CONTAINER_NAME: vhrecordings
-  spotInstances:
-    enabled: true
 hrsblobstorage:
   enabled: false
 cvpblobstorage:
