@@ -37,13 +37,10 @@ public class SecurityConfiguration {
     @Value("${spring.security.oauth2.client.provider.oidc.issuer-uri}")
     private String issuerUri;
 
-    private final EmServiceAuthFilter emServiceAuthFilter;
-
     private final ServiceAuthFilter serviceAuthFilter;
 
-    public SecurityConfiguration(final EmServiceAuthFilter emServiceAuthFilter,
-                                 final ServiceAuthFilter serviceAuthFilter) {
-        this.emServiceAuthFilter = emServiceAuthFilter;
+    public SecurityConfiguration(
+        final ServiceAuthFilter serviceAuthFilter) {
         this.serviceAuthFilter = serviceAuthFilter;
     }
 
