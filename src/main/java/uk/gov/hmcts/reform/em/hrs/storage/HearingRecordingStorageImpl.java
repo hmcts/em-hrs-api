@@ -41,6 +41,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.azure.core.util.polling.LongRunningOperationStatus.SUCCESSFULLY_COMPLETED;
@@ -298,7 +299,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         return sourceBlob.generateUserDelegationSas(signatureValues, userDelegationKey, accountName, Context.NONE);
     }
 
-    @Override
     public synchronized StorageReport getStorageReport() {
         LOGGER.info("StorageReport Creating storage report");
         final BlobListDetails blobListDetails = new BlobListDetails()
@@ -308,118 +308,87 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             .setDetails(blobListDetails);
         final Duration duration = Duration.ofMinutes(BLOB_LIST_TIMEOUT);
 
-        final PagedIterable<BlobItem> cvpBlobItems = cvpBlobContainerClient.listBlobs(options, duration);
-
         LocalDate today = LocalDate.now();
+        OffsetDateTime cutoffDateTime = OffsetDateTime.of(
+            LocalDate.now().minusDays(COUNT_LAST_89_DAYS),
+            LocalTime.MIDNIGHT,
+            ZoneOffset.UTC
+        );
 
-        var cvpTodayItemCounter = new Counter();
-        Set cvpItems = cvpBlobItems
+        StorageReport.HrsSourceVsDestinationCounts cvpCounts = getSourceVsDestinationCounts(
+            cvpBlobContainerClient,
+            hrsCvpBlobContainerClient,
+            options,
+            duration,
+            today,
+            cutoffDateTime,
+            blobItem -> blobItem.getName().contains("/") && blobItem.getName().contains(".mp")
+        );
+
+        StorageReport.HrsSourceVsDestinationCounts vhCounts = enableVhReport
+            ? getSourceVsDestinationCounts(
+            vhContainerClient,
+            hrsVhBlobContainerClient,
+            options,
+            duration,
+            today,
+            cutoffDateTime,
+            blobItem -> blobItem.getName().contains(".mp")
+        )
+            : new StorageReport.HrsSourceVsDestinationCounts(0, 0, 0, 0);
+
+        return new StorageReport(today, cvpCounts, vhCounts);
+    }
+
+    private StorageReport.HrsSourceVsDestinationCounts getSourceVsDestinationCounts(
+        BlobContainerClient sourceContainerClient,
+        BlobContainerClient destinationContainerClient,
+        ListBlobsOptions options,
+        Duration duration,
+        LocalDate today,
+        OffsetDateTime cutoffDateTime,
+        Predicate<BlobItem> filter
+    ) {
+        var todayItemCounter = new Counter();
+        Set<String> sourceItems = sourceContainerClient.listBlobs(options, duration)
             .stream()
-            .filter(blobItem -> blobItem.getName().contains("/") && blobItem.getName().contains(".mp"))
-            .filter(
-                blobItem -> {
-                    OffsetDateTime creationTime = blobItem.getProperties().getCreationTime();
-                    if (isCreatedToday(creationTime, today)) {
-                        cvpTodayItemCounter.count++;
-                    }
-                    return creationTime.isAfter(
-                        OffsetDateTime.of(
-                            LocalDate.now().minusDays(COUNT_LAST_89_DAYS),
-                            LocalTime.MIDNIGHT,
-                            ZoneOffset.UTC
-                        ));
+            .filter(filter)
+            .filter(blobItem -> {
+                OffsetDateTime creationTime = blobItem.getProperties().getCreationTime();
+                if (isCreatedToday(creationTime, today)) {
+                    todayItemCounter.count++;
                 }
-            )
-            .map(blb -> blb.getName())
+                return creationTime.isAfter(cutoffDateTime);
+            })
+            .map(BlobItem::getName)
             .collect(Collectors.toSet());
 
-        var hrsCvpTodayItemCounter = new Counter();
-        long cvpItemCount = cvpItems.size();
-        long hrsCvpItemCount = hrsCvpBlobContainerClient.listBlobs(options, duration)
+        long sourceItemCount = sourceItems.size();
+
+        var hrsTodayItemCounter = new Counter();
+        long destinationItemCount = destinationContainerClient.listBlobs(options, duration)
             .stream()
             .filter(blobItem -> blobItem.getName().contains("/"))
-            .filter(
-                blobItem -> {
-                    OffsetDateTime creationTime = blobItem.getProperties().getCreationTime();
-                    cvpItems.remove(blobItem.getName());
-                    if (isCreatedToday(creationTime, today)) {
-                        hrsCvpTodayItemCounter.count++;
-                    }
-                    return creationTime.isAfter(
-                        OffsetDateTime.of(
-                            LocalDate.now().minusDays(COUNT_LAST_89_DAYS),
-                            LocalTime.MIDNIGHT,
-                            ZoneOffset.UTC
-                        ));
+            .filter(blobItem -> {
+                OffsetDateTime creationTime = blobItem.getProperties().getCreationTime();
+                sourceItems.remove(blobItem.getName());
+                if (isCreatedToday(creationTime, today)) {
+                    hrsTodayItemCounter.count++;
                 }
-            ).count();
-        LOGGER.info("CVP-HRS difference {}", cvpItems);
-        LOGGER.info(
-            "StorageReport CVP Total Count= {} vs HRS Total Count= {}, Today CVP= {} vs HRS= {} ",
-            cvpItemCount,
-            hrsCvpItemCount,
-            cvpTodayItemCounter.count,
-            hrsCvpTodayItemCounter.count
-        );
-        var vhTodayItemCounter = new Counter();
-        long vhTotalCount = 0;
-        var hrsVhTodayItemCounter = new Counter();
-        long hrsVhItemCount = 0;
-        if (enableVhReport) {
-            final PagedIterable<BlobItem> vhBlobItems = vhContainerClient.listBlobs(options, duration);
+                return creationTime.isAfter(cutoffDateTime);
+            })
+            .count();
 
+        LOGGER.info("Difference {}", sourceItems);
 
-            Set vhItems = vhBlobItems
-                .stream()
-                .filter(blobItem -> blobItem.getName().contains(".mp"))
-                .peek(blob -> {
-                    OffsetDateTime creationTime = blob.getProperties().getCreationTime();
-                    if (isCreatedToday(creationTime, today)) {
-                        vhTodayItemCounter.count++;
-                    }
-                })
-                .map(blb -> blb.getName())
-                .collect(Collectors.toSet());
-            vhTotalCount = vhItems.size();
-            LOGGER.info("VH count vhTotalCount {} vhTodayItemCounter{}", vhTotalCount, vhTodayItemCounter.count);
-            hrsVhItemCount = hrsVhBlobContainerClient.listBlobs(options, duration)
-                .stream()
-                .peek(
-                    blobItem -> {
-                        vhItems.remove(blobItem.getName());
-                        OffsetDateTime creationTime = blobItem.getProperties().getCreationTime();
-                        if (isCreatedToday(creationTime, today)) {
-                            hrsVhTodayItemCounter.count++;
-                        }
-                    }
-                ).count();
-            LOGGER.info("StorageReport VH difference {} ", vhItems);
-        }
-
-        LOGGER.info(
-            "StorageReport VH Total Count= {} vs HRS VH Total Count= {}, Today VH= {} vs HRS= {} ",
-            vhTotalCount,
-            hrsVhItemCount,
-            vhTodayItemCounter.count,
-            hrsVhTodayItemCounter.count
-        );
-
-        return new StorageReport(
-            today,
-            new StorageReport.HrsSourceVsDestinationCounts(
-                cvpItemCount,
-                hrsCvpItemCount,
-                cvpTodayItemCounter.count,
-                hrsCvpTodayItemCounter.count
-            ),
-            new StorageReport.HrsSourceVsDestinationCounts(
-                vhTotalCount,
-                hrsVhItemCount,
-                vhTodayItemCounter.count,
-                hrsVhTodayItemCounter.count
-            )
+        return new StorageReport.HrsSourceVsDestinationCounts(
+            sourceItemCount,
+            destinationItemCount,
+            todayItemCounter.count,
+            hrsTodayItemCounter.count
         );
     }
+
 
     private boolean isCreatedToday(OffsetDateTime creationTime, LocalDate today) {
         return creationTime.isAfter(
