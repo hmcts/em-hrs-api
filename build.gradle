@@ -260,7 +260,7 @@ def versions = [
   restAssured        : '5.3.0',
   junit              : '5.10.2',
   junitPlatform      : '1.10.2',
-  springSecurity     : '6.2.4',
+  springSecurity     : '6.3.0',
   shedlock           : '5.13.0',
   testcontainers     : '1.19.8'
 ]
@@ -300,7 +300,7 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.1.2'
 
 //hmcts ccd
-  implementation group: 'com.github.hmcts', name: 'core-case-data-store-client', version: '4.9.2'
+  implementation group: 'com.github.hmcts', name: 'core-case-data-store-client', version: '5.0.1'
 
 //hmcts logging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
