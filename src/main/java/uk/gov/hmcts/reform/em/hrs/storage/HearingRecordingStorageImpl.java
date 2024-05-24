@@ -368,7 +368,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         var hrsTodayItemCounter = new Counter();
         long destinationItemCount = destinationContainerClient.listBlobs(options, duration)
             .stream()
-            .filter(blobItem -> blobItem.getName().contains("/"))
             .filter(blobItem -> {
                 OffsetDateTime creationTime = blobItem.getProperties().getCreationTime();
                 sourceItems.remove(blobItem.getName());
