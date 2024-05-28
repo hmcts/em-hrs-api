@@ -196,6 +196,7 @@ public abstract class BaseTest {
 
 
     public RequestSpecification authRequestForHrsIngestor() {
+        LOGGER.info("authRequestForHrsIngestor {}, {}", this.idamHrsIngestorUserName, this.idamHrsIngestorPassword);
         return authRequestForUsername(this.idamHrsIngestorUserName, this.idamHrsIngestorPassword);
     }
 
@@ -205,13 +206,13 @@ public abstract class BaseTest {
     }
 
     private RequestSpecification authRequestForUsername(String username) {
+        LOGGER.info("authRequestForUsername username {}", username);
         return setJwtTokenHeader(idamHelper.authenticateUser(username));
     }
 
     private RequestSpecification setJwtTokenHeader(String userToken) {
         return SerenityRest
             .given()
-            .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .header("Authorization", userToken)
