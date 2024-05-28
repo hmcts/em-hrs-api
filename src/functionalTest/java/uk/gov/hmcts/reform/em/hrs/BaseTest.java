@@ -126,6 +126,12 @@ public abstract class BaseTest {
     @Value("${azure.storage.vh.container-url}")
     private String vhContainerUrl;
 
+    @Value("${idam.hrs-ingestor.user-name")
+    private String idamHrsIngestorUserName;
+
+    @Value("${idam.hrs-ingestor.password")
+    private String idamHrsIngestorPassword;
+
     @Autowired
     protected IdamClient idamClient;
 
@@ -189,12 +195,23 @@ public abstract class BaseTest {
     }
 
 
+    public RequestSpecification authRequestForHrsIngestor() {
+        return authRequestForUsername(this.idamHrsIngestorUserName, this.idamHrsIngestorPassword);
+    }
+
+
+    private RequestSpecification authRequestForUsername(String username, String password) {
+        return setJwtTokenHeader(idamHelper.authenticateUser(username, password));
+    }
+
     private RequestSpecification authRequestForUsername(String username) {
-        String userToken = idamHelper.authenticateUser(username);
+        return setJwtTokenHeader(idamHelper.authenticateUser(username));
+    }
 
-
+    private RequestSpecification setJwtTokenHeader(String userToken) {
         return SerenityRest
             .given()
+            .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .header("Authorization", userToken)

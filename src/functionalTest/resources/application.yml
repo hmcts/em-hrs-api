@@ -38,7 +38,9 @@ idam:
     redirect_uri: ${IDAM_REDIRECT_URI:https://em-hrs-api-aat.service.core-compute-aat.internal/oauth2/callback}
     grant_type: 'password'
     scope: 'openid roles profile'
-
+  hrs-ingestor:
+    user-name: ${IDAM_HRS_INGESTOR_SYSTEM_USER_NAME:AAAAAAAAAAAAAAAA}
+    password:  ${IDAM_HRS_INGESTOR_SYSTEM_PASSWORD:AAAAAAAAAAAAAAAA}
 s2s:
   api:
     url: ${S2S_BASE_URI:http://rpe-service-auth-provider-aat.service.core-compute-aat.internal}

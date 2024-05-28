@@ -31,6 +31,12 @@ def secrets = [
     secret('oauth2-client-id', 'OAUTH_CLIENT_ID'),
     secret('show-oauth2-token', 'IDAM_CLIENT_OAUTH_SECRET')
   ],
+
+  'em-hrs-ingestor-${env}': [
+    secret('idam-hrs-ingestor-system-user-name', 'IDAM_HRS_INGESTOR_SYSTEM_USER_NAME'),
+    secret('idam-hrs-ingestor-system-password', 'IDAM_HRS_INGESTOR_SYSTEM_PASSWORD')
+  ],
+
   'em-hrs-api-${env}': [
     secret('cvp-storage-connection-string', 'CVP_STORAGE_CONNECTION_STRING'),
     secret('cvp-storage-container-name', 'CVP_STORAGE_CONTAINER_NAME'),
