@@ -126,10 +126,10 @@ public abstract class BaseTest {
     @Value("${azure.storage.vh.container-url}")
     private String vhContainerUrl;
 
-    @Value("${idam.hrs-ingestor.user-name")
+    @Value("${idam.hrs-ingestor.user-name}")
     private String idamHrsIngestorUserName;
 
-    @Value("${idam.hrs-ingestor.password")
+    @Value("${idam.hrs-ingestor.password}")
     private String idamHrsIngestorPassword;
 
     @Autowired
