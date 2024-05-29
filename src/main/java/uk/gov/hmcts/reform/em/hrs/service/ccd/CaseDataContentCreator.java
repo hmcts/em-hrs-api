@@ -48,7 +48,6 @@ public class CaseDataContentCreator {
             .TTL(1000)
             .build();
 
-        LOGGER.info("createCaseStartData end, caseRecording value: %s", caseRecording.toString());
         return objectMapper.convertValue(caseRecording, JsonNode.class);
     }
 
