@@ -52,8 +52,8 @@ public class CaseHearingRecording {
     @JsonProperty("recordingFiles")
     private List<Map<String, Object>> recordingFiles;
 
-    @JsonProperty("recordingTTL")
-    private int recordingTTL;
+    @JsonProperty("TTL")
+    private int TTL;
 
     public void addRecordingFile(final CaseRecordingFile recordingFile) {
         recordingFiles.add(Map.of("value", recordingFile));
