@@ -152,7 +152,8 @@ def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/storage/HearingRecordingStorageImpl.java',
   '**uk/gov/hmcts/reform/em/hrs/util/debug/HttpHeadersLogging.java',
   '**uk/gov/hmcts/reform/em/hrs/data/migration/PendingMigrationScriptException*',
-  '**uk/gov/hmcts/reform/em/hrs/data/migration/FlywayNoOpStrategy*'
+  '**uk/gov/hmcts/reform/em/hrs/data/migration/FlywayNoOpStrategy*',
+  '**/uk/gov/hmcts/reform/em/hrs/model/CaseHearingRecording.java'
 ]
 
 checkstyle {
