@@ -227,7 +227,7 @@ public abstract class BaseTest {
 
     protected ValidatableResponse getFilenamesCompletedOrInProgress(String folder) {
 
-        return authRequestForSearcherRole() //TODO this is something ingestor would call not searcher
+        return authRequestForHrsIngestor()
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
@@ -242,7 +242,7 @@ public abstract class BaseTest {
     }
 
     protected Response postRecordingSegment(JsonNode segmentPayload) {
-        return s2sAuthRequest()
+        return authRequestForHrsIngestor()
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
