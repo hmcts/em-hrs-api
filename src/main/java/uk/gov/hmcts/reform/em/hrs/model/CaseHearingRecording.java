@@ -53,6 +53,7 @@ public class CaseHearingRecording {
     private List<Map<String, Object>> recordingFiles;
 
     @SuppressWarnings("java:S116")
+    @JsonProperty
     private TTLObject TTL;
 
 
