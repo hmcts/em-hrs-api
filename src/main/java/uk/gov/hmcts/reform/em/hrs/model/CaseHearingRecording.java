@@ -52,10 +52,8 @@ public class CaseHearingRecording {
     @JsonProperty("recordingFiles")
     private List<Map<String, Object>> recordingFiles;
 
-    @SuppressWarnings("java:S116")
     @JsonProperty("TTL")
     private TTLObject TTL;
-
 
     public void addRecordingFile(final CaseRecordingFile recordingFile) {
         recordingFiles.add(Map.of("value", recordingFile));
