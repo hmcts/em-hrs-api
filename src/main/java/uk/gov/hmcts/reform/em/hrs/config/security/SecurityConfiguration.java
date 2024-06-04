@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.em.hrs.config.security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,18 +30,14 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Profile({"!integration-web-test"})
 public class SecurityConfiguration {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SecurityConfiguration.class);
-
     @Value("${spring.security.oauth2.client.provider.oidc.issuer-uri}")
     private String issuerUri;
 
-    private final EmServiceAuthFilter emServiceAuthFilter;
 
     private final ServiceAuthFilter serviceAuthFilter;
 
-    public SecurityConfiguration(final EmServiceAuthFilter emServiceAuthFilter,
-                                 final ServiceAuthFilter serviceAuthFilter) {
-        this.emServiceAuthFilter = emServiceAuthFilter;
+    public SecurityConfiguration(
+        final ServiceAuthFilter serviceAuthFilter) {
         this.serviceAuthFilter = serviceAuthFilter;
     }
 
