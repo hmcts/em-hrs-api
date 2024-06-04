@@ -20,6 +20,6 @@ public class TTLObject {
     @JsonProperty("systemTTL")
     private String systemTTL;
 
-    @JsonProperty("systemTTL")
+    @JsonProperty("overrideTTL")
     private String overrideTTL;
 }
