@@ -40,7 +40,9 @@ def secrets = [
       secret('hrs-storage-container-name', 'HRS_CVP_DEST_CONTAINER_NAME'),
       secret('notification-api-key', 'NOTIFICATION_API_KEY'),
       secret('idam-system-user-name', 'HRS_SYSTEM_USER'),
-      secret('idam-system-user-password', 'HRS_SYSTEM_USER_PASSWORD')
+      secret('idam-system-user-password', 'HRS_SYSTEM_USER_PASSWORD'),
+      secret('idam-system-user-name', 'IDAM_HRS_INGESTOR_SYSTEM_USER_NAME'),
+      secret('idam-system-user-password', 'IDAM_HRS_INGESTOR_SYSTEM_PASSWORD')
    ]
 ]
 
