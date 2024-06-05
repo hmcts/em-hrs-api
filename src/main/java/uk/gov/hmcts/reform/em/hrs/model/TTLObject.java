@@ -14,12 +14,12 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TTLObject {
 
-    @JsonProperty("suspended")
+    @JsonProperty("Suspended")
     private String suspended;
 
-    @JsonProperty("systemTTL")
+    @JsonProperty("SystemTTL")
     private String systemTTL;
 
-    @JsonProperty("overrideTTL")
+    @JsonProperty("OverrideTTL")
     private String overrideTTL;
 }
