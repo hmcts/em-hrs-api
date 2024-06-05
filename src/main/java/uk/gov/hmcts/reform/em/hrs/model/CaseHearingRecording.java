@@ -55,9 +55,6 @@ public class CaseHearingRecording {
     @JsonProperty("TTL")
     private TTLObject TTL;
 
-    @JsonProperty("resolved_ttl")
-    private int resolvedTTL;
-
     public void addRecordingFile(final CaseRecordingFile recordingFile) {
         recordingFiles.add(Map.of("value", recordingFile));
     }
