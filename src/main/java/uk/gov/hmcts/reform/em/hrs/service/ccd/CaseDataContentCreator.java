@@ -55,8 +55,8 @@ public class CaseDataContentCreator {
     private TTLObject createTTLObject() {
         TTLObject testTTL = new TTLObject();
         testTTL.setSuspended("No");
-        testTTL.setSystemTTL("2028-12-12");
-        testTTL.setOverrideTTL(null);
+        testTTL.setSystemTTL("2023-12-12");
+        testTTL.setOverrideTTL("2023-12-12");
 
         return testTTL;
     }
