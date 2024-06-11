@@ -25,8 +25,11 @@ public class HearingReportCsvWriter {
     ) throws IOException {
         File csvFile = File.createTempFile("hearing-report", ".csv");
 
-        CSVFormat csvFileHeader = CSVFormat.DEFAULT.withHeader(HEARING_SUMMARY_CSV_HEADERS);
-
+        CSVFormat csvFileHeader = CSVFormat
+            .Builder
+            .create()
+            .setHeader(HEARING_SUMMARY_CSV_HEADERS)
+            .build();
         try (
             FileWriter fileWriter = new FileWriter(csvFile);
             CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)

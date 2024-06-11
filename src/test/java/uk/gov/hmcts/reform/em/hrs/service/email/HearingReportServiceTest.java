@@ -79,7 +79,7 @@ class HearingReportServiceTest {
         try {
             hearingReportService.createMonthlyReport(month, year);
         } catch (RuntimeException exception) {
-            assertEquals(exception.getMessage(), "Dummy error");
+            assertEquals("Dummy error", exception.getMessage());
         }
         verify(hearingRecordingSegmentRepository, times(1))
             .findByCreatedOnBetweenDates(startOfMonth, endOfMonth);

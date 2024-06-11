@@ -71,7 +71,7 @@ class HearingReportEmailServiceTest {
 
         File reportFile = new File("report.csv");
 
-        when(hearingReportService.createMonthlyReport(eq(reportDate.getMonth()), eq(reportDate.getYear())))
+        when(hearingReportService.createMonthlyReport(reportDate.getMonth(), reportDate.getYear()))
             .thenReturn(reportFile);
 
         hearingReportEmailService.sendReport();
