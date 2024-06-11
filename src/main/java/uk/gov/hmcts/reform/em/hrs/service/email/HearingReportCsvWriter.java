@@ -14,6 +14,7 @@ import java.util.Optional;
 import static java.util.Collections.emptyList;
 
 @Component
+@SuppressWarnings("squid:S5443")
 public class HearingReportCsvWriter {
 
     private static final String[] HEARING_SUMMARY_CSV_HEADERS = {
@@ -23,7 +24,10 @@ public class HearingReportCsvWriter {
     public File writeHearingRecordingSummaryToCsv(
         List<HearingRecordingSegment> data
     ) throws IOException {
-        File csvFile = File.createTempFile("hearing-report", ".csv");
+        File csvFile = File.createTempFile(
+            "hearing-report",
+            ".csv"
+        );
 
         CSVFormat csvFileHeader = CSVFormat
             .Builder
