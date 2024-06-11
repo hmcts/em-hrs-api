@@ -53,7 +53,7 @@ public class CaseHearingRecording {
     private List<Map<String, Object>> recordingFiles;
 
     @JsonProperty("TTL")
-    private TTLObject TTL;
+    private TTLObject timeToLive;
 
     public void addRecordingFile(final CaseRecordingFile recordingFile) {
         recordingFiles.add(Map.of("value", recordingFile));

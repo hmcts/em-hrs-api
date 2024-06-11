@@ -46,7 +46,7 @@ public class CaseDataContentCreator {
             .jurisdictionCode(hearingRecordingDto.getJurisdictionCode())
             .courtLocationCode(hearingRecordingDto.getCourtLocationCode())
             .recordingReference(hearingRecordingDto.getCaseRef())
-            .TTL(createTTLObject())
+            .timeToLive(createTTLObject())
             .build();
 
         return objectMapper.convertValue(caseRecording, JsonNode.class);
