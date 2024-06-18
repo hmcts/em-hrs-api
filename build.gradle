@@ -253,7 +253,7 @@ def versions = [
   serenityreporter   : '3.7.0',
   serenityRestAssured : '3.7.0',
   lombok             : '1.18.32',
-  reformLogging      : '6.1.4',
+  reformLogging      : '6.1.5',
   log4JVersion       : "2.17.1",
   postgresql         : '42.7.3',
   pact_version       : '3.6.15',
