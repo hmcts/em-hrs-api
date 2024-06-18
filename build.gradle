@@ -260,7 +260,7 @@ def versions = [
   restAssured        : '5.3.0',
   junit              : '5.10.2',
   junitPlatform      : '1.10.2',
-  springSecurity     : '6.3.0',
+  springSecurity     : '6.3.1',
   shedlock           : '5.13.0',
   testcontainers     : '1.19.8'
 ]
