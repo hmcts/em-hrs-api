@@ -32,7 +32,8 @@ public class HearingReportService {
         LocalDateTime startOfMonth = getStartOfMonth(month, year);
         LocalDateTime endOfMonth = getEndOfMonth(month, year);
         LOGGER.info("get records for from: {},to:{}", startOfMonth, endOfMonth);
-        var list = hearingRecordingSegmentRepository.findByCreatedOnBetweenDates(startOfMonth, endOfMonth);
+        var list = hearingRecordingSegmentRepository
+            .findByCreatedOnBetweenDatesWithHearingRecording(startOfMonth, endOfMonth);
         return hearingReportCsvWriter.writeHearingRecordingSummaryToCsv(list);
     }
 

@@ -18,7 +18,7 @@ import static java.util.Collections.emptyList;
 public class HearingReportCsvWriter {
 
     private static final String[] HEARING_SUMMARY_CSV_HEADERS = {
-        "File Name", "Source URI", "Date Processed"
+        "File Name", "Source URI","Hearing Source","Service Code","File Size KB","CCD Case Id", "Date Processed"
     };
 
     public File writeHearingRecordingSummaryToCsv(
@@ -42,6 +42,10 @@ public class HearingReportCsvWriter {
                 printer.printRecord(
                     hearingRecSeg.getFilename(),
                     hearingRecSeg.getIngestionFileSourceUri(),
+                    hearingRecSeg.getHearingRecording().getHearingSource(),
+                    hearingRecSeg.getHearingRecording().getServiceCode(),
+                    Math.round(hearingRecSeg.getFileSizeMb() / 1000),
+                    hearingRecSeg.getHearingRecording().getCcdCaseId(),
                     hearingRecSeg.getCreatedOn()
                 );
             }

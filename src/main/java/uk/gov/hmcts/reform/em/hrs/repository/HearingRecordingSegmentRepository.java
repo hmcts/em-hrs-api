@@ -25,8 +25,9 @@ public interface HearingRecordingSegmentRepository extends JpaRepository<Hearing
 
     HearingRecordingSegment findByFilename(String filename);
 
-    @Query("SELECT h FROM HearingRecordingSegment h WHERE h.createdOn BETWEEN :startDate AND :endDate")
-    List<HearingRecordingSegment> findByCreatedOnBetweenDates(
+    @Query("SELECT h FROM HearingRecordingSegment h JOIN FETCH h.hearingRecording "
+        + " WHERE h.createdOn BETWEEN :startDate AND :endDate")
+    List<HearingRecordingSegment> findByCreatedOnBetweenDatesWithHearingRecording(
         @Param("startDate") LocalDateTime startDate,
         @Param("endDate") LocalDateTime endDate
     );

@@ -52,7 +52,8 @@ class HearingReportServiceTest {
         LocalDateTime startOfMonth = LocalDateTime.of(2023, 6, 1, 0, 0, 0);
         LocalDateTime endOfMonth = LocalDateTime.of(2023, 6, 30, 23, 59, 59);
 
-        when(hearingRecordingSegmentRepository.findByCreatedOnBetweenDates(startOfMonth, endOfMonth))
+        when(hearingRecordingSegmentRepository
+                 .findByCreatedOnBetweenDatesWithHearingRecording(startOfMonth, endOfMonth))
             .thenReturn(expectedRecords);
 
         when(hearingReportCsvWriter.writeHearingRecordingSummaryToCsv(expectedRecords))
@@ -61,7 +62,7 @@ class HearingReportServiceTest {
         File csvFile = hearingReportService.createMonthlyReport(month, year);
         assertNotNull(csvFile);
         verify(hearingRecordingSegmentRepository, times(1))
-            .findByCreatedOnBetweenDates(startOfMonth, endOfMonth);
+            .findByCreatedOnBetweenDatesWithHearingRecording(startOfMonth, endOfMonth);
         verify(hearingReportCsvWriter, times(1))
             .writeHearingRecordingSummaryToCsv(expectedRecords);
     }
@@ -73,7 +74,8 @@ class HearingReportServiceTest {
         LocalDateTime startOfMonth = LocalDateTime.of(2023, 6, 1, 0, 0, 0);
         LocalDateTime endOfMonth = LocalDateTime.of(2023, 6, 30, 23, 59, 59);
 
-        when(hearingRecordingSegmentRepository.findByCreatedOnBetweenDates(startOfMonth, endOfMonth))
+        when(hearingRecordingSegmentRepository
+                 .findByCreatedOnBetweenDatesWithHearingRecording(startOfMonth, endOfMonth))
             .thenThrow(new RuntimeException("Dummy error"));
 
         try {
@@ -82,6 +84,6 @@ class HearingReportServiceTest {
             assertEquals("Dummy error", exception.getMessage());
         }
         verify(hearingRecordingSegmentRepository, times(1))
-            .findByCreatedOnBetweenDates(startOfMonth, endOfMonth);
+            .findByCreatedOnBetweenDatesWithHearingRecording(startOfMonth, endOfMonth);
     }
 }

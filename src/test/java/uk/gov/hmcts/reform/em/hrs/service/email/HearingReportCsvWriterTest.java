@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.service.email;
 
 import org.junit.jupiter.api.Test;
+import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 
 import java.io.File;
@@ -22,14 +23,19 @@ class HearingReportCsvWriterTest {
 
     @Test
     void should_write_hearingRecording_summary_to_csv() throws IOException {
-        HearingReportCsvWriter hearingReportCsvWriter = new HearingReportCsvWriter();
-
         HearingRecordingSegment hearingRecordingSegment = new HearingRecordingSegment();
         hearingRecordingSegment.setFilename(FILE_NAME);
         hearingRecordingSegment.setIngestionFileSourceUri(SOURCE_URI);
         hearingRecordingSegment.setCreatedOn(CREATED_ON);
+        hearingRecordingSegment.setFileSizeMb(12000L);
+        var hearingRecording = new HearingRecording();
+        hearingRecording.setServiceCode("servicecode-1");
+        hearingRecording.setHearingSource("hearing-source VH");
+        hearingRecording.setCcdCaseId(1234567L);
+        hearingRecordingSegment.setHearingRecording(hearingRecording);
 
         List<HearingRecordingSegment> data = Arrays.asList(hearingRecordingSegment);
+        HearingReportCsvWriter hearingReportCsvWriter = new HearingReportCsvWriter();
 
         File csvFile = hearingReportCsvWriter.writeHearingRecordingSummaryToCsv(data);
 
@@ -38,8 +44,20 @@ class HearingReportCsvWriterTest {
 
         List<String> lines = Files.readAllLines(csvFile.toPath());
         assertEquals(2, lines.size());
-        assertEquals("File Name,Source URI,Date Processed", lines.get(0));
-        assertEquals(String.format("%s,%s,%s", FILE_NAME, SOURCE_URI, CREATED_ON), lines.get(1));
+        assertEquals(
+            "File Name,Source URI,Hearing Source,Service Code,File Size KB,CCD Case Id,Date Processed",
+            lines.get(0)
+        );
+        assertEquals(String.format(
+            "%s,%s,%s,%s,%s,%s,%s",
+            FILE_NAME,
+            SOURCE_URI,
+            "hearing-source VH",
+            "servicecode-1",
+            12,
+            1234567,
+            CREATED_ON
+        ), lines.get(1));
     }
 
     @Test
@@ -54,6 +72,9 @@ class HearingReportCsvWriterTest {
 
         List<String> lines = Files.readAllLines(csvFile.toPath());
         assertEquals(1, lines.size());
-        assertEquals("File Name,Source URI,Date Processed", lines.get(0));
+        assertEquals(
+            "File Name,Source URI,Hearing Source,Service Code,File Size KB,CCD Case Id,Date Processed",
+            lines.get(0)
+        );
     }
 }
