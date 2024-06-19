@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.service.email;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +36,7 @@ public class HearingReportEmailService {
         @Value("${report.from}") String from
     ) {
         this.emailSender = emailSender;
-        if (recipients == null || recipients.length == 0) {
+        if (ArrayUtils.isEmpty(recipients)) {
             throw new EmailRecipientNotFoundException("No recipients configured for reports");
         } else {
             this.recipients = Arrays.copyOf(recipients, recipients.length);
@@ -68,12 +69,14 @@ public class HearingReportEmailService {
     }
 
     private String createBody(LocalDate date) {
-        return "<html><body><h1>Hearing Recording Report for "
-            + date.getMonth()
-            + "/"
-            + date.getYear()
-            + " </h1>"
-            + "<br>"
-            + "<br><br></body></html>";
+        return """
+            <html>
+                <body>
+                    <h1>Hearing Recording Report for %s/%d</h1>
+                    <br>
+                    <br><br>
+                </body>
+            </html>
+            """.formatted(date.getMonth(), date.getYear());
     }
 }
