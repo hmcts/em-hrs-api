@@ -65,7 +65,7 @@ public class HearingReportEmailService {
 
 
     private String getReportAttachmentName(LocalDate reportDate) {
-        return ATTACHMENT_PREFIX + reportDate.getMonth() + "-" + reportDate.getYear();
+        return ATTACHMENT_PREFIX + reportDate.getMonth() + "-" + reportDate.getYear() + ".csv";
     }
 
     private String createBody(LocalDate date) {

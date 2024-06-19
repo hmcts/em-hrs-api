@@ -81,7 +81,11 @@ class HearingReportEmailServiceTest {
             any(String.class),
             eq("sender@example.com"),
             eq(new String[]{"recipient@example.com"}),
-            eq(Map.of("Monthly-hearing-report-" + reportDate.getMonth() + "-" + reportDate.getYear(), reportFile))
+            eq(Map.of(
+                   "Monthly-hearing-report-" + reportDate.getMonth() + "-" + reportDate.getYear() + ".csv",
+                   reportFile
+               )
+            )
         );
     }
 }
