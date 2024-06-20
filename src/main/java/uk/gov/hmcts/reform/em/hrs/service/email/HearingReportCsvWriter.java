@@ -44,7 +44,7 @@ public class HearingReportCsvWriter {
                     hearingRecSeg.getIngestionFileSourceUri(),
                     hearingRecSeg.getHearingRecording().getHearingSource(),
                     hearingRecSeg.getHearingRecording().getServiceCode(),
-                    Math.ceil((float) hearingRecSeg.getFileSizeMb() / 1000),
+                    (int)Math.ceil((float) hearingRecSeg.getFileSizeMb() / 1000),
                     hearingRecSeg.getHearingRecording().getCcdCaseId(),
                     hearingRecSeg.getCreatedOn()
                 );
