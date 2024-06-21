@@ -9,17 +9,16 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.exception.EmailRecipientNotFoundException;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Map;
-
-import static java.time.LocalDateTime.now;
 
 @Service
 @Lazy
 public class HearingReportEmailService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HearingReportEmailService.class);
 
-    private static final String SUBJECT_PREFIX = "Monthly-hearing-report-";
+    private static final String SUBJECT_PREFIX = "Monthly hearing report for ";
     private static final String ATTACHMENT_PREFIX = "Monthly-hearing-report-";
 
     private final EmailSender emailSender;
@@ -52,7 +51,7 @@ public class HearingReportEmailService {
             LOGGER.info("Report recipients: {}", this.recipients[0]);
 
             emailSender.sendMessageWithAttachments(
-                SUBJECT_PREFIX + now(),
+                SUBJECT_PREFIX + LocalTime.now(),
                 createBody(reportDate),
                 from,
                 recipients,
