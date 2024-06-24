@@ -44,12 +44,9 @@ public class SecurityScenarios extends BaseTest {
 
     @Test
     public void getFolderShouldReturn200WhenS2STokenIsValid() {
-        SerenityRest
-            .given()
-            .header("ServiceAuthorization", hrsS2sAuth)
-            .relaxedHTTPSValidation()
-            .baseUri(testUrl)
-            .contentType(APPLICATION_JSON_VALUE)
+
+
+        this.authRequestForHrsIngestor()
             .when()
             .log()
             .all()

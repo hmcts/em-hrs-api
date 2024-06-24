@@ -1,9 +1,12 @@
 package uk.gov.hmcts.reform.em.hrs.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -21,6 +24,13 @@ public interface HearingRecordingSegmentRepository extends JpaRepository<Hearing
     HearingRecordingSegment findByHearingRecordingIdAndFilename(UUID recordingId, String filename);
 
     HearingRecordingSegment findByFilename(String filename);
+
+    @Query("SELECT h FROM HearingRecordingSegment h JOIN FETCH h.hearingRecording "
+        + " WHERE h.createdOn BETWEEN :startDate AND :endDate")
+    List<HearingRecordingSegment> findByCreatedOnBetweenDatesWithHearingRecording(
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate
+    );
 
 
 }

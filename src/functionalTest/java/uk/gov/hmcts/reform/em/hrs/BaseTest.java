@@ -126,6 +126,12 @@ public abstract class BaseTest {
     @Value("${azure.storage.vh.container-url}")
     private String vhContainerUrl;
 
+    @Value("${idam.hrs-ingestor.user-name}")
+    private String idamHrsIngestorUserName;
+
+    @Value("${idam.hrs-ingestor.password}")
+    private String idamHrsIngestorPassword;
+
     @Autowired
     protected IdamClient idamClient;
 
@@ -189,10 +195,22 @@ public abstract class BaseTest {
     }
 
 
+    public RequestSpecification authRequestForHrsIngestor() {
+        LOGGER.info("authRequestForHrsIngestor {}, {}", this.idamHrsIngestorUserName, this.idamHrsIngestorPassword);
+        return authRequestForUsername(this.idamHrsIngestorUserName, this.idamHrsIngestorPassword);
+    }
+
+
+    private RequestSpecification authRequestForUsername(String username, String password) {
+        return setJwtTokenHeader(idamHelper.authenticateUser(username, password));
+    }
+
     private RequestSpecification authRequestForUsername(String username) {
-        String userToken = idamHelper.authenticateUser(username);
+        LOGGER.info("authRequestForUsername username {}", username);
+        return setJwtTokenHeader(idamHelper.authenticateUser(username));
+    }
 
-
+    private RequestSpecification setJwtTokenHeader(String userToken) {
         return SerenityRest
             .given()
             .baseUri(testUrl)
@@ -209,7 +227,7 @@ public abstract class BaseTest {
 
     protected ValidatableResponse getFilenamesCompletedOrInProgress(String folder) {
 
-        return authRequestForSearcherRole() //TODO this is something ingestor would call not searcher
+        return authRequestForHrsIngestor()
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
@@ -224,7 +242,7 @@ public abstract class BaseTest {
     }
 
     protected Response postRecordingSegment(JsonNode segmentPayload) {
-        return s2sAuthRequest()
+        return authRequestForHrsIngestor()
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
