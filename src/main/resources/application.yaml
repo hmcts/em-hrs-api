@@ -158,6 +158,9 @@ scheduling:
     summary-report:
       enabled: ${SUMMARY_REPORT_ENABLED:false}
       cron:  ${SUMMARY_REPORT_CRON:0 0 6 ? * *}
+    monthly-hearing-report:
+      enabled: ${MONTHLY_HEARING_REPORT_ENABLED:false}
+      cron: ${MONTHLY_HEARING_REPORT_CRON:0 0 6 ? * *}
     delete-inprogress-jobs:
       enabled: ${DELETE_INPROGRESS_ENABLED:true}
       cron:  ${DELETE_INPROGRESS_CRON:0 0 */3 * * *}
@@ -166,7 +169,8 @@ report:
   recipients: ${SUMMARY_REPORT_RECIPIENTS:xxxx}
   from: ${SMTP_USERNAME:xxxx}
   api-key:  ${REPORT_API_KEY:xxxx}
-
+  monthly-hearing:
+    recipients: ${MONTHLY_HEARING_REPORT_RECIPIENTS:xxxx}
 springdoc:
   packagesToScan: uk.gov.hmcts.reform.em.hrs.controller
   pathsToMatch: /**
