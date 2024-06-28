@@ -69,20 +69,20 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 }
 
 module "storage_account" {
-  source                    = "git@github.com:hmcts/cnp-module-storage-account?ref=master"
-  env                       = var.env
-  storage_account_name      = "emhrsapi${var.env}"
-  resource_group_name       = azurerm_resource_group.rg.name
-  location                  = var.location
-  account_kind              = "StorageV2"
-  account_tier              = "Standard"
-  account_replication_type  = "ZRS"
-  access_tier               = "Hot"
+  source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=master"
+  env                      = var.env
+  storage_account_name     = "emhrsapi${var.env}"
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = var.location
+  account_kind             = "StorageV2"
+  account_tier             = "Standard"
+  account_replication_type = "ZRS"
+  access_tier              = "Hot"
 
   enable_https_traffic_only = true
 
-  enable_data_protection    = true
-  enable_change_feed = true
+  enable_data_protection = true
+  enable_change_feed     = true
 
   default_action = "Allow"
 
@@ -133,13 +133,13 @@ resource "azurerm_key_vault_secret" "storage_account_secondary_access_key" {
 
 resource "azurerm_key_vault_secret" "storage_account_primary_connection_string" {
   name         = "storage-account-primary-connection-string"
-  value = module.storage_account.storageaccount_primary_connection_string
+  value        = module.storage_account.storageaccount_primary_connection_string
   key_vault_id = module.key-vault.key_vault_id
 }
 
 resource "azurerm_key_vault_secret" "storage_account_secondary_connection_string" {
-  name = "storage-account-secondary-connection-string"
-  value = module.storage_account.storageaccount_secondary_connection_string
+  name         = "storage-account-secondary-connection-string"
+  value        = module.storage_account.storageaccount_secondary_connection_string
   key_vault_id = module.key-vault.key_vault_id
 }
 
@@ -147,24 +147,24 @@ resource "azurerm_key_vault_secret" "storage_account_secondary_connection_string
 module "cvp_storage_account_simulator" {
   count = var.env == "aat" ? 1 : 0
 
-  source = "git@github.com:hmcts/cnp-module-storage-account?ref=master"
-  env = var.env
-  storage_account_name = "emhrscvp${var.env}"
-  resource_group_name = azurerm_resource_group.rg.name
-  location = var.location
-  account_kind = "StorageV2"
-  account_tier = "Standard"
+  source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=master"
+  env                      = var.env
+  storage_account_name     = "emhrscvp${var.env}"
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = var.location
+  account_kind             = "StorageV2"
+  account_tier             = "Standard"
   account_replication_type = "LRS"
-  access_tier = "Hot"
+  access_tier              = "Hot"
 
   enable_https_traffic_only = true
 
-  default_action = "Allow"
+  default_action         = "Allow"
   enable_data_protection = false
   // Tags
-  common_tags = local.tags
+  common_tags  = local.tags
   team_contact = var.team_contact
-  destroy_me = var.destroy_me
+  destroy_me   = var.destroy_me
 }
 
 //disabled as tf complains about unsupport attribute, when querying module output, despite it being in same
@@ -179,12 +179,12 @@ module "cvp_storage_account_simulator" {
 
 
 data "azurerm_key_vault" "s2s_vault" {
-  name = "s2s-${var.env}"
+  name                = "s2s-${var.env}"
   resource_group_name = "rpe-service-auth-provider-${var.env}"
 }
 
 data "azurerm_key_vault_secret" "s2s_key" {
-  name = "microservicekey-em-hrs-api"
+  name         = "microservicekey-em-hrs-api"
   key_vault_id = data.azurerm_key_vault.s2s_vault.id
 }
 
@@ -209,8 +209,8 @@ module "db-v15" {
   admin_user_object_id = var.jenkins_AAD_objectId
   business_area        = "CFT"
   # The original subnet is full, this is required to use the new subnet for new databases
-  subnet_suffix        = "expanded"
-  pgsql_databases      = [
+  subnet_suffix = "expanded"
+  pgsql_databases = [
     {
       name : "emhrs"
     }
@@ -222,7 +222,7 @@ module "db-v15" {
     }
   ]
   //Below attributes needs to be overridden for Perftest & Prod
-  pgsql_sku            = var.pgsql_sku
-  pgsql_storage_mb     = var.pgsql_storage_mb
+  pgsql_sku                      = var.pgsql_sku
+  pgsql_storage_mb               = var.pgsql_storage_mb
   force_user_permissions_trigger = "2"
 }
