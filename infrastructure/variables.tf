@@ -16,7 +16,7 @@ variable "jenkins_AAD_objectId" {
   description = "(Required) The Azure AD object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies."
 }
 
-variable common_tags {
+variable "common_tags" {
   type = map(string)
 }
 
@@ -36,11 +36,11 @@ variable "destroy_me" {
   default = "No"
 }
 
-variable sku_name {
+variable "sku_name" {
   default = "GP_Gen5_2"
 }
 
-variable sku_capacity {
+variable "sku_capacity" {
   default = "2"
 }
 
