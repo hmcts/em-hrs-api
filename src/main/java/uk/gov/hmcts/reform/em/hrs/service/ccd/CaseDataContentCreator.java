@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
+import uk.gov.hmcts.reform.em.hrs.model.TTLObject;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -45,8 +46,19 @@ public class CaseDataContentCreator {
             .jurisdictionCode(hearingRecordingDto.getJurisdictionCode())
             .courtLocationCode(hearingRecordingDto.getCourtLocationCode())
             .recordingReference(hearingRecordingDto.getCaseRef())
+            .timeToLive(createTTLObject())
             .build();
+
         return objectMapper.convertValue(caseRecording, JsonNode.class);
+    }
+
+    private TTLObject createTTLObject() {
+        TTLObject testTTL = new TTLObject();
+        testTTL.setSuspended("No");
+        testTTL.setSystemTTL("2023-12-12");
+        testTTL.setOverrideTTL("2023-12-12");
+
+        return testTTL;
     }
 
     public JsonNode createCaseUpdateData(final Map<String, Object> caseData, final UUID recordingId,
