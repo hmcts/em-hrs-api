@@ -20,7 +20,7 @@ import org.testcontainers.utility.DockerImageName;
 public abstract class AbstractDataSourceTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDataSourceTest.class);
 
-    private static final String POSTGRES_IMAGE = "hmctspublic.azurecr.io/imported/postgres:11-alpine";
+    private static final String POSTGRES_IMAGE = "hmctspublic.azurecr.io/imported/postgres:16-alpine";
     private static final String DATABASE_NAME = "emhrs";
     private static final String USER_NAME = "emhrs";
     private static final String PASSWORD = "emhrs";
