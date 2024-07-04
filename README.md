@@ -16,6 +16,15 @@ az login
 
 So standard az cli tools are needed, as well as @hmcts.net log in with appropriate roles
 
+In order for integration tests to run, a docker image is needed for the
+postgres testcontainers.
+
+For this to pull from hmcts ACR you must login to the ACR first:
+```bash
+az login # if not logged in already
+az acr login --name hmctspublic
+```
+
 ## Setup
 
 #### To clone repo and prepare to pull containers:
