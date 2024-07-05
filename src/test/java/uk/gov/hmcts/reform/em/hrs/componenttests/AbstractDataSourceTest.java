@@ -26,6 +26,7 @@ public abstract class AbstractDataSourceTest {
     private static final String PASSWORD = "emhrs";
     private static final int MAPPED_PORT = 5432;
 
+
     private static final  DockerImageName postgresImage
         = DockerImageName.parse(POSTGRES_IMAGE).asCompatibleSubstituteFor("postgres");
 
