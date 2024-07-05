@@ -15,6 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -58,6 +59,8 @@ public class HearingRecording {
 
     private boolean deleted;
 
+    @Value("$ttlSet:false")
+    private boolean ttlSet;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Folder folder;
@@ -83,7 +86,7 @@ public class HearingRecording {
     public HearingRecording(UUID id, String createdBy, String createdByService, String lastModifiedBy,
                             String lastModifiedByService,
                             LocalDateTime modifiedOn, LocalDateTime createdOn,
-                            boolean deleted, Folder folder,
+                            boolean deleted, boolean ttlSet, Folder folder,
                             Set<HearingRecordingAuditEntry> auditEntries,
                             LocalDateTime ttl,
                             String recordingRef, String caseRef, String hearingLocationCode,
@@ -98,6 +101,7 @@ public class HearingRecording {
         setModifiedOn(modifiedOn);
         setCreatedOn(createdOn);
         setDeleted(deleted);
+        setTtlSet(ttlSet);
         setFolder(folder);
 
         setAuditEntries(auditEntries);
