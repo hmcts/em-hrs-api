@@ -15,6 +15,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 @ActiveProfiles("test")
 @DataJpaTest
@@ -25,13 +26,17 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public abstract class AbstractRepositoryIntegrationTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRepositoryIntegrationTest.class);
 
-    private static final String POSTGRES_IMAGE = "postgres:11-alpine";
+    private static final String POSTGRES_IMAGE = "hmctspublic.azurecr.io/imported/postgres:16-alpine";
+
     private static final String DATABASE_NAME = "emhrs";
     private static final String USER_NAME = "emhrs";
     private static final String PASSWORD = "emhrs";
     private static final int MAPPED_PORT = 5432;
 
-    private static final PostgreSQLContainer<?> POSTGRES_CONTAINER = new PostgreSQLContainer<>(POSTGRES_IMAGE)
+    private static final DockerImageName postgresImage
+        = DockerImageName.parse(POSTGRES_IMAGE).asCompatibleSubstituteFor("postgres");
+
+    private static final PostgreSQLContainer<?> POSTGRES_CONTAINER = new PostgreSQLContainer<>(postgresImage)
         .withDatabaseName(DATABASE_NAME)
         .withUsername(USER_NAME)
         .withPassword(PASSWORD)
