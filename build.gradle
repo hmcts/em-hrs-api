@@ -16,7 +16,7 @@ plugins {
   id 'org.flywaydb.flyway' version '10.15.2'
   id 'au.com.dius.pact' version '4.2.14'
   id "info.solidsoft.pitest" version '1.15.0'
-  id 'com.github.hmcts.rse-cft-lib' version '0.19.1302'
+  id 'com.github.hmcts.rse-cft-lib' version '0.19.1307'
   id 'uk.gov.hmcts.java' version '0.12.63'
   id 'org.owasp.dependencycheck' version '9.2.0'
   id 'net.serenity-bdd.serenity-gradle-plugin' version '3.0.0'
@@ -233,7 +233,7 @@ dependencyManagement {
     }
 
     // CVE-2023-35116
-    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.17.1') {
+    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.17.2') {
       entry 'jackson-databind'
       entry 'jackson-annotations'
       entry 'jackson-core'
