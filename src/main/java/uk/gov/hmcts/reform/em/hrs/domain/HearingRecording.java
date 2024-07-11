@@ -59,7 +59,6 @@ public class HearingRecording {
 
     private boolean deleted;
 
-    @Value("$ttlSet:false")
     private boolean ttlSet;
 
     @ManyToOne(fetch = FetchType.LAZY)
