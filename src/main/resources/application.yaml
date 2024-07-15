@@ -132,7 +132,7 @@ app-insights:
 
 #Below values are examples and needs to updated with correct values
 notify:
-  apiKey: ${NOTIFICATION_API_KEY:testsimulation-86d79f79-5045-4df2-87d1-6b7d87b41f6b-561aeb25-fb94-49ff-9a60-7864f19e3a4c}
+  apiKey: ${NOTIFICATION_API_KEY:xxxx}
   email.template: 1e10b560-4a3f-49a7-81f7-c3c6eceab455
 
 hrs:
