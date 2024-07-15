@@ -184,3 +184,6 @@ logging:
   level:
     uk.gov.hmcts.reform.authorisation.filters: DEBUG
 
+ttl:
+  default-ttl: ${DEFAULT_TTL:P6Y}
+
