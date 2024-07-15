@@ -237,6 +237,7 @@ dependencyManagement {
       entry 'jackson-databind'
       entry 'jackson-annotations'
       entry 'jackson-core'
+      entry 'jackson-datatype-jsr310'
     }
   }
 }
