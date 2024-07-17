@@ -108,7 +108,7 @@ azure:
   cluster_name: ${CLUSTER_NAME:dev-00}
   app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:true}
   application-insights:
-    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:d04b52b1-20e5-473a-8ac4-3f6859ea113c}
+    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:dummy}
   storage:
     hrs:
       connection-string: ${STORAGEACCOUNT_PRIMARY_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
@@ -132,7 +132,7 @@ app-insights:
 
 #Below values are examples and needs to updated with correct values
 notify:
-  apiKey: ${NOTIFICATION_API_KEY:testsimulation-86d79f79-5045-4df2-87d1-6b7d87b41f6b-561aeb25-fb94-49ff-9a60-7864f19e3a4c}
+  apiKey: ${NOTIFICATION_API_KEY:xxxx}
   email.template: 1e10b560-4a3f-49a7-81f7-c3c6eceab455
 
 hrs:
@@ -183,4 +183,7 @@ dbMigration:
 logging:
   level:
     uk.gov.hmcts.reform.authorisation.filters: DEBUG
+
+ttl:
+  default-ttl: ${DEFAULT_TTL:P6Y}
 

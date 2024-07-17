@@ -35,6 +35,4 @@ class HearingRecordingSegmentRepositoryIntegrationTest extends AbstractRepositor
 
         assertThat(set.size()).isEqualTo(7);
     }
-
-
 }

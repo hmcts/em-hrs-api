@@ -58,6 +58,7 @@ public class HearingRecording {
 
     private boolean deleted;
 
+    private boolean ttlSet;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Folder folder;
@@ -83,7 +84,7 @@ public class HearingRecording {
     public HearingRecording(UUID id, String createdBy, String createdByService, String lastModifiedBy,
                             String lastModifiedByService,
                             LocalDateTime modifiedOn, LocalDateTime createdOn,
-                            boolean deleted, Folder folder,
+                            boolean deleted, boolean ttlSet, Folder folder,
                             Set<HearingRecordingAuditEntry> auditEntries,
                             LocalDateTime ttl,
                             String recordingRef, String caseRef, String hearingLocationCode,
@@ -98,6 +99,7 @@ public class HearingRecording {
         setModifiedOn(modifiedOn);
         setCreatedOn(createdOn);
         setDeleted(deleted);
+        setTtlSet(ttlSet);
         setFolder(folder);
 
         setAuditEntries(auditEntries);
