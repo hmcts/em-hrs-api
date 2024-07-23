@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.em.hrs.service.email;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -19,6 +21,7 @@ class MonthlyHearingReportTaskTest {
         task.run();
 
         // then
-        verify(hearingReportEmailService, times(1)).sendReport();;
+        verify(hearingReportEmailService, times(1))
+            .sendReport(LocalDate.now().minusMonths(1));
     }
 }

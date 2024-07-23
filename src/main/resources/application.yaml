@@ -171,6 +171,8 @@ report:
   api-key:  ${REPORT_API_KEY:xxxx}
   monthly-hearing:
     recipients: ${MONTHLY_HEARING_REPORT_RECIPIENTS:xxxx}
+    reportStartDate: ${MONTHLY_HEARING_REPORT_REPORTSTART_DATE:}
+
 springdoc:
   packagesToScan: uk.gov.hmcts.reform.em.hrs.controller
   pathsToMatch: /**

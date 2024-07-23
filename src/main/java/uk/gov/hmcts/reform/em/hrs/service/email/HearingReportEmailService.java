@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.exception.EmailRecipientNotFoundException;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -44,14 +43,13 @@ public class HearingReportEmailService {
         this.from = from;
     }
 
-    public void sendReport() {
+    public void sendReport(LocalDate reportDate) {
         try {
-            var reportDate = LocalDate.now().minusMonths(1);
             var reportFile = hearingReportService.createMonthlyReport(reportDate.getMonth(),reportDate.getYear());
             LOGGER.info("Report recipients: {}", this.recipients[0]);
 
             emailSender.sendMessageWithAttachments(
-                SUBJECT_PREFIX + LocalTime.now(),
+                SUBJECT_PREFIX + reportDate,
                 createBody(reportDate),
                 from,
                 recipients,

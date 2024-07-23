@@ -74,7 +74,7 @@ class HearingReportEmailServiceTest {
         when(hearingReportService.createMonthlyReport(reportDate.getMonth(), reportDate.getYear()))
             .thenReturn(reportFile);
 
-        hearingReportEmailService.sendReport();
+        hearingReportEmailService.sendReport(reportDate);
 
         verify(emailSender, times(1)).sendMessageWithAttachments(
             contains("Monthly hearing report "),
