@@ -42,9 +42,13 @@ public class MonthlyHearingReportTask {
         }
 
         for (var reportStartDate : reportStartDateList) {
-            logger.info("Starting report for {}", reportStartDate);
-            hearingReportEmailService.sendReport(reportStartDate);
-            logger.info("Finished report for {}", reportStartDate);
+            try {
+                logger.info("Starting report for {}", reportStartDate);
+                hearingReportEmailService.sendReport(reportStartDate);
+                logger.info("Finished report for {}", reportStartDate);
+            } catch (Exception ex) {
+                logger.error("Failed report for {}", reportStartDate, ex);
+            }
         }
 
         logger.info("Finished {} job", TASK_NAME);
