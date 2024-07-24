@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.service.email;
 
+import io.micrometer.common.util.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -15,7 +16,7 @@ public class DateListConverter {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public List<LocalDate> convert(String source) {
-        if (source == null || source.trim().equals("")) {
+        if (StringUtils.isEmpty(source)) {
             return new ArrayList<>();
         }
         return Arrays.stream(source.split(","))
