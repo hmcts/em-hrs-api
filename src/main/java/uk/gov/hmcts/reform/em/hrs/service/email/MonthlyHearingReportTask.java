@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -20,11 +21,14 @@ public class MonthlyHearingReportTask {
 
     private final HearingReportEmailService hearingReportEmailService;
 
-    @Value("${report.monthly-hearing.reportStartDate}")
-    private LocalDate reportStartDate;
+    private final List<LocalDate> reportStartDateList;
 
-    public MonthlyHearingReportTask(HearingReportEmailService hearingReportEmailService) {
+    public MonthlyHearingReportTask(
+        HearingReportEmailService hearingReportEmailService,
+        @Value("#{dateListConverter.convert('${report.monthly-hearing.reportStartDates}')}")
+        List<LocalDate> reportStartDates) {
         this.hearingReportEmailService = hearingReportEmailService;
+        this.reportStartDateList = reportStartDates;
     }
 
 
@@ -33,10 +37,15 @@ public class MonthlyHearingReportTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        if (reportStartDate == null) {
-            reportStartDate = LocalDate.now().minusMonths(1);
+        if (reportStartDateList.isEmpty()) {
+            reportStartDateList.add(LocalDate.now().minusMonths(1));
         }
-        hearingReportEmailService.sendReport(reportStartDate);
+
+        for (var reportStartDate : reportStartDateList) {
+            logger.info("Starting report for {}", reportStartDate);
+            hearingReportEmailService.sendReport(reportStartDate);
+            logger.info("Finished report for {}", reportStartDate);
+        }
 
         logger.info("Finished {} job", TASK_NAME);
 
