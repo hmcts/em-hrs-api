@@ -262,7 +262,7 @@ def versions = [
   junit              : '5.10.3',
   junitPlatform      : '1.10.3',
   springSecurity     : '6.3.1',
-  shedlock           : '5.13.0',
+  shedlock           : '5.14.0',
   testcontainers     : '1.20.0'
 ]
 
