@@ -16,3 +16,16 @@ logging:
           descriptor:
             sql:
               BasicBinder: TRACE
+report:
+  monthly-hearing:
+    reportStartDates: 2024-07-01,2024-08-31,2024-09-15
+    recipients: xxxx
+
+shareelink:
+  ttl: ${SHAREE_LINK_TTL:72}
+scheduling:
+  lock_at_most_for: PT10M # 10 minutes in ISO-8601
+  task:
+    monthly-hearing-report:
+      enabled: true
+      cron: 0 0 6 ? * *
