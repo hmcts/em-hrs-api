@@ -308,7 +308,7 @@ dependencies {
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-spring', version: '5.1.9'
 
 //gov notify email service
-  implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '5.1.0-RELEASE'
+  implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '5.2.0-RELEASE'
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
 //azure components
