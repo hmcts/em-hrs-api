@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -182,6 +183,13 @@ public class ShareScenarios extends BaseTest {
             .statusCode(404);
 
         caseDetails.setId(null);
+    }
+
+    @Test
+    public void shouldReturn204WhenDeletingCaseHearingRecording() {
+        deleteRecordings(List.of(ccdCaseId))
+            .then().log().all()
+            .statusCode(200);
     }
 
     @After

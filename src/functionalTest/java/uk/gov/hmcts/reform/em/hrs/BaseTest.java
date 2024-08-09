@@ -267,6 +267,17 @@ public abstract class BaseTest {
             .post("/sharees");
     }
 
+    protected Response deleteRecordings(List<Long> ccdCaseIds) {
+        JsonNode reqBody = new ObjectMapper().convertValue(ccdCaseIds, JsonNode.class);
+        return authRequestForUsername(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS)
+            .relaxedHTTPSValidation()
+            .baseUri(testUrl)
+            .contentType(APPLICATION_JSON_VALUE)
+            .body(reqBody)
+            .when().log().all()
+            .delete("/delete");
+    }
+
     protected Response downloadRecording(String userName, Map<String, Object> caseData) {
         @SuppressWarnings("unchecked")
         List<Map> segmentNodes = (ArrayList) caseData.getOrDefault("recordingFiles", new ArrayList());
