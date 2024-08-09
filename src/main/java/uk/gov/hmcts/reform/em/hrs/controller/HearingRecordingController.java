@@ -315,7 +315,13 @@ public class HearingRecordingController {
         @RequestHeader(Constants.AUTHORIZATION) final String userToken,
         @RequestBody final List<Long> ccdCaseIds
     ) {
-        long deletedIdCount = hearingRecordingService.deleteCaseHearingRecordings(ccdCaseIds);
+        long deletedIdCount = 0;
+        try {
+            deletedIdCount = hearingRecordingService.deleteCaseHearingRecordings(ccdCaseIds);
+        }
+        catch (Exception e) {
+            LOGGER.error("error deleting: {}", e.getMessage());
+        }
         return ResponseEntity.ok().body(deletedIdCount);
     }
 
