@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,12 +29,14 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.service.Constants;
+import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Supplier;
@@ -52,16 +55,17 @@ public class HearingRecordingController {
     private final ShareAndNotifyService shareAndNotifyService;
     private final SegmentDownloadService segmentDownloadService;
     private final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
+    private final HearingRecordingService hearingRecordingService;
 
     @Autowired
     public HearingRecordingController(
         final ShareAndNotifyService shareAndNotifyService,
         @Qualifier("ingestionQueue") final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue,
-        SegmentDownloadService segmentDownloadService
-    ) {
+        SegmentDownloadService segmentDownloadService, HearingRecordingService hearingRecordingService) {
         this.shareAndNotifyService = shareAndNotifyService;
         this.ingestionQueue = ingestionQueue;
         this.segmentDownloadService = segmentDownloadService;
+        this.hearingRecordingService = hearingRecordingService;
     }
 
 
@@ -288,6 +292,31 @@ public class HearingRecordingController {
             request,
             response
         );
+    }
+
+    @DeleteMapping(
+        path = "/delete",
+        produces = APPLICATION_OCTET_STREAM_VALUE
+    )
+    @Operation(summary = "Delete hearing recordings",
+        description = "Delete hearing recordings for a given list of CCD case IDs",
+        parameters = {
+            @Parameter(in = ParameterIn.HEADER, name = "serviceauthorization",
+                description = "Service Authorization (S2S Bearer token)", required = true,
+                schema = @Schema(type = "string")),
+            @Parameter(in = ParameterIn.HEADER, name = "Authorization",
+                description = "Authorization (Idam Bearer token)", required = true,
+                schema = @Schema(type = "string"))})
+    @ApiResponses(
+        value = {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")}
+    )
+    public ResponseEntity<Long> deleteCaseHearingRecordings(
+        @RequestHeader(Constants.AUTHORIZATION) final String userToken,
+        @RequestBody final List<Long> ccdCaseIds
+    ) {
+        long deletedIdCount = hearingRecordingService.deleteCaseHearingRecordings(ccdCaseIds);
+        return ResponseEntity.ok().body(deletedIdCount);
     }
 
     private ResponseEntity<Void> downloadWrapper(
