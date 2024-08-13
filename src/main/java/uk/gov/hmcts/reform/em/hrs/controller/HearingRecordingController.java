@@ -296,7 +296,7 @@ public class HearingRecordingController {
 
     @DeleteMapping(
         path = "/delete",
-        produces = APPLICATION_OCTET_STREAM_VALUE
+        produces = APPLICATION_JSON_VALUE
     )
     @Operation(summary = "Delete hearing recordings",
         description = "Delete hearing recordings for a given list of CCD case IDs",
