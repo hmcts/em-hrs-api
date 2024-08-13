@@ -81,6 +81,9 @@ public class HearingRecording {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "hearingRecording")
     private Set<HearingRecordingSegment> segments;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "hearingRecording")
+    private Set<HearingRecordingSharee> sharees;
+
     public HearingRecording(UUID id, String createdBy, String createdByService, String lastModifiedBy,
                             String lastModifiedByService,
                             LocalDateTime modifiedOn, LocalDateTime createdOn,
@@ -90,7 +93,8 @@ public class HearingRecording {
                             String recordingRef, String caseRef, String hearingLocationCode,
                             String hearingRoomRef, String hearingSource,
                             String jurisdictionCode, String serviceCode, Long ccdCaseId,
-                            Set<HearingRecordingSegment> segments) {
+                            Set<HearingRecordingSegment> segments,
+                            Set<HearingRecordingSharee> sharees) {
         setId(id);
         setCreatedBy(createdBy);
         setCreatedByService(createdByService);
@@ -116,6 +120,7 @@ public class HearingRecording {
         setCcdCaseId(ccdCaseId);
 
         setSegments(segments);
+        setSharees(sharees);
     }
 
     public HearingRecording() {
