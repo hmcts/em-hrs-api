@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,4 +27,6 @@ public interface HearingRecordingRepository extends JpaRepository<HearingRecordi
     void deleteStaleRecordsWithNullCcdCaseId(@Param("createddate") LocalDateTime createddate);
 
     long deleteByCcdCaseIdIn(Collection<Long> ccdCaseIds);
+
+    List<HearingRecording> findDistinctByDeletedFalse();
 }
