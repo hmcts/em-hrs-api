@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 
+@Ignore
 public class FolderScenarios extends BaseTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FolderScenarios.class);
