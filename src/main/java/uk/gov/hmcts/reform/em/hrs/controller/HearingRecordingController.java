@@ -29,7 +29,10 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
+import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
+import uk.gov.hmcts.reform.em.hrs.service.BlobStorageDeleteService;
 import uk.gov.hmcts.reform.em.hrs.service.Constants;
 import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
@@ -59,18 +62,24 @@ public class HearingRecordingController {
     private final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
     private final HearingRecordingService hearingRecordingService;
     private final HearingRecordingRepository hearingRecordingRepository;
+    private final HearingRecordingSegmentRepository hearingRecordingSegmentRepository;
+    private final BlobStorageDeleteService blobStorageDeleteService;
 
     @Autowired
     public HearingRecordingController(
         final ShareAndNotifyService shareAndNotifyService,
         @Qualifier("ingestionQueue") final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue,
         SegmentDownloadService segmentDownloadService, HearingRecordingService hearingRecordingService,
-        HearingRecordingRepository hearingRecordingRepository) {
+        HearingRecordingRepository hearingRecordingRepository,
+        HearingRecordingSegmentRepository hearingRecordingSegmentRepository,
+        BlobStorageDeleteService blobStorageDeleteService) {
         this.shareAndNotifyService = shareAndNotifyService;
         this.ingestionQueue = ingestionQueue;
         this.segmentDownloadService = segmentDownloadService;
         this.hearingRecordingService = hearingRecordingService;
         this.hearingRecordingRepository = hearingRecordingRepository;
+        this.hearingRecordingSegmentRepository = hearingRecordingSegmentRepository;
+        this.blobStorageDeleteService = blobStorageDeleteService;
     }
 
 
@@ -320,8 +329,29 @@ public class HearingRecordingController {
         @RequestHeader(Constants.AUTHORIZATION) final String userToken,
         @RequestBody final List<Long> ccdCaseIds
     ) {
-        List<HearingRecording> hearingRecordingDtos = hearingRecordingRepository.findDistinctByDeletedFalse();
-        List<Long> ids = hearingRecordingDtos.stream().map(HearingRecording::getCcdCaseId).toList();
+        List<HearingRecording> hearingRecordings = hearingRecordingRepository.findDistinctByDeletedFalse();
+
+        List<HearingRecording> cvpRecordings = hearingRecordings
+            .stream()
+            .filter(hearingRecording -> hearingRecording.getHearingSource().equals(HearingSource.CVP.name()))
+            .toList();
+        List<HearingRecordingSegment> cvpHearingRecordingSegments = hearingRecordingSegmentRepository
+            .findByHearingRecordingIn(cvpRecordings);
+        for (HearingRecordingSegment segment : cvpHearingRecordingSegments) {
+            blobStorageDeleteService.deleteCvpBlob(segment.getIngestionFileSourceUri());
+        }
+
+        List<HearingRecording> vhRecordings = hearingRecordings
+            .stream()
+            .filter(hearingRecording -> hearingRecording.getHearingSource().equals(HearingSource.VH.name()))
+            .toList();
+        List<HearingRecordingSegment> vhHearingRecordingSegments = hearingRecordingSegmentRepository
+            .findByHearingRecordingIn(vhRecordings);
+        for (HearingRecordingSegment segment : vhHearingRecordingSegments) {
+            blobStorageDeleteService.deleteVhBlob(segment.getIngestionFileSourceUri());
+        }
+
+        List<Long> ids = hearingRecordings.stream().map(HearingRecording::getCcdCaseId).toList();
         long deletedIdCount = hearingRecordingService.deleteCaseHearingRecordings(ids);
         return ResponseEntity.ok().body(deletedIdCount);
     }
