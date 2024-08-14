@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
 import com.azure.core.http.rest.Response;
-import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;

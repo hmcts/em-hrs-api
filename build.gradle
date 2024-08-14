@@ -152,6 +152,7 @@ def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/storage/HearingRecordingStorageImpl.java',
   '**uk/gov/hmcts/reform/em/hrs/service/HearingRecordingServiceImpl.java',
   '**uk/gov/hmcts/reform/em/hrs/service/HearingRecordingService.java',
+  '**uk/gov/hmcts/reform/em/hrs/service/BlobStorageDeleteService.java',
   '**uk/gov/hmcts/reform/em/hrs/controller/HearingRecordingController.java',
   '**uk/gov/hmcts/reform/em/hrs/util/debug/HttpHeadersLogging.java',
   '**uk/gov/hmcts/reform/em/hrs/data/migration/PendingMigrationScriptException*',
