@@ -336,13 +336,18 @@ public class HearingRecordingController {
             .filter(hearingRecording -> hearingRecording.getHearingSource().equals(HearingSource.CVP.name()))
             .toList();
 
-        LOGGER.info("CVP RECORDINGS TO DELETE: {}", cvpRecordings.size());
 
         List<HearingRecordingSegment> cvpHearingRecordingSegments = hearingRecordingSegmentRepository
             .findByHearingRecordingIn(cvpRecordings);
+
+        LOGGER.info("CVP SEGMENTS TO DELETE: {}", cvpHearingRecordingSegments.size());
+
+
         for (HearingRecordingSegment segment : cvpHearingRecordingSegments) {
             blobStorageDeleteService.deleteCvpBlob(segment.getIngestionFileSourceUri());
         }
+
+
 
         List<HearingRecording> vhRecordings = hearingRecordings
             .stream()

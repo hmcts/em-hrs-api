@@ -5,20 +5,21 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.specialized.BlockBlobClient;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.hmcts.reform.em.hrs.controller.HearingRecordingController;
 
-
-@Slf4j
 @Service
 public class BlobStorageDeleteService {
 
     private final BlobContainerClient cvpBlobContainerClient;
     private final BlobContainerClient vhBlobContainerClient;
+    private final Logger log = LoggerFactory.getLogger(HearingRecordingController.class);
 
 
     @Autowired
