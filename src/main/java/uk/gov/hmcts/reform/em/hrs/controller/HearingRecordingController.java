@@ -335,6 +335,9 @@ public class HearingRecordingController {
             .stream()
             .filter(hearingRecording -> hearingRecording.getHearingSource().equals(HearingSource.CVP.name()))
             .toList();
+
+        LOGGER.info("CVP RECORDINGS TO DELETE: {}", cvpRecordings.size());
+
         List<HearingRecordingSegment> cvpHearingRecordingSegments = hearingRecordingSegmentRepository
             .findByHearingRecordingIn(cvpRecordings);
         for (HearingRecordingSegment segment : cvpHearingRecordingSegments) {

@@ -23,10 +23,10 @@ public class BlobStorageDeleteService {
 
     @Autowired
     public BlobStorageDeleteService(
-        @Qualifier("CvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient,
-        @Qualifier("vhBlobContainerClient") BlobContainerClient vhCloudBlobContainer) {
+        @Qualifier("hrsCvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient,
+        @Qualifier("hrsVhBlobContainerClient") BlobContainerClient vhCloudBlobContainerClient) {
         this.cvpBlobContainerClient = cvpBlobContainerClient;
-        vhBlobContainerClient = vhCloudBlobContainer;
+        this.vhBlobContainerClient = vhCloudBlobContainerClient;
     }
 
     public void deleteCvpBlob(String blobName) {
