@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.hrs.controller.HearingRecordingController;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 
 @Service
 public class BlobStorageDeleteService {
@@ -30,12 +31,12 @@ public class BlobStorageDeleteService {
         this.vhBlobContainerClient = vhCloudBlobContainerClient;
     }
 
-    public void deleteCvpBlob(String blobName) {
-        deleteBlob(blobName, cvpBlobContainerClient);
-    }
-
-    public void deleteVhBlob(String blobName) {
-        deleteBlob(blobName, vhBlobContainerClient);
+    public void deleteBlob(String blobName, HearingSource source) {
+        switch (source) {
+            case HearingSource.CVP -> deleteBlob(blobName, cvpBlobContainerClient);
+            case HearingSource.VH -> deleteBlob(blobName, vhBlobContainerClient);
+            default -> log.info("invalid blob source, deletion skipped");
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
