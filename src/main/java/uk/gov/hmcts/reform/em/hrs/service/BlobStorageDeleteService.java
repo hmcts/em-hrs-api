@@ -20,7 +20,7 @@ public class BlobStorageDeleteService {
 
     private final BlobContainerClient cvpBlobContainerClient;
     private final BlobContainerClient vhBlobContainerClient;
-    private final Logger log = LoggerFactory.getLogger(HearingRecordingController.class);
+    private final Logger log = LoggerFactory.getLogger(BlobStorageDeleteService.class);
 
 
     @Autowired
@@ -60,6 +60,9 @@ public class BlobStorageDeleteService {
                     "Successfully deleted hrs blob: {}",
                     blob.getBlobUrl()
                 );
+            }
+            else {
+                log.info("blob does not exist: {}", blobName);
             }
         } catch (BlobStorageException e) {
             if (e.getStatusCode() == 404) {
