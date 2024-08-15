@@ -59,7 +59,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnauthorisedServiceException.class)
-    public final ResponseEntity<String> handleUnauthorisedServiceException(InvalidApiKeyException e) {
+    public final ResponseEntity<String> handleUnauthorisedServiceException(UnauthorisedServiceException e) {
         log(HttpStatus.FORBIDDEN, e);
 
         return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
