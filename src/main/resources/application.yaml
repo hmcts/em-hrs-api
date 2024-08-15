@@ -189,3 +189,6 @@ logging:
 ttl:
   default-ttl: ${DEFAULT_TTL:P6Y}
 
+authorisation:
+  delete:
+    s2s-names-whitelist: ccd_case_disposer
