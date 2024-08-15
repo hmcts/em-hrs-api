@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import uk.gov.hmcts.reform.em.hrs.exception.EmailNotificationException;
 import uk.gov.hmcts.reform.em.hrs.exception.HearingRecordingNotFoundException;
 import uk.gov.hmcts.reform.em.hrs.exception.InvalidApiKeyException;
+import uk.gov.hmcts.reform.em.hrs.exception.UnauthorisedServiceException;
 import uk.gov.hmcts.reform.em.hrs.exception.ValidationErrorException;
 
 import java.util.Map;
@@ -55,6 +56,13 @@ public class GlobalExceptionHandler {
         log(HttpStatus.UNAUTHORIZED, e);
 
         return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(UnauthorisedServiceException.class)
+    public final ResponseEntity<String> handleUnauthorisedServiceException(InvalidApiKeyException e) {
+        log(HttpStatus.FORBIDDEN, e);
+
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     private void log(final HttpStatus status, final Throwable throwable) {

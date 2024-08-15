@@ -32,4 +32,5 @@ public interface HearingRecordingSegmentRepository extends JpaRepository<Hearing
         @Param("endDate") LocalDateTime endDate
     );
 
+
 }
