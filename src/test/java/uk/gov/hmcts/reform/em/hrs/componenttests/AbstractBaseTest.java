@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestApplicationConfig;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestAzureStorageConfig;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestSecurityConfiguration;
@@ -38,6 +39,9 @@ public abstract class AbstractBaseTest extends AbstractDataSourceTest {
 
     @MockBean
     private WebConfig webConfig;
+
+    @MockBean
+    private AuthTokenValidator authTokenValidator;
 
     @BeforeEach
     public void setupMocks() {
