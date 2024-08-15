@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
@@ -23,7 +24,7 @@ public class DeleteRequestInterceptor implements HandlerInterceptor {
 
     private static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
 
-    public DeleteRequestInterceptor(AuthTokenValidator tokenValidator) {
+    public DeleteRequestInterceptor(@Lazy AuthTokenValidator tokenValidator) {
         this.tokenValidator = tokenValidator;
     }
 
