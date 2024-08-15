@@ -60,8 +60,7 @@ public class BlobStorageDeleteService {
                     "Successfully deleted hrs blob: {}",
                     blob.getBlobUrl()
                 );
-            }
-            else {
+            } else {
                 log.info("blob does not exist: {}", blobName);
             }
         } catch (BlobStorageException e) {
