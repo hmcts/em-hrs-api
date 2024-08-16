@@ -192,6 +192,20 @@ public class ShareScenarios extends BaseTest {
             .statusCode(200);
     }
 
+    @Test
+    public void shouldReturn401WhenDeletingWithS2sInvalid() {
+        deleteRecordingsWithInvalidS2S(List.of(ccdCaseId))
+            .then().log().all()
+            .statusCode(401);
+    }
+
+    @Test
+    public void shouldReturn403WhenDeletingWithUnauthorisedService() {
+        deleteRecordingsWithUnauthorisedS2S(List.of(ccdCaseId))
+            .then().log().all()
+            .statusCode(403);
+    }
+
     @After
     public void clearUp() {
         LOGGER.info("closeCcdCase AfterEach ====> {}", closeCcdCase);

@@ -278,6 +278,30 @@ public abstract class BaseTest {
             .delete("/delete");
     }
 
+    protected Response deleteRecordingsWithInvalidS2S(List<Long> ccdCaseIds) {
+        JsonNode reqBody = new ObjectMapper().convertValue(ccdCaseIds, JsonNode.class);
+        return authRequestForUsername(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS)
+            .header("ServiceAuthorization", "invalid")
+            .relaxedHTTPSValidation()
+            .baseUri(testUrl)
+            .contentType(APPLICATION_JSON_VALUE)
+            .body(reqBody)
+            .when().log().all()
+            .delete("/delete");
+    }
+
+    protected Response deleteRecordingsWithUnauthorisedS2S(List<Long> ccdCaseIds) {
+        JsonNode reqBody = new ObjectMapper().convertValue(ccdCaseIds, JsonNode.class);
+        return authRequestForUsername(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS)
+            .header("ServiceAuthorization", extendedCcdHelper.getCcdS2sToken())
+            .relaxedHTTPSValidation()
+            .baseUri(testUrl)
+            .contentType(APPLICATION_JSON_VALUE)
+            .body(reqBody)
+            .when().log().all()
+            .delete("/delete");
+    }
+
     protected Response downloadRecording(String userName, Map<String, Object> caseData) {
         @SuppressWarnings("unchecked")
         List<Map> segmentNodes = (ArrayList) caseData.getOrDefault("recordingFiles", new ArrayList());

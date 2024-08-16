@@ -191,4 +191,4 @@ ttl:
 
 authorisation:
   delete:
-    s2s-names-whitelist: ccd_case_disposer
+    s2s-names-whitelist: ccd_case_disposer,em_gw
