@@ -27,4 +27,6 @@ public interface HearingRecordingRepository extends JpaRepository<HearingRecordi
     void deleteStaleRecordsWithNullCcdCaseId(@Param("createddate") LocalDateTime createddate);
 
     List<HearingRecording> deleteByCcdCaseIdIn(Collection<Long> ccdCaseIds);
+
+    List<HearingRecording> findDistinctByDeletedFalse();
 }
