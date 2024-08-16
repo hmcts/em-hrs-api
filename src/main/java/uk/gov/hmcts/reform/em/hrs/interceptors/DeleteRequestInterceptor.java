@@ -11,7 +11,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.em.hrs.exception.UnauthorisedServiceException;
 
-import java.io.IOException;
 import java.util.List;
 
 @Slf4j
