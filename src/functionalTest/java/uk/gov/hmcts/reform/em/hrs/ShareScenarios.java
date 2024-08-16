@@ -189,7 +189,7 @@ public class ShareScenarios extends BaseTest {
     public void shouldReturn204WhenDeletingCaseHearingRecording() {
         deleteRecordings(List.of(ccdCaseId))
             .then().log().all()
-            .statusCode(200);
+            .statusCode(204);
     }
 
     @Test

@@ -322,8 +322,8 @@ public class HearingRecordingController {
     ) {
         List<HearingRecording> hearingRecordings = hearingRecordingRepository.findDistinctByDeletedFalse();
         List<Long> ids = hearingRecordings.stream().map(HearingRecording::getCcdCaseId).toList();
-        long deletedIdCount = hearingRecordingService.deleteCaseHearingRecordings(ids);
-        return ResponseEntity.ok().body(deletedIdCount);
+        hearingRecordingService.deleteCaseHearingRecordings(ids);
+        return ResponseEntity.noContent().build();
     }
 
     private ResponseEntity<Void> downloadWrapper(

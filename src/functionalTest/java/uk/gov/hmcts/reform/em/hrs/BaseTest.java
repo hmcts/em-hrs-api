@@ -191,23 +191,29 @@ public abstract class BaseTest {
 
 
     public RequestSpecification authRequestForSearcherRole() {
-        return authRequestForUsername(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS);
+        return authRequest(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS);
     }
 
 
     public RequestSpecification authRequestForHrsIngestor() {
         LOGGER.info("authRequestForHrsIngestor {}, {}", this.idamHrsIngestorUserName, this.idamHrsIngestorPassword);
-        return authRequestForUsername(this.idamHrsIngestorUserName, this.idamHrsIngestorPassword);
+        return authRequest(this.idamHrsIngestorUserName, this.idamHrsIngestorPassword);
     }
 
 
-    private RequestSpecification authRequestForUsername(String username, String password) {
-        return setJwtTokenHeader(idamHelper.authenticateUser(username, password));
+    private RequestSpecification authRequest(String username, String password) {
+        return setJwtTokenHeader(idamHelper.authenticateUser(username, password))
+            .header("ServiceAuthorization", hrsS2sAuth);
     }
 
-    private RequestSpecification authRequestForUsername(String username) {
-        LOGGER.info("authRequestForUsername username {}", username);
+    private RequestSpecification userAuthRequest(String username) {
         return setJwtTokenHeader(idamHelper.authenticateUser(username));
+    }
+
+    private RequestSpecification authRequest(String username) {
+        LOGGER.info("authRequestForUsername username {}", username);
+        return setJwtTokenHeader(idamHelper.authenticateUser(username))
+            .header("ServiceAuthorization", hrsS2sAuth);
     }
 
     private RequestSpecification setJwtTokenHeader(String userToken) {
@@ -215,8 +221,7 @@ public abstract class BaseTest {
             .given()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
-            .header("Authorization", userToken)
-            .header("ServiceAuthorization", hrsS2sAuth);
+            .header("Authorization", userToken);
     }
 
     public RequestSpecification s2sAuthRequest() {
@@ -258,7 +263,7 @@ public abstract class BaseTest {
 
     protected Response shareRecording(String sharerUserName, CallbackRequest callbackRequest) {
         JsonNode reqBody = new ObjectMapper().convertValue(callbackRequest, JsonNode.class);
-        return authRequestForUsername(sharerUserName)
+        return authRequest(sharerUserName)
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
@@ -269,7 +274,7 @@ public abstract class BaseTest {
 
     protected Response deleteRecordings(List<Long> ccdCaseIds) {
         JsonNode reqBody = new ObjectMapper().convertValue(ccdCaseIds, JsonNode.class);
-        return authRequestForUsername(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS)
+        return authRequest(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS)
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
@@ -280,7 +285,7 @@ public abstract class BaseTest {
 
     protected Response deleteRecordingsWithInvalidS2S(List<Long> ccdCaseIds) {
         JsonNode reqBody = new ObjectMapper().convertValue(ccdCaseIds, JsonNode.class);
-        return authRequestForUsername(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS)
+        return userAuthRequest(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS)
             .header("ServiceAuthorization", "invalid")
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
@@ -292,7 +297,7 @@ public abstract class BaseTest {
 
     protected Response deleteRecordingsWithUnauthorisedS2S(List<Long> ccdCaseIds) {
         JsonNode reqBody = new ObjectMapper().convertValue(ccdCaseIds, JsonNode.class);
-        return authRequestForUsername(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS)
+        return userAuthRequest(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS)
             .header("ServiceAuthorization", extendedCcdHelper.getCcdS2sToken())
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
@@ -313,7 +318,7 @@ public abstract class BaseTest {
             .findFirst()
             .orElseThrow();
 
-        return authRequestForUsername(userName)
+        return authRequest(userName)
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
@@ -332,7 +337,7 @@ public abstract class BaseTest {
             .findFirst()
             .orElseThrow();
 
-        return authRequestForUsername(userName)
+        return authRequest(userName)
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
