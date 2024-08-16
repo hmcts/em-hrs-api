@@ -206,14 +206,14 @@ public abstract class BaseTest {
             .header("ServiceAuthorization", hrsS2sAuth);
     }
 
-    private RequestSpecification userAuthRequest(String username) {
-        return setJwtTokenHeader(idamHelper.authenticateUser(username));
-    }
-
     private RequestSpecification authRequest(String username) {
         LOGGER.info("authRequestForUsername username {}", username);
         return setJwtTokenHeader(idamHelper.authenticateUser(username))
             .header("ServiceAuthorization", hrsS2sAuth);
+    }
+
+    private RequestSpecification userAuthRequest(String username) {
+        return setJwtTokenHeader(idamHelper.authenticateUser(username));
     }
 
     private RequestSpecification setJwtTokenHeader(String userToken) {
