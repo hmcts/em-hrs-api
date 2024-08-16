@@ -11,6 +11,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.em.hrs.exception.UnauthorisedServiceException;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -29,7 +30,7 @@ public class DeleteRequestInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
 
         String serviceAuthToken = request.getHeader(SERVICE_AUTHORIZATION);
         String serviceName;
