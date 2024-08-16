@@ -26,10 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
-import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
-import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.service.Constants;
 import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
@@ -58,19 +56,16 @@ public class HearingRecordingController {
     private final SegmentDownloadService segmentDownloadService;
     private final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
     private final HearingRecordingService hearingRecordingService;
-    private final HearingRecordingRepository hearingRecordingRepository;
 
     @Autowired
     public HearingRecordingController(
         final ShareAndNotifyService shareAndNotifyService,
         @Qualifier("ingestionQueue") final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue,
-        SegmentDownloadService segmentDownloadService, HearingRecordingService hearingRecordingService,
-        HearingRecordingRepository hearingRecordingRepository) {
+        SegmentDownloadService segmentDownloadService, HearingRecordingService hearingRecordingService) {
         this.shareAndNotifyService = shareAndNotifyService;
         this.ingestionQueue = ingestionQueue;
         this.segmentDownloadService = segmentDownloadService;
         this.hearingRecordingService = hearingRecordingService;
-        this.hearingRecordingRepository = hearingRecordingRepository;
     }
 
 
@@ -313,16 +308,15 @@ public class HearingRecordingController {
                 description = "Authorization (Idam Bearer token)", required = true,
                 schema = @Schema(type = "string"))})
     @ApiResponses(
-        value = {@ApiResponse(responseCode = "200", description = "Return the requested hearing recording segment"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized")}
+        value = {@ApiResponse(responseCode = "204", description = "Successful deletion"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")}
     )
     public ResponseEntity<Long> deleteCaseHearingRecordings(
         @RequestHeader(Constants.AUTHORIZATION) final String userToken,
         @RequestBody final List<Long> ccdCaseIds
     ) {
-        List<HearingRecording> hearingRecordings = hearingRecordingRepository.findDistinctByDeletedFalse();
-        List<Long> ids = hearingRecordings.stream().map(HearingRecording::getCcdCaseId).toList();
-        hearingRecordingService.deleteCaseHearingRecordings(ids);
+        hearingRecordingService.deleteCaseHearingRecordings(ccdCaseIds);
         return ResponseEntity.noContent().build();
     }
 

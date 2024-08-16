@@ -16,9 +16,11 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegmentAuditEntry;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.exception.SegmentDownloadException;
+import uk.gov.hmcts.reform.em.hrs.exception.UnauthorisedServiceException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 import uk.gov.hmcts.reform.em.hrs.service.AuditEntryService;
 import uk.gov.hmcts.reform.em.hrs.service.Constants;
+import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
@@ -26,7 +28,9 @@ import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.IntStream;
@@ -40,6 +44,7 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,6 +68,9 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
     @MockBean
     private SegmentDownloadService segmentDownloadService;
 
+    @MockBean
+    private HearingRecordingService hearingRecordingService;
+
     @Autowired
     @Qualifier("ingestionQueue")
     private LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
@@ -72,6 +80,8 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
 
     @MockBean
     private HearingRecordingSegmentAuditEntry hearingRecordingSegmentAuditEntry;
+
+    Random random = new Random();
 
     @Test
     void testShouldGrantShareeDownloadAccessToHearingRecording() throws Exception {
@@ -330,6 +340,34 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
                                                        eq(TestUtil.AUTHORIZATION_TOKEN), any(boolean.class));
 
         mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d/sharee", recordingId, 0))
+                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
+            .andExpect(status().isForbidden())
+            .andReturn();
+    }
+
+    @Test
+    void testDeleteShouldCallService() throws Exception {
+        long ccdCaseId = random.nextLong();
+
+        List<Long> caseIds = List.of(ccdCaseId);
+        mockMvc.perform(delete("/delete")
+                            .content(convertObjectToJsonString(caseIds))
+                            .contentType(APPLICATION_JSON_VALUE)
+                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
+            .andExpect(status().isNoContent())
+            .andReturn();
+        verify(hearingRecordingService, times(1)).deleteCaseHearingRecordings(caseIds);
+    }
+
+    @Test
+    void testDeleteShouldHandleUnauthorisedServiceException() throws Exception {
+        long ccdCaseId = random.nextLong();
+        doThrow(UnauthorisedServiceException.class).when(hearingRecordingService)
+            .deleteCaseHearingRecordings(any());
+
+        mockMvc.perform(delete("/delete")
+                            .content(convertObjectToJsonString(List.of(ccdCaseId)))
+                            .contentType(APPLICATION_JSON_VALUE)
                             .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
             .andExpect(status().isForbidden())
             .andReturn();
