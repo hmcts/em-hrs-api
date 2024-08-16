@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 
+import static java.lang.Boolean.TRUE;
+
 @Service
 public class BlobStorageDeleteService {
 
@@ -30,6 +32,7 @@ public class BlobStorageDeleteService {
         this.vhBlobContainerClient = vhCloudBlobContainerClient;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteBlob(String blobName, HearingSource source) {
         switch (source) {
             case HearingSource.CVP -> deleteBlob(blobName, cvpBlobContainerClient);
@@ -38,13 +41,11 @@ public class BlobStorageDeleteService {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private void deleteBlob(String blobName, BlobContainerClient blobContainerClient) {
-
         try {
             BlockBlobClient blob =
                 blobContainerClient.getBlobClient(blobName).getBlockBlobClient();
-            if (blob.exists()) {
+            if (TRUE.equals(blob.exists())) {
                 Response<Void> response = blob.deleteWithResponse(
                     DeleteSnapshotsOptionType.INCLUDE, null, null, null);
                 if (response.getStatusCode() != 202 && response.getStatusCode() != 404) {
