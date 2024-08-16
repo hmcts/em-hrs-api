@@ -24,13 +24,11 @@ public class HearingRecordingServiceImpl implements HearingRecordingService {
 
     @Override
     public void deleteCaseHearingRecordings(Collection<Long> ccdCaseIds) {
-        List<HearingRecording> hearingRecordings = hearingRecordingRepository.findDistinctByDeletedFalse();
+        List<HearingRecording> hearingRecordings = hearingRecordingRepository.deleteByCcdCaseIdIn(ccdCaseIds);
         List<HearingRecordingSegment> segments =
             hearingRecordings.stream().flatMap(hearingRecording -> hearingRecording.getSegments().stream()).toList();
 
         segments.forEach(segment -> blobStorageDeleteService.deleteBlob(
             segment.getFilename(), HearingSource.valueOf(segment.getHearingRecording().getHearingSource())));
-
-        hearingRecordingRepository.deleteByCcdCaseIdIn(ccdCaseIds);
     }
 }
