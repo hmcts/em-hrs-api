@@ -30,7 +30,7 @@ public class DeleteRequestInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
         String serviceAuthToken = request.getHeader(SERVICE_AUTHORIZATION);
         String serviceName;
