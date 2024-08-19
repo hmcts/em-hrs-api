@@ -13,6 +13,7 @@ import java.util.List;
 @Service
 @Transactional
 public class HearingRecordingServiceImpl implements HearingRecordingService {
+
     private final HearingRecordingRepository hearingRecordingRepository;
     private final BlobStorageDeleteService blobStorageDeleteService;
 
