@@ -35,7 +35,7 @@ class HearingRecordingServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        for (int i =0; i < 2; ++i) {
+        for (int i = 0; i < 2; ++i) {
             HearingRecording recording = new HearingRecording();
             recordings.add(recording);
             recording.setHearingSource(HearingSource.CVP.toString());
