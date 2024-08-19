@@ -19,7 +19,7 @@ public class DeleteRequestInterceptor implements HandlerInterceptor {
 
     private final AuthTokenValidator tokenValidator;
 
-    @Value("#{'${authorisation.delete.s2s-names-whitelist}'.split(',')}")
+    @Value("#{'${authorisation.deleteCase.s2s-names-whitelist}'.split(',')}")
     private List<String> authorisedServices;
 
     private static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";

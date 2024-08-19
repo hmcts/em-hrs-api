@@ -189,6 +189,10 @@ logging:
 ttl:
   default-ttl: ${DEFAULT_TTL:P6Y}
 
+endpoint:
+  deleteCase:
+    enabled: ${DELETE_CASE_ENDPOINT_ENABLED:true}
+
 authorisation:
-  delete:
-    s2s-names-whitelist: ccd_case_disposer,em_gw
+  deleteCase:
+    s2s-names-whitelist: ${DELETE_CASE_S2S_WHITELIST:ccd_case_disposer,em_gw}
