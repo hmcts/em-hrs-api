@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -313,7 +313,7 @@ public class HearingRecordingController {
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden")}
     )
-    @ConditionalOnProperty("endpoint.deleteCase.enabled")
+    @ConditionalOnExpression("${endpoint.deleteCase.enabled:true}")
     public ResponseEntity<Long> deleteCaseHearingRecordings(@RequestBody final List<Long> ccdCaseIds) {
         hearingRecordingService.deleteCaseHearingRecordings(ccdCaseIds);
         return ResponseEntity.noContent().build();
