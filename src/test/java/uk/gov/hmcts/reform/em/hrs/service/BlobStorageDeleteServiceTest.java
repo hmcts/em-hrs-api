@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith({MockitoExtension.class})
-public class BlobStorageDeleteServiceTest {
+class BlobStorageDeleteServiceTest {
 
     @Mock
     private BlobContainerClient vhBlobContainer;
@@ -52,7 +52,7 @@ public class BlobStorageDeleteServiceTest {
 
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         lenient().when(cvpBlobContainer.getBlobClient(any())).thenReturn(blobClient);
         lenient().when(vhBlobContainer.getBlobClient(any())).thenReturn(blobClient);
         lenient().when(blobClient.getBlockBlobClient()).thenReturn(blob);
@@ -61,7 +61,7 @@ public class BlobStorageDeleteServiceTest {
     }
 
     @Test
-    public void deleteCvpBlob() {
+    void deleteCvpBlob() {
         when(mockResponse.getStatusCode()).thenReturn(202);
         given(blob.exists()).willReturn(true);
         given(blob.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, null))
@@ -72,7 +72,7 @@ public class BlobStorageDeleteServiceTest {
     }
 
     @Test
-    public void deleteVhBlob() {
+    void deleteVhBlob() {
         when(mockResponse.getStatusCode()).thenReturn(202);
         given(blob.exists()).willReturn(true);
         given(blob.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, null))
@@ -83,7 +83,7 @@ public class BlobStorageDeleteServiceTest {
     }
 
     @Test
-    public void deleteBlobResponseCode404() {
+    void deleteBlobResponseCode404() {
         when(mockResponse.getStatusCode()).thenReturn(404);
         when(blob.exists()).thenReturn(true);
         when(blob.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, null))
@@ -94,7 +94,7 @@ public class BlobStorageDeleteServiceTest {
     }
 
     @Test
-    public void deleteBlobResponseCodeNot202or404() {
+    void deleteBlobResponseCodeNot202or404() {
         when(mockResponse.getStatusCode()).thenReturn(409);
         when(blob.exists()).thenReturn(true);
         when(blob.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, null))
@@ -105,7 +105,7 @@ public class BlobStorageDeleteServiceTest {
     }
 
     @Test
-    public void deleteBlobException() {
+    void deleteBlobException() {
         var blobStorageException = mock(BlobStorageException.class);
         when(blob.exists()).thenReturn(true);
         when(blobStorageException.getStatusCode()).thenReturn(409);
@@ -117,7 +117,7 @@ public class BlobStorageDeleteServiceTest {
     }
 
     @Test
-    public void deleteBlob404Exception() {
+    void deleteBlob404Exception() {
         var blobStorageException = mock(BlobStorageException.class);
         when(blob.exists()).thenReturn(true);
         when(blobStorageException.getStatusCode()).thenReturn(404);
@@ -129,7 +129,7 @@ public class BlobStorageDeleteServiceTest {
     }
 
     @Test
-    public void deleteBlobNotExists() {
+    void deleteBlobNotExists() {
         when(blob.exists()).thenReturn(false);
         blobStorageDeleteService.deleteBlob(blobName, HearingSource.CVP);
         verify(blob, never()).deleteWithResponse(any(), any(), any(), any());
