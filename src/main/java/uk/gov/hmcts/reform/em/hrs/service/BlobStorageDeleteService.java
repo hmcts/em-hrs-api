@@ -49,11 +49,7 @@ public class BlobStorageDeleteService {
                 Response<Void> response = blob.deleteWithResponse(
                     DeleteSnapshotsOptionType.INCLUDE, null, null, null);
                 if (response.getStatusCode() != 202 && response.getStatusCode() != 404) {
-                    log.info(
-                        "Deleting hrs blob {} failed. Response status code {}",
-                        blobName,
-                        response.getStatusCode()
-                    );
+                    logDeletionFailure(blobName, response.getStatusCode());
                     return;
                 }
                 log.info(
@@ -67,14 +63,17 @@ public class BlobStorageDeleteService {
             if (e.getStatusCode() == 404) {
                 log.info("Blob Not found for deletion {}", blobName);
             } else {
-                log.info(
-                    "Deleting hrs blob failed {},status {}",
-                    blobName,
-                    e.getStatusCode(),
-                    e
-                );
+                logDeletionFailure(blobName, e.getStatusCode());
             }
         }
+    }
+
+    void logDeletionFailure(String blobName, int statusCode) {
+        log.info(
+            "Deleting hrs blob failed {},status {}",
+            blobName,
+            statusCode
+        );
     }
 
 }

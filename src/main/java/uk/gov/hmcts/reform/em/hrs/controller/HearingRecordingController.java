@@ -312,10 +312,7 @@ public class HearingRecordingController {
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden")}
     )
-    public ResponseEntity<Long> deleteCaseHearingRecordings(
-        @RequestHeader(Constants.AUTHORIZATION) final String userToken,
-        @RequestBody final List<Long> ccdCaseIds
-    ) {
+    public ResponseEntity<Long> deleteCaseHearingRecordings(@RequestBody final List<Long> ccdCaseIds) {
         hearingRecordingService.deleteCaseHearingRecordings(ccdCaseIds);
         return ResponseEntity.noContent().build();
     }
