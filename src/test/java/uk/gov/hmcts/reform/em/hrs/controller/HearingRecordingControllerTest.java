@@ -2,9 +2,11 @@ package uk.gov.hmcts.reform.em.hrs.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
@@ -80,6 +82,9 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
 
     @MockBean
     private HearingRecordingSegmentAuditEntry hearingRecordingSegmentAuditEntry;
+
+    @Value("${endpoint.deleteCase.enabled}")
+    private boolean deleteCaseEndpointEnabled;
 
     Random random = new Random();
 
@@ -347,6 +352,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
 
     @Test
     void testDeleteShouldCallService() throws Exception {
+        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
         long ccdCaseId = random.nextLong();
 
         List<Long> caseIds = List.of(ccdCaseId);
@@ -361,6 +367,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
 
     @Test
     void testDeleteShouldHandleUnauthorisedServiceException() throws Exception {
+        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
         long ccdCaseId = random.nextLong();
         doThrow(UnauthorisedServiceException.class).when(hearingRecordingService)
             .deleteCaseHearingRecordings(any());
