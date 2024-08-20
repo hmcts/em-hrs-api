@@ -88,8 +88,6 @@ env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
 env.S2S_BASE_URI = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
 env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
 env.HRS_VH_DEST_CONTAINER_NAME = 'vhrecordings'
-// Feature Flags
-env.DELETE_CASE_ENDPOINT_ENABLED = false
 
 def vaultOverrides = [
   'preview' : 'aat',
