@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.em.hrs.exception.UnauthorisedServiceException;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Component
@@ -33,7 +34,7 @@ public class DeleteRequestInterceptor implements HandlerInterceptor {
 
         String serviceAuthToken = request.getHeader(SERVICE_AUTHORIZATION);
         String serviceName;
-        if (serviceAuthToken != null && !serviceAuthToken.contains("Bearer")) {
+        if (Objects.nonNull(serviceAuthToken) && !serviceAuthToken.contains("Bearer")) {
             serviceName = tokenValidator.getServiceName("Bearer " + serviceAuthToken);
         } else {
             serviceName = tokenValidator.getServiceName(serviceAuthToken);
