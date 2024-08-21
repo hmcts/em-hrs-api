@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
@@ -37,9 +38,6 @@ public class ShareScenarios extends BaseTest {
     private int expectedFileSize;
 
     private Long ccdCaseId;
-
-    @Value("${endpoint.deleteCase.enabled}")
-    private boolean deleteCaseEndpointEnabled;
 
     @Before
     public void setup() throws Exception {
@@ -191,24 +189,24 @@ public class ShareScenarios extends BaseTest {
     }
 
     @Test
+    @EnabledIf(value = "${endpoint.deleteCase.enabled}", loadContext = true)
     public void shouldReturn204WhenDeletingCaseHearingRecording() {
-        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordings(List.of(ccdCaseId))
             .then().log().all()
             .statusCode(204);
     }
 
     @Test
+    @EnabledIf(value = "${endpoint.deleteCase.enabled}", loadContext = true)
     public void shouldReturn401WhenDeletingWithS2sInvalid() {
-        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordingsWithInvalidS2S(List.of(ccdCaseId))
             .then().log().all()
             .statusCode(401);
     }
 
     @Test
+    @EnabledIf(value = "${endpoint.deleteCase.enabled}", loadContext = true)
     public void shouldReturn403WhenDeletingWithUnauthorisedService() {
-        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordingsWithUnauthorisedS2S(List.of(ccdCaseId))
             .then().log().all()
             .statusCode(403);
