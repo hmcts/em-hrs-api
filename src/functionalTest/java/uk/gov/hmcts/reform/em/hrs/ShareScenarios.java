@@ -6,7 +6,7 @@ import net.serenitybdd.rest.SerenityRest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.condition.EnabledIf;
+import org.junit.jupiter.api.Assumptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -191,31 +191,27 @@ public class ShareScenarios extends BaseTest {
     }
 
     @Test
-    @EnabledIf("isDeleteCaseEndpointEnabled")
     public void shouldReturn204WhenDeletingCaseHearingRecording() {
+        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordings(List.of(ccdCaseId))
             .then().log().all()
             .statusCode(204);
     }
 
     @Test
-    @EnabledIf("isDeleteCaseEndpointEnabled")
     public void shouldReturn401WhenDeletingWithS2sInvalid() {
+        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordingsWithInvalidS2S(List.of(ccdCaseId))
             .then().log().all()
             .statusCode(401);
     }
 
     @Test
-    @EnabledIf("isDeleteCaseEndpointEnabled")
     public void shouldReturn403WhenDeletingWithUnauthorisedService() {
+        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordingsWithUnauthorisedS2S(List.of(ccdCaseId))
             .then().log().all()
             .statusCode(403);
-    }
-
-    private boolean isDeleteCaseEndpointEnabled() {
-        return deleteCaseEndpointEnabled;
     }
 
     @After
