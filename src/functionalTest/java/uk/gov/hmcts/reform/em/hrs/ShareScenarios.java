@@ -6,10 +6,10 @@ import net.serenitybdd.rest.SerenityRest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.EnabledIf;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
@@ -187,7 +187,7 @@ public class ShareScenarios extends BaseTest {
     }
 
     @Test
-    @EnabledIf(value = "${endpoint.deleteCase.enabled}", loadContext = true)
+    @EnabledIfEnvironmentVariable(named = "DELETE_CASE_ENDPOINT_ENABLED", matches = "true")
     public void shouldReturn204WhenDeletingCaseHearingRecording() {
         deleteRecordings(List.of(ccdCaseId))
             .then().log().all()
@@ -195,7 +195,7 @@ public class ShareScenarios extends BaseTest {
     }
 
     @Test
-    @EnabledIf(value = "${endpoint.deleteCase.enabled}", loadContext = true)
+    @EnabledIfEnvironmentVariable(named = "DELETE_CASE_ENDPOINT_ENABLED", matches = "true")
     public void shouldReturn401WhenDeletingWithS2sInvalid() {
         deleteRecordingsWithInvalidS2S(List.of(ccdCaseId))
             .then().log().all()
@@ -203,7 +203,7 @@ public class ShareScenarios extends BaseTest {
     }
 
     @Test
-    @EnabledIf(value = "${endpoint.deleteCase.enabled}", loadContext = true)
+    @EnabledIfEnvironmentVariable(named = "DELETE_CASE_ENDPOINT_ENABLED", matches = "true")
     public void shouldReturn403WhenDeletingWithUnauthorisedService() {
         deleteRecordingsWithUnauthorisedS2S(List.of(ccdCaseId))
             .then().log().all()
