@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.serenitybdd.rest.SerenityRest;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.Assumptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -192,7 +192,7 @@ public class ShareScenarios extends BaseTest {
 
     @Test
     public void shouldReturn204WhenDeletingCaseHearingRecording() {
-        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
+        Assume.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordings(List.of(ccdCaseId))
             .then().log().all()
             .statusCode(204);
@@ -200,7 +200,7 @@ public class ShareScenarios extends BaseTest {
 
     @Test
     public void shouldReturn401WhenDeletingWithS2sInvalid() {
-        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
+        Assume.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordingsWithInvalidS2S(List.of(ccdCaseId))
             .then().log().all()
             .statusCode(401);
@@ -208,7 +208,7 @@ public class ShareScenarios extends BaseTest {
 
     @Test
     public void shouldReturn403WhenDeletingWithUnauthorisedService() {
-        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
+        Assume.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordingsWithUnauthorisedS2S(List.of(ccdCaseId))
             .then().log().all()
             .statusCode(403);
