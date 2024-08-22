@@ -6,10 +6,11 @@ import net.serenitybdd.rest.SerenityRest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
@@ -36,6 +37,9 @@ public class ShareScenarios extends BaseTest {
     private int expectedFileSize;
 
     private Long ccdCaseId;
+
+    @Value("${endpoint.deleteCase.enabled}")
+    private boolean deleteCaseEndpointEnabled;
 
     @Before
     public void setup() throws Exception {
@@ -187,7 +191,7 @@ public class ShareScenarios extends BaseTest {
     }
 
     @Test
-    @EnabledIfEnvironmentVariable(named = "DELETE_CASE_ENDPOINT_ENABLED", matches = "true")
+    @EnabledIf("isDeleteCaseEndpointEnabled")
     public void shouldReturn204WhenDeletingCaseHearingRecording() {
         deleteRecordings(List.of(ccdCaseId))
             .then().log().all()
@@ -195,7 +199,7 @@ public class ShareScenarios extends BaseTest {
     }
 
     @Test
-    @EnabledIfEnvironmentVariable(named = "DELETE_CASE_ENDPOINT_ENABLED", matches = "true")
+    @EnabledIf("isDeleteCaseEndpointEnabled")
     public void shouldReturn401WhenDeletingWithS2sInvalid() {
         deleteRecordingsWithInvalidS2S(List.of(ccdCaseId))
             .then().log().all()
@@ -203,11 +207,15 @@ public class ShareScenarios extends BaseTest {
     }
 
     @Test
-    @EnabledIfEnvironmentVariable(named = "DELETE_CASE_ENDPOINT_ENABLED", matches = "true")
+    @EnabledIf("isDeleteCaseEndpointEnabled")
     public void shouldReturn403WhenDeletingWithUnauthorisedService() {
         deleteRecordingsWithUnauthorisedS2S(List.of(ccdCaseId))
             .then().log().all()
             .statusCode(403);
+    }
+
+    private boolean isDeleteCaseEndpointEnabled() {
+        return deleteCaseEndpointEnabled;
     }
 
     @After
