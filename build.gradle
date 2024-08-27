@@ -157,7 +157,7 @@ def coverageExclusionList = [
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '10.17.0'
+  toolVersion = '10.18.0'
   getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
 }
 
@@ -313,7 +313,7 @@ dependencies {
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.25.4'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.13.1'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.13.2'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.5.0-rc1'
