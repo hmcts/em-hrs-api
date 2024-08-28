@@ -33,13 +33,27 @@ public class CftLibConfig implements CFTLibConfigurer {
             "caseworker-hrs-searcher"
         );
 
+        lib.createIdamUser("data.store.idam.system.user@gmail.com","caseworker");
+
+        lib.createIdamUser("hrs.tester@hmcts.net",
+                           "citizen",
+                           "caseworker",
+                           "caseworker-hrs",
+                           "caseworker-hrs-searcher");
+
+        lib.createIdamUser("em-test-searcher@test.hmcts.net",
+                           "citizen",
+                           "caseworker",
+                           "caseworker-hrs",
+                           "caseworker-hrs-searcher");
+
         ResourceLoader resourceLoader = new DefaultResourceLoader();
         var json = IOUtils.toString(resourceLoader.getResource("classpath:cftlib-am-role-assignments.json")
                                         .getInputStream(), Charset.defaultCharset());
         lib.configureRoleAssignments(json);
 
         lib.importDefinition(Files.readAllBytes(
-            Path.of("src/functionalTest/resources/CCD_HRS_v1.1-AAT.xlsx")));
+            Path.of("src/functionalTest/resources/CCD_HRS_v1.2-AAT.xlsx")));
 
     }
 }

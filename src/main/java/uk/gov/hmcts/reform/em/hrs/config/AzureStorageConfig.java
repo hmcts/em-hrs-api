@@ -65,19 +65,44 @@ public class AzureStorageConfig {
             .connectionString(hrsConnectionString)
             .containerName(hrsVhContainer)
             .buildClient();
+
+        final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
+            .orElse(false);
+
+        if (!containerExists) {
+            LOGGER.info("Creating container {} in HRS Storage", hrsCvpContainer);
+            blobContainerClient.create();
+        }
         return blobContainerClient;
     }
 
     @Bean("CvpBlobContainerClient")
     public BlobContainerClient getCvpBlobContainerClient() {
         LOGGER.info("************   CVP   ***********");
-        return createBlobClient(cvpConnectionString, cvpContainer);
+
+        BlobContainerClient blobContainerClient = createBlobClient(cvpConnectionString, cvpContainer);
+        final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
+            .orElse(false);
+
+        if (!containerExists) {
+            LOGGER.info("Creating container {} in HRS Storage", hrsCvpContainer);
+            blobContainerClient.create();
+        }
+        return blobContainerClient;
     }
 
     @Bean("vhBlobContainerClient")
     public BlobContainerClient getVhBlobContainerClient() {
         LOGGER.info("************   VH   ***********");
-        return createBlobClient(vhConnectionString, vhContainer);
+        BlobContainerClient blobContainerClient = createBlobClient(vhConnectionString, vhContainer);
+        final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
+            .orElse(false);
+
+        if (!containerExists) {
+            LOGGER.info("Creating container {} in HRS Storage", hrsCvpContainer);
+            blobContainerClient.create();
+        }
+        return blobContainerClient;
     }
 
     private BlobContainerClient createBlobClient(String connectionString, String containerName) {

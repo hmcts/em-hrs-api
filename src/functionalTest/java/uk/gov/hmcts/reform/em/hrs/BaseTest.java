@@ -392,7 +392,7 @@ public abstract class BaseTest {
         Optional<CaseDetails> optionalCaseDetails = searchForCaseWithUserWithSearcherRole(caseRef);
 
         int count = 0;
-        while (count <= 10 && optionalCaseDetails.isEmpty()) {
+        while (count <= 3 && optionalCaseDetails.isEmpty()) {
             SleepHelper.sleepForSeconds(FIND_CASE_TIMEOUT);
             LOGGER.info("Search attempt # {}", count);
             optionalCaseDetails = searchForCaseWithUserWithSearcherRole(caseRef);

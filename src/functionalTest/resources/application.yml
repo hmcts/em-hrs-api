@@ -27,11 +27,11 @@ logging:
             logging: INFO
 
 test:
-  url: ${TEST_URL:http://localhost:8080}
+  url: ${TEST_URL:http://localhost:8081}
 
 idam:
   api:
-    url: ${IDAM_API_BASE_URI:https://idam-api.aat.platform.hmcts.net}
+    url: ${IDAM_API_BASE_URI:http://localhost:5062}
   client:
     id: ${OAUTH_CLIENT_ID:webshow}
     secret: ${IDAM_CLIENT_OAUTH_SECRET:AAAAAAAAAAAAAAAA}
@@ -56,7 +56,7 @@ ccd-def:
 
 document_management:
   url: ${DM_STORE_APP_URL:http://localhost:4603}
-  docker_url: http://dm-store:8080
+  docker_url: http://dm-store:8081
 
 core_case_data:
   api:
@@ -68,13 +68,13 @@ azure:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:dummy}
   storage:
     cvp:
-      container-url: ${CVP_STORAGE_URL:https://emhrsapiaat.blob.core.windows.net/cvpsimulator/}
+      container-url: ${CVP_STORAGE_URL:http://localhost:10000/devstoreaccount1/cvptestcontainer/}
       connection-string: ${CVP_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
       blob-container-reference: ${CVP_STORAGE_CONTAINER_NAME:cvptestcontainer}
     vh:
-      container-url: ${VH_STORAGE_URL:https://emhrsapiaat.blob.core.windows.net/cvpsimulator/}
+      container-url: ${VH_STORAGE_URL:http://localhost:10000/devstoreaccount1/vhtestcontainer/}
       connection-string: ${VH_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
-      blob-container-name: ${VH_STORAGE_CONTAINER_NAME:cvptestcontainer}
+      blob-container-name: ${VH_STORAGE_CONTAINER_NAME:vhtestcontainer}
     hrs:
       connection-string: ${HRS_STORAGEACCOUNT_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
       cvp-dest-blob-container-name: ${HRS_CVP_DEST_CONTAINER_NAME:emhrstestcontainer}

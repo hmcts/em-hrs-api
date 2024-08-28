@@ -1,4 +1,5 @@
 server:
+  port: 8081
   shutdown: graceful
 management:
   endpoint:
@@ -81,7 +82,7 @@ idam:
     grant_type: password
     scope: openid roles profile
   api:
-    url: ${IDAM_API_BASE_URI:https://idam-api.aat.platform.hmcts.net}
+    url: ${IDAM_API_BASE_URI:http://localhost:5062}
   system-user:
     username: ${HRS_SYSTEM_USER:hrs.tester@hmcts.net} #hrs.tester@hmcts.net in all non prod environments
     password: ${HRS_SYSTEM_USER_PASSWORD:4590fgvhbfgbDdffm3lk4j} #password only used locally with docker containers
@@ -113,7 +114,7 @@ azure:
     hrs:
       connection-string: ${STORAGEACCOUNT_PRIMARY_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
       cvp-dest-blob-container-name: ${HRS_CVP_DEST_CONTAINER_NAME:emhrstestcontainer}
-      vh-dest-blob-container-name: ${HRS_VH_DEST_CONTAINER_NAME:emhrstestcontainer}
+      vh-dest-blob-container-name: ${HRS_VH_DEST_CONTAINER_NAME:emhrsvhtestcontainer}
     cvp:
       connection-string: ${CVP_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
       blob-container-reference: ${CVP_STORAGE_CONTAINER_NAME:cvptestcontainer}

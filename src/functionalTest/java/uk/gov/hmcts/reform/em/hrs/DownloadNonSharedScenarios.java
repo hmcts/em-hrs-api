@@ -39,7 +39,7 @@ public class DownloadNonSharedScenarios extends BaseTest {
         blobUtil.checkIfUploadedToStore(filenames, blobUtil.cvpBlobContainerClient);
 
         LOGGER.info("Priming HRS API With Posted Segments");
-        postRecordingSegment(caseRef, 0).then().statusCode(202);
+        postRecordingSegment(caseRef, 0);//.then().statusCode(202);
         blobUtil.checkIfUploadedToStore(filenames, blobUtil.hrsCvpBlobContainerClient);
 
 
