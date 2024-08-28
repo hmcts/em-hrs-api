@@ -69,7 +69,7 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 }
 
 module "storage_account" {
-  source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=master"
+  source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=4.x"
   env                      = var.env
   storage_account_name     = "emhrsapi${var.env}"
   resource_group_name      = azurerm_resource_group.rg.name
