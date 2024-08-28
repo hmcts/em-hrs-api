@@ -318,7 +318,7 @@ public class HearingRecordingController {
     )
     public ResponseEntity<Long> deleteCaseHearingRecordings(@RequestBody final List<Long> ccdCaseIds) {
         if (!deleteCaseEndpointEnabled) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         hearingRecordingService.deleteCaseHearingRecordings(ccdCaseIds);
         return ResponseEntity.noContent().build();
