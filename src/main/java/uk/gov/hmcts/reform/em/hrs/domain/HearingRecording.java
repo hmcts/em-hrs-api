@@ -90,8 +90,7 @@ public class HearingRecording {
                             String recordingRef, String caseRef, String hearingLocationCode,
                             String hearingRoomRef, String hearingSource,
                             String jurisdictionCode, String serviceCode, Long ccdCaseId,
-                            Set<HearingRecordingSegment> segments,
-                            Set<HearingRecordingSharee> sharees) {
+                            Set<HearingRecordingSegment> segments) {
         setId(id);
         setCreatedBy(createdBy);
         setCreatedByService(createdByService);
