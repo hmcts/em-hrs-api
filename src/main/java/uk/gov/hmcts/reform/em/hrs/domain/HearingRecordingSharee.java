@@ -33,7 +33,7 @@ public class HearingRecordingSharee {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private HearingRecording hearingRecording;
 
     @NotNull
