@@ -35,8 +35,8 @@ public class BlobStorageDeleteService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteBlob(String blobName, HearingSource source) {
         switch (source) {
-            case HearingSource.CVP -> deleteBlob(blobName, cvpBlobContainerClient);
-            case HearingSource.VH -> deleteBlob(blobName, vhBlobContainerClient);
+            case CVP -> deleteBlob(blobName, cvpBlobContainerClient);
+            case VH -> deleteBlob(blobName, vhBlobContainerClient);
             default -> log.info("invalid blob source, deletion skipped");
         }
     }
