@@ -71,7 +71,7 @@ env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
 env.HRS_VH_DEST_CONTAINER_NAME = 'vhrecordings'
 env.VH_STORAGE_URL= "https://emhrsapiaat.blob.core.windows.net/vhsimulator/"
 // Feature Flags
-env.DELETE_CASE_ENDPOINT_ENABLED = true
+env.DELETE_CASE_ENDPOINT_ENABLED = false
 
 def vaultOverrides = [
   'preview' : 'aat',
