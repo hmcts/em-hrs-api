@@ -19,7 +19,7 @@ import java.util.Optional;
 public class TestAzureStorageConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestAzureStorageConfig.class);
 
-    private static final String AZURITE_IMAGE = "mcr.microsoft.com/azure-storage/azurite:3.31.0";
+    private static final String AZURITE_IMAGE = "mcr.microsoft.com/azure-storage/azurite:latest";
     private static final int MAPPER_PORT = 10000;
 
     private static final String ACCOUNT_NAME = "devstoreaccount1";
@@ -38,7 +38,7 @@ public class TestAzureStorageConfig {
         .withExposedPorts(MAPPER_PORT)
         .withLogConsumer(new Slf4jLogConsumer(LOGGER))
         .waitingFor(Wait.forListeningPort())
-        .withCommand("azurite-blob --blobHost 0.0.0.0 --blobPort 10000");
+        .withCommand("azurite-blob --blobHost 0.0.0.0 --blobPort 10000 --skipApiVersionCheck");
 
     private String connectionString;
 
