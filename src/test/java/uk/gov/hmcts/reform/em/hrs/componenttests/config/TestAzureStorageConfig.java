@@ -19,7 +19,7 @@ import java.util.Optional;
 public class TestAzureStorageConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestAzureStorageConfig.class);
 
-    private static final String AZURITE_IMAGE = "mcr.microsoft.com/azure-storage/azurite:3.31.0";
+    private static final String AZURITE_IMAGE = "mcr.microsoft.com/azure-storage/azurite:3.28.0";
     private static final int MAPPER_PORT = 10000;
 
     private static final String ACCOUNT_NAME = "devstoreaccount1";
