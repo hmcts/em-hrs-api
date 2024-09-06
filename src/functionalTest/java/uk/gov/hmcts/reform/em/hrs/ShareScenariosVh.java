@@ -51,7 +51,7 @@ public class ShareScenariosVh extends BaseTest {
         blobUtil.checkIfUploadedToStore(filenames, blobUtil.vhBlobContainerClient);
 
         LOGGER.info("SET UP: POSTING TO HRS");
-        postVhRecordingSegment(caseRef, segment, hearingRef, filename);//.then().statusCode(202);
+        postVhRecordingSegment(caseRef, segment, hearingRef, filename).then().statusCode(202);
         blobUtil.checkIfUploadedToStore(filenames, blobUtil.hrsVhBlobContainerClient);
 
         LOGGER.info("SET UP: CHECKING CASE IN CCD");
