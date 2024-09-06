@@ -47,6 +47,13 @@ public class CftLibConfig implements CFTLibConfigurer {
                            "caseworker-hrs",
                            "caseworker-hrs-searcher");
 
+        lib.createIdamUser("em-test-requestor@test.hmcts.net",
+                           "citizen",
+                           "caseworker");
+
+        lib.createIdamUser("em-test-citizen@test.hmcts.net",
+                           "citizen");
+
         ResourceLoader resourceLoader = new DefaultResourceLoader();
         var json = IOUtils.toString(resourceLoader.getResource("classpath:cftlib-am-role-assignments.json")
                                         .getInputStream(), Charset.defaultCharset());

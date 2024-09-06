@@ -56,7 +56,7 @@ spring:
       client:
         provider:
           oidc:
-            issuer-uri: ${OPEN_ID_API_BASE_URI:https://idam-web-public.aat.platform.hmcts.net/o}
+            issuer-uri: ${OPEN_ID_API_BASE_URI:http://localhost:5062/o}
         registration:
           oidc:
             client-id: microservicekey-em-hrs-api
@@ -78,7 +78,7 @@ idam:
   client:
     id: ${OAUTH_CLIENT_ID:webshow}
     secret: ${IDAM_CLIENT_OAUTH_SECRET:AAAAAAAAAAAAAAAA}
-    redirect_uri: ${IDAM_REDIRECT_URI:https://em-hrs-api-aat.service.core-compute-aat.internal/oauth2/callback}
+    redirect_uri: ${IDAM_REDIRECT_URI:http://localhost:8081/oauth2/callback}
     grant_type: password
     scope: openid roles profile
   api:
@@ -87,13 +87,13 @@ idam:
     username: ${HRS_SYSTEM_USER:hrs.tester@hmcts.net} #hrs.tester@hmcts.net in all non prod environments
     password: ${HRS_SYSTEM_USER_PASSWORD:4590fgvhbfgbDdffm3lk4j} #password only used locally with docker containers
   s2s-auth:
-    url: ${S2S_BASE_URI:http://rpe-service-auth-provider-aat.service.core-compute-aat.internal}
+    url: ${S2S_BASE_URI:http://localhost:8489}
     totp_secret: ${S2S_KEY:AAAAAAAAAAAAAAAA}
     microservice: ${S2S_SERVICE_NAME:em_hrs_api}
   provider:
     service:
       client:
-        baseUrl: ${S2S_BASE_URI:http://rpe-service-auth-provider-aat.service.core-compute-aat.internal}
+        baseUrl: ${S2S_BASE_URI:http://localhost:8489}
   s2s-authorised:
     services: ${S2S_NAMES_WHITELIST:ccd_gw,em_gw,em_hrs_ingestor,xui_webapp,ccd,ccd_data}
 
@@ -103,7 +103,7 @@ core_case_data:
 
 xui:
   api:
-    url: ${XUI_API_URL:https://manage-case.aat.platform.hmcts.net}
+    url: ${XUI_API_URL:http://localhost:4454}
 
 azure:
   cluster_name: ${CLUSTER_NAME:dev-00}
@@ -149,7 +149,7 @@ auth:
   provider:
     service:
       client:
-        baseUrl: ${S2S_BASE_URI:http://rpe-service-auth-provider-aat.service.core-compute-aat.internal}
+        baseUrl: ${S2S_BASE_URI:http://localhost:8489}
 
 shareelink:
   ttl: ${SHAREE_LINK_TTL:72}

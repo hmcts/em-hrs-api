@@ -12,7 +12,7 @@ spring:
       client:
         provider:
           oidc:
-            issuer-uri: ${OPEN_ID_API_BASE_URI:https://idam-web-public.aat.platform.hmcts.net/o}
+            issuer-uri: ${OPEN_ID_API_BASE_URI:http://localhost:5062/o}
         registration:
           oidc:
             client-id: webshow #TODO: create proper idam client-id for hrs
@@ -35,7 +35,7 @@ idam:
   client:
     id: ${OAUTH_CLIENT_ID:webshow}
     secret: ${IDAM_CLIENT_OAUTH_SECRET:AAAAAAAAAAAAAAAA}
-    redirect_uri: ${IDAM_REDIRECT_URI:https://em-hrs-api-aat.service.core-compute-aat.internal/oauth2/callback}
+    redirect_uri: ${IDAM_REDIRECT_URI:http://localhost:8081/oauth2/callback}
     grant_type: 'password'
     scope: 'openid roles profile'
   hrs-ingestor:
@@ -43,14 +43,14 @@ idam:
     password:  ${IDAM_HRS_INGESTOR_SYSTEM_PASSWORD:AAAAAAAAAAAAAAAA}
 s2s:
   api:
-    url: ${S2S_BASE_URI:http://rpe-service-auth-provider-aat.service.core-compute-aat.internal}
+    url: ${S2S_BASE_URI:http://localhost:8489}
     secret: ${FUNCTIONAL_TEST_CLIENT_S2S_TOKEN:AAAAAAAAAAAAAAAA}
     serviceName: ${S2S_SERVICE_NAME:em_gw}
     ccdGwSecret: ${FUNCTIONAL_TEST_CCD_GW_SERVICE_SECRET:AAAAAAAAAAAAAAAA}
     ccdGwServiceName: ${CCD_GW_SERVICE_NAME:ccd_gw}
 
 ccd-def:
-  file: ${CCD_DEFINITION_FILE:CCD_HRS_v1.1-AAT.xslx}
+  file: ${CCD_DEFINITION_FILE:CCD_HRS_v1.2-AAT.xslx}
   api:
     url: ${CCD_DEF_API:http://localhost:4451}
 
