@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.ccd.client.model.Event;
 import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.exception.CcdUploadException;
-import uk.gov.hmcts.reform.em.hrs.exception.ValidationErrorException;
 import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 
 import java.util.Map;
@@ -67,7 +66,7 @@ public class CcdDataStoreApiClient {
             );
             return caseDetails.getId();
 
-        } catch (ValidationErrorException e) {
+        } catch (Exception e) {
             //CCD has rejected, so log payload to assist with debugging (no sensitive information is exposed)
             if (caseData != null) {
                 logCaseDataError(caseData);
