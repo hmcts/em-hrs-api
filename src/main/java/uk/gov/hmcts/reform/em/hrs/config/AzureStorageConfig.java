@@ -48,13 +48,7 @@ public class AzureStorageConfig {
             .containerName(hrsCvpContainer)
             .buildClient();
 
-        final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
-            .orElse(false);
-
-        if (!containerExists) {
-            LOGGER.info("Creating container {} in HRS Storage", hrsCvpContainer);
-            blobContainerClient.create();
-        }
+        createIfNotExists(blobContainerClient);
         return blobContainerClient;
 
     }
@@ -66,13 +60,7 @@ public class AzureStorageConfig {
             .containerName(hrsVhContainer)
             .buildClient();
 
-        final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
-            .orElse(false);
-
-        if (!containerExists) {
-            LOGGER.info("Creating container {} in HRS Storage", hrsCvpContainer);
-            blobContainerClient.create();
-        }
+        createIfNotExists(blobContainerClient);
         return blobContainerClient;
     }
 
@@ -81,13 +69,7 @@ public class AzureStorageConfig {
         LOGGER.info("************   CVP   ***********");
 
         BlobContainerClient blobContainerClient = createBlobClient(cvpConnectionString, cvpContainer);
-        final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
-            .orElse(false);
-
-        if (!containerExists) {
-            LOGGER.info("Creating container {} in HRS Storage", hrsCvpContainer);
-            blobContainerClient.create();
-        }
+        createIfNotExists(blobContainerClient);
         return blobContainerClient;
     }
 
@@ -95,6 +77,11 @@ public class AzureStorageConfig {
     public BlobContainerClient getVhBlobContainerClient() {
         LOGGER.info("************   VH   ***********");
         BlobContainerClient blobContainerClient = createBlobClient(vhConnectionString, vhContainer);
+        createIfNotExists(blobContainerClient);
+        return blobContainerClient;
+    }
+
+    private void createIfNotExists(BlobContainerClient blobContainerClient) {
         final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
             .orElse(false);
 
@@ -102,7 +89,6 @@ public class AzureStorageConfig {
             LOGGER.info("Creating container {} in HRS Storage", hrsCvpContainer);
             blobContainerClient.create();
         }
-        return blobContainerClient;
     }
 
     private BlobContainerClient createBlobClient(String connectionString, String containerName) {
