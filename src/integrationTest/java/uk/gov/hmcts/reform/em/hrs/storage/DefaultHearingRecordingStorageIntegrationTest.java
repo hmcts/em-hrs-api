@@ -64,7 +64,7 @@ class DefaultHearingRecordingStorageIntegrationTest {
 
     @Test
     void testShouldHandleTrailingSlashesGracefullyWhenFindingFilesInFolder() {
-        final String filePath = ONE_ITEM_FOLDER + "/" + UUID.randomUUID().toString() + ".txt";
+        final String filePath = ONE_ITEM_FOLDER + "/" + UUID.randomUUID() + ".txt";
         azureIntegrationTestOperations.uploadToHrsContainer(filePath);
 
         final Set<String> filesWithoutTrailingSlash = underTest.findByFolderName(ONE_ITEM_FOLDER);
@@ -87,7 +87,7 @@ class DefaultHearingRecordingStorageIntegrationTest {
     @Test
     void testShouldEnsureTheSpecifiedCvpBlobAppearsInHrsBlobstore() {
         final String folder = UUID.randomUUID().toString();
-        final String file = folder + "/" + UUID.randomUUID().toString() + ".txt";
+        final String file = folder + "/" + UUID.randomUUID() + ".txt";
         azureIntegrationTestOperations.uploadToCvpContainer(file);
         final String sourceUrl = azureIntegrationTestOperations.getBlobUrl(file);
 
@@ -104,8 +104,8 @@ class DefaultHearingRecordingStorageIntegrationTest {
     @Test
     void testShouldEnsureOnlyTheSpecifiedCvpBlobIsCopiedToHrsBlobstore() {
         final String folder = UUID.randomUUID().toString();
-        final String file1 = folder + "/" + UUID.randomUUID().toString() + ".txt";
-        final String file2 = folder + "/" + UUID.randomUUID().toString() + ".txt";
+        final String file1 = folder + "/" + UUID.randomUUID() + ".txt";
+        final String file2 = folder + "/" + UUID.randomUUID() + ".txt";
         azureIntegrationTestOperations.populateCvpContainer(Set.of(file1, file2));
         final String sourceUrl = azureIntegrationTestOperations.getBlobUrl(file1);
 
@@ -129,7 +129,7 @@ class DefaultHearingRecordingStorageIntegrationTest {
 
     @Test
     void testShouldEmitCopyFailedMessage() {
-        final String file = UUID.randomUUID().toString() + "/" + UUID.randomUUID().toString() + ".txt";
+        final String file = UUID.randomUUID() + "/" + UUID.randomUUID() + ".txt";
         final String sourceUrl = azureIntegrationTestOperations.getBlobUrl(file);
         HearingRecordingDto hrDto =
             HearingRecordingDto.builder().sourceBlobUrl(sourceUrl).filename(file).build();
