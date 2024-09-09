@@ -25,7 +25,7 @@ plugins {
 
 java {
   toolchain {
-    languageVersion = JavaLanguageVersion.of(21)
+    languageVersion = JavaLanguageVersion.of(17)
   }
 }
 
@@ -566,7 +566,7 @@ bootWithCCD {
   }
   environment 'HRS_API_SERVER_PORT', '8081'
   environment 'RSE_LIB_ADDITIONAL_DATABASES', 'emhrs'
-  environment 'CCD_DOCUMENT_URL_PATTERN', 'https?://((dm-store:8081/documents/[A-Za-z0-9-]+(?:/binary)?)|(localhost:8081/hearing-recordings/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/((segments\\/[0-9]+)|(file/\\S+))))'
+  environment 'CCD_DOCUMENT_URL_PATTERN', 'https?://((dm-store:8080/documents/[A-Za-z0-9-]+(?:/binary)?)|(localhost:8081/hearing-recordings/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/((segments\\/[0-9]+)|(file/\\S+))))'
   environment 'DATA_STORE_S2S_AUTHORISED_SERVICES', 'ccd_gw,ccd_data,ccd_ps,aac_manage_case_assignment,ccd_case_document_am_api,am_role_assignment_service,hmc_cft_hearing_service,prl_citizen_frontend,em_gw,em_hrs_api'
   authMode = uk.gov.hmcts.rse.AuthMode.Local
 }
