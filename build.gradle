@@ -557,6 +557,10 @@ bootWithCCD {
       def key = it.substring(0, index)
       def value = it.substring(index + 1)
       environment key, value
+
+      exec {
+        commandLine 'docker', 'compose', '-f', 'src/cftlib/resources/docker-compose-local.yml', 'up', '-d'
+      }
     }
 
   }

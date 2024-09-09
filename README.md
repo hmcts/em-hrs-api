@@ -46,8 +46,6 @@ Requires docker desktop running
 
 #### To run the application:
 
-VPN connection is required
-
 ```
 az login
 ./gradlew bootWithCCD

@@ -82,7 +82,7 @@ public class AzureStorageConfig {
     }
 
     private void createIfNotExists(BlobContainerClient blobContainerClient) {
-        final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
+        final boolean containerExists = Optional.of(blobContainerClient.exists())
             .orElse(false);
 
         if (!containerExists) {
