@@ -46,17 +46,19 @@ Requires docker desktop running
 
 #### To run the application:
 
+At the moment java version must be set to 17 as 21 is not supported for local setup by CFTLib
+
 ```
 az login
 ./gradlew bootWithCCD
 ```
 
-This will start the API container exposing the application's port [8080]
+This will start the API container exposing the application's port, locally configured to [8081]
 
 In order to test if the application is up, you can call its health endpoint:
 
 ```bash
-  curl http://localhost:8080/health
+  curl http://localhost:8081/health
 ```
 
 Contained within the response should be similar to this:

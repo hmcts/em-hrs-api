@@ -557,13 +557,14 @@ bootWithCCD {
       def key = it.substring(0, index)
       def value = it.substring(index + 1)
       environment key, value
+    }
 
-      exec {
-        commandLine 'docker', 'compose', '-f', 'src/cftlib/resources/docker-compose-local.yml', 'up', '-d'
-      }
+    exec {
+      commandLine 'docker', 'compose', '-f', 'src/cftlib/resources/docker-compose-local.yml', '-p', 'cftlib', 'up', '-d'
     }
 
   }
+  environment 'HRS_API_SERVER_PORT', '8081'
   environment 'RSE_LIB_ADDITIONAL_DATABASES', 'emhrs'
   environment 'CCD_DOCUMENT_URL_PATTERN', 'https?://((dm-store:8081/documents/[A-Za-z0-9-]+(?:/binary)?)|(localhost:8081/hearing-recordings/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/((segments\\/[0-9]+)|(file/\\S+))))'
   environment 'DATA_STORE_S2S_AUTHORISED_SERVICES', 'ccd_gw,ccd_data,ccd_ps,aac_manage_case_assignment,ccd_case_document_am_api,am_role_assignment_service,hmc_cft_hearing_service,prl_citizen_frontend,em_gw,em_hrs_api'
