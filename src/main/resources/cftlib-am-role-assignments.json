@@ -1,7 +1,7 @@
 [
   {
     "email": "em-test-searcher@test.hmcts.net",
-    "id": "93b108b7-4b26-41bf-ae8f-6e356efb11b3",
+    "id": "Searcher IDAM ID",
     "roleAssignments": [
       {
         "roleType": "CASE",
