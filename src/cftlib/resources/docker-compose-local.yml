@@ -6,7 +6,7 @@ services:
     image: mcr.microsoft.com/azure-storage/azurite
     ports:
       - 10000:10000
-    command: "azurite-blob --blobHost 0.0.0.0 --loose"
+    command: "azurite-blob --blobHost 0.0.0.0 --loose --skipApiVersionCheck"
     volumes:
       - em-hrs-docker-azure-blob-data:/opt/azurite/folder
 volumes:

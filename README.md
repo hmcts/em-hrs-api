@@ -52,6 +52,9 @@ At the moment java version must be set to 17 as 21 is not supported for local se
 az login
 ./gradlew bootWithCCD
 ```
+NOTE: if you get error in one of the gradle task you can try
+ ./gradlew bootWithCCD --no-daemon
+
 
 This will start the API container exposing the application's port, locally configured to [8081]
 
