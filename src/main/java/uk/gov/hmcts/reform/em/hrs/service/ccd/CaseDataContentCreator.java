@@ -53,7 +53,7 @@ public class CaseDataContentCreator {
             .recordingReference(hearingRecordingDto.getCaseRef());
 
         if (ttl.isPresent()) {
-            builder.timeToLive(createTTLObject(ttl));
+            builder.timeToLive(createTTLObject(ttl.get().toString()));
         }
         CaseHearingRecording caseRecording = builder.build();
         return objectMapper.convertValue(caseRecording, JsonNode.class);
@@ -116,10 +116,8 @@ public class CaseDataContentCreator {
             .map(dateTime -> dateTime.getHour() < 12 ? "AM" : "PM").orElse("");
     }
 
-    private TtlCcdObject createTTLObject(Optional<LocalDate> ttlOpt) {
-        var ttl = ttlOpt.get().toString();
+    private TtlCcdObject createTTLObject(String ttl) {
         return TtlCcdObject.builder().suspended("No").overrideTTL(ttl).systemTTL(ttl).build();
-
     }
 }
 
