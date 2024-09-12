@@ -52,6 +52,9 @@ public class CaseHearingRecording {
     @JsonProperty("recordingFiles")
     private List<Map<String, Object>> recordingFiles;
 
+    @JsonProperty("TTL")
+    private TtlCcdObject timeToLive;
+
     public void addRecordingFile(final CaseRecordingFile recordingFile) {
         recordingFiles.add(Map.of("value", recordingFile));
     }

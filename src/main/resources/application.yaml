@@ -189,4 +189,5 @@ logging:
 
 ttl:
   default-ttl: ${DEFAULT_TTL:P6Y}
+  enabled: ${TTL_ENABLED:false}
 

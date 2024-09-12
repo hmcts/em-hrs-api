@@ -14,7 +14,9 @@ import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.exception.CcdUploadException;
 import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 
+import java.time.LocalDate;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -40,7 +42,11 @@ public class CcdDataStoreApiClient {
         this.coreCaseDataApi = coreCaseDataApi;
     }
 
-    public Long createCase(final UUID recordingId, final HearingRecordingDto hearingRecordingDto) {
+    public Long createCase(
+        final UUID recordingId,
+        final HearingRecordingDto hearingRecordingDto,
+        Optional<LocalDate> ttl
+    ) {
         CaseDataContent caseData = null;
         try {
             LOGGER.info("Starting Case Event");
@@ -51,7 +57,7 @@ public class CcdDataStoreApiClient {
             caseData = CaseDataContent.builder()
                 .event(Event.builder().id(startEventResponse.getEventId()).build())
                 .eventToken(startEventResponse.getToken())
-                .data(caseDataCreator.createCaseStartData(hearingRecordingDto, recordingId))
+                .data(caseDataCreator.createCaseStartData(hearingRecordingDto, recordingId, ttl))
                 .build();
 
             CaseDetails caseDetails = coreCaseDataApi
