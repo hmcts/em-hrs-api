@@ -36,7 +36,7 @@ public class CaseDataContentCreator {
         Optional<LocalDate> ttl
     ) {
 
-        var builder = CaseHearingRecording.builder()
+        CaseHearingRecording caseRecording = CaseHearingRecording.builder()
             .recordingFiles(Collections.singletonList(
                 Map.of("value", createSegment(hearingRecordingDto, recordingId))
             ))
@@ -50,12 +50,10 @@ public class CaseDataContentCreator {
             .serviceCode(hearingRecordingDto.getServiceCode())
             .jurisdictionCode(hearingRecordingDto.getJurisdictionCode())
             .courtLocationCode(hearingRecordingDto.getCourtLocationCode())
-            .recordingReference(hearingRecordingDto.getCaseRef());
+            .recordingReference(hearingRecordingDto.getCaseRef())
+            .timeToLive(createTTLObject(ttl))
+            .build();
 
-        if (ttl.isPresent()) {
-            builder.timeToLive(createTTLObject(ttl.get().toString()));
-        }
-        CaseHearingRecording caseRecording = builder.build();
         return objectMapper.convertValue(caseRecording, JsonNode.class);
     }
 
@@ -116,8 +114,13 @@ public class CaseDataContentCreator {
             .map(dateTime -> dateTime.getHour() < 12 ? "AM" : "PM").orElse("");
     }
 
-    private TtlCcdObject createTTLObject(String ttl) {
+    private TtlCcdObject createTTLObject(Optional<LocalDate> ttlOpt) {
+        String ttl = null;
+        if (ttlOpt.isPresent()) {
+            ttl = ttlOpt.get().toString();
+        }
         return TtlCcdObject.builder().suspended("No").overrideTTL(ttl).systemTTL(ttl).build();
+
     }
 }
 
