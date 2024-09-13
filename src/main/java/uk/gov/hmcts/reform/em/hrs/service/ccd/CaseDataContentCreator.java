@@ -119,7 +119,7 @@ public class CaseDataContentCreator {
             String ttl = ttlOpt.get().toString();
             return TtlCcdObject.builder().suspended("No").overrideTTL(ttl).systemTTL(ttl).build();
         }
-        return TtlCcdObject.builder().suspended(null).overrideTTL(null).systemTTL(null).build();
+        return null;
     }
 }
 
