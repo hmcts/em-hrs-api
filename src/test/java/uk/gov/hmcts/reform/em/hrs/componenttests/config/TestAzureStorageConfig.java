@@ -38,7 +38,7 @@ public class TestAzureStorageConfig {
         .withExposedPorts(MAPPER_PORT)
         .withLogConsumer(new Slf4jLogConsumer(LOGGER))
         .waitingFor(Wait.forListeningPort())
-        .withCommand("azurite-blob --blobHost 0.0.0.0 --blobPort 10000");
+        .withCommand("azurite-blob --blobHost 0.0.0.0 --blobPort 10000 --skipApiVersionCheck");
 
     private String connectionString;
 

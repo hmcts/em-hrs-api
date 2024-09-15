@@ -48,13 +48,7 @@ public class AzureStorageConfig {
             .containerName(hrsCvpContainer)
             .buildClient();
 
-        final boolean containerExists = Optional.ofNullable(blobContainerClient.exists())
-            .orElse(false);
-
-        if (!containerExists) {
-            LOGGER.info("Creating container {} in HRS Storage", hrsCvpContainer);
-            blobContainerClient.create();
-        }
+        createIfNotExists(blobContainerClient);
         return blobContainerClient;
 
     }
@@ -65,19 +59,36 @@ public class AzureStorageConfig {
             .connectionString(hrsConnectionString)
             .containerName(hrsVhContainer)
             .buildClient();
+
+        createIfNotExists(blobContainerClient);
         return blobContainerClient;
     }
 
     @Bean("CvpBlobContainerClient")
     public BlobContainerClient getCvpBlobContainerClient() {
         LOGGER.info("************   CVP   ***********");
-        return createBlobClient(cvpConnectionString, cvpContainer);
+
+        BlobContainerClient blobContainerClient = createBlobClient(cvpConnectionString, cvpContainer);
+        createIfNotExists(blobContainerClient);
+        return blobContainerClient;
     }
 
     @Bean("vhBlobContainerClient")
     public BlobContainerClient getVhBlobContainerClient() {
         LOGGER.info("************   VH   ***********");
-        return createBlobClient(vhConnectionString, vhContainer);
+        BlobContainerClient blobContainerClient = createBlobClient(vhConnectionString, vhContainer);
+        createIfNotExists(blobContainerClient);
+        return blobContainerClient;
+    }
+
+    private void createIfNotExists(BlobContainerClient blobContainerClient) {
+        final boolean containerExists = Optional.of(blobContainerClient.exists())
+            .orElse(false);
+
+        if (!containerExists) {
+            LOGGER.info("Creating container {} in HRS Storage", hrsCvpContainer);
+            blobContainerClient.create();
+        }
     }
 
     private BlobContainerClient createBlobClient(String connectionString, String containerName) {
