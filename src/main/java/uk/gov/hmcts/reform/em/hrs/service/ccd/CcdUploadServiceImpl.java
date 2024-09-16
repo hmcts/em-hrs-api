@@ -172,7 +172,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
             recording.setTtlSet(true);
             var ttl = ttlService.createTtl(recordingDto.getServiceCode(), recordingDto.getJurisdictionCode());
             ttlOpt = Optional.of(ttl);
-            recording.setTtl(ttl.atTime(10,0));
+            recording.setTtl(ttl.atTime(0,0));
         }
 
         final Long caseId = ccdDataStoreApiClient.createCase(recording.getId(), recordingDto, ttlOpt);
