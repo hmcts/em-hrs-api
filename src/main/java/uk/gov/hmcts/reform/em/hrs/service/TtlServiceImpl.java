@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.config.TTLMapperConfig;
@@ -11,6 +13,8 @@ import static uk.gov.hmcts.reform.em.hrs.config.ClockConfig.EUROPE_LONDON_ZONE_I
 
 @Service
 public class TtlServiceImpl implements TtlService {
+
+    private static final Logger LOGGER =  LoggerFactory.getLogger(TtlServiceImpl.class);
 
     private final boolean ttlEnabled;
     private final TTLMapperConfig ttlMapperConfig;
@@ -29,8 +33,14 @@ public class TtlServiceImpl implements TtlService {
 
     public LocalDate createTtl(String serviceCode, String jurisdictionCode) {
         var now = LocalDate.now(EUROPE_LONDON_ZONE_ID);
+
         if (serviceCode != null) {
             Period ttlForService = ttlMapperConfig.getTtlServiceMap().get(serviceCode);
+            LOGGER.info(
+                "ttlForService {} getTtlServiceMap {}",
+                ttlForService.getDays(),
+                ttlMapperConfig.getTtlServiceMap()
+            );
             if (ttlForService != null) {
                 return now.plusDays(ttlForService.getDays());
             }
@@ -38,11 +48,18 @@ public class TtlServiceImpl implements TtlService {
 
         if (jurisdictionCode != null) {
             Period ttlForJurisdiction = ttlMapperConfig.getTtlJurisdictionMap().get(jurisdictionCode);
+            LOGGER.info(
+                "ttlForJurisdiction {} getTtlJurisdictionMap {}",
+                ttlForJurisdiction.getDays(),
+                ttlMapperConfig.getTtlJurisdictionMap()
+            );
+
             if (ttlForJurisdiction != null) {
                 return now.plusDays(ttlForJurisdiction.getDays());
             }
         }
         Period defaultTtl = ttlMapperConfig.getDefaultTTL();
+        LOGGER.info("defaultTtl {}", defaultTtl.getDays());
         return now.plusDays(defaultTtl.getDays());
     }
 
