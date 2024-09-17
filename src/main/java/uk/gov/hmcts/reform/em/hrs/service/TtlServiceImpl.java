@@ -38,7 +38,7 @@ public class TtlServiceImpl implements TtlService {
             Period ttlForService = ttlMapperConfig.getTtlServiceMap().get(serviceCode);
             LOGGER.info(
                 "ttlForService {} getTtlServiceMap {}",
-                ttlForService.getDays(),
+                ttlForService == null ? "null" : ttlForService.getDays(),
                 ttlMapperConfig.getTtlServiceMap()
             );
             if (ttlForService != null) {
@@ -50,7 +50,7 @@ public class TtlServiceImpl implements TtlService {
             Period ttlForJurisdiction = ttlMapperConfig.getTtlJurisdictionMap().get(jurisdictionCode);
             LOGGER.info(
                 "ttlForJurisdiction {} getTtlJurisdictionMap {}",
-                ttlForJurisdiction.getDays(),
+                ttlForJurisdiction == null ? "null" : ttlForJurisdiction.getDays(),
                 ttlMapperConfig.getTtlJurisdictionMap()
             );
 
