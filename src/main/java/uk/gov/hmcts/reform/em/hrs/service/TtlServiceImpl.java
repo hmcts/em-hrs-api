@@ -32,35 +32,25 @@ public class TtlServiceImpl implements TtlService {
     }
 
     public LocalDate createTtl(String serviceCode, String jurisdictionCode) {
-        var now = LocalDate.now(EUROPE_LONDON_ZONE_ID);
-
+        Period ttlPeriod = null;
         if (serviceCode != null) {
-            Period ttlForService = ttlMapperConfig.getTtlServiceMap().get(serviceCode);
-            LOGGER.info(
-                "ttlForService {} getTtlServiceMap {}",
-                ttlForService == null ? "null" : ttlForService.getDays(),
-                ttlMapperConfig.getTtlServiceMap()
-            );
-            if (ttlForService != null) {
-                return now.plusDays(ttlForService.getDays());
-            }
+            ttlPeriod = ttlMapperConfig.getTtlServiceMap().get(serviceCode);
         }
 
-        if (jurisdictionCode != null) {
-            Period ttlForJurisdiction = ttlMapperConfig.getTtlJurisdictionMap().get(jurisdictionCode);
-            LOGGER.info(
-                "ttlForJurisdiction {} getTtlJurisdictionMap {}",
-                ttlForJurisdiction == null ? "null" : ttlForJurisdiction.getDays(),
-                ttlMapperConfig.getTtlJurisdictionMap()
-            );
-
-            if (ttlForJurisdiction != null) {
-                return now.plusDays(ttlForJurisdiction.getDays());
-            }
+        if (ttlPeriod == null && jurisdictionCode != null) {
+            ttlPeriod = ttlMapperConfig.getTtlJurisdictionMap().get(jurisdictionCode);
         }
-        Period defaultTtl = ttlMapperConfig.getDefaultTTL();
-        LOGGER.info("defaultTtl {}", defaultTtl.getDays());
-        return now.plusDays(defaultTtl.getDays());
+
+        if (ttlPeriod == null) {
+            ttlPeriod = ttlMapperConfig.getDefaultTTL();
+        }
+        var ttlDate = calculateTtl(ttlPeriod);
+        LOGGER.info("Found ttl period {}, TtlDate {}", ttlPeriod, ttlDate);
+        return ttlDate;
     }
 
+    private LocalDate calculateTtl(Period ttl) {
+        var now = LocalDate.now(EUROPE_LONDON_ZONE_ID);
+        return now.plusYears(ttl.getYears()).plusMonths(ttl.getMonths()).plusDays(ttl.getDays());
+    }
 }

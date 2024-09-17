@@ -9,7 +9,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,7 +32,7 @@ class TtlServiceImplTest {
         // Then
         LocalDate now = LocalDate.now();
         assertEquals(now.plusDays(10), ttlDate);
-        verify(ttlMapperConfig, times(2)).getTtlServiceMap();
+        verify(ttlMapperConfig).getTtlServiceMap();
     }
 
     @Test
@@ -49,7 +48,7 @@ class TtlServiceImplTest {
         // Then
         LocalDate now = LocalDate.now();
         assertEquals(now.plusDays(15), ttlDate);
-        verify(ttlMapperConfig, times(2)).getTtlJurisdictionMap();
+        verify(ttlMapperConfig).getTtlJurisdictionMap();
     }
 
     @Test
