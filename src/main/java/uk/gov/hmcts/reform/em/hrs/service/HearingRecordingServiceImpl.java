@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
@@ -14,6 +16,7 @@ import java.util.List;
 @Transactional
 public class HearingRecordingServiceImpl implements HearingRecordingService {
 
+    private static final Logger log = LoggerFactory.getLogger(HearingRecordingServiceImpl.class);
     private final HearingRecordingRepository hearingRecordingRepository;
     private final BlobStorageDeleteService blobStorageDeleteService;
 
@@ -25,7 +28,13 @@ public class HearingRecordingServiceImpl implements HearingRecordingService {
 
     @Override
     public void deleteCaseHearingRecordings(Collection<Long> ccdCaseIds) {
-        List<HearingRecording> hearingRecordings = hearingRecordingRepository.deleteByCcdCaseIdIn(ccdCaseIds);
+        List<HearingRecording> hearingRecordings;
+        try {
+            hearingRecordings = hearingRecordingRepository.deleteByCcdCaseIdIn(ccdCaseIds);
+        } catch (Exception e) {
+            log.info("Database deletion failed for cases: {} with error: {}", ccdCaseIds, e.getMessage());
+            return;
+        }
         List<HearingRecordingSegment> segments =
             hearingRecordings.stream().flatMap(hearingRecording -> hearingRecording.getSegments().stream()).toList();
 
