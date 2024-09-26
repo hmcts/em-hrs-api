@@ -32,7 +32,6 @@ public class BlobStorageDeleteService {
         this.vhBlobContainerClient = vhCloudBlobContainerClient;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteBlob(String blobName, HearingSource source) {
         switch (source) {
             case CVP -> deleteBlob(blobName, cvpBlobContainerClient);
