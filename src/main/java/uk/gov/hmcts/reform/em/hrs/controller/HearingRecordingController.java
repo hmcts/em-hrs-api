@@ -29,7 +29,6 @@ import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
-import uk.gov.hmcts.reform.em.hrs.exception.DatabaseDeletionException;
 import uk.gov.hmcts.reform.em.hrs.service.Constants;
 import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
@@ -321,11 +320,7 @@ public class HearingRecordingController {
         if (!deleteCaseEndpointEnabled) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        try {
-            hearingRecordingService.deleteCaseHearingRecordings(ccdCaseIds);
-        } catch (DatabaseDeletionException databaseDeletionException) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        hearingRecordingService.deleteCaseHearingRecordings(ccdCaseIds);
         return ResponseEntity.noContent().build();
     }
 
