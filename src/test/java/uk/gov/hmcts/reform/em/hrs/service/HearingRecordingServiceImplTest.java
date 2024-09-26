@@ -17,7 +17,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,4 +65,13 @@ class HearingRecordingServiceImplTest {
         }
 
     }
+
+    @Test
+    void databaseFailureDoesNotDeleteBlobs() {
+        List<Long> caseIds = List.of(12L,23L);
+        doThrow(RuntimeException.class).when(recordingRepository).deleteByCcdCaseIdIn(caseIds);
+        recordingService.deleteCaseHearingRecordings(caseIds);
+        verify(deleteService, never()).deleteBlob(anyString(), any());
+    }
+
 }
