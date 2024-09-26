@@ -32,7 +32,7 @@ public class HearingRecordingServiceImpl implements HearingRecordingService {
         try {
             hearingRecordings = hearingRecordingRepository.deleteByCcdCaseIdIn(ccdCaseIds);
         } catch (Exception e) {
-            log.info("Database deletion failed for cases: {} with error: {}", ccdCaseIds, e.getMessage());
+            log.info("Database deletion failed for CCD Case IDs: {} with error: {}", ccdCaseIds, e.getMessage());
             return;
         }
         List<HearingRecordingSegment> segments =
