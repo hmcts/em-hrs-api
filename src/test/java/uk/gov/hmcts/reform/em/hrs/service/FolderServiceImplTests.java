@@ -63,7 +63,6 @@ class FolderServiceImplTests {
         + "no files in progress and no files in the blobstore")
     void testShouldReturnEmptyWhenFolderHasNoHearingRecordings() {
         doReturn(Optional.of(EMPTY_FOLDER)).when(folderRepository).findByName(EMPTY_FOLDER.getName());
-        doReturn(Collections.emptySet()).when(blobStorage).findByFolderName(EMPTY_FOLDER.getName());
 
         Set<String> actualFilenames = folderServiceImpl.getStoredFiles(EMPTY_FOLDER.getName());
 
@@ -75,7 +74,6 @@ class FolderServiceImplTests {
         + "no files in progress and no files in the blobstore")
     void testShouldReturnEmptyWhenFolderHasHearingRecordingsWithNoSegments() {
         doReturn(Optional.of(FOLDER)).when(folderRepository).findByName(TEST_FOLDER_1_NAME);
-        doReturn(Collections.emptySet()).when(blobStorage).findByFolderName(FOLDER.getName());
 
         Set<String> actualFilenames = folderServiceImpl.getStoredFiles(TEST_FOLDER_1_NAME);
 
@@ -88,8 +86,6 @@ class FolderServiceImplTests {
         doReturn(Optional.of(FOLDER_WITH_SEGMENTS_1_2_3_AND_NO_JOBS_IN_PROGRESS)).when(folderRepository)
             .findByName(TEST_FOLDER_1_NAME);
 
-        doReturn(Set.of(FILENAME_1, FILENAME_2, FILENAME_3)).when(blobStorage)
-            .findByFolderName(FOLDER.getName());
 
         doReturn(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3.getSegments()).when(segmentRepository)
             .findByHearingRecordingFolderName(TEST_FOLDER_1_NAME);
@@ -106,7 +102,6 @@ class FolderServiceImplTests {
 
         doReturn(Optional.of(FOLDER_WITH_SEGMENTS_1_2_AND_1_JOB_IN_PROGRESS)).when(folderRepository)
             .findByName(TEST_FOLDER_1_NAME);
-        doReturn(Set.of(FILENAME_1, FILENAME_2)).when(blobStorage).findByFolderName(FOLDER.getName());
         doReturn(Set.of(SEGMENT_1, SEGMENT_2, SEGMENT_3)).when(segmentRepository)
             .findByHearingRecordingFolderName(TEST_FOLDER_1_NAME);
 
@@ -120,7 +115,6 @@ class FolderServiceImplTests {
     void testShouldExcludeWhenFileIsInDatabaseButNotInBlobstore() {
         doReturn(Optional.of(FOLDER_WITH_SEGMENTS_1_2_AND_1_JOB_IN_PROGRESS)).when(folderRepository)
             .findByName(TEST_FOLDER_1_NAME);
-        doReturn(Collections.emptySet()).when(blobStorage).findByFolderName(FOLDER.getName());
 
         Set<String> actualFilenames = folderServiceImpl.getStoredFiles(TEST_FOLDER_1_NAME);
 
@@ -137,8 +131,6 @@ class FolderServiceImplTests {
 
         doReturn(Set.of(SEGMENT_1, SEGMENT_2)).when(segmentRepository)
             .findByHearingRecordingFolderName(TEST_FOLDER_1_NAME);
-
-        doReturn(Set.of(FILENAME_3)).when(blobStorage).findByFolderName(TEST_FOLDER_1_NAME);
 
         Set<String> actualFilenames = folderServiceImpl.getStoredFiles(TEST_FOLDER_1_NAME);
 

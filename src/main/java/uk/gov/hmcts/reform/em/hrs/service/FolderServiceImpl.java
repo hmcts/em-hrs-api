@@ -70,10 +70,7 @@ public class FolderServiceImpl implements FolderService {
         FilesInDatabase filesInDatabase = databaseRecords.getT1();
         LOGGER.debug("Files In Database folder={}, {}", folder.getName(), filesInDatabase);
 
-        Set<String> filesInBlobstore = hearingRecordingStorage.findByFolderName(folder.getName());
-        LOGGER.debug("Files In Blob Store for folder={}, {}", folder.getName(), filesInBlobstore);
-
-        Set<String> completedFiles = filesInDatabase.intersect(filesInBlobstore);
+        Set<String> completedFiles = filesInDatabase.fileset;
         LOGGER.debug("Completed Files={}", completedFiles);
 
         Set<String> filesInProgress = databaseRecords.getT2();
