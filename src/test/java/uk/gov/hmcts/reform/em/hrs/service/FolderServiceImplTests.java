@@ -9,7 +9,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.em.hrs.exception.DatabaseStorageException;
 import uk.gov.hmcts.reform.em.hrs.repository.FolderRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
-import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -42,8 +41,6 @@ class FolderServiceImplTests {
     @Mock
     private HearingRecordingSegmentRepository segmentRepository;
 
-    @Mock
-    private HearingRecordingStorage blobStorage;
 
     @InjectMocks
     private FolderServiceImpl folderServiceImpl;
