@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.em.hrs.config.TTLMapperConfig;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Optional;
 
 import static uk.gov.hmcts.reform.em.hrs.config.ClockConfig.EUROPE_LONDON_ZONE_ID;
 
@@ -32,20 +33,13 @@ public class TtlServiceImpl implements TtlService {
     }
 
     public LocalDate createTtl(String serviceCode, String jurisdictionCode) {
-        Period ttlPeriod = null;
-        if (serviceCode != null) {
-            ttlPeriod = ttlMapperConfig.getTtlServiceMap().get(serviceCode);
-        }
-
-        if (ttlPeriod == null && jurisdictionCode != null) {
-            ttlPeriod = ttlMapperConfig.getTtlJurisdictionMap().get(jurisdictionCode);
-        }
-
-        if (ttlPeriod == null) {
-            ttlPeriod = ttlMapperConfig.getDefaultTTL();
-        }
+        var ttlPeriod = Optional.ofNullable(serviceCode)
+            .map(ttlMapperConfig.getTtlServiceMap()::get)
+            .or(() -> Optional.ofNullable(jurisdictionCode)
+                .map(ttlMapperConfig.getTtlJurisdictionMap()::get))
+            .orElseGet(ttlMapperConfig::getDefaultTTL);
         var ttlDate = calculateTtl(ttlPeriod);
-        LOGGER.info("Found ttl period {}, TtlDate {}", ttlPeriod, ttlDate);
+        LOGGER.info("Found TTL period: {}, TTL Date: {}", ttlPeriod, ttlDate);
         return ttlDate;
     }
 

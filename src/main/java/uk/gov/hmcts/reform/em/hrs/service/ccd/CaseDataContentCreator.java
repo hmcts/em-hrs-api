@@ -115,11 +115,14 @@ public class CaseDataContentCreator {
     }
 
     private TtlCcdObject createTTLObject(Optional<LocalDate> ttlOpt) {
-        if (ttlOpt.isPresent()) {
-            String ttl = ttlOpt.get().toString();
-            return TtlCcdObject.builder().suspended("No").overrideTTL(ttl).systemTTL(ttl).build();
-        }
-        return null;
+        return ttlOpt.map(ttl -> {
+            var ttlString = ttl.toString();
+            return TtlCcdObject.builder()
+                .suspended("No")
+                .overrideTTL(ttlString)
+                .systemTTL(ttlString)
+                .build();
+        }).orElse(null);
     }
 }
 
