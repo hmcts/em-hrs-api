@@ -1,7 +1,7 @@
 
 buildscript {
   dependencies {
-    classpath("org.flywaydb:flyway-database-postgresql:10.18.0")
+    classpath("org.flywaydb:flyway-database-postgresql:10.18.2")
   }
 }
 
@@ -10,13 +10,13 @@ plugins {
   id 'checkstyle'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.1.6'
-  id 'org.springframework.boot' version '3.3.3'
+  id 'org.springframework.boot' version '3.3.4'
   id 'com.github.ben-manes.versions' version '0.51.0'
   id 'org.sonarqube' version '5.1.0.4882'
-  id 'org.flywaydb.flyway' version '10.18.0'
+  id 'org.flywaydb.flyway' version '10.18.2'
   id 'au.com.dius.pact' version '4.2.14'
   id "info.solidsoft.pitest" version '1.15.0'
-  id 'com.github.hmcts.rse-cft-lib' version '0.19.1360'
+  id 'com.github.hmcts.rse-cft-lib' version '0.19.1377'
   id 'uk.gov.hmcts.java' version '0.12.63'
   id 'org.owasp.dependencycheck' version '9.2.0'
   id 'net.serenity-bdd.serenity-gradle-plugin' version '3.0.0'
@@ -157,7 +157,7 @@ def coverageExclusionList = [
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '10.18.1'
+  toolVersion = '10.18.2'
   getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
 }
 
@@ -233,7 +233,7 @@ dependencyManagement {
     }
 
     // CVE-2023-35116
-    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.17.2') {
+    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.18.0') {
       entry 'jackson-databind'
       entry 'jackson-annotations'
       entry 'jackson-core'
@@ -259,11 +259,11 @@ def versions = [
   postgresql         : '42.7.4',
   pact_version       : '3.6.15',
   restAssured        : '5.3.0',
-  junit              : '5.11.0',
-  junitPlatform      : '1.11.0',
+  junit              : '5.11.1',
+  junitPlatform      : '1.11.1',
   springSecurity     : '6.3.3',
   shedlock           : '5.16.0',
-  testcontainers     : '1.20.1'
+  testcontainers     : '1.20.2'
 ]
 
 dependencies {
@@ -312,7 +312,7 @@ dependencies {
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
 //azure components
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.27.1'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.28.0'
   implementation group: 'com.azure', name: 'azure-identity', version: '1.13.3'
 
   // Job scheduling
@@ -322,7 +322,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: versions.shedlock
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: versions.shedlock
 
-  implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.11.0'
+  implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.12.0'
 
 
   cftlibImplementation 'org.springframework.boot:spring-boot-devtools'
@@ -332,8 +332,8 @@ dependencies {
  **********************************************************************************************************************/
 
   implementation group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '10.18.0'
-  runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: '10.18.0'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: '10.18.2'
+  runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: '10.18.2'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
   implementation "org.springframework.boot:spring-boot-starter-jdbc"
 
@@ -365,7 +365,7 @@ dependencies {
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
 
-  functionalTestImplementation 'com.github.hmcts:em-test-helper:2.0.8'
+  functionalTestImplementation 'com.github.hmcts:em-test-helper:2.0.9'
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
 
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
@@ -381,13 +381,13 @@ dependencies {
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.2.2'
 
-  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.11.0'
-  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.11.0'
-  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.0'
-  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.0'
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.11.1'
+  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.11.1'
+  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.1'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.1'
 
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.0'
-  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.0'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.1'
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.1'
 
 
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
@@ -401,7 +401,7 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '2.0.8'
+  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '2.0.9'
 
 
 /***********************************************************************************************************************
@@ -425,8 +425,8 @@ dependencies {
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.0.10'
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-gradle', version: '4.0.10'
 
-  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.11.0"
-  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.0"
+  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.11.1"
+  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.1"
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: versions.junitPlatform
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
