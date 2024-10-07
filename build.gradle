@@ -259,8 +259,8 @@ def versions = [
   postgresql         : '42.7.4',
   pact_version       : '3.6.15',
   restAssured        : '5.3.0',
-  junit              : '5.11.1',
-  junitPlatform      : '1.11.1',
+  junit              : '5.11.2',
+  junitPlatform      : '1.11.2',
   springSecurity     : '6.3.3',
   shedlock           : '5.16.0',
   testcontainers     : '1.20.2'
@@ -381,13 +381,13 @@ dependencies {
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.2.2'
 
-  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.11.1'
-  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.11.1'
-  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.1'
-  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.1'
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.11.2'
+  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.11.2'
+  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.2'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.2'
 
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.1'
-  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.1'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.2'
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.2'
 
 
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
@@ -425,8 +425,8 @@ dependencies {
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.0.10'
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-gradle', version: '4.0.10'
 
-  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.11.1"
-  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.1"
+  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.11.2"
+  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.2"
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: versions.junitPlatform
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
