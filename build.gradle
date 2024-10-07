@@ -1,7 +1,7 @@
 
 buildscript {
   dependencies {
-    classpath("org.flywaydb:flyway-database-postgresql:10.18.2")
+    classpath("org.flywaydb:flyway-database-postgresql:10.19.0")
   }
 }
 
@@ -13,10 +13,10 @@ plugins {
   id 'org.springframework.boot' version '3.3.4'
   id 'com.github.ben-manes.versions' version '0.51.0'
   id 'org.sonarqube' version '5.1.0.4882'
-  id 'org.flywaydb.flyway' version '10.18.2'
+  id 'org.flywaydb.flyway' version '10.19.0'
   id 'au.com.dius.pact' version '4.2.14'
   id "info.solidsoft.pitest" version '1.15.0'
-  id 'com.github.hmcts.rse-cft-lib' version '0.19.1377'
+  id 'com.github.hmcts.rse-cft-lib' version '0.19.1389'
   id 'uk.gov.hmcts.java' version '0.12.63'
   id 'org.owasp.dependencycheck' version '9.2.0'
   id 'net.serenity-bdd.serenity-gradle-plugin' version '3.0.0'
@@ -259,8 +259,8 @@ def versions = [
   postgresql         : '42.7.4',
   pact_version       : '3.6.15',
   restAssured        : '5.3.0',
-  junit              : '5.11.1',
-  junitPlatform      : '1.11.1',
+  junit              : '5.11.2',
+  junitPlatform      : '1.11.2',
   springSecurity     : '6.3.3',
   shedlock           : '5.16.0',
   testcontainers     : '1.20.2'
@@ -313,7 +313,7 @@ dependencies {
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.28.0'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.13.3'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.14.0'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.5.0-rc1'
@@ -332,8 +332,8 @@ dependencies {
  **********************************************************************************************************************/
 
   implementation group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '10.18.2'
-  runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: '10.18.2'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: '10.19.0'
+  runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: '10.19.0'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
   implementation "org.springframework.boot:spring-boot-starter-jdbc"
 
@@ -381,13 +381,13 @@ dependencies {
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.2.2'
 
-  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.11.1'
-  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.11.1'
-  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.1'
-  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.1'
+  functionalTestRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.11.2'
+  functionalTestImplementation 'org.junit.vintage:junit-vintage-engine:5.11.2'
+  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.2'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.2'
 
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.1'
-  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.1'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.2'
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.2'
 
 
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
@@ -425,8 +425,8 @@ dependencies {
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.0.10'
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-provider-gradle', version: '4.0.10'
 
-  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.11.1"
-  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.1"
+  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.11.2"
+  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.2"
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: versions.junitPlatform
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
