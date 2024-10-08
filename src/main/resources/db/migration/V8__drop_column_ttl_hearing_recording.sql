@@ -1,2 +1,1 @@
-ALTER TABLE hearing_recording
-DROP COLUMN ttl;
+ALTER TABLE hearing_recording DROP COLUMN ttl;

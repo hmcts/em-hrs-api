@@ -67,7 +67,6 @@ public class HearingRecording {
     private Set<HearingRecordingAuditEntry> auditEntries;
 
 
-    private LocalDateTime ttl;
     private String recordingRef;
     private String caseRef;
     private String hearingLocationCode;
@@ -86,7 +85,6 @@ public class HearingRecording {
                             LocalDateTime modifiedOn, LocalDateTime createdOn,
                             boolean deleted, boolean ttlSet, Folder folder,
                             Set<HearingRecordingAuditEntry> auditEntries,
-                            LocalDateTime ttl,
                             String recordingRef, String caseRef, String hearingLocationCode,
                             String hearingRoomRef, String hearingSource,
                             String jurisdictionCode, String serviceCode, Long ccdCaseId,
@@ -103,7 +101,6 @@ public class HearingRecording {
         setFolder(folder);
 
         setAuditEntries(auditEntries);
-        setTtl(ttl);
 
         setRecordingRef(recordingRef);
         setCaseRef(caseRef);
