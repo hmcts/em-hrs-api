@@ -10,7 +10,6 @@ https://github.com/hrvey/combine-prs-workflow
 To be able to run the application locally, you will need to be able to run the docker images
 for CCD and other services.
 
-
 You will need to be able to run this command:
 
 az login
