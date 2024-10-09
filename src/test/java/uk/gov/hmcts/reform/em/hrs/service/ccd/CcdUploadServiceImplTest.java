@@ -131,7 +131,7 @@ class CcdUploadServiceImplTest {
         assertThat(firstSave.getCcdCaseId()).isNull();
         var secondSave = hearingRecordingList.get(1);
         assertThat(secondSave.isTtlSet()).isTrue();
-        assertThat(secondSave.getTtl()).isEqualTo(ttl.atTime(0,0));
+        assertThat(secondSave.getTtl()).isEqualTo(ttl);
         assertThat(secondSave.getCcdCaseId()).isEqualTo(CCD_CASE_ID);
 
         verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
