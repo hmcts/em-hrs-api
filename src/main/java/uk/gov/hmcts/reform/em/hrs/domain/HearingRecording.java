@@ -21,6 +21,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
@@ -67,7 +68,7 @@ public class HearingRecording {
     private Set<HearingRecordingAuditEntry> auditEntries;
 
 
-    private LocalDateTime ttl;
+    private LocalDate ttl;
     private String recordingRef;
     private String caseRef;
     private String hearingLocationCode;
@@ -89,7 +90,7 @@ public class HearingRecording {
                             LocalDateTime modifiedOn, LocalDateTime createdOn,
                             boolean deleted, boolean ttlSet, Folder folder,
                             Set<HearingRecordingAuditEntry> auditEntries,
-                            LocalDateTime ttl,
+                            LocalDate ttl,
                             String recordingRef, String caseRef, String hearingLocationCode,
                             String hearingRoomRef, String hearingSource,
                             String jurisdictionCode, String serviceCode, Long ccdCaseId,
