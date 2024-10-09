@@ -224,9 +224,6 @@ configurations.all {
   exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
   exclude group: 'com.vaadin.external.google',   module: 'android-json'
 }
-dependencyManagement {
-  dependencies {
-}
 
 repositories {
   mavenLocal()
