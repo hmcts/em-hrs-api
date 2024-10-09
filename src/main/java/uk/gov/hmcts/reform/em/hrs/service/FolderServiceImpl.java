@@ -14,7 +14,6 @@ import uk.gov.hmcts.reform.em.hrs.domain.JobInProgress;
 import uk.gov.hmcts.reform.em.hrs.exception.DatabaseStorageException;
 import uk.gov.hmcts.reform.em.hrs.repository.FolderRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
-import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 import uk.gov.hmcts.reform.em.hrs.util.SetUtils;
 
 import java.util.Collections;
@@ -31,16 +30,14 @@ public class FolderServiceImpl implements FolderService {
     private static final String FOLDER_MISSING_EXCEPTION_MSG =
         "Folders must explicitly exist, based on GET /folders/(foldername) creating them";
     private final FolderRepository folderRepository;
-    private final HearingRecordingStorage hearingRecordingStorage;
     private final HearingRecordingSegmentRepository hearingRecordingSegmentRepository;
 
     @Autowired
-    public FolderServiceImpl(FolderRepository folderRepository,
-                             HearingRecordingStorage hearingRecordingStorage,
-                             HearingRecordingSegmentRepository hearingRecordingSegmentRepository
+    public FolderServiceImpl(
+        FolderRepository folderRepository,
+        HearingRecordingSegmentRepository hearingRecordingSegmentRepository
     ) {
         this.folderRepository = folderRepository;
-        this.hearingRecordingStorage = hearingRecordingStorage;
         this.hearingRecordingSegmentRepository = hearingRecordingSegmentRepository;
     }
 
@@ -70,10 +67,7 @@ public class FolderServiceImpl implements FolderService {
         FilesInDatabase filesInDatabase = databaseRecords.getT1();
         LOGGER.debug("Files In Database folder={}, {}", folder.getName(), filesInDatabase);
 
-        Set<String> filesInBlobstore = hearingRecordingStorage.findByFolderName(folder.getName());
-        LOGGER.debug("Files In Blob Store for folder={}, {}", folder.getName(), filesInBlobstore);
-
-        Set<String> completedFiles = filesInDatabase.intersect(filesInBlobstore);
+        Set<String> completedFiles = filesInDatabase.fileset;
         LOGGER.debug("Completed Files={}", completedFiles);
 
         Set<String> filesInProgress = databaseRecords.getT2();

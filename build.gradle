@@ -16,7 +16,7 @@ plugins {
   id 'org.flywaydb.flyway' version '10.19.0'
   id 'au.com.dius.pact' version '4.2.14'
   id "info.solidsoft.pitest" version '1.15.0'
-  id 'com.github.hmcts.rse-cft-lib' version '0.19.1389'
+  id 'com.github.hmcts.rse-cft-lib' version '0.19.1394'
   id 'uk.gov.hmcts.java' version '0.12.63'
   id 'org.owasp.dependencycheck' version '9.2.0'
   id 'net.serenity-bdd.serenity-gradle-plugin' version '3.0.0'
@@ -224,23 +224,6 @@ configurations.all {
   exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
   exclude group: 'com.vaadin.external.google',   module: 'android-json'
 }
-dependencyManagement {
-  dependencies {
-    // CVE-2023-6378
-    dependencySet(group: 'ch.qos.logback', version: '1.5.8') {
-      entry 'logback-classic'
-      entry 'logback-core'
-    }
-
-    // CVE-2023-35116
-    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.18.0') {
-      entry 'jackson-databind'
-      entry 'jackson-annotations'
-      entry 'jackson-core'
-      entry 'jackson-datatype-jsr310'
-    }
-  }
-}
 
 repositories {
   mavenLocal()
@@ -312,7 +295,7 @@ dependencies {
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
 //azure components
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.28.0'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.28.1'
   implementation group: 'com.azure', name: 'azure-identity', version: '1.14.0'
 
   // Job scheduling
