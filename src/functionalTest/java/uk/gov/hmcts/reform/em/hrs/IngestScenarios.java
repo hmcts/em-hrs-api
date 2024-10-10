@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
-import uk.gov.hmcts.reform.em.hrs.model.TtlCcdObject;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 import uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper;
 
@@ -245,11 +244,12 @@ public class IngestScenarios extends BaseTest {
         assertThat(hearingSource).isEqualTo("VH".equalsIgnoreCase(folder) ? "VH" : "CVP");
         LOGGER.info("num recordings: " + recordingFiles.size());
 
-        TtlCcdObject ttlObject = (TtlCcdObject)data.get("TTL");
-        assertThat(ttlObject.getSystemTTL()).isEqualTo(ttlObject.getOverrideTTL());
-        assertThat(ttlObject.getSuspended()).isEqualTo("No");
-        assertThat(LocalDate.parse(ttlObject.getSystemTTL())).isGreaterThan(LocalDate.now().plusYears(6).minusDays(2));
-        assertThat(LocalDate.parse(ttlObject.getSystemTTL())).isLessThan(LocalDate.now().plusYears(6).plusDays(2));
+        Map ttlObject = (Map)data.get("TTL");
+        assertThat(ttlObject.get("SystemTTL")).isEqualTo(ttlObject.get("OverrideTTL"));
+        assertThat(ttlObject.get("Suspended")).isEqualTo("No");
+        String ttl = (String)ttlObject.get("SystemTTL");
+        assertThat(LocalDate.parse(ttl)).isGreaterThan(LocalDate.now().plusYears(6).minusDays(2));
+        assertThat(LocalDate.parse(ttl)).isLessThan(LocalDate.now().plusYears(6).plusDays(2));
     }
 
 }
