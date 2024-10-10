@@ -24,6 +24,8 @@ public class CaseDataContentCreator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CaseDataContentCreator.class);
 
+    private static final String TTL_SUSPENDED = "No";
+
     private final ObjectMapper objectMapper;
 
     public CaseDataContentCreator(ObjectMapper objectMapper) {
@@ -118,7 +120,7 @@ public class CaseDataContentCreator {
         return ttlOpt.map(ttl -> {
             var ttlString = ttl.toString();
             return TtlCcdObject.builder()
-                .suspended("No")
+                .suspended(TTL_SUSPENDED)
                 .overrideTTL(ttlString)
                 .systemTTL(ttlString)
                 .build();
