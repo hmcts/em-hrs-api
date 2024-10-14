@@ -22,14 +22,6 @@ management:
 spring:
   application:
     name: Hearing Recordings Service
-  batch:
-    jurisdictionCodes:
-      cronJobSchedule: ${JURISDICTION_CODES_UPDATE_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
-      pageSize: ${JURISDICTION_CODES_UPDATE_PAGE_SIZE:50}
-      chunkSize: ${JURISDICTION_CODES_UPDATE_CHUNK_SIZE:50}
-      maxItemCount: ${JURISDICTION_CODES_UPDATE_MAX_ITEM_COUNT:50}
-      enabled: ${JURISDICTION_CODES_UPDATE_ENABLED:true}
-    initialize-schema: never
   config:
     import: "optional:configtree:/mnt/secrets/em-hrs-api/,optional:configtree:/mnt/secrets/rpa/"
   jpa:
@@ -120,18 +112,15 @@ azure:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:dummy}
   storage:
     hrs:
-      connection-string: ${STORAGEACCOUNT_PRIMARY_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
+      connection-string: ${STORAGEACCOUNT_PRIMARY_CONNECTION_STRING:UseDevelopmentStorage=true}
       cvp-dest-blob-container-name: ${HRS_CVP_DEST_CONTAINER_NAME:emhrstestcontainer}
       vh-dest-blob-container-name: ${HRS_VH_DEST_CONTAINER_NAME:emhrsvhtestcontainer}
     cvp:
-      connection-string: ${CVP_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
+      connection-string: ${CVP_STORAGE_CONNECTION_STRING:UseDevelopmentStorage=true}
       blob-container-reference: ${CVP_STORAGE_CONTAINER_NAME:cvptestcontainer}
     vh:
-      connection-string: ${VH_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
+      connection-string: ${VH_STORAGE_CONNECTION_STRING:UseDevelopmentStorage=true}
       blob-container-name: ${VH_STORAGE_CONTAINER_NAME:vhtestcontainer}
-    jurisdiction-codes:
-      connection-string: ${VH_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
-      blob-container-name: ${VH_STORAGE_CONTAINER_NAME:jurisdictioncodescontainer}
     use-ad-auth: ${USE_AD_AUTH_FOR_SOURCE_BLOB_CONNECTION:false}
 
 vh:

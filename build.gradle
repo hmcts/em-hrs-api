@@ -152,8 +152,7 @@ def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/storage/HearingRecordingStorageImpl.java',
   '**uk/gov/hmcts/reform/em/hrs/util/debug/HttpHeadersLogging.java',
   '**uk/gov/hmcts/reform/em/hrs/data/migration/PendingMigrationScriptException*',
-  '**uk/gov/hmcts/reform/em/hrs/data/migration/FlywayNoOpStrategy*',
-  '**uk/gov/hmcts/reform/em/hrs/batch/**'
+  '**uk/gov/hmcts/reform/em/hrs/data/migration/FlywayNoOpStrategy*'
 ]
 
 checkstyle {
@@ -278,7 +277,6 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-json"
   implementation "org.springframework.boot:spring-boot-starter-validation"
   implementation "org.springframework.boot:spring-boot-starter-web"
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-batch'
 
 //hmcts autho
   implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '3.0.3'
@@ -308,7 +306,6 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: versions.shedlock
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.12.0'
-  implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '5.3.0'
 
 
   cftlibImplementation 'org.springframework.boot:spring-boot-devtools'
