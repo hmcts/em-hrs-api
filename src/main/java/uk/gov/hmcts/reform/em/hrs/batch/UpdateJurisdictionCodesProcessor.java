@@ -26,11 +26,6 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * This tasklet periodically checks for CSV files in the hmctsmetadata blob container. If it finds one it will download
- * it and then update all the documents with the metadata in the file. After the update has been completed the file
- * is removed from the blob container.
- */
 @Component
 @ConditionalOnProperty("spring.batch.jurisdictionCodes.enabled")
 public class UpdateJurisdictionCodesProcessor implements ItemProcessor<HearingRecordingSegment, HearingRecording> {
@@ -82,6 +77,7 @@ public class UpdateJurisdictionCodesProcessor implements ItemProcessor<HearingRe
                 }
             }
         }
+        log.info("Unable to load jurisdiction or service code for filename: {}", hearingRecordingSegment.getFilename());
         return hearingRecording;
     }
 
