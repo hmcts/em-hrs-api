@@ -83,7 +83,6 @@ public class CcdDataStoreApiClient {
                     "Create New Case"
                 );
             }
-            LOGGER.error("Error Creating Case", e);
             throw new CcdUploadException("Error Creating Case", e);
         }
     }
