@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs;
 
 import jakarta.annotation.PostConstruct;
+import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -236,12 +237,19 @@ public class IngestScenarios extends BaseTest {
 
 
         Map<String, Object> data = caseDetails.getData();
-        LOGGER.info("data size: " + data.size()); //TODO when posting multisegment - this needs to match
+        LOGGER.info("data size: " + data.size());
         List recordingFiles = (ArrayList) data.get("recordingFiles");
         assertThat(recordingFiles.size()).isEqualTo(segmentCount);
         String hearingSource = (String)data.get("hearingSource");
         assertThat(hearingSource).isEqualTo("VH".equalsIgnoreCase(folder) ? "VH" : "CVP");
         LOGGER.info("num recordings: " + recordingFiles.size());
+
+        Map ttlObject = (Map)data.get("TTL");
+        assertThat(ttlObject.get("SystemTTL")).isEqualTo(ttlObject.get("OverrideTTL"));
+        assertThat(ttlObject.get("Suspended")).isEqualTo("No");
+        String ttl = (String)ttlObject.get("SystemTTL");
+        assertThat(LocalDate.parse(ttl)).isGreaterThan(LocalDate.now().plusYears(6).minusDays(2));
+        assertThat(LocalDate.parse(ttl)).isLessThan(LocalDate.now().plusYears(6).plusDays(2));
     }
 
 }
