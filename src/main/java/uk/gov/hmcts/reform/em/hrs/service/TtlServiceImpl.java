@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.config.TTLMapperConfig;
@@ -14,8 +12,6 @@ import static uk.gov.hmcts.reform.em.hrs.config.ClockConfig.EUROPE_LONDON_ZONE_I
 
 @Service
 public class TtlServiceImpl implements TtlService {
-
-    private static final Logger LOGGER =  LoggerFactory.getLogger(TtlServiceImpl.class);
 
     private final boolean ttlEnabled;
     private final TTLMapperConfig ttlMapperConfig;
