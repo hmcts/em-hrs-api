@@ -98,6 +98,12 @@ resource "azurerm_storage_container" "vh_container" {
   container_access_type = "private"
 }
 
+resource "azurerm_storage_container" "jurisdiction_codes" {
+  name                  = "jurisdictioncodes"
+  storage_account_name  = module.storage_account.storageaccount_name
+  container_access_type = "private"
+}
+
 // test container for CVP
 resource "azurerm_storage_container" "cvpsimulator" {
   count                 = var.env != "prod" ? 1 : 0
