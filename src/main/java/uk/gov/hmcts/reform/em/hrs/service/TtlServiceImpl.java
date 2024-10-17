@@ -39,7 +39,6 @@ public class TtlServiceImpl implements TtlService {
                 .map(ttlMapperConfig.getTtlJurisdictionMap()::get))
             .orElseGet(ttlMapperConfig::getDefaultTTL);
         var ttlDate = calculateTtl(ttlPeriod);
-        LOGGER.info("Found TTL period: {}, TTL Date: {}", ttlPeriod, ttlDate);
         return ttlDate;
     }
 
