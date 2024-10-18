@@ -15,6 +15,7 @@ import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestApplicationConfig;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestAzureStorageConfig;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestSecurityConfiguration;
+import uk.gov.hmcts.reform.em.hrs.config.WebConfig;
 import uk.gov.hmcts.reform.em.hrs.config.security.JwtGrantedAuthoritiesConverter;
 
 @SpringBootTest(classes = {TestApplicationConfig.class, TestSecurityConfiguration.class, TestAzureStorageConfig.class})
@@ -34,6 +35,9 @@ public abstract class AbstractBaseTest extends AbstractDataSourceTest {
 
     @Mock
     protected SecurityContext securityContext;
+
+    @MockBean
+    private WebConfig webConfig;
 
     @BeforeEach
     public void setupMocks() {
