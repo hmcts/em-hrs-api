@@ -46,7 +46,6 @@ public class SecurityConfiguration {
         return (web) -> web.ignoring().requestMatchers(
             "/swagger-ui/**",
             "/swagger-resources/**",
-            "swagger-ui/index.html",
             "/swagger-ui.html",
             "/webjars/springfox-swagger-ui/**",
             "/swagger-resources/**",
