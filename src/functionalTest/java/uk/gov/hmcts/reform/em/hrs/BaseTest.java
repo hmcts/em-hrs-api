@@ -95,7 +95,7 @@ public abstract class BaseTest {
     protected static final String EMAIL_ADDRESS_INVALID_FORMAT = "invalid@emailaddress";
 
     protected static final String FOLDER =
-        "audiostream" + LocalDate.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"));
+        "audiostream1" + LocalDate.now().format(DateTimeFormatter.ofPattern("YYMMdd"));
     protected static final String TIME = "2020-11-04-14.56.32.819";
     public static final String CASEREF_PREFIX = "FUNCTEST_";
 
