@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs;
 
 import jakarta.annotation.PostConstruct;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 
-@Ignore
 public class DownloadNonSharedScenarios extends BaseTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadNonSharedScenarios.class);
