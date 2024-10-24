@@ -54,6 +54,7 @@ public class BlobUtil {
         int filesToCheckCount = fileNames.size();
         while (retryCount <= 30 && filesFound < filesToCheckCount) {
             sleepForSeconds(FIND_BLOB_TIMEOUT);
+            LOGGER.info("fileNames {}", fileNames);
             filesFound = getBlobCount(containerClient, fileNames);
             LOGGER.info("checked for upload of {} files...{} found", filesToCheckCount, filesFound);
             retryCount++;

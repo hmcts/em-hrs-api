@@ -163,7 +163,7 @@ public class ExtendedCcdHelper {
                     + "/cases/{caseId}"
                     + "/event-triggers/{eventId}/token"
             )
-            .then().log().all()
+            .then()
             .assertThat()
             .statusCode(SC_OK)
             .extract()
@@ -180,7 +180,7 @@ public class ExtendedCcdHelper {
         CaseDataContent caseDataContent
     ) {
         return getRequestSpecification(idamToken, s2sToken)
-            .header(CONTENT_TYPE, APPLICATION_JSON.getMimeType()).log().all()
+            .header(CONTENT_TYPE, APPLICATION_JSON.getMimeType())
             .pathParam("userId", userId)
             .pathParam("jurisdictionId", jurisdictionId)
             .pathParam("caseType", caseType)
@@ -193,7 +193,7 @@ public class ExtendedCcdHelper {
                     + "/cases/{caseId}"
                     + "/events?ignoreWarning=true"
             )
-            .then().log().all()
+            .then()
             .assertThat()
             .statusCode(SC_CREATED)
             .extract()
@@ -209,7 +209,7 @@ public class ExtendedCcdHelper {
             s2sToken = BEARER_TOKEN_PREFIX + s2sToken;
         }
         return RestAssured
-            .given().log().all()
+            .given()
             .relaxedHTTPSValidation()
             .baseUri(ccdApiUrl)
             .header("experimental", true)

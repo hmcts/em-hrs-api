@@ -106,7 +106,7 @@ public class IngestScenarios extends BaseTest {
             0,
             hearingRef,
             filename
-        ).then().log().all().statusCode(202);
+        ).then().statusCode(202);
 
         LOGGER.info("*********** CHECKING HRS HAS COPIED TO STORE VH container *********");
         testUtil.checkIfUploadedToStore(filenames, testUtil.hrsVhBlobContainerClient);
@@ -188,7 +188,6 @@ public class IngestScenarios extends BaseTest {
         //Wait until the ingestion has triggered the copy
         postRecordingSegment(caseRef, 0)
             .then()
-            .log().all()
             .statusCode(202);
 
         SleepHelper.sleepForSeconds(10);
@@ -219,7 +218,7 @@ public class IngestScenarios extends BaseTest {
         LOGGER.info("************* CHECKING HRS HAS IT IN DATABASE AND RETURNS EXPECTED FILES VIA API**********");
         if (!"VH".equalsIgnoreCase(folder)) {
             getFilenamesCompletedOrInProgress(folder)
-                .assertThat().log().all()
+                .assertThat()
                 .statusCode(200)
                 .body("folder-name", equalTo(folder))
                 .body("filenames", hasItems(filenames.toArray()));

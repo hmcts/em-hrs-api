@@ -89,7 +89,7 @@ public class IdamApiPactConsumerTest {
                 .formParam("scope", "openid profile roles")
                 .post(mockServer.getUrl() + IDAM_OPENID_TOKEN_URL)
                 .then()
-                .log().all().extract().asString();
+                .extract().asString();
 
         JSONObject response = new JSONObject(actualResponseBody);
 

@@ -54,8 +54,9 @@ public class ShareScenarios extends BaseTest {
         LOGGER.info("SET UP: UPLOADING TO CVP");
         blobUtil.uploadFileFromPathToCvpContainer(filename,"data/test_data.mp4");
         blobUtil.checkIfUploadedToStore(filenames, blobUtil.cvpBlobContainerClient);
+        LOGGER.info("DONE SET UP: UPLOADING TO CVP filenames {}:", filenames);
 
-        LOGGER.info("SET UP: POSTING TO HRS");
+        LOGGER.info("SET UP: POSTING TO HRS-----");
         postRecordingSegment(caseRef, 0).then().statusCode(202);
         blobUtil.checkIfUploadedToStore(filenames, blobUtil.hrsCvpBlobContainerClient);
 
