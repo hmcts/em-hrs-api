@@ -81,7 +81,6 @@ public class ShareScenarios extends BaseTest {
         );
         shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
             .then()
-            .log().all()
             .assertThat()
             .statusCode(200);
 
@@ -113,7 +112,7 @@ public class ShareScenarios extends BaseTest {
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .body(reqBody)
-            .when().log().all()
+            .when()
             .post("/sharees")
             .then()
             .statusCode(401);
@@ -125,7 +124,6 @@ public class ShareScenarios extends BaseTest {
             addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY);
         shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
             .then()
-            .log().all()
             .assertThat()
             .statusCode(200);
 
@@ -150,7 +148,6 @@ public class ShareScenarios extends BaseTest {
             addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_NONACCESS_ROLE__CITIZEN);
         shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
             .then()
-            .log().all()
             .statusCode(200);
 
         final byte[] downloadedFileBytes =
@@ -170,7 +167,7 @@ public class ShareScenarios extends BaseTest {
             addEmailRecipientToCaseDetailsCallBack(caseDetails, EMAIL_ADDRESS_INVALID_FORMAT);
 
         shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
-            .then().log().all()
+            .then()
             .statusCode(400);
     }
 
@@ -186,7 +183,7 @@ public class ShareScenarios extends BaseTest {
             USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS
         );
         shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
-            .then().log().all()
+            .then()
             .statusCode(404);
 
         caseDetails.setId(null);
@@ -196,7 +193,7 @@ public class ShareScenarios extends BaseTest {
     public void shouldReturn204WhenDeletingCaseHearingRecording() {
         Assume.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordings(List.of(ccdCaseId))
-            .then().log().all()
+            .then()
             .statusCode(204);
     }
 
@@ -204,7 +201,7 @@ public class ShareScenarios extends BaseTest {
     public void shouldReturn401WhenDeletingWithS2sInvalid() {
         Assume.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordingsWithInvalidS2S(List.of(ccdCaseId))
-            .then().log().all()
+            .then()
             .statusCode(401);
     }
 
@@ -212,7 +209,7 @@ public class ShareScenarios extends BaseTest {
     public void shouldReturn403WhenDeletingWithUnauthorisedService() {
         Assume.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordingsWithUnauthorisedS2S(List.of(ccdCaseId))
-            .then().log().all()
+            .then()
             .statusCode(403);
     }
 

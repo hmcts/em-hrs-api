@@ -85,7 +85,6 @@ public class ShareScenariosVh extends BaseTest {
         );
         shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
             .then()
-            .log().all()
             .assertThat()
             .statusCode(200);
 
@@ -106,7 +105,6 @@ public class ShareScenariosVh extends BaseTest {
             addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY);
         shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
             .then()
-            .log().all()
             .assertThat()
             .statusCode(200);
 
@@ -127,7 +125,6 @@ public class ShareScenariosVh extends BaseTest {
             addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_NONACCESS_ROLE__CITIZEN);
         shareRecording(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, callbackRequest)
             .then()
-            .log().all()
             .statusCode(200);
 
         final byte[] downloadedFileBytes =

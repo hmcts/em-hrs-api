@@ -322,7 +322,7 @@ public abstract class BaseTest {
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
-            .when().log().all()
+            .when()
             .get(recordingUrl);
     }
 
@@ -341,7 +341,7 @@ public abstract class BaseTest {
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
-            .when().log().all()
+            .when()
             .get(recordingUrl + "/sharee");
     }
 
@@ -423,7 +423,6 @@ public abstract class BaseTest {
 
     protected void createFolderIfDoesNotExistInHrsDB(final String folderName) {
         getFilenamesCompletedOrInProgress(folderName)
-            .log().all()
             .assertThat()
             .statusCode(200);
     }

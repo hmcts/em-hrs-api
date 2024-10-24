@@ -72,7 +72,6 @@ public class IngestScenarios extends BaseTest {
         for (int segmentIndex = 0; segmentIndex < SEGMENT_COUNT; segmentIndex++) {
             postRecordingSegment(caseRef, segmentIndex)
                 .then()
-                .log().all()
                 .statusCode(202);
         }
 

@@ -2,12 +2,10 @@ package uk.gov.hmcts.reform.em.hrs;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import net.serenitybdd.rest.SerenityRest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@Ignore
 public class SecurityScenarios extends BaseTest {
 
     @Test
@@ -19,8 +17,6 @@ public class SecurityScenarios extends BaseTest {
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .when()
-            .log()
-            .all()
             .get("/folders/NON_EXISTING_FOLDER")
             .then()
             .statusCode(401);
@@ -37,8 +33,6 @@ public class SecurityScenarios extends BaseTest {
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .when()
-            .log()
-            .all()
             .get("/folders/NON_EXISTING_FOLDER")
             .then()
             .statusCode(401);
@@ -50,8 +44,6 @@ public class SecurityScenarios extends BaseTest {
 
         this.authRequestForHrsIngestor()
             .when()
-            .log()
-            .all()
             .get("/folders/NON_EXISTING_FOLDER")
             .then()
             .statusCode(200);
@@ -71,12 +63,8 @@ public class SecurityScenarios extends BaseTest {
             .contentType(APPLICATION_JSON_VALUE)
             .body(segmentPayload)
             .when()
-            .log()
-            .all()
             .post("/segments")
             .then()
-            .log()
-            .all()
             .statusCode(401);
     }
 }

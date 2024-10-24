@@ -16,7 +16,7 @@ public class FolderScenarios extends BaseTest {
         final String nonExistentFolder = "audiostream000000";
 
         getFilenamesCompletedOrInProgress(nonExistentFolder)
-            .assertThat().log().all()
+            .assertThat()
             .statusCode(200)
             .body("folder-name", equalTo(nonExistentFolder))
             .body("filenames", empty());
