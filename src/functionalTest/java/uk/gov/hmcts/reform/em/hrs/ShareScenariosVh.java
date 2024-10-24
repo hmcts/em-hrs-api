@@ -19,7 +19,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 
-@Ignore
 public class ShareScenariosVh extends BaseTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShareScenariosVh.class);
 
@@ -78,6 +77,7 @@ public class ShareScenariosVh extends BaseTest {
     }
 
     @Test
+    @Ignore
     public void shareeWithCaseworkerHrsSearcherRoleShouldBeAbleToDownloadRecordings() {
         final CallbackRequest callbackRequest = addEmailRecipientToCaseDetailsCallBack(
             caseDetails,
@@ -100,6 +100,7 @@ public class ShareScenariosVh extends BaseTest {
     }
 
     @Test
+    @Ignore
     public void shareeWithOnlyCaseworkerRoleShouldBeAbleToDownloadRecordings() {
         final CallbackRequest callbackRequest =
             addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY);
