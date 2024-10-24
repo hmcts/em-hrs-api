@@ -24,7 +24,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 
-@Ignore
 public class IngestScenarios extends BaseTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestScenarios.class);

@@ -236,7 +236,7 @@ public abstract class BaseTest {
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
-            .when().log().all()
+            .when()
             .get("/folders/" + folder)
             .then();
     }
@@ -252,7 +252,7 @@ public abstract class BaseTest {
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .body(segmentPayload)
-            .when().log().all()
+            .when()
             .post("/segments");
     }
 
@@ -267,8 +267,8 @@ public abstract class BaseTest {
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
+            .when()
             .body(reqBody)
-            .when().log().all()
             .post("/sharees");
     }
 
@@ -279,7 +279,7 @@ public abstract class BaseTest {
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .body(reqBody)
-            .when().log().all()
+            .when()
             .delete("/delete");
     }
 
@@ -291,7 +291,7 @@ public abstract class BaseTest {
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .body(reqBody)
-            .when().log().all()
+            .when()
             .delete("/delete");
     }
 
@@ -303,7 +303,7 @@ public abstract class BaseTest {
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .body(reqBody)
-            .when().log().all()
+            .when()
             .delete("/delete");
     }
 
