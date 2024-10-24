@@ -16,12 +16,14 @@ import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,7 +36,6 @@ class CaseDataContentCreatorTest {
     private static ObjectMapper objectMapper;
     HearingRecordingDto hearingRecordingDto;
     CaseDataContentCreator underTest;
-
     private String fileName = "audiostream123/recording-file-1";
 
     @BeforeEach
@@ -79,7 +80,7 @@ class CaseDataContentCreatorTest {
     @Test
     void createCaseStartData() {
 
-        JsonNode actual = underTest.createCaseStartData(hearingRecordingDto, RECORDING_ID);
+        JsonNode actual = underTest.createCaseStartData(hearingRecordingDto, RECORDING_ID, Optional.empty());
 
         assertEquals("FM", actual.get("jurisdictionCode").asText());
         assertEquals(RECORDING_REF, actual.get("recordingReference").asText());
@@ -92,6 +93,30 @@ class CaseDataContentCreatorTest {
                 fileName
             ),
             actual.at("/recordingFiles/0/value/documentLink/document_url").asText()
+        );
+    }
+
+    @Test
+    void createCaseStartDataWithTtl() {
+
+        var ttl = LocalDate.now();
+        JsonNode actual = underTest.createCaseStartData(hearingRecordingDto, RECORDING_ID, Optional.of(ttl));
+
+        assertEquals("FM", actual.get("jurisdictionCode").asText());
+        assertEquals(RECORDING_REF, actual.get("recordingReference").asText());
+        assertEquals("1962-07-05", actual.get("recordingDate").asText());
+        assertEquals("AM", actual.get("recordingTimeOfDay").asText());
+        assertEquals(
+            String.format(
+                "http://xui.com/hearing-recordings/%s/file/%s",
+                RECORDING_ID,
+                fileName
+            ),
+            actual.at("/recordingFiles/0/value/documentLink/document_url").asText()
+        );
+        assertEquals(
+            "{\"Suspended\":\"No\",\"SystemTTL\":\"" + ttl + "\",\"OverrideTTL\":\"" + ttl + "\"}",
+            actual.get("TTL").toString()
         );
     }
 
