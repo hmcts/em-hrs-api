@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.em.hrs;
 
 import jakarta.annotation.PostConstruct;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +123,6 @@ public class IngestScenarios extends BaseTest {
     }
 
     @Test
-    @Ignore
     public void shouldCreateHearingRecordingMultipleSegmentsForVh() throws Exception {
         String caseRef = timeVhBasedCaseRef();
         Set<String> filenames;
@@ -240,6 +238,7 @@ public class IngestScenarios extends BaseTest {
         Map<String, Object> data = caseDetails.getData();
         LOGGER.info("data size: " + data.size()); //TODO when posting multisegment - this needs to match
         List recordingFiles = (ArrayList) data.get("recordingFiles");
+        LOGGER.info("recordingFiles size:{}, list: {}", recordingFiles.size(), recordingFiles);
         assertThat(recordingFiles.size()).isEqualTo(segmentCount);
         String hearingSource = (String)data.get("hearingSource");
         assertThat(hearingSource).isEqualTo("VH".equalsIgnoreCase(folder) ? "VH" : "CVP");
