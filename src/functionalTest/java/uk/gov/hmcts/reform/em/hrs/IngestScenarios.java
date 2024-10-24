@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.em.hrs;
 
 import jakarta.annotation.PostConstruct;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
