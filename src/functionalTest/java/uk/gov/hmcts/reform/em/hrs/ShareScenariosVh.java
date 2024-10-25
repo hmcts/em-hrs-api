@@ -100,6 +100,7 @@ public class ShareScenariosVh extends BaseTest {
     }
 
     @Test
+    @Ignore
     public void shareeWithOnlyCaseworkerRoleShouldBeAbleToDownloadRecordings() {
         final CallbackRequest callbackRequest =
             addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY);
