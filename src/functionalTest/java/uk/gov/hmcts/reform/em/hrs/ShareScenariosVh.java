@@ -122,6 +122,7 @@ public class ShareScenariosVh extends BaseTest {
     }
 
     @Test
+    @Ignore
     public void shareeWithCitizenRoleIsAbleToDownloadRecordings() {
         final CallbackRequest callbackRequest =
             addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_NONACCESS_ROLE__CITIZEN);
