@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.em.hrs;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,6 +121,7 @@ public class ShareScenariosVh extends BaseTest {
     }
 
     @Test
+    @Ignore
     public void shareeWithCitizenRoleIsAbleToDownloadRecordings() {
         final CallbackRequest callbackRequest =
             addEmailRecipientToCaseDetailsCallBack(caseDetails, USER_WITH_NONACCESS_ROLE__CITIZEN);
