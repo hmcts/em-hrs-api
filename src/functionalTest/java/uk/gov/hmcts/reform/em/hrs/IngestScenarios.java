@@ -82,7 +82,7 @@ public class IngestScenarios extends BaseTest {
         long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsCvpBlobContainerClient);
         Assert.assertEquals(hrsFileSize, cvpFileSize);
 
-        uploadToCcd(filenames, caseRef, FOLDER, SEGMENT_COUNT);
+        assertHearingCcdUpload(filenames, caseRef, FOLDER, SEGMENT_COUNT);
 
         LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
         SleepHelper.sleepForSeconds(20);
@@ -115,7 +115,7 @@ public class IngestScenarios extends BaseTest {
         long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsVhBlobContainerClient);
         Assert.assertEquals(hrsFileSize, vhFileSize);
 
-        uploadToCcd(filenames, caseRef, "VH", 1);
+        assertHearingCcdUpload(filenames, caseRef, "VH", 1);
 
         LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
         SleepHelper.sleepForSeconds(20);
@@ -130,17 +130,13 @@ public class IngestScenarios extends BaseTest {
         UUID hearingRef = UUID.randomUUID();
         int segmentCount = 2;
         for (int segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
+            if (segmentIndex == 1) {
+                SleepHelper.sleepForSeconds(20);
+            }
             String filename = vhFileName(caseRef, segmentIndex, INTERPRETER, hearingRef);
             filenameList.add(filename);
             testUtil.uploadFileFromPathToVhContainer(filename,"data/test_data.mp4");
-        }
-        filenames = filenameList.stream().collect(Collectors.toSet());
-
-        LOGGER.info("************* CHECKING VH HAS UPLOADED **********");
-        testUtil.checkIfUploadedToStore(filenames, testUtil.vhBlobContainerClient);
-        LOGGER.info("************* Files loaded to vh storage **********");
-
-        for (int segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
+            // start ingestion
             postVhRecordingSegment(
                 caseRef,
                 segmentIndex,
@@ -148,19 +144,17 @@ public class IngestScenarios extends BaseTest {
                 filenameList.get(segmentIndex)
             ).then().log().all().statusCode(202);
         }
+        filenames = filenameList.stream().collect(Collectors.toSet());
+
+        LOGGER.info("************* CHECKING VH HAS UPLOADED **********");
+        testUtil.checkIfUploadedToStore(filenames, testUtil.vhBlobContainerClient);
+        LOGGER.info("************* Files loaded to vh storage **********");
 
         LOGGER.info("*********** CHECKING HRS HAS COPIED TO STORE VH container *********");
         testUtil.checkIfUploadedToStore(filenames, testUtil.hrsVhBlobContainerClient);
+        LOGGER.info("************* Files loaded to HRS storage **********");
 
-        long vhFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.vhBlobContainerClient);
-        long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsVhBlobContainerClient);
-        Assert.assertEquals(hrsFileSize, vhFileSize);
-
-        uploadToCcd(filenames, caseRef, "VH", segmentCount);
-
-        LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
-        SleepHelper.sleepForSeconds(20);
-
+        assertHearingCcdUpload(filenames, caseRef, "VH", segmentCount);
     }
 
     @Test
@@ -200,11 +194,11 @@ public class IngestScenarios extends BaseTest {
         long hrsFileSize = testUtil.getFileSizeFromStore(filename, testUtil.hrsCvpBlobContainerClient);
         Assert.assertEquals(hrsFileSize, cvpFileSize);
 
-        uploadToCcd(filenames, caseRef, FOLDER, 1);
+        assertHearingCcdUpload(filenames, caseRef, FOLDER, 1);
 
     }
 
-    private void uploadToCcd(Set<String> filenames, String caseRef, String folder, int segmentCount) {
+    private void assertHearingCcdUpload(Set<String> filenames, String caseRef, String folder, int segmentCount) {
         //IN AAT hrs is running on 8 / minute uploads, so need to wait at least 8 secs per segment
         //giving it 10 secs per segment, plus an additional segment
         int secondsToWaitForCcdUploadsToComplete =
