@@ -34,8 +34,7 @@ public class TtlServiceImpl implements TtlService {
             .or(() -> Optional.ofNullable(jurisdictionCode)
                 .map(ttlMapperConfig.getTtlJurisdictionMap()::get))
             .orElseGet(ttlMapperConfig::getDefaultTTL);
-        var ttlDate = calculateTtl(ttlPeriod);
-        return ttlDate;
+        return calculateTtl(ttlPeriod);
     }
 
     private LocalDate calculateTtl(Period ttl) {
