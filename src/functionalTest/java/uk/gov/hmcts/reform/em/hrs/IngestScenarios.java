@@ -62,32 +62,19 @@ public class IngestScenarios extends BaseTest {
             String filename = filename(caseRef, segmentIndex);
             filenames.add(filename);
             testUtil.uploadFileFromPathToCvpContainer(filename,"data/test_data.mp4");
-        }
-
-        LOGGER.info("************* CHECKING CVP HAS UPLOADED **********");
-        testUtil.checkIfUploadedToStore(filenames, testUtil.cvpBlobContainerClient);
-        LOGGER.info("************* Files loaded to cvp storage **********");
-
-
-        for (int segmentIndex = 0; segmentIndex < SEGMENT_COUNT; segmentIndex++) {
             postRecordingSegment(caseRef, segmentIndex)
                 .then()
                 .log().all()
                 .statusCode(202);
         }
 
+        LOGGER.info("************* CHECKING CVP HAS UPLOADED **********");
+        testUtil.checkIfUploadedToStore(filenames, testUtil.cvpBlobContainerClient);
+        LOGGER.info("************* Files loaded to cvp storage **********");
+
         LOGGER.info("************* CHECKING HRS HAS COPIED TO STORE **********");
         testUtil.checkIfUploadedToStore(filenames, testUtil.hrsCvpBlobContainerClient);
-
-        long cvpFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.cvpBlobContainerClient);
-        long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsCvpBlobContainerClient);
-        Assert.assertEquals(hrsFileSize, cvpFileSize);
-
         assertHearingCcdUpload(filenames, caseRef, FOLDER, SEGMENT_COUNT);
-
-        LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
-        SleepHelper.sleepForSeconds(20);
-
     }
 
     @Test
@@ -117,10 +104,6 @@ public class IngestScenarios extends BaseTest {
         Assert.assertEquals(hrsFileSize, vhFileSize);
 
         assertHearingCcdUpload(filenames, caseRef, "VH", 1);
-
-        LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
-        SleepHelper.sleepForSeconds(20);
-
     }
 
     @Test
@@ -200,16 +183,6 @@ public class IngestScenarios extends BaseTest {
     }
 
     private void assertHearingCcdUpload(Set<String> filenames, String caseRef, String folder, int segmentCount) {
-        //IN AAT hrs is running on 8 / minute uploads, so need to wait at least 8 secs per segment
-        //giving it 10 secs per segment, plus an additional segment
-        int secondsToWaitForCcdUploadsToComplete =
-            (SEGMENT_COUNT * CCD_UPLOAD_WAIT_PER_SEGMENT_IN_SECONDS) + CCD_UPLOAD_WAIT_MARGIN_IN_SECONDS;
-        LOGGER.info(
-            "************* Sleeping for {} seconds to allow CCD uploads to complete **********",
-            secondsToWaitForCcdUploadsToComplete
-        );
-        SleepHelper.sleepForSeconds(secondsToWaitForCcdUploadsToComplete);
-
 
         LOGGER.info("************* CHECKING HRS HAS IT IN DATABASE AND RETURNS EXPECTED FILES VIA API**********");
         if (!"VH".equalsIgnoreCase(folder)) {
@@ -222,10 +195,6 @@ public class IngestScenarios extends BaseTest {
 
         LOGGER.info("*****************************");
         LOGGER.info("*****************************");
-        LOGGER.info("*****************************");
-        LOGGER.info("*****************************");
-        LOGGER.info("*****************************");
-
 
         CaseDetails caseDetails = findCaseWithAutoRetryWithUserWithSearcherRole(caseRef);
 

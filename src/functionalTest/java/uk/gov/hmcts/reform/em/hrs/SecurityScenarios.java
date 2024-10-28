@@ -17,8 +17,6 @@ public class SecurityScenarios extends BaseTest {
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .when()
-            .log()
-            .all()
             .get("/folders/NON_EXISTING_FOLDER")
             .then()
             .statusCode(401);
@@ -35,8 +33,6 @@ public class SecurityScenarios extends BaseTest {
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .when()
-            .log()
-            .all()
             .get("/folders/NON_EXISTING_FOLDER")
             .then()
             .statusCode(401);
@@ -48,8 +44,6 @@ public class SecurityScenarios extends BaseTest {
 
         this.authRequestForHrsIngestor()
             .when()
-            .log()
-            .all()
             .get("/folders/NON_EXISTING_FOLDER")
             .then()
             .statusCode(200);
@@ -69,12 +63,8 @@ public class SecurityScenarios extends BaseTest {
             .contentType(APPLICATION_JSON_VALUE)
             .body(segmentPayload)
             .when()
-            .log()
-            .all()
             .post("/segments")
             .then()
-            .log()
-            .all()
             .statusCode(401);
     }
 }
