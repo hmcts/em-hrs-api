@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 import uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper;
@@ -33,6 +34,9 @@ public class IngestScenarios extends BaseTest {
     public static final int CCD_UPLOAD_WAIT_MARGIN_IN_SECONDS = 35;
     //AAT averages at 8/second if evenly spread across servers - 30 seconds if they all were served by 1 server
     //chosing 15 seconds as with 2 segments + 35 second margin = 65 seconds in total 0 more than enough
+
+    @Value("${ttl.enabled}")
+    protected boolean ttlEnabled;
 
     @Autowired
     private BlobUtil testUtil;
@@ -239,11 +243,15 @@ public class IngestScenarios extends BaseTest {
         LOGGER.info("num recordings: " + recordingFiles.size());
 
         Map ttlObject = (Map)data.get("TTL");
-        assertThat(ttlObject.get("SystemTTL")).isEqualTo(ttlObject.get("OverrideTTL"));
-        assertThat(ttlObject.get("Suspended")).isEqualTo("No");
-        String ttl = (String)ttlObject.get("SystemTTL");
-        assertThat(LocalDate.parse(ttl)).isGreaterThan(LocalDate.now().plusYears(6).minusDays(2));
-        assertThat(LocalDate.parse(ttl)).isLessThan(LocalDate.now().plusYears(6).plusDays(2));
+        if (ttlEnabled) {
+            assertThat(ttlObject.get("SystemTTL")).isEqualTo(ttlObject.get("OverrideTTL"));
+            assertThat(ttlObject.get("Suspended")).isEqualTo("No");
+            String ttl = (String) ttlObject.get("SystemTTL");
+            assertThat(LocalDate.parse(ttl)).isGreaterThan(LocalDate.now().plusYears(6).minusDays(2));
+            assertThat(LocalDate.parse(ttl)).isLessThan(LocalDate.now().plusYears(6).plusDays(2));
+        } else {
+            assertThat(ttlObject).isNull();
+        }
     }
 
 }
