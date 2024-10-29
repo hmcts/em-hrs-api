@@ -250,7 +250,7 @@ public class IngestScenarios extends BaseTest {
             assertThat(LocalDate.parse(ttl)).isGreaterThan(LocalDate.now().plusYears(6).minusDays(2));
             assertThat(LocalDate.parse(ttl)).isLessThan(LocalDate.now().plusYears(6).plusDays(2));
         } else {
-            assertThat((Map<String, Object>) ttlObject).isNull();
+            assertThat(ttlObject == null);
         }
     }
 
