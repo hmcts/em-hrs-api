@@ -14,8 +14,10 @@ import uk.gov.hmcts.reform.em.hrs.exception.CcdUploadException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
+import uk.gov.hmcts.reform.em.hrs.service.TtlService;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobIndexMarker;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,19 +33,23 @@ public class CcdUploadServiceImpl implements CcdUploadService {
     private final HearingRecordingSegmentRepository segmentRepository;
     private final FolderService folderService;
     private final BlobIndexMarker blobIndexMarker;
+    private final TtlService ttlService;
 
     @Autowired
-    public CcdUploadServiceImpl(final CcdDataStoreApiClient ccdDataStoreApiClient,
-                                final HearingRecordingRepository recordingRepository,
-                                final HearingRecordingSegmentRepository segmentRepository,
-                                final FolderService folderService,
-                                final BlobIndexMarker blobIndexMarker
-                                ) {
+    public CcdUploadServiceImpl(
+        final CcdDataStoreApiClient ccdDataStoreApiClient,
+        final HearingRecordingRepository recordingRepository,
+        final HearingRecordingSegmentRepository segmentRepository,
+        final FolderService folderService,
+        final BlobIndexMarker blobIndexMarker,
+        final TtlService ttlService
+    ) {
         this.ccdDataStoreApiClient = ccdDataStoreApiClient;
         this.recordingRepository = recordingRepository;
         this.segmentRepository = segmentRepository;
         this.folderService = folderService;
         this.blobIndexMarker = blobIndexMarker;
+        this.ttlService = ttlService;
     }
 
     @Override
@@ -161,7 +167,15 @@ public class CcdUploadServiceImpl implements CcdUploadService {
 
         LOGGER.info("About to create case in CCD");
 
-        final Long caseId = ccdDataStoreApiClient.createCase(recording.getId(), recordingDto);
+        Optional<LocalDate> ttlOpt = Optional.empty();
+        if (ttlService.isTtlEnabled()) {
+            recording.setTtlSet(true);
+            var ttl = ttlService.createTtl(recordingDto.getServiceCode(), recordingDto.getJurisdictionCode());
+            ttlOpt = Optional.of(ttl);
+            recording.setTtl(ttl);
+        }
+
+        final Long caseId = ccdDataStoreApiClient.createCase(recording.getId(), recordingDto, ttlOpt);
         recording.setCcdCaseId(caseId);
         recording = recordingRepository.saveAndFlush(recording);
         LOGGER.info("Created case in CCD: {} for  {} ", caseId, recordingDto.getRecordingSource());

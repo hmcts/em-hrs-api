@@ -103,7 +103,7 @@ idam:
       client:
         baseUrl: ${S2S_BASE_URI:http://localhost:8489}
   s2s-authorised:
-    services: ${S2S_NAMES_WHITELIST:ccd_gw,em_gw,em_hrs_ingestor,xui_webapp,ccd,ccd_data}
+    services: ${S2S_NAMES_WHITELIST:ccd_gw,em_gw,em_hrs_ingestor,xui_webapp,ccd,ccd_data,ccd_case_disposer}
 
 core_case_data:
   api:
@@ -200,4 +200,12 @@ logging:
 
 ttl:
   default-ttl: ${DEFAULT_TTL:P6Y}
+  enabled: ${TTL_ENABLED:false}
 
+endpoint:
+  deleteCase:
+    enabled: ${DELETE_CASE_ENDPOINT_ENABLED:true}
+
+authorisation:
+  deleteCase:
+    s2s-names-whitelist: ${DELETE_CASE_S2S_WHITELIST:ccd_case_disposer,em_gw}

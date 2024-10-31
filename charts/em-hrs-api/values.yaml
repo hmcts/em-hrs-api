@@ -81,6 +81,10 @@ java:
     JURISDICTION_CODES_UPDATE_CHUNK_SIZE: 500
     JURISDICTION_CODES_UPDATE_MAX_ITEM_COUNT: 500
     JURISDICTION_CODES_UPDATE_COPY_ENABLED: false
+    TTL_ENABLED: false
+    DELETE_CASE_ENDPOINT_ENABLED: false
+    DELETE_CASE_S2S_WHITELIST: ccd_case_disposer,em_gw
+
 hrsblobstorage:
   enabled: false
 cvpblobstorage:

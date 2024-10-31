@@ -1,11 +1,13 @@
 package uk.gov.hmcts.reform.em.hrs;
 
 import jakarta.annotation.PostConstruct;
+import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 import uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper;
@@ -32,6 +34,9 @@ public class IngestScenarios extends BaseTest {
     public static final int CCD_UPLOAD_WAIT_MARGIN_IN_SECONDS = 35;
     //AAT averages at 8/second if evenly spread across servers - 30 seconds if they all were served by 1 server
     //chosing 15 seconds as with 2 segments + 35 second margin = 65 seconds in total 0 more than enough
+
+    @Value("${ttl.enabled}")
+    protected boolean ttlEnabled;
 
     @Autowired
     private BlobUtil testUtil;
@@ -61,32 +66,19 @@ public class IngestScenarios extends BaseTest {
             String filename = filename(caseRef, segmentIndex);
             filenames.add(filename);
             testUtil.uploadFileFromPathToCvpContainer(filename,"data/test_data.mp4");
-        }
-
-        LOGGER.info("************* CHECKING CVP HAS UPLOADED **********");
-        testUtil.checkIfUploadedToStore(filenames, testUtil.cvpBlobContainerClient);
-        LOGGER.info("************* Files loaded to cvp storage **********");
-
-
-        for (int segmentIndex = 0; segmentIndex < SEGMENT_COUNT; segmentIndex++) {
             postRecordingSegment(caseRef, segmentIndex)
                 .then()
                 .log().all()
                 .statusCode(202);
         }
 
+        LOGGER.info("************* CHECKING CVP HAS UPLOADED **********");
+        testUtil.checkIfUploadedToStore(filenames, testUtil.cvpBlobContainerClient);
+        LOGGER.info("************* Files loaded to cvp storage **********");
+
         LOGGER.info("************* CHECKING HRS HAS COPIED TO STORE **********");
         testUtil.checkIfUploadedToStore(filenames, testUtil.hrsCvpBlobContainerClient);
-
-        long cvpFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.cvpBlobContainerClient);
-        long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsCvpBlobContainerClient);
-        Assert.assertEquals(hrsFileSize, cvpFileSize);
-
-        uploadToCcd(filenames, caseRef, FOLDER, SEGMENT_COUNT);
-
-        LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
-        SleepHelper.sleepForSeconds(20);
-
+        assertHearingCcdUpload(filenames, caseRef, FOLDER, SEGMENT_COUNT);
     }
 
     @Test
@@ -115,11 +107,7 @@ public class IngestScenarios extends BaseTest {
         long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsVhBlobContainerClient);
         Assert.assertEquals(hrsFileSize, vhFileSize);
 
-        uploadToCcd(filenames, caseRef, "VH", 1);
-
-        LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
-        SleepHelper.sleepForSeconds(20);
-
+        assertHearingCcdUpload(filenames, caseRef, "VH", 1);
     }
 
     @Test
@@ -130,17 +118,13 @@ public class IngestScenarios extends BaseTest {
         UUID hearingRef = UUID.randomUUID();
         int segmentCount = 2;
         for (int segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
+            if (segmentIndex == 1) {
+                SleepHelper.sleepForSeconds(20);
+            }
             String filename = vhFileName(caseRef, segmentIndex, INTERPRETER, hearingRef);
             filenameList.add(filename);
             testUtil.uploadFileFromPathToVhContainer(filename,"data/test_data.mp4");
-        }
-        filenames = filenameList.stream().collect(Collectors.toSet());
-
-        LOGGER.info("************* CHECKING VH HAS UPLOADED **********");
-        testUtil.checkIfUploadedToStore(filenames, testUtil.vhBlobContainerClient);
-        LOGGER.info("************* Files loaded to vh storage **********");
-
-        for (int segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
+            // start ingestion
             postVhRecordingSegment(
                 caseRef,
                 segmentIndex,
@@ -148,19 +132,17 @@ public class IngestScenarios extends BaseTest {
                 filenameList.get(segmentIndex)
             ).then().log().all().statusCode(202);
         }
+        filenames = filenameList.stream().collect(Collectors.toSet());
+
+        LOGGER.info("************* CHECKING VH HAS UPLOADED **********");
+        testUtil.checkIfUploadedToStore(filenames, testUtil.vhBlobContainerClient);
+        LOGGER.info("************* Files loaded to vh storage **********");
 
         LOGGER.info("*********** CHECKING HRS HAS COPIED TO STORE VH container *********");
         testUtil.checkIfUploadedToStore(filenames, testUtil.hrsVhBlobContainerClient);
+        LOGGER.info("************* Files loaded to HRS storage **********");
 
-        long vhFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.vhBlobContainerClient);
-        long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsVhBlobContainerClient);
-        Assert.assertEquals(hrsFileSize, vhFileSize);
-
-        uploadToCcd(filenames, caseRef, "VH", segmentCount);
-
-        LOGGER.info("************* SLEEPING BEFORE STARTING THE NEXT TEST **********");
-        SleepHelper.sleepForSeconds(20);
-
+        assertHearingCcdUpload(filenames, caseRef, "VH", segmentCount);
     }
 
     @Test
@@ -200,21 +182,11 @@ public class IngestScenarios extends BaseTest {
         long hrsFileSize = testUtil.getFileSizeFromStore(filename, testUtil.hrsCvpBlobContainerClient);
         Assert.assertEquals(hrsFileSize, cvpFileSize);
 
-        uploadToCcd(filenames, caseRef, FOLDER, 1);
+        assertHearingCcdUpload(filenames, caseRef, FOLDER, 1);
 
     }
 
-    private void uploadToCcd(Set<String> filenames, String caseRef, String folder, int segmentCount) {
-        //IN AAT hrs is running on 8 / minute uploads, so need to wait at least 8 secs per segment
-        //giving it 10 secs per segment, plus an additional segment
-        int secondsToWaitForCcdUploadsToComplete =
-            (SEGMENT_COUNT * CCD_UPLOAD_WAIT_PER_SEGMENT_IN_SECONDS) + CCD_UPLOAD_WAIT_MARGIN_IN_SECONDS;
-        LOGGER.info(
-            "************* Sleeping for {} seconds to allow CCD uploads to complete **********",
-            secondsToWaitForCcdUploadsToComplete
-        );
-        SleepHelper.sleepForSeconds(secondsToWaitForCcdUploadsToComplete);
-
+    private void assertHearingCcdUpload(Set<String> filenames, String caseRef, String folder, int segmentCount) {
 
         LOGGER.info("************* CHECKING HRS HAS IT IN DATABASE AND RETURNS EXPECTED FILES VIA API**********");
         if (!"VH".equalsIgnoreCase(folder)) {
@@ -227,21 +199,28 @@ public class IngestScenarios extends BaseTest {
 
         LOGGER.info("*****************************");
         LOGGER.info("*****************************");
-        LOGGER.info("*****************************");
-        LOGGER.info("*****************************");
-        LOGGER.info("*****************************");
-
 
         CaseDetails caseDetails = findCaseWithAutoRetryWithUserWithSearcherRole(caseRef);
 
 
         Map<String, Object> data = caseDetails.getData();
-        LOGGER.info("data size: " + data.size()); //TODO when posting multisegment - this needs to match
+        LOGGER.info("data size: " + data.size());
         List recordingFiles = (ArrayList) data.get("recordingFiles");
         assertThat(recordingFiles.size()).isEqualTo(segmentCount);
         String hearingSource = (String)data.get("hearingSource");
         assertThat(hearingSource).isEqualTo("VH".equalsIgnoreCase(folder) ? "VH" : "CVP");
         LOGGER.info("num recordings: " + recordingFiles.size());
+
+        Map ttlObject = (Map)data.get("TTL");
+        if (ttlEnabled) {
+            assertThat(ttlObject.get("SystemTTL")).isEqualTo(ttlObject.get("OverrideTTL"));
+            assertThat(ttlObject.get("Suspended")).isEqualTo("No");
+            String ttl = (String) ttlObject.get("SystemTTL");
+            assertThat(LocalDate.parse(ttl)).isGreaterThan(LocalDate.now().plusYears(6).minusDays(2));
+            assertThat(LocalDate.parse(ttl)).isLessThan(LocalDate.now().plusYears(6).plusDays(2));
+        } else {
+            assertThat(ttlObject == null);
+        }
     }
 
 }

@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,6 +52,10 @@ public class CaseHearingRecording {
 
     @JsonProperty("recordingFiles")
     private List<Map<String, Object>> recordingFiles;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("TTL")
+    private TtlCcdObject timeToLive;
 
     public void addRecordingFile(final CaseRecordingFile recordingFile) {
         recordingFiles.add(Map.of("value", recordingFile));
