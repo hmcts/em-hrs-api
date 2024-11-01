@@ -4,16 +4,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.serenitybdd.rest.SerenityRest;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -34,6 +37,9 @@ public class ShareScenarios extends BaseTest {
     private int expectedFileSize;
 
     private Long ccdCaseId;
+
+    @Value("${endpoint.deleteCase.enabled}")
+    private boolean deleteCaseEndpointEnabled;
 
     @Before
     public void setup() throws Exception {
@@ -182,6 +188,30 @@ public class ShareScenarios extends BaseTest {
             .statusCode(404);
 
         caseDetails.setId(null);
+    }
+
+    @Test
+    public void shouldReturn204WhenDeletingCaseHearingRecording() {
+        Assume.assumeTrue(deleteCaseEndpointEnabled);
+        deleteRecordings(List.of(ccdCaseId))
+            .then().log().all()
+            .statusCode(204);
+    }
+
+    @Test
+    public void shouldReturn401WhenDeletingWithS2sInvalid() {
+        Assume.assumeTrue(deleteCaseEndpointEnabled);
+        deleteRecordingsWithInvalidS2S(List.of(ccdCaseId))
+            .then().log().all()
+            .statusCode(401);
+    }
+
+    @Test
+    public void shouldReturn403WhenDeletingWithUnauthorisedService() {
+        Assume.assumeTrue(deleteCaseEndpointEnabled);
+        deleteRecordingsWithUnauthorisedS2S(List.of(ccdCaseId))
+            .then().log().all()
+            .statusCode(403);
     }
 
     @After

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.ClockProvider;
 import jakarta.validation.constraints.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,7 @@ import java.util.Base64;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
+@Hidden
 public class BlobStoreInspectorController {
 
     private static final Logger log = LoggerFactory.getLogger(BlobStoreInspectorController.class);

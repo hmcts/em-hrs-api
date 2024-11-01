@@ -9,7 +9,9 @@ import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
+import uk.gov.hmcts.reform.em.hrs.model.TtlCcdObject;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -22,13 +24,19 @@ public class CaseDataContentCreator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CaseDataContentCreator.class);
 
+    private static final String TTL_SUSPENDED_NO = "No";
+
     private final ObjectMapper objectMapper;
 
     public CaseDataContentCreator(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
-    public JsonNode createCaseStartData(final HearingRecordingDto hearingRecordingDto, final UUID recordingId) {
+    public JsonNode createCaseStartData(
+        final HearingRecordingDto hearingRecordingDto,
+        final UUID recordingId,
+        Optional<LocalDate> ttl
+    ) {
 
         CaseHearingRecording caseRecording = CaseHearingRecording.builder()
             .recordingFiles(Collections.singletonList(
@@ -45,7 +53,9 @@ public class CaseDataContentCreator {
             .jurisdictionCode(hearingRecordingDto.getJurisdictionCode())
             .courtLocationCode(hearingRecordingDto.getCourtLocationCode())
             .recordingReference(hearingRecordingDto.getCaseRef())
+            .timeToLive(createTTLObject(ttl))
             .build();
+
         return objectMapper.convertValue(caseRecording, JsonNode.class);
     }
 
@@ -105,4 +115,16 @@ public class CaseDataContentCreator {
         return Optional.ofNullable(hearingRecordingDto.getRecordingDateTime())
             .map(dateTime -> dateTime.getHour() < 12 ? "AM" : "PM").orElse("");
     }
+
+    private TtlCcdObject createTTLObject(Optional<LocalDate> ttlOpt) {
+        return ttlOpt.map(ttl -> {
+            var ttlString = ttl.toString();
+            return TtlCcdObject.builder()
+                .suspended(TTL_SUSPENDED_NO)
+                .overrideTTL(ttlString)
+                .systemTTL(ttlString)
+                .build();
+        }).orElse(null);
+    }
 }
+
