@@ -131,7 +131,7 @@ azure:
       blob-container-name: ${VH_STORAGE_CONTAINER_NAME:vhtestcontainer}
     jurisdiction-codes:
       connection-string: ${STORAGEACCOUNT_PRIMARY_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
-      blob-container-name: ${JURISDICTION_CODES_CONTAINER_NAME:jurisdictioncodescontainer}
+      blob-container-name: ${JURISDICTION_CODES_CONTAINER_NAME:jurisdictioncodes}
     use-ad-auth: ${USE_AD_AUTH_FOR_SOURCE_BLOB_CONNECTION:false}
 
 vh:
