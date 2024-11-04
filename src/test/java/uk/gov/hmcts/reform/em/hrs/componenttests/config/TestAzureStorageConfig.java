@@ -32,6 +32,7 @@ public class TestAzureStorageConfig {
     private static final String HRS_VH_CONTAINER = "hrs-vh-test-container";
     private static final String CVP_CONTAINER = "cvp-test-container";
     private static final String VH_CONTAINER = "vh-test-container";
+    private static final String JURISDICTION_CODES_CONTAINER = "jurisdictioncodes";
 
     //docker run -p 10000:10000 mcr.microsoft.com/azure-storage/azurite azurite-blob --blobHost 0.0.0.0 --blobPort 10000
     private final GenericContainer<?> azuriteContainer = new GenericContainer<>(AZURITE_IMAGE)
@@ -108,6 +109,13 @@ public class TestAzureStorageConfig {
     public BlobContainerClient vhBlobContainerClient() {
         return createBlobClient(connectionString, VH_CONTAINER);
     }
+
+    @Primary
+    @Bean("jurisdictionCodesContainerClient")
+    public BlobContainerClient jurisdictionCodesClient() {
+        return createBlobClient(connectionString, JURISDICTION_CODES_CONTAINER);
+    }
+
 
     private BlobContainerClient createBlobClient(String sourceConnectionString, String containerName) {
         final BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
