@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service;
+package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
+import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
 import java.util.ArrayList;

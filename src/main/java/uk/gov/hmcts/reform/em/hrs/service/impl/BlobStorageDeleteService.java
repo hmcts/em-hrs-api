@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service;
+package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import com.azure.core.http.rest.Response;
 import com.azure.storage.blob.BlobContainerClient;

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service;
+package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 
 import jakarta.validation.constraints.NotNull;
@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
+import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 
 import java.io.Serializable;
 import java.util.List;

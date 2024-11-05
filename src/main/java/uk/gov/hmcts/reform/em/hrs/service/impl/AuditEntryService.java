@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service;
+package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.em.hrs.model.LogOnlyAuditEntry;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesAuditEntryRepository;
+import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 
 import java.util.Date;
 import java.util.List;

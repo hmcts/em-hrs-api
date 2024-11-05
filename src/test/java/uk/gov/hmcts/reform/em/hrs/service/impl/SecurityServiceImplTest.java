@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service;
+package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.AUTHORIZATION_TOKEN;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SERVICE_AUTHORIZATION_TOKEN;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHARER_EMAIL_ADDRESS;
-import static uk.gov.hmcts.reform.em.hrs.service.SecurityServiceImpl.CLIENTIP;
+import static uk.gov.hmcts.reform.em.hrs.service.impl.SecurityServiceImpl.CLIENTIP;
 
 @SpringBootTest(classes = {SecurityServiceImpl.class},
     properties = {"idam.system-user.username=SystemUser", "idam.system-user.password=SystemPassword"})
