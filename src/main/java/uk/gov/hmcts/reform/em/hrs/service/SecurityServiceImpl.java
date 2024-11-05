@@ -24,6 +24,7 @@ public class SecurityServiceImpl implements SecurityService {
     static final String DUMMY_NAME = "dummyName";
     static final String SERVICE_AUTH = "serviceauthorization";
     static final String USER_AUTH = "authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
     private static final String HRS_INGESTOR = "hrsIngestor";
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityServiceImpl.class);
     public static final String CLIENTIP = "x-azure-clientip";
@@ -90,7 +91,8 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     private String getServiceName(final String token) {
-        return authTokenValidator.getServiceName(token);
+        String formattedToken = token.startsWith(BEARER_PREFIX) ? token : BEARER_PREFIX + token;
+        return authTokenValidator.getServiceName(formattedToken);
     }
 
     @Override
