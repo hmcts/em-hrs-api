@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service.impl;
+package uk.gov.hmcts.reform.em.hrs.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.em.hrs.model.LogOnlyAuditEntry;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesAuditEntryRepository;
-import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 
 import java.util.Date;
 import java.util.List;
@@ -49,7 +48,7 @@ public class AuditEntryService {
         this.auditLogFormatter = auditLogFormatter;
     }
 
-    void logOnly(Long caseId, AuditActions action) {
+    public void logOnly(Long caseId, AuditActions action) {
         var entry = new LogOnlyAuditEntry();
         populateCommonFields(
             entry,
@@ -62,7 +61,7 @@ public class AuditEntryService {
 
     }
 
-    List<HearingRecordingAuditEntry> findHearingRecordingAudits(HearingRecording hearingRecording) {
+    public List<HearingRecordingAuditEntry> findHearingRecordingAudits(HearingRecording hearingRecording) {
         return hearingRecordingAuditEntryRepository.findByHearingRecordingOrderByEventDateTimeAsc(hearingRecording);
     }
 

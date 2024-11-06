@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
+import uk.gov.hmcts.reform.em.hrs.service.BlobStorageDeleteService;
 import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
 
 import java.util.Collection;

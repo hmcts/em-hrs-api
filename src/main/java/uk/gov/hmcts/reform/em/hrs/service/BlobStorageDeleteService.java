@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service.impl;
+package uk.gov.hmcts.reform.em.hrs.service;
 
 import com.azure.core.http.rest.Response;
 import com.azure.storage.blob.BlobContainerClient;
@@ -65,7 +65,7 @@ public class BlobStorageDeleteService {
         }
     }
 
-    void logDeletionFailure(String blobName, int statusCode) {
+    public void logDeletionFailure(String blobName, int statusCode) {
         log.info(
             "Deleting hrs blob failed {},status {}",
             blobName,
