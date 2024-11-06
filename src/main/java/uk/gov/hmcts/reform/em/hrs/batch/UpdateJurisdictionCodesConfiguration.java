@@ -73,12 +73,12 @@ public class UpdateJurisdictionCodesConfiguration {
 
     @Scheduled(cron = "${spring.batch.jurisdictionCodes.cronJobSchedule}")
     @SchedulerLock(name = "jurisdictionCodesUpdate")
-    public void scheduleDocumentMetaDataUpdate() throws JobParametersInvalidException,
+    public void scheduleJurisdictionCodesUpdate() throws JobParametersInvalidException,
         JobExecutionAlreadyRunningException,
         JobRestartException,
         JobInstanceAlreadyCompleteException {
 
-        jobLauncher.run(updateDocumentMetaDataJob(), new JobParametersBuilder()
+        jobLauncher.run(updateJurisdictionCodesJob(), new JobParametersBuilder()
             .addDate("date", new Date())
             .toJobParameters());
     }
@@ -88,17 +88,17 @@ public class UpdateJurisdictionCodesConfiguration {
         return new JdbcTemplateLockProvider(dataSource);
     }
 
-    public Job updateDocumentMetaDataJob() {
-        return new JobBuilder("updateDocumentMetaDataJob", jobRepository)
-            .flow(new StepBuilder("updateDocumentMetaDataStep",jobRepository)
+    public Job updateJurisdictionCodesJob() {
+        return new JobBuilder("updateJurisdictionCodesJob", jobRepository)
+            .flow(new StepBuilder("updateJurisdictionCodesStep",jobRepository)
                       .<HearingRecordingSegment, HearingRecording>chunk(jurisdictionCodesChunkSize, transactionManager)
-                      .reader(undeletedDocumentsWithTtl())
+                      .reader(buildMissingCodesReader())
                       .processor(updateJurisdictionCodesProcessor)
                       .writer(itemWriter())
                       .build()).build().build();
     }
 
-    private JpaPagingItemReader<HearingRecordingSegment> undeletedDocumentsWithTtl() {
+    private JpaPagingItemReader<HearingRecordingSegment> buildMissingCodesReader() {
         return new JpaPagingItemReaderBuilder<HearingRecordingSegment>()
             .name("documentTaskReader")
             .entityManagerFactory(entityManagerFactory)
