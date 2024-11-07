@@ -65,7 +65,7 @@ public class BlobStorageDeleteService {
         }
     }
 
-    void logDeletionFailure(String blobName, int statusCode) {
+    public void logDeletionFailure(String blobName, int statusCode) {
         log.info(
             "Deleting hrs blob failed {},status {}",
             blobName,

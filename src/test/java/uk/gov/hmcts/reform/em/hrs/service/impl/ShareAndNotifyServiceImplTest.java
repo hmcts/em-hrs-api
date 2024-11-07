@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service;
+package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,6 +8,9 @@ import uk.gov.hmcts.reform.em.hrs.exception.ValidationErrorException;
 import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
+import uk.gov.hmcts.reform.em.hrs.service.AuditEntryService;
+import uk.gov.hmcts.reform.em.hrs.service.NotificationService;
+import uk.gov.hmcts.reform.em.hrs.service.ShareeService;
 import uk.gov.hmcts.reform.em.hrs.service.ccd.CaseDataContentCreator;
 import uk.gov.service.notify.NotificationClientException;
 

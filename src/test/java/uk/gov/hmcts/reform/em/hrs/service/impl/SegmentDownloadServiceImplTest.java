@@ -1,7 +1,8 @@
-package uk.gov.hmcts.reform.em.hrs.service;
+package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,6 +22,9 @@ import uk.gov.hmcts.reform.em.hrs.exception.InvalidRangeRequestException;
 import uk.gov.hmcts.reform.em.hrs.exception.ValidationErrorException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
+import uk.gov.hmcts.reform.em.hrs.service.AuditEntryService;
+import uk.gov.hmcts.reform.em.hrs.service.Constants;
+import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobInfo;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobstoreClient;
 
@@ -157,7 +161,7 @@ class SegmentDownloadServiceImplTest {
             segmentDownloadService.fetchSegmentByRecordingIdAndFileNameForSharee(
                 SEGMENT11_ID, FILE_NAME_11_ID, TestUtil.AUTHORIZATION_TOKEN);
         } catch (ValidationErrorException validationErrorException) {
-            assertEquals(Constants.SHARED_EXPIRED_LINK_MSG, validationErrorException.getData().get("error"));
+            Assertions.assertEquals(Constants.SHARED_EXPIRED_LINK_MSG, validationErrorException.getData().get("error"));
         }
     }
 

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service;
+package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
+import uk.gov.hmcts.reform.em.hrs.service.BlobStorageDeleteService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +36,7 @@ class HearingRecordingServiceImplTest {
     @Mock
     private BlobStorageDeleteService deleteService;
     @InjectMocks
-    private  HearingRecordingServiceImpl recordingService;
+    private HearingRecordingServiceImpl recordingService;
 
     @BeforeEach
     void setUp() {

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service;
+package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +20,8 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingShareeAuditEntry;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesAuditEntryRepository;
+import uk.gov.hmcts.reform.em.hrs.service.AuditEntryService;
+import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 
 import java.util.List;
 import java.util.stream.Stream;

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service;
+package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.exception.DatabaseStorageException;
 import uk.gov.hmcts.reform.em.hrs.repository.FolderRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.JobInProgressRepository;
+import uk.gov.hmcts.reform.em.hrs.service.JobInProgressService;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
