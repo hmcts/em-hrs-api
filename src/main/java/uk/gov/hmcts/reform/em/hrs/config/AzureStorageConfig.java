@@ -89,7 +89,7 @@ public class AzureStorageConfig {
     }
 
     @Bean("jurisdictionCodesContainerClient")
-    @ConditionalOnProperty("spring.batch.jurisdictionCodes.enabled")
+    @ConditionalOnProperty(value = "scheduling.task.jurisdiction-codes.enabled")
     public BlobContainerClient jurisdictionCodesClient() {
         BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
             .connectionString(jurisdictionCodesConnectionString)
