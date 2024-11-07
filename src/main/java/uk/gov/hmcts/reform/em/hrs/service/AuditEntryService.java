@@ -48,7 +48,7 @@ public class AuditEntryService {
         this.auditLogFormatter = auditLogFormatter;
     }
 
-    void logOnly(Long caseId, AuditActions action) {
+    public void logOnly(Long caseId, AuditActions action) {
         var entry = new LogOnlyAuditEntry();
         populateCommonFields(
             entry,
@@ -61,7 +61,7 @@ public class AuditEntryService {
 
     }
 
-    List<HearingRecordingAuditEntry> findHearingRecordingAudits(HearingRecording hearingRecording) {
+    public List<HearingRecordingAuditEntry> findHearingRecordingAudits(HearingRecording hearingRecording) {
         return hearingRecordingAuditEntryRepository.findByHearingRecordingOrderByEventDateTimeAsc(hearingRecording);
     }
 

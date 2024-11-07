@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service;
+package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.em.hrs.domain.JobInProgress;
 import uk.gov.hmcts.reform.em.hrs.exception.DatabaseStorageException;
 import uk.gov.hmcts.reform.em.hrs.repository.FolderRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
+import uk.gov.hmcts.reform.em.hrs.service.FolderService;
 import uk.gov.hmcts.reform.em.hrs.util.SetUtils;
 
 import java.util.Collections;

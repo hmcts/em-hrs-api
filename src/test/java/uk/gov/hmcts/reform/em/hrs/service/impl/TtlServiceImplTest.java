@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service;
+package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.em.hrs.config.TTLMapperConfig;

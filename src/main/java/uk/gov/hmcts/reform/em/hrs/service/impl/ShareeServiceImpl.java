@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service;
+package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
+import uk.gov.hmcts.reform.em.hrs.service.ShareeService;
 
 @Component
 @Transactional

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.em.hrs.service;
+package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +12,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
+import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
