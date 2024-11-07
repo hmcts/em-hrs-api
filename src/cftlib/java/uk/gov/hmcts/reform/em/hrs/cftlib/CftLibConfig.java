@@ -31,7 +31,7 @@ public class CftLibConfig implements CFTLibConfigurer {
         setupRoleAssignments(lib);
 
         lib.importDefinition(Files.readAllBytes(
-            Path.of("src/functionalTest/resources/CCD_HRS_v1.2-AAT.xlsx")));
+            Path.of("src/functionalTest/resources/CCD_HRS_v1.3-AAT.xlsx")));
 
     }
 
@@ -49,7 +49,8 @@ public class CftLibConfig implements CFTLibConfigurer {
             "citizen",
             "caseworker",
             "caseworker-hrs",
-            "caseworker-hrs-searcher"
+            "caseworker-hrs-searcher",
+            "cft-ttl-manager"
         );
 
         lib.createIdamUser("data.store.idam.system.user@gmail.com", "caseworker");
