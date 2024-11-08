@@ -153,8 +153,7 @@ def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/util/debug/HttpHeadersLogging.java',
   '**uk/gov/hmcts/reform/em/hrs/data/migration/PendingMigrationScriptException*',
   '**uk/gov/hmcts/reform/em/hrs/data/migration/FlywayNoOpStrategy*',
-  '**uk/gov/hmcts/reform/em/hrs/job/UpdateJurisdictionCodes*',
-  '**uk/gov/hmcts/reform/em/hrs/batch/**'
+  '**uk/gov/hmcts/reform/em/hrs/job/UpdateJurisdictionCodes*'
 ]
 
 checkstyle {
@@ -279,7 +278,6 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-json"
   implementation "org.springframework.boot:spring-boot-starter-validation"
   implementation "org.springframework.boot:spring-boot-starter-web"
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-batch'
 
 //hmcts autho
   implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '3.0.3'

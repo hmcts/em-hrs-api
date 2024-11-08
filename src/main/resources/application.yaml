@@ -22,14 +22,6 @@ management:
 spring:
   application:
     name: Hearing Recordings Service
-  batch:
-    jurisdictionCodes:
-      cronJobSchedule: ${JURISDICTION_CODES_UPDATE_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
-      pageSize: ${JURISDICTION_CODES_UPDATE_PAGE_SIZE:50}
-      chunkSize: ${JURISDICTION_CODES_UPDATE_CHUNK_SIZE:50}
-      maxItemCount: ${JURISDICTION_CODES_UPDATE_MAX_ITEM_COUNT:50}
-      enabled: ${JURISDICTION_CODES_UPDATE_ENABLED:false}
-    initialize-schema: never
   config:
     import: "optional:configtree:/mnt/secrets/em-hrs-api/,optional:configtree:/mnt/secrets/rpa/"
   jpa:
