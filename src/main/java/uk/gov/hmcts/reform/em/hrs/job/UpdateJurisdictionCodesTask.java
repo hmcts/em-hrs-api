@@ -49,6 +49,7 @@ public class UpdateJurisdictionCodesTask {
     @Scheduled(cron = "${scheduling.task.jurisdiction-codes.cron}", zone = "Europe/London")
     @SchedulerLock(name = TASK_NAME)
     public void run() {
+        logger.info("Started {} job", TASK_NAME);
         Optional<BlobClient> csvBlobClient = loadWorkbookBlobClient();
         if (csvBlobClient.isEmpty()) {
             throw new BlobNotFoundException("blobName", "jurisdictionWorkbook");
@@ -80,6 +81,7 @@ public class UpdateJurisdictionCodesTask {
         } catch (IOException e) {
             logger.info("Encountered error updating jurisdiction codes: {}", e.getMessage());
         }
+        logger.info("Finished {} job", TASK_NAME);
     }
 
     private String getStringCellValue(Cell cell) {
