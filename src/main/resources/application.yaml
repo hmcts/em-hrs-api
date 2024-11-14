@@ -166,6 +166,10 @@ scheduling:
       enabled: ${DELETE_INPROGRESS_ENABLED:true}
       cron:  ${DELETE_INPROGRESS_CRON:0 0 */3 * * *}
       ttl-hours: 3
+    update-ttl:
+      cron: ${UPDATE_TTL_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
+      batch-size: ${UPDATE_TTL_BATCH_SIZE:10}
+      enabled: ${UPDATE_TTL_JOB_ENABLED:true}
 report:
   recipients: ${SUMMARY_REPORT_RECIPIENTS:xxxx}
   from: ${SMTP_USERNAME:xxxx}

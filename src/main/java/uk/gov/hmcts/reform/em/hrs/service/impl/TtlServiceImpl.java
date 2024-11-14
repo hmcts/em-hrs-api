@@ -30,16 +30,19 @@ public class TtlServiceImpl implements TtlService {
     }
 
     public LocalDate createTtl(String serviceCode, String jurisdictionCode) {
+        return createTtl(serviceCode, jurisdictionCode, LocalDate.now(EUROPE_LONDON_ZONE_ID));
+    }
+
+    public LocalDate createTtl(String serviceCode, String jurisdictionCode, LocalDate createdDate) {
         var ttlPeriod = Optional.ofNullable(serviceCode)
             .map(ttlMapperConfig.getTtlServiceMap()::get)
             .or(() -> Optional.ofNullable(jurisdictionCode)
                 .map(ttlMapperConfig.getTtlJurisdictionMap()::get))
             .orElseGet(ttlMapperConfig::getDefaultTTL);
-        return calculateTtl(ttlPeriod);
+        return calculateTtl(ttlPeriod, createdDate);
     }
 
-    private LocalDate calculateTtl(Period ttl) {
-        var now = LocalDate.now(EUROPE_LONDON_ZONE_ID);
-        return now.plusYears(ttl.getYears()).plusMonths(ttl.getMonths()).plusDays(ttl.getDays());
+    private LocalDate calculateTtl(Period ttl, LocalDate createdDate) {
+        return createdDate.plusYears(ttl.getYears()).plusMonths(ttl.getMonths()).plusDays(ttl.getDays());
     }
 }
