@@ -299,7 +299,7 @@ dependencies {
   implementation group: 'com.azure', name: 'azure-identity', version: '1.14.1'
 
   // Job scheduling
-  implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.5.0-rc2'
+  implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.5.0'
   implementation group: 'org.springframework', name: 'spring-context-support'
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: versions.shedlock
