@@ -97,10 +97,10 @@ public class ExtendedCcdHelper {
 
     public void closeCcdCase(Long caseId) {
 
-        String userId = idamHelper.getUserId("em-test-searcher@test.hmcts.net");
+        String userId = idamHelper.getUserId("hrs.tester@hmcts.net");
 
         String idamToken = idamHelper.authenticateUser(
-            "em-test-searcher@test.hmcts.net");
+            "hrs.tester@hmcts.net");
         String s2sToken = ccdAuthTokenGenerator.generate();
 
         String caseTypeId = "HearingRecordings";
