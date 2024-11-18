@@ -236,7 +236,7 @@ def versions = [
   serenity           : '3.7.0',
   serenityreporter   : '3.7.0',
   serenityRestAssured : '3.7.0',
-  lombok             : '1.18.34',
+  lombok             : '1.18.36',
   reformLogging      : '6.1.7',
   log4JVersion       : "2.17.1",
   postgresql         : '42.7.4',
@@ -295,11 +295,11 @@ dependencies {
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
 //azure components
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.28.1'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.14.1'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.29.0'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.14.2'
 
   // Job scheduling
-  implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.5.0-rc2'
+  implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.5.0'
   implementation group: 'org.springframework', name: 'spring-context-support'
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: versions.shedlock
@@ -354,7 +354,7 @@ dependencies {
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.26.3'
-  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '3.5.0'
+  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '4.0.0'
 
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: versions.testcontainers
   testImplementation group: 'org.testcontainers', name: 'postgresql', version: versions.testcontainers
