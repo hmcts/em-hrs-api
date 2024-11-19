@@ -17,16 +17,12 @@ import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class HearingReportEmailServiceTest {
 
     @Mock
     private EmailSender emailSender;
-
-    @Mock
-    private HearingReportService hearingReportService;
 
     private HearingReportEmailService hearingReportEmailService;
 
@@ -35,7 +31,6 @@ class HearingReportEmailServiceTest {
         hearingReportEmailService = new HearingReportEmailService(
             emailSender,
             new String[]{"recipient@example.com"},
-            hearingReportService,
             "sender@example.com"
         );
     }
@@ -46,7 +41,6 @@ class HearingReportEmailServiceTest {
             new HearingReportEmailService(
                 emailSender,
                 null,
-                hearingReportService,
                 "sender@example.com"
             );
         });
@@ -58,7 +52,6 @@ class HearingReportEmailServiceTest {
             new HearingReportEmailService(
                 emailSender,
                 new String[]{},
-                hearingReportService,
                 "sender@example.com"
             );
         });
@@ -71,10 +64,7 @@ class HearingReportEmailServiceTest {
 
         File reportFile = new File("report.csv");
 
-        when(hearingReportService.createMonthlyReport(reportDate.getMonth(), reportDate.getYear()))
-            .thenReturn(reportFile);
-
-        hearingReportEmailService.sendReport(reportDate);
+        hearingReportEmailService.sendReport(reportDate, reportFile);
 
         verify(emailSender, times(1)).sendMessageWithAttachments(
             contains("Monthly hearing report "),
