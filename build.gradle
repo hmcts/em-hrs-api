@@ -16,7 +16,7 @@ plugins {
   id 'org.flywaydb.flyway' version '10.21.0'
   id 'au.com.dius.pact' version '4.2.14'
   id "info.solidsoft.pitest" version '1.15.0'
-  id 'com.github.hmcts.rse-cft-lib' version '0.19.1443'
+  id 'com.github.hmcts.rse-cft-lib' version '0.19.1463'
   id 'uk.gov.hmcts.java' version '0.12.63'
   id 'org.owasp.dependencycheck' version '11.1.0'
   id 'net.serenity-bdd.serenity-gradle-plugin' version '3.0.0'
@@ -296,7 +296,7 @@ dependencies {
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.29.0'
-  implementation group: 'com.azure', name: 'azure-identity', version: '1.14.1'
+  implementation group: 'com.azure', name: 'azure-identity', version: '1.14.2'
 
   // Job scheduling
   implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.5.0'
@@ -354,7 +354,7 @@ dependencies {
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.26.3'
-  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '3.5.0'
+  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '4.0.0'
 
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: versions.testcontainers
   testImplementation group: 'org.testcontainers', name: 'postgresql', version: versions.testcontainers

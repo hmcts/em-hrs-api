@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.exception.EmailRecipientNotFoundException;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Map;
@@ -24,13 +25,11 @@ public class HearingReportEmailService {
 
     private final String[] recipients;
 
-    private final HearingReportService hearingReportService;
     private final String from;
 
     public HearingReportEmailService(
         EmailSender emailSender,
         @Value("${report.monthly-hearing.recipients}") String[] recipients,
-        HearingReportService hearingReportService,
         @Value("${report.from}") String from
     ) {
         this.emailSender = emailSender;
@@ -39,13 +38,11 @@ public class HearingReportEmailService {
         } else {
             this.recipients = Arrays.copyOf(recipients, recipients.length);
         }
-        this.hearingReportService = hearingReportService;
         this.from = from;
     }
 
-    public void sendReport(LocalDate reportDate) {
+    public void sendReport(LocalDate reportDate, File reportFile) {
         try {
-            var reportFile = hearingReportService.createMonthlyReport(reportDate.getMonth(),reportDate.getYear());
             LOGGER.info("Report recipients: {}", this.recipients[0]);
 
             emailSender.sendMessageWithAttachments(
