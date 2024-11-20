@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.hrs.auditlog.AuditLogFormatter;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditEntry;
@@ -66,11 +67,12 @@ public class AuditEntryService {
         return hearingRecordingAuditEntryRepository.findByHearingRecordingOrderByEventDateTimeAsc(hearingRecording);
     }
 
+    @Transactional
     public List<HearingRecordingSegmentAuditEntry> listHearingRecordingAudits(
         LocalDateTime startDate,
         LocalDateTime endDate
     ) {
-        return hearingRecordingAuditEntryRepository.findByEventDateTimeBetween(startDate, endDate);
+        return hearingRecordingSegmentAuditEntryRepository.findByEventDateTimeBetween(startDate, endDate);
     }
 
     public HearingRecordingAuditEntry createAndSaveEntry(HearingRecording hearingRecording,

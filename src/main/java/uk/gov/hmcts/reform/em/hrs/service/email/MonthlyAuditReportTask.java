@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.hrs.service.AuditEntryService;
 
 import java.io.File;
@@ -87,6 +88,7 @@ public class MonthlyAuditReportTask {
             this.auditReportCsvWriter = auditReportCsvWriter;
         }
 
+        @Transactional
         public File createMonthlyReport(Month month, int year) throws IOException {
             LocalDateTime startOfMonth = getStartOfMonth(month, year);
             LocalDateTime endOfMonth = getEndOfMonth(month, year);

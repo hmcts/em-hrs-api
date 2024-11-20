@@ -153,7 +153,7 @@ class AuditEntryServiceTests {
         var auditEntry1 = new HearingRecordingSegmentAuditEntry();
         var auditEntry2 = new HearingRecordingSegmentAuditEntry();
 
-        when(hearingRecordingAuditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
+        when(hearingRecordingSegmentAuditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
             .thenReturn(List.of(auditEntry1, auditEntry2));
 
         // when
@@ -164,7 +164,7 @@ class AuditEntryServiceTests {
         Assertions.assertEquals(2, result.size());
         Assertions.assertTrue(result.contains(auditEntry1));
         Assertions.assertTrue(result.contains(auditEntry2));
-        verify(hearingRecordingAuditEntryRepository, times(1))
+        verify(hearingRecordingSegmentAuditEntryRepository, times(1))
             .findByEventDateTimeBetween(startDate, endDate);
     }
 
@@ -174,7 +174,7 @@ class AuditEntryServiceTests {
         var startDate = LocalDateTime.now().minusDays(30);
         var endDate = LocalDateTime.now();
 
-        when(hearingRecordingAuditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
+        when(hearingRecordingSegmentAuditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
             .thenReturn(List.of());
 
         // when
@@ -183,7 +183,7 @@ class AuditEntryServiceTests {
 
         // then
         Assertions.assertTrue(result.isEmpty());
-        verify(hearingRecordingAuditEntryRepository, times(1))
+        verify(hearingRecordingSegmentAuditEntryRepository, times(1))
             .findByEventDateTimeBetween(startDate, endDate);
     }
 
@@ -193,7 +193,7 @@ class AuditEntryServiceTests {
         var startDate = LocalDateTime.now().minusDays(30);
         var endDate = LocalDateTime.now();
 
-        when(hearingRecordingAuditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
+        when(hearingRecordingSegmentAuditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
             .thenThrow(new RuntimeException("Database error"));
 
         // when / then
@@ -201,7 +201,7 @@ class AuditEntryServiceTests {
             RuntimeException.class,
             () -> auditEntryService.listHearingRecordingAudits(startDate, endDate)
         );
-        verify(hearingRecordingAuditEntryRepository, times(1))
+        verify(hearingRecordingSegmentAuditEntryRepository, times(1))
             .findByEventDateTimeBetween(startDate, endDate);
     }
 
