@@ -245,7 +245,7 @@ def versions = [
   restAssured        : '5.3.0',
   junit              : '5.11.3',
   junitPlatform      : '1.11.3',
-  springSecurity     : '6.3.4',
+  springSecurity     : '6.4.0',
   shedlock           : '5.16.0',
   testcontainers     : '1.20.3'
 ]
@@ -265,6 +265,8 @@ dependencies {
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-jose', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-core', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-config', version: versions.springSecurity
+  implementation group: 'org.springframework.security', name: 'spring-security-core', version: versions.springSecurity
+  implementation group: 'org.springframework.security', name: 'spring-security-web', version: versions.springSecurity
 
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.1.4'
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.1.3'
