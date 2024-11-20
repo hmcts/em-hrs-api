@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingAuditEntryRepositor
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesAuditEntryRepository;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -65,6 +66,12 @@ public class AuditEntryService {
         return hearingRecordingAuditEntryRepository.findByHearingRecordingOrderByEventDateTimeAsc(hearingRecording);
     }
 
+    public List<HearingRecordingSegmentAuditEntry> listHearingRecordingAudits(
+        LocalDateTime startDate,
+        LocalDateTime endDate
+    ) {
+        return hearingRecordingAuditEntryRepository.findByEventDateTimeBetween(startDate, endDate);
+    }
 
     public HearingRecordingAuditEntry createAndSaveEntry(HearingRecording hearingRecording,
                                                          AuditActions action) {
@@ -138,6 +145,5 @@ public class AuditEntryService {
         auditEntry.setEventDateTime(new Date());
 
     }
-
 
 }
