@@ -112,15 +112,18 @@ azure:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:dummy}
   storage:
     hrs:
-      connection-string: ${STORAGEACCOUNT_PRIMARY_CONNECTION_STRING:UseDevelopmentStorage=true}
+      connection-string: ${STORAGEACCOUNT_PRIMARY_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
       cvp-dest-blob-container-name: ${HRS_CVP_DEST_CONTAINER_NAME:emhrstestcontainer}
       vh-dest-blob-container-name: ${HRS_VH_DEST_CONTAINER_NAME:emhrsvhtestcontainer}
     cvp:
-      connection-string: ${CVP_STORAGE_CONNECTION_STRING:UseDevelopmentStorage=true}
+      connection-string: ${CVP_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
       blob-container-reference: ${CVP_STORAGE_CONTAINER_NAME:cvptestcontainer}
     vh:
-      connection-string: ${VH_STORAGE_CONNECTION_STRING:UseDevelopmentStorage=true}
+      connection-string: ${VH_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
       blob-container-name: ${VH_STORAGE_CONTAINER_NAME:vhtestcontainer}
+    jurisdiction-codes:
+      connection-string: ${STORAGEACCOUNT_PRIMARY_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
+      blob-container-name: ${JURISDICTION_CODES_CONTAINER_NAME:jurisdictioncodes}
     use-ad-auth: ${USE_AD_AUTH_FOR_SOURCE_BLOB_CONNECTION:false}
 
 vh:
@@ -166,6 +169,9 @@ scheduling:
       enabled: ${DELETE_INPROGRESS_ENABLED:true}
       cron:  ${DELETE_INPROGRESS_CRON:0 0 */3 * * *}
       ttl-hours: 3
+    jurisdiction-codes:
+      cron: ${JURISDICTION_CODES_UPDATE_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
+      enabled: ${JURISDICTION_CODES_UPDATE_ENABLED:true}
 report:
   recipients: ${SUMMARY_REPORT_RECIPIENTS:xxxx}
   from: ${SMTP_USERNAME:xxxx}

@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -37,6 +38,12 @@ public class AzureStorageConfig {
 
     @Value("${azure.storage.vh.blob-container-name}")
     private String vhContainer;
+
+    @Value("${azure.storage.jurisdiction-codes.connection-string}")
+    private String jurisdictionCodesConnectionString;
+
+    @Value("${azure.storage.jurisdiction-codes.blob-container-name}")
+    private String jurisdictionCodesContainer;
 
     @Value("${azure.storage.use-ad-auth}")
     private boolean useAdAuth;
@@ -79,6 +86,19 @@ public class AzureStorageConfig {
         BlobContainerClient blobContainerClient = createBlobClient(vhConnectionString, vhContainer);
         createIfNotExists(blobContainerClient);
         return blobContainerClient;
+    }
+
+    @Bean("jurisdictionCodesContainerClient")
+    @ConditionalOnProperty(value = "scheduling.task.jurisdiction-codes.enabled")
+    public BlobContainerClient jurisdictionCodesClient() {
+        BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
+            .connectionString(jurisdictionCodesConnectionString)
+            .containerName(jurisdictionCodesContainer)
+            .buildClient();
+
+        createIfNotExists(blobContainerClient);
+        return blobContainerClient;
+
     }
 
     private void createIfNotExists(BlobContainerClient blobContainerClient) {
