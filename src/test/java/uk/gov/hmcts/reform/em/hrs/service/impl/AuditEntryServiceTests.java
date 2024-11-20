@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegmentAuditEntry;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingShareeAuditEntry;
+import uk.gov.hmcts.reform.em.hrs.repository.AuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesAuditEntryRepository;
@@ -51,7 +52,6 @@ class AuditEntryServiceTests {
     @Mock
     private HearingRecordingSegmentAuditEntryRepository hearingRecordingSegmentAuditEntryRepository;
 
-
     @Mock
     private ShareesAuditEntryRepository shareesAuditEntryRepository;
 
@@ -61,6 +61,10 @@ class AuditEntryServiceTests {
 
     @Mock
     private AuditLogFormatter auditLogFormatter;
+
+    @Mock
+    private AuditEntryRepository auditEntryRepository;
+
 
     @BeforeEach
     void prepare() {
@@ -153,18 +157,18 @@ class AuditEntryServiceTests {
         var auditEntry1 = new HearingRecordingSegmentAuditEntry();
         var auditEntry2 = new HearingRecordingSegmentAuditEntry();
 
-        when(hearingRecordingSegmentAuditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
+        when(auditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
             .thenReturn(List.of(auditEntry1, auditEntry2));
 
         // when
-        List<HearingRecordingSegmentAuditEntry> result =
+        List<AuditEntry> result =
             auditEntryService.listHearingRecordingAudits(startDate, endDate);
 
         // then
         Assertions.assertEquals(2, result.size());
         Assertions.assertTrue(result.contains(auditEntry1));
         Assertions.assertTrue(result.contains(auditEntry2));
-        verify(hearingRecordingSegmentAuditEntryRepository, times(1))
+        verify(auditEntryRepository, times(1))
             .findByEventDateTimeBetween(startDate, endDate);
     }
 
@@ -174,16 +178,16 @@ class AuditEntryServiceTests {
         var startDate = LocalDateTime.now().minusDays(30);
         var endDate = LocalDateTime.now();
 
-        when(hearingRecordingSegmentAuditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
+        when(auditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
             .thenReturn(List.of());
 
         // when
-        List<HearingRecordingSegmentAuditEntry> result =
+        List<AuditEntry> result =
             auditEntryService.listHearingRecordingAudits(startDate, endDate);
 
         // then
         Assertions.assertTrue(result.isEmpty());
-        verify(hearingRecordingSegmentAuditEntryRepository, times(1))
+        verify(auditEntryRepository, times(1))
             .findByEventDateTimeBetween(startDate, endDate);
     }
 
@@ -193,7 +197,7 @@ class AuditEntryServiceTests {
         var startDate = LocalDateTime.now().minusDays(30);
         var endDate = LocalDateTime.now();
 
-        when(hearingRecordingSegmentAuditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
+        when(auditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
             .thenThrow(new RuntimeException("Database error"));
 
         // when / then
@@ -201,7 +205,7 @@ class AuditEntryServiceTests {
             RuntimeException.class,
             () -> auditEntryService.listHearingRecordingAudits(startDate, endDate)
         );
-        verify(hearingRecordingSegmentAuditEntryRepository, times(1))
+        verify(auditEntryRepository, times(1))
             .findByEventDateTimeBetween(startDate, endDate);
     }
 

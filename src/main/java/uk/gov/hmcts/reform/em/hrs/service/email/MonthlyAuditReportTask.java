@@ -94,6 +94,7 @@ public class MonthlyAuditReportTask {
             LocalDateTime endOfMonth = getEndOfMonth(month, year);
             LOGGER.info("get records for from: {},to:{}", startOfMonth, endOfMonth);
             var list = auditEntryService.listHearingRecordingAudits(startOfMonth, endOfMonth);
+
             return auditReportCsvWriter.writeHearingRecordingSummaryToCsv(list);
         }
 

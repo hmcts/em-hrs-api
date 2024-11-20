@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegmentAuditEntry;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingShareeAuditEntry;
 import uk.gov.hmcts.reform.em.hrs.model.LogOnlyAuditEntry;
+import uk.gov.hmcts.reform.em.hrs.repository.AuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesAuditEntryRepository;
@@ -38,16 +39,23 @@ public class AuditEntryService {
 
     private final AuditLogFormatter auditLogFormatter;
 
+    private final AuditEntryRepository auditEntryRepository;
+
+
     @Autowired
-    public AuditEntryService(HearingRecordingAuditEntryRepository hearingRecordingAuditEntryRepository,
-                             HearingRecordingSegmentAuditEntryRepository hearingRecordingSegmentAuditEntryRepository,
-                             ShareesAuditEntryRepository hearingRecordingShareeAuditEntryRepository,
-                             SecurityService securityService, AuditLogFormatter auditLogFormatter) {
+    public AuditEntryService(
+        HearingRecordingAuditEntryRepository hearingRecordingAuditEntryRepository,
+        HearingRecordingSegmentAuditEntryRepository hearingRecordingSegmentAuditEntryRepository,
+        ShareesAuditEntryRepository hearingRecordingShareeAuditEntryRepository,
+        SecurityService securityService, AuditLogFormatter auditLogFormatter,
+        AuditEntryRepository auditEntryRepository
+    ) {
         this.hearingRecordingAuditEntryRepository = hearingRecordingAuditEntryRepository;
         this.hearingRecordingSegmentAuditEntryRepository = hearingRecordingSegmentAuditEntryRepository;
         this.hearingRecordingShareeAuditEntryRepository = hearingRecordingShareeAuditEntryRepository;
         this.securityService = securityService;
         this.auditLogFormatter = auditLogFormatter;
+        this.auditEntryRepository = auditEntryRepository;
     }
 
     public void logOnly(Long caseId, AuditActions action) {
@@ -68,11 +76,11 @@ public class AuditEntryService {
     }
 
     @Transactional
-    public List<HearingRecordingSegmentAuditEntry> listHearingRecordingAudits(
+    public List<AuditEntry> listHearingRecordingAudits(
         LocalDateTime startDate,
         LocalDateTime endDate
     ) {
-        return hearingRecordingSegmentAuditEntryRepository.findByEventDateTimeBetween(startDate, endDate);
+        return auditEntryRepository.findByEventDateTimeBetween(startDate, endDate);
     }
 
     public HearingRecordingAuditEntry createAndSaveEntry(HearingRecording hearingRecording,
