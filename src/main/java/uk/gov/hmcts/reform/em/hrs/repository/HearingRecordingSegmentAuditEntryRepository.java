@@ -9,5 +9,4 @@ import java.util.UUID;
 @Repository
 public interface HearingRecordingSegmentAuditEntryRepository
     extends CrudRepository<HearingRecordingSegmentAuditEntry, UUID> {
-
 }

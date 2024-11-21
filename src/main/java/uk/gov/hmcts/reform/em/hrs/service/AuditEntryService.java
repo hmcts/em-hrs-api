@@ -155,5 +155,4 @@ public class AuditEntryService {
         auditEntry.setEventDateTime(new Date());
 
     }
-
 }
