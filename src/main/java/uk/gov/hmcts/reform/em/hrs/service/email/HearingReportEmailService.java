@@ -3,9 +3,6 @@ package uk.gov.hmcts.reform.em.hrs.service.email;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.exception.EmailRecipientNotFoundException;
 
 import java.io.File;
@@ -13,13 +10,12 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Map;
 
-@Service
-@Lazy
+
 public class HearingReportEmailService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HearingReportEmailService.class);
 
-    private static final String SUBJECT_PREFIX = "Monthly hearing report for ";
-    private static final String ATTACHMENT_PREFIX = "Monthly-hearing-report-";
+    private final String subjectPrefix;
+    private final String attachmentPrefix;
 
     private final EmailSender emailSender;
 
@@ -29,8 +25,10 @@ public class HearingReportEmailService {
 
     public HearingReportEmailService(
         EmailSender emailSender,
-        @Value("${report.monthly-hearing.recipients}") String[] recipients,
-        @Value("${report.from}") String from
+        String[] recipients,
+        String from,
+        String subjectPrefix,
+        String attachmentPrefix
     ) {
         this.emailSender = emailSender;
         if (ArrayUtils.isEmpty(recipients)) {
@@ -39,6 +37,8 @@ public class HearingReportEmailService {
             this.recipients = Arrays.copyOf(recipients, recipients.length);
         }
         this.from = from;
+        this.subjectPrefix = subjectPrefix;
+        this.attachmentPrefix = attachmentPrefix;
     }
 
     public void sendReport(LocalDate reportDate, File reportFile) {
@@ -46,7 +46,7 @@ public class HearingReportEmailService {
             LOGGER.info("Report recipients: {}", this.recipients[0]);
 
             emailSender.sendMessageWithAttachments(
-                SUBJECT_PREFIX + reportDate,
+                this.subjectPrefix + reportDate,
                 createBody(reportDate),
                 from,
                 recipients,
@@ -59,7 +59,7 @@ public class HearingReportEmailService {
 
 
     private String getReportAttachmentName(LocalDate reportDate) {
-        return ATTACHMENT_PREFIX + reportDate.getMonth() + "-" + reportDate.getYear() + ".csv";
+        return this.attachmentPrefix + reportDate.getMonth() + "-" + reportDate.getYear() + ".csv";
     }
 
     private String createBody(LocalDate date) {

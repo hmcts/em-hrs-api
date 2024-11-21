@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.service.email;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,7 +26,7 @@ public class MonthlyHearingReportTask {
     private final List<LocalDate> reportStartDateList;
 
     public MonthlyHearingReportTask(
-        HearingReportEmailService hearingReportEmailService,
+        @Qualifier("monthlyHearingEmailService") HearingReportEmailService hearingReportEmailService,
         HearingReportService hearingReportService,
         @Value("#{dateListConverter.convert('${report.monthly-hearing.reportStartDates}')}")
         List<LocalDate> reportStartDates) {

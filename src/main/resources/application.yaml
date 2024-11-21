@@ -162,7 +162,7 @@ scheduling:
     monthly-hearing-report:
       enabled: ${MONTHLY_HEARING_REPORT_ENABLED:false}
       cron: ${MONTHLY_HEARING_REPORT_CRON:0 0 6 ? * *}
-    monthly-hearing-audit-report:
+    monthly-audit-report:
       enabled: ${MONTHLY_AUDIT_REPORT_ENABLED:false}
       cron: ${MONTHLY_AUDIT_REPORT_CRON:0 0 6 ? * *}
     delete-inprogress-jobs:
@@ -176,10 +176,11 @@ report:
   monthly-hearing:
     recipients: ${MONTHLY_HEARING_REPORT_RECIPIENTS:xxxx}
     reportStartDates: ${MONTHLY_HEARING_REPORT_REPORTSTART_DATES:}
-  monthly-hearing-audit:
+    from: ${SMTP_USERNAME:xxxx}
+  monthly-audit:
     recipients: ${MONTHLY_AUDIT_REPORT_RECIPIENTS:xxxx}
     reportStartDates: ${MONTHLY_AUDIT_REPORT_REPORTSTART_DATES:}
-
+    from: ${SMTP_USERNAME:xxxx}
 
 springdoc:
   packagesToScan: uk.gov.hmcts.reform.em.hrs.controller

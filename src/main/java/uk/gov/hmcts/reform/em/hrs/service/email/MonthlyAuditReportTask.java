@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.service.email;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,10 +22,10 @@ import java.util.List;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
-@ConditionalOnProperty(value = "scheduling.task.monthly-hearing-audit-report.enabled")
+@ConditionalOnProperty(value = "scheduling.task.monthly-audit-report.enabled")
 public class MonthlyAuditReportTask {
 
-    private static final String TASK_NAME = "create-monthly-hearing-audit-report";
+    private static final String TASK_NAME = "create-monthly-audit-report";
     private static final Logger logger = getLogger(MonthlyAuditReportTask.class);
 
     private final HearingReportEmailService hearingReportEmailService;
@@ -34,9 +35,9 @@ public class MonthlyAuditReportTask {
     private final List<LocalDate> reportStartDateList;
 
     public MonthlyAuditReportTask(
-        HearingReportEmailService hearingReportEmailService,
+        @Qualifier("monthlyAuditEmailService") HearingReportEmailService hearingReportEmailService,
         AuditReportService monthlyReportService,
-        @Value("#{dateListConverter.convert('${report.monthly-hearing-audit.reportStartDates}')}")
+        @Value("#{dateListConverter.convert('${report.monthly-audit.reportStartDates}')}")
         List<LocalDate> reportStartDates) {
         this.hearingReportEmailService = hearingReportEmailService;
         this.monthlyReportService = monthlyReportService;
@@ -44,7 +45,7 @@ public class MonthlyAuditReportTask {
     }
 
 
-    @Scheduled(cron = "${scheduling.task.monthly-hearing-audit-report.cron}", zone = "Europe/London")
+    @Scheduled(cron = "${scheduling.task.monthly-audit-report.cron}", zone = "Europe/London")
     @SchedulerLock(name = TASK_NAME)
     public void run() {
         logger.info("Started {} job", TASK_NAME);
