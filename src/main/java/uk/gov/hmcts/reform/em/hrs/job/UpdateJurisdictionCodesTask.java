@@ -105,18 +105,23 @@ public class UpdateJurisdictionCodesTask {
 
 
     private XSSFWorkbook loadWorkbook(BlobClient client) {
+        File spreadsheetFile = null;
         try {
-            final File spreadsheetFile = File.createTempFile("jurisdictionCodes", ".xslx");
+            spreadsheetFile = File.createTempFile("jurisdictionCodes", ".xslx");
             final String filename = spreadsheetFile.getAbsolutePath();
 
             spreadsheetFile.delete();
             client.downloadToFile(filename);
 
-            final InputStream stream = new FileInputStream(filename);
-
-            return new XSSFWorkbook(stream);
+            try (InputStream stream = new FileInputStream(filename)) {
+                return new XSSFWorkbook(stream);
+            }
         } catch (IOException e) {
             throw new BlobCopyException(e.getMessage());
+        } finally {
+            if (Objects.nonNull(spreadsheetFile) && spreadsheetFile.exists()) {
+                spreadsheetFile.delete();
+            }
         }
     }
 
