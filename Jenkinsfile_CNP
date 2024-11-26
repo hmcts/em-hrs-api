@@ -175,11 +175,8 @@ withPipeline(type, product, component) {
              '''
     }
   }
-
-  onMaster()
-    {
+  
   enablePactAs([AppPipelineDsl.PactRoles.CONSUMER])
-    }
 
   afterAlways('test') {
 
