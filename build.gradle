@@ -234,9 +234,7 @@ repositories {
 }
 
 def versions = [
-  serenity           : '3.7.0',
-  serenityreporter   : '3.7.0',
-  serenityRestAssured : '3.7.0',
+  serenity           : '4.2.9',
   lombok             : '1.18.36',
   reformLogging      : '6.1.7',
   log4JVersion       : "2.17.1",
@@ -324,11 +322,11 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
   implementation "org.springframework.boot:spring-boot-starter-jdbc"
 
-  testImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
   testImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
   testImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
   testImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  testImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenity
   testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.5', classifier: 'all'
 
 /***********************************************************************************************************************
@@ -353,7 +351,7 @@ dependencies {
   }
 
   functionalTestImplementation 'com.github.hmcts:em-test-helper:2.0.9'
-  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
 
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
 
@@ -377,16 +375,16 @@ dependencies {
   testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.3'
 
 
-  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
+  functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenity
 
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
-  smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenityRestAssured, withoutStuff
-  smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenityreporter
+  smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
+  smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenity
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
   smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '2.0.9'
 
