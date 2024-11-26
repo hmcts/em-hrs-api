@@ -114,7 +114,10 @@ class AuditReportCsvWriterTest {
         assertEquals(".csv", resultFile.getName().substring(resultFile.getName().length() - 4));
 
         try (FileReader reader = new FileReader(resultFile);
-             CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+             CSVParser parser = new CSVParser(
+                 reader,
+                 CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build()
+             )) {
 
             List<CSVRecord> records = parser.getRecords();
             assertEquals(expectedRows, records.size());

@@ -40,8 +40,8 @@ public class AuditReportCsvWriter {
             CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)
         ) {
             for (AuditEntry entry : Optional.ofNullable(data).orElse(emptyList())) {
-                if (entry instanceof HearingRecordingSegmentAuditEntry) {
-                    HearingRecordingSegmentAuditEntry hearingAudit = (HearingRecordingSegmentAuditEntry) entry;
+                if (entry instanceof HearingRecordingSegmentAuditEntry hearingAudit) {
+                    hearingAudit = (HearingRecordingSegmentAuditEntry) entry;
                     var hearingRecSeg = hearingAudit.getHearingRecordingSegment();
                     printer.printRecord(
                         entry.getAction(),
@@ -56,8 +56,8 @@ public class AuditReportCsvWriter {
                         "",
                         ""
                     );
-                } else if (entry instanceof HearingRecordingAuditEntry) {
-                    HearingRecordingAuditEntry hearingRecordingAudit = (HearingRecordingAuditEntry) entry;
+                } else if (entry instanceof HearingRecordingAuditEntry hearingRecordingAudit) {
+                    hearingRecordingAudit = (HearingRecordingAuditEntry) entry;
                     var hearingRec = hearingRecordingAudit.getHearingRecording();
                     printer.printRecord(
                         entry.getAction(),
@@ -72,8 +72,8 @@ public class AuditReportCsvWriter {
                         "",
                         ""
                     );
-                } else if (entry instanceof HearingRecordingShareeAuditEntry) {
-                    HearingRecordingShareeAuditEntry hearingShareeAudit = (HearingRecordingShareeAuditEntry) entry;
+                } else if (entry instanceof HearingRecordingShareeAuditEntry hearingShareeAudit) {
+                    hearingShareeAudit = (HearingRecordingShareeAuditEntry) entry;
                     var hearingSharee = hearingShareeAudit.getHearingRecordingSharee();
                     var hearingRecording = hearingSharee.getHearingRecording();
                     printer.printRecord(
