@@ -28,14 +28,13 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(classes = {
     MonthlyHearingReportTask.class,
-    HearingReportEmailService.class,
     DateListConverter.class
 })
 @ActiveProfiles("test")
 @TestPropertySource(locations = "classpath:application-test.yaml")
 public class MonthlyHearingReportTaskTest {
 
-    @MockBean
+    @MockBean(name = "monthlyHearingEmailService")
     private HearingReportEmailService hearingReportEmailService;
 
     @MockBean
