@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Lazy;
 
 @Configuration
 public class HearingReportEmailServiceConfig {
-
     @Bean(name = "monthlyHearingEmailService")
     @Lazy
     public HearingReportEmailService monthlyHearingEmailService(
@@ -23,7 +22,6 @@ public class HearingReportEmailServiceConfig {
             "Monthly-hearing-report-"
         );
     }
-
 
     @Bean(name = "monthlyAuditEmailService")
     @Lazy
@@ -41,5 +39,4 @@ public class HearingReportEmailServiceConfig {
             "Monthly-audit-report-"
         );
     }
-
 }
