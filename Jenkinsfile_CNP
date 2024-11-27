@@ -106,7 +106,7 @@ withPipeline(type, product, component) {
   }
 
   onPR(){
-//    env.CLOSE_CCD_TEST_CASES = true
+    env.CLOSE_CCD_TEST_CASES = true
     loadVaultSecrets(secretsForPreview)
   }
 
