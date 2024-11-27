@@ -266,7 +266,7 @@ dependencies {
   implementation group: 'org.springframework.security', name: 'spring-security-core', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-web', version: versions.springSecurity
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.1.4'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.1.5'
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.1.3'
 
 
