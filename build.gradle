@@ -294,7 +294,7 @@ dependencies {
 //gov notify email service
   implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '5.2.1-RELEASE'
 
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.7.0'
 //azure components
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.29.0'
   implementation group: 'com.azure', name: 'azure-identity', version: '1.14.2'
