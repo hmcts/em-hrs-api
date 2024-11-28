@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.controller;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
@@ -28,10 +28,10 @@ import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHAREE_EMAIL_AD
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.convertObjectToJsonString;
 
 class GlobalExceptionHandlerTest extends AbstractBaseTest {
-    @MockBean
+    @MockitoBean
     private FolderService folderService;
 
-    @MockBean
+    @MockitoBean
     private ShareAndNotifyService shareService;
 
     @Test
