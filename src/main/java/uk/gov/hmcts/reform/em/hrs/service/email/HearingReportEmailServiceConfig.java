@@ -35,7 +35,6 @@ public class HearingReportEmailServiceConfig {
             recipients,
             from,
             "Monthly audit report for ",
-
             "Monthly-audit-report-"
         );
     }
