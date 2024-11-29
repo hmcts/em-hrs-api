@@ -5,12 +5,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
@@ -37,13 +37,13 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(classes = {PermissionEvaluatorImpl.class})
 class PermissionEvaluatorImplTest {
 
-    @MockBean
+    @MockitoBean
     private SecurityService securityService;
 
-    @MockBean
+    @MockitoBean
     private ShareesRepository shareesRepository;
 
-    @MockBean
+    @MockitoBean
     private AuditEntryService auditEntryService;
 
     private JwtAuthenticationToken authentication;

@@ -8,7 +8,6 @@ import uk.gov.hmcts.reform.em.hrs.domain.JobInProgress;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,25 +23,22 @@ class JobInProgressRepositoryIntegrationTest extends AbstractRepositoryIntegrati
 
         final List<JobInProgress> jobsInProgress = List.of(
             JobInProgress.builder()
-                .id(UUID.randomUUID())
                 .filename("a-yesterday.txt")
                 .createdOn(yesterday)
                 .build(),
             JobInProgress.builder()
-                .id(UUID.randomUUID())
                 .filename("b-yesterday.txt")
                 .createdOn(yesterday)
                 .build(),
             JobInProgress.builder()
-                .id(UUID.randomUUID())
                 .filename("c-today.txt")
                 .createdOn(now)
                 .build(),
             JobInProgress.builder()
-                .id(UUID.randomUUID())
                 .filename("d-NULL.txt")
                 .build()
         );
+
 
         underTest.saveAll(jobsInProgress);
 

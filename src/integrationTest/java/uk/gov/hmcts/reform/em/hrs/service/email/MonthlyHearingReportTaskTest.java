@@ -6,9 +6,9 @@ import org.mockito.InOrder;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,10 +34,10 @@ import static org.mockito.Mockito.when;
 @TestPropertySource(locations = "classpath:application-test.yaml")
 public class MonthlyHearingReportTaskTest {
 
-    @MockBean(name = "monthlyHearingEmailService")
+    @MockitoBean(name = "monthlyHearingEmailService")
     private HearingReportEmailService hearingReportEmailService;
 
-    @MockBean
+    @MockitoBean
     private HearingReportService hearingReportService;
 
     @Autowired
