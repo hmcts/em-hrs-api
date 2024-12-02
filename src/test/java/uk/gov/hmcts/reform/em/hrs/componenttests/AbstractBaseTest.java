@@ -6,9 +6,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -25,7 +25,7 @@ public abstract class AbstractBaseTest extends AbstractDataSourceTest {
     @Autowired
     private WebApplicationContext context;
 
-    @MockBean
+    @MockitoBean
     private JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter;
 
     protected MockMvc mockMvc;
@@ -36,7 +36,7 @@ public abstract class AbstractBaseTest extends AbstractDataSourceTest {
     @Mock
     protected SecurityContext securityContext;
 
-    @MockBean
+    @MockitoBean
     private WebConfig webConfig;
 
     @BeforeEach

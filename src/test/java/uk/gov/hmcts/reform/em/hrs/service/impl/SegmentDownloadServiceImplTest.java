@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
@@ -53,28 +53,28 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(classes = {SegmentDownloadServiceImpl.class})
 class SegmentDownloadServiceImplTest {
 
-    @MockBean
+    @MockitoBean
     private HearingRecordingSegmentRepository segmentRepository;
 
-    @MockBean
+    @MockitoBean
     private BlobstoreClient blobstoreClient;
 
-    @MockBean
+    @MockitoBean
     private AuditEntryService auditEntryService;
 
-    @MockBean
+    @MockitoBean
     private HttpServletRequest request;
 
-    @MockBean
+    @MockitoBean
     private HttpServletResponse response;
 
-    @MockBean
+    @MockitoBean
     private HearingRecordingSegmentAuditEntry hearingRecordingSegmentAuditEntry;
 
-    @MockBean
+    @MockitoBean
     private ShareesRepository shareesRepository;
 
-    @MockBean
+    @MockitoBean
     private SecurityService securityService;
 
     private HearingRecordingSegment segment;

@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.componenttests.AbstractBaseTest;
@@ -61,26 +61,26 @@ import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.convertObjectTo
 
 class HearingRecordingControllerTest extends AbstractBaseTest {
 
-    @MockBean
+    @MockitoBean
     HearingRecordingSegmentRepository segmentRepository;
 
-    @MockBean
+    @MockitoBean
     private ShareAndNotifyService shareAndNotifyService;
 
-    @MockBean
+    @MockitoBean
     private SegmentDownloadService segmentDownloadService;
 
-    @MockBean
+    @MockitoBean
     private HearingRecordingService hearingRecordingService;
 
     @Autowired
     @Qualifier("ingestionQueue")
     private LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
 
-    @MockBean
+    @MockitoBean
     private AuditEntryService auditEntryService;
 
-    @MockBean
+    @MockitoBean
     private HearingRecordingSegmentAuditEntry hearingRecordingSegmentAuditEntry;
 
     @Value("${endpoint.deleteCase.enabled}")

@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
 
 import java.util.Set;
@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(FolderController.class)
 public class FolderControllerTest extends BaseWebTest {
 
-    @MockBean
+    @MockitoBean
     FolderService folderService;
 
     @Test

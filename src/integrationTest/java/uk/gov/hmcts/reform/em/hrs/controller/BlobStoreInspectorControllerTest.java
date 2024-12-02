@@ -3,10 +3,10 @@ package uk.gov.hmcts.reform.em.hrs.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.helper.TestClockProvider;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
@@ -36,7 +36,7 @@ import static uk.gov.hmcts.reform.em.hrs.config.ClockConfig.EUROPE_LONDON_ZONE_I
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BlobStoreInspectorControllerTest extends BaseWebTest {
 
-    @MockBean
+    @MockitoBean
     private HearingRecordingStorage hearingRecordingStorage;
 
     private String testDummyKey = "RkI2ejoxNjk1OTA2MjM0MDcx";
