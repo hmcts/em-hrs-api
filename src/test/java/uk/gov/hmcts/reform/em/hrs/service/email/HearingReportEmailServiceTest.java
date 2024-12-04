@@ -31,7 +31,9 @@ class HearingReportEmailServiceTest {
         hearingReportEmailService = new HearingReportEmailService(
             emailSender,
             new String[]{"recipient@example.com"},
-            "sender@example.com"
+            "sender@example.com",
+            "Monthly hearing report for ",
+            "Monthly-hearing-report-"
         );
     }
 
@@ -41,7 +43,9 @@ class HearingReportEmailServiceTest {
             new HearingReportEmailService(
                 emailSender,
                 null,
-                "sender@example.com"
+                "sender@example.com",
+                "Monthly hearing report for ",
+                "Monthly-hearing-report-"
             );
         });
     }
@@ -52,7 +56,9 @@ class HearingReportEmailServiceTest {
             new HearingReportEmailService(
                 emailSender,
                 new String[]{},
-                "sender@example.com"
+                "sender@example.com",
+                "Monthly hearing report for ",
+                "Monthly-hearing-report-"
             );
         });
     }

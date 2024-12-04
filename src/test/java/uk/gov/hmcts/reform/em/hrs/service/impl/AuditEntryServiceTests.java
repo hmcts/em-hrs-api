@@ -17,12 +17,14 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegmentAuditEntry;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingShareeAuditEntry;
+import uk.gov.hmcts.reform.em.hrs.repository.AuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.service.AuditEntryService;
 import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -59,6 +61,10 @@ class AuditEntryServiceTests {
 
     @Mock
     private AuditLogFormatter auditLogFormatter;
+
+    @Mock
+    private AuditEntryRepository auditEntryRepository;
+
 
     @BeforeEach
     void prepare() {
@@ -140,6 +146,67 @@ class AuditEntryServiceTests {
         );
 
         assertLogFormatterInvoked();
+    }
+
+    @Test
+    void shouldReturnHearingRecordingSegmentAuditEntriesWithinDateRange() {
+        // given
+        var startDate = LocalDateTime.now().minusDays(30);
+        var endDate = LocalDateTime.now();
+
+        var auditEntry1 = new HearingRecordingSegmentAuditEntry();
+        var auditEntry2 = new HearingRecordingSegmentAuditEntry();
+
+        when(auditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
+            .thenReturn(List.of(auditEntry1, auditEntry2));
+
+        // when
+        List<AuditEntry> result =
+            auditEntryService.listHearingRecordingAudits(startDate, endDate);
+
+        // then
+        Assertions.assertEquals(2, result.size());
+        Assertions.assertTrue(result.contains(auditEntry1));
+        Assertions.assertTrue(result.contains(auditEntry2));
+        verify(auditEntryRepository, times(1))
+            .findByEventDateTimeBetween(startDate, endDate);
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoAuditEntriesFound() {
+        // given
+        var startDate = LocalDateTime.now().minusDays(30);
+        var endDate = LocalDateTime.now();
+
+        when(auditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
+            .thenReturn(List.of());
+
+        // when
+        List<AuditEntry> result =
+            auditEntryService.listHearingRecordingAudits(startDate, endDate);
+
+        // then
+        Assertions.assertTrue(result.isEmpty());
+        verify(auditEntryRepository, times(1))
+            .findByEventDateTimeBetween(startDate, endDate);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenRepositoryThrows() {
+        // given
+        var startDate = LocalDateTime.now().minusDays(30);
+        var endDate = LocalDateTime.now();
+
+        when(auditEntryRepository.findByEventDateTimeBetween(startDate, endDate))
+            .thenThrow(new RuntimeException("Database error"));
+
+        // when / then
+        Assertions.assertThrows(
+            RuntimeException.class,
+            () -> auditEntryService.listHearingRecordingAudits(startDate, endDate)
+        );
+        verify(auditEntryRepository, times(1))
+            .findByEventDateTimeBetween(startDate, endDate);
     }
 
     private void prepareMockSecurityService() {
