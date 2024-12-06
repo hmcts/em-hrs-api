@@ -216,7 +216,7 @@ module "db-v15" {
   admin_user_object_id = var.jenkins_AAD_objectId
   business_area        = "CFT"
   email_address_key           = var.email_address_key
-  email_address_key_vault_id  = data.azurerm_key_vault.key-vault.id
+  email_address_key_vault_id  = module.key-vault.key_vault_id
   # The original subnet is full, this is required to use the new subnet for new databases
   subnet_suffix = "expanded"
   pgsql_databases = [
