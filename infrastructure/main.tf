@@ -13,6 +13,7 @@ provider "azurerm" {
 locals {
   app_full_name = "${var.product}-${var.component}"
   tags          = var.common_tags
+  db_name = "${local.app_full_name}-postgres-db-v15"
 }
 
 resource "azurerm_resource_group" "rg" {
@@ -205,15 +206,18 @@ module "db-v15" {
   providers = {
     azurerm.postgres_network = azurerm.cft_vnet
   }
-  source               = "git@github.com:hmcts/terraform-module-postgresql-flexible?ref=master"
-  env                  = var.env
-  product              = var.product
-  component            = var.component
-  common_tags          = var.common_tags
-  name                 = "${local.app_full_name}-postgres-db-v15"
-  pgsql_version        = "15"
-  admin_user_object_id = var.jenkins_AAD_objectId
-  business_area        = "CFT"
+  source                      = "git@github.com:hmcts/terraform-module-postgresql-flexible?ref=master"
+  env                         = var.env
+  product                     = var.product
+  component                   = var.component
+  common_tags                 = var.common_tags
+  name                        = local.db_name
+  pgsql_version               = "15"
+  admin_user_object_id        = var.jenkins_AAD_objectId
+  business_area               = "CFT"
+  action_group_name           = join("-", [local.db_name, var.action_group_name])
+  email_address_key           = var.email_address_key
+  email_address_key_vault_id  = module.key-vault.key_vault_id
   # The original subnet is full, this is required to use the new subnet for new databases
   subnet_suffix = "expanded"
   pgsql_databases = [
