@@ -218,6 +218,9 @@ module "db-v15" {
   action_group_name           = join("-", [local.db_name, var.action_group_name])
   email_address_key           = var.email_address_key
   email_address_key_vault_id  = module.key-vault.key_vault_id
+  cpu_threshold                  = var.cpu_threshold
+  memory_threshold               = var.memory_threshold
+  storage_threshold              = var.storage_threshold
   # The original subnet is full, this is required to use the new subnet for new databases
   subnet_suffix = "expanded"
   pgsql_databases = [
