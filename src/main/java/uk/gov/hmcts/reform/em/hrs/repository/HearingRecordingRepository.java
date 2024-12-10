@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.repository;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -27,4 +28,6 @@ public interface HearingRecordingRepository extends JpaRepository<HearingRecordi
     void deleteStaleRecordsWithNullCcdCaseId(@Param("createddate") LocalDateTime createddate);
 
     List<HearingRecording> deleteByCcdCaseIdIn(Collection<Long> ccdCaseIds);
+
+    List<HearingRecording> findByTtlSetFalseOrderByCreatedOnAsc(Limit limit);
 }

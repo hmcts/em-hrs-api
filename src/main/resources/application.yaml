@@ -175,6 +175,10 @@ scheduling:
       enabled: ${DELETE_INPROGRESS_ENABLED:true}
       cron:  ${DELETE_INPROGRESS_CRON:0 0 */3 * * *}
       ttl-hours: 3
+    update-ttl:
+      cron: ${UPDATE_TTL_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
+      batch-size: ${UPDATE_TTL_BATCH_SIZE:10}
+      enabled: ${UPDATE_TTL_JOB_ENABLED:true}
     jurisdiction-codes:
       cron: ${JURISDICTION_CODES_UPDATE_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
       enabled: ${JURISDICTION_CODES_UPDATE_ENABLED:true}

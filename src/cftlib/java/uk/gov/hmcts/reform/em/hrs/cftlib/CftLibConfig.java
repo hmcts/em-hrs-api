@@ -50,7 +50,8 @@ public class CftLibConfig implements CFTLibConfigurer {
             "caseworker",
             "caseworker-hrs",
             "caseworker-hrs-searcher",
-            "cft-ttl-manager"
+            "cft-ttl-manager",
+            "caseworker-hrs-systemupdate"
         );
 
         lib.createIdamUser("data.store.idam.system.user@gmail.com", "caseworker");
@@ -59,7 +60,8 @@ public class CftLibConfig implements CFTLibConfigurer {
                            "citizen",
                            "caseworker",
                            "caseworker-hrs",
-                           "caseworker-hrs-searcher");
+                           "caseworker-hrs-searcher",
+                           "cft-ttl-manager");
 
         lib.createIdamUser("em-test-searcher@test.hmcts.net",
                            "citizen",

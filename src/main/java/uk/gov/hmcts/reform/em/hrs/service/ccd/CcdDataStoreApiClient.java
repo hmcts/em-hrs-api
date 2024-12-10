@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.service.ccd;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.applicationinsights.core.dependencies.google.gson.Gson;
 import com.microsoft.applicationinsights.core.dependencies.google.gson.GsonBuilder;
 import org.slf4j.Logger;
@@ -12,6 +14,8 @@ import uk.gov.hmcts.reform.ccd.client.model.Event;
 import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.exception.CcdUploadException;
+import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
+import uk.gov.hmcts.reform.em.hrs.model.TtlCcdObject;
 import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 
 import java.time.LocalDate;
@@ -30,6 +34,7 @@ public class CcdDataStoreApiClient {
     private static final String CASE_TYPE = "HearingRecordings";
     private static final String EVENT_CREATE_CASE = "createCase";
     private static final String EVENT_MANAGE_FILES = "manageFiles";
+    private static final String EVENT_AMEND_CASE = "editCaseDetails";
     private final SecurityService securityService;
     private final CaseDataContentCreator caseDataCreator;
     private final CoreCaseDataApi coreCaseDataApi;
@@ -139,6 +144,38 @@ public class CcdDataStoreApiClient {
 
     }
 
+    public void updateCaseWithTtl(Long ccdCaseId, LocalDate ttl) {
+        try {
+            Map<String, String> tokens = securityService.getTokens();
+
+            StartEventResponse startEventResponse = coreCaseDataApi.startEvent(
+                tokens.get(USER),
+                tokens.get(SERVICE),
+                ccdCaseId.toString(),
+                EVENT_AMEND_CASE
+            );
+
+            final ObjectMapper mapper = new ObjectMapper();
+            mapper.findAndRegisterModules();
+
+            CaseDetails caseDetails = startEventResponse.getCaseDetails();
+            CaseHearingRecording caseHearingRecording = mapper.convertValue(
+                caseDetails.getData(), CaseHearingRecording.class);
+            TtlCcdObject ttlObject = caseDataCreator.createTTLObject(Optional.of(ttl));
+            caseHearingRecording.setTimeToLive(ttlObject);
+
+            CaseDataContent caseDataContent = CaseDataContent.builder()
+                .event(Event.builder().id(startEventResponse.getEventId()).build())
+                .eventToken(startEventResponse.getToken())
+                .data(mapper.convertValue(caseHearingRecording, JsonNode.class))
+                .build();
+            coreCaseDataApi.submitEventForCaseWorker(tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
+                                                     JURISDICTION, CASE_TYPE, ccdCaseId.toString(),
+                                                     false, caseDataContent);
+        } catch (Exception e) {
+            throw new CcdUploadException("Error Updating TTL", e);
+        }
+    }
 
     private void logCaseDataError(CaseDataContent caseData) {
         String caseReference = caseData.getCaseReference();
@@ -160,8 +197,6 @@ public class CcdDataStoreApiClient {
         String jsonOutput = gson.toJson(jsonData);
         LOGGER.info("caseData Pretty: {}", jsonOutput);
     }
-
-
 }
 
 

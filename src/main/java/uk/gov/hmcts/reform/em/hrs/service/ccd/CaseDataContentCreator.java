@@ -116,7 +116,7 @@ public class CaseDataContentCreator {
             .map(dateTime -> dateTime.getHour() < 12 ? "AM" : "PM").orElse("");
     }
 
-    private TtlCcdObject createTTLObject(Optional<LocalDate> ttlOpt) {
+    public TtlCcdObject createTTLObject(Optional<LocalDate> ttlOpt) {
         return ttlOpt.map(ttl -> {
             var ttlString = ttl.toString();
             return TtlCcdObject.builder()
