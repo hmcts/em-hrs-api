@@ -3,10 +3,10 @@ package uk.gov.hmcts.reform.em.hrs;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.serenitybdd.rest.SerenityRest;
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class ShareScenarios extends BaseTest {
     @Value("${endpoint.deleteCase.enabled}")
     private boolean deleteCaseEndpointEnabled;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         LOGGER.info("SETTING UP SHARE RECORDING SCENARIOS....");
 
@@ -192,7 +192,7 @@ public class ShareScenarios extends BaseTest {
 
     @Test
     public void shouldReturn204WhenDeletingCaseHearingRecording() {
-        Assume.assumeTrue(deleteCaseEndpointEnabled);
+        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordings(List.of(ccdCaseId))
             .then().log().all()
             .statusCode(204);
@@ -200,7 +200,7 @@ public class ShareScenarios extends BaseTest {
 
     @Test
     public void shouldReturn401WhenDeletingWithS2sInvalid() {
-        Assume.assumeTrue(deleteCaseEndpointEnabled);
+        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordingsWithInvalidS2S(List.of(ccdCaseId))
             .then().log().all()
             .statusCode(401);
@@ -208,13 +208,13 @@ public class ShareScenarios extends BaseTest {
 
     @Test
     public void shouldReturn403WhenDeletingWithUnauthorisedService() {
-        Assume.assumeTrue(deleteCaseEndpointEnabled);
+        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
         deleteRecordingsWithUnauthorisedS2S(List.of(ccdCaseId))
             .then().log().all()
             .statusCode(403);
     }
 
-    @After
+    @AfterEach
     public void clearUp() {
         LOGGER.info("closeCcdCase AfterEach ====> {}", closeCcdCase);
         if (closeCcdCase) {

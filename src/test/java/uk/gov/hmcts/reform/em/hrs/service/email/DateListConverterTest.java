@@ -7,12 +7,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DateListConverterTest {
+class DateListConverterTest {
 
     private DateListConverter dateListConverter = new DateListConverter();
 
     @Test
-    public void testConvertValidDates() {
+    void testConvertValidDates() {
         String dates = "2024-07-19,2024-08-19,2024-09-19";
         List<LocalDate> expectedDates = List.of(
             LocalDate.of(2024, 7, 19),
@@ -26,7 +26,7 @@ public class DateListConverterTest {
     }
 
     @Test
-    public void testConvertWithSpaces() {
+    void testConvertWithSpaces() {
         String dates = "2024-07-19, 2024-08-19 , 2024-09-19 ";
         List<LocalDate> expectedDates = List.of(
             LocalDate.of(2024, 7, 19),
@@ -40,21 +40,21 @@ public class DateListConverterTest {
     }
 
     @Test
-    public void testConvertEmptyString() {
+    void testConvertEmptyString() {
         String dates = "";
         List<LocalDate> actualDates = dateListConverter.convert(dates);
         assertEquals(List.of(), actualDates);
     }
 
     @Test
-    public void testConvertNullString() {
+    void testConvertNullString() {
         String dates = null;
         List<LocalDate> actualDates = dateListConverter.convert(dates);
         assertEquals(List.of(), actualDates);
     }
 
     @Test
-    public void testConvertInvalidDate() {
+    void testConvertInvalidDate() {
         String dates = "2024-07-19,invalid-date,2024-09-19";
         try {
             dateListConverter.convert(dates);

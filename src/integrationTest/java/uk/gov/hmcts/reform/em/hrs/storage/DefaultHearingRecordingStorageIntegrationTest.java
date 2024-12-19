@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.em.hrs.exception.BlobCopyException;
 import uk.gov.hmcts.reform.em.hrs.exception.BlobNotFoundException;
 import uk.gov.hmcts.reform.em.hrs.helper.AzureIntegrationTestOperations;
 
+import java.io.File;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -42,6 +43,8 @@ class DefaultHearingRecordingStorageIntegrationTest {
     private static final String ONE_ITEM_FOLDER = "folder-1";
     private static final String MANY_ITEMS_FOLDER = "folder-2";
 
+    private static final Random random = new Random();
+
     @Autowired
     private AzureIntegrationTestOperations azureIntegrationTestOperations;
     @Autowired
@@ -58,13 +61,12 @@ class DefaultHearingRecordingStorageIntegrationTest {
     @Test
     void testShouldReturnEmptySetWhenFolderDoesNotExist() {
         final Set<String> files = underTest.findByFolderName(EMPTY_FOLDER);
-
         assertThat(files).isEmpty();
     }
 
     @Test
     void testShouldHandleTrailingSlashesGracefullyWhenFindingFilesInFolder() {
-        final String filePath = ONE_ITEM_FOLDER + "/" + UUID.randomUUID() + ".txt";
+        final String filePath = ONE_ITEM_FOLDER + File.separator + UUID.randomUUID() + ".txt";
         azureIntegrationTestOperations.uploadToHrsContainer(filePath);
 
         final Set<String> filesWithoutTrailingSlash = underTest.findByFolderName(ONE_ITEM_FOLDER);
@@ -122,7 +124,6 @@ class DefaultHearingRecordingStorageIntegrationTest {
     @Test
     void testStorageReport() {
         StorageReport storageReport = underTest.getStorageReport();
-        System.out.println(storageReport);
         assertEquals(storageReport.cvpItemCount, 0);
         assertEquals(storageReport.hrsCvpItemCount, 1);
     }
@@ -171,7 +172,6 @@ class DefaultHearingRecordingStorageIntegrationTest {
     }
 
     private Set<String> generateFilePaths() {
-        final Random random = new Random();
         final int number = random.nextInt(8) + 2;
 
         return IntStream.rangeClosed(1, number)
