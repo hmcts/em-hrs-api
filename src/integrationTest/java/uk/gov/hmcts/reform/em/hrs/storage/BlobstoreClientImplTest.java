@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestAzureStorageConfig;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.helper.AzureIntegrationTestOperations;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -38,7 +39,7 @@ class BlobstoreClientImplTest {
     }
 
     @Test
-    void testShouldDownloadHrsCvpFile() throws Exception {
+    void testShouldDownloadHrsCvpFile() throws IOException {
         final String filePath = ONE_ITEM_FOLDER + "/" + UUID.randomUUID() + ".txt";
         azureIntegrationTestOperations.populateHrsCvpContainer(filePath, TEST_DATA);
 
@@ -58,7 +59,7 @@ class BlobstoreClientImplTest {
     }
 
     @Test
-    void testShouldFetchHrsCvpBlobInfo() throws Exception {
+    void testShouldFetchHrsCvpBlobInfo() throws IOException {
         final String filePath = ONE_ITEM_FOLDER + "/" + UUID.randomUUID() + ".txt";
         azureIntegrationTestOperations.populateHrsCvpContainer(filePath, TEST_DATA);
         try (final PipedInputStream pipedInput = new PipedInputStream();
@@ -90,7 +91,7 @@ class BlobstoreClientImplTest {
     }
 
     @Test
-    void testShouldFetchHrsVhBlobInfo() throws Exception {
+    void testShouldFetchHrsVhBlobInfo() throws IOException {
         final String filePath = UUID.randomUUID() + ".txt";
         azureIntegrationTestOperations.populateHrsVhContainer(filePath, TEST_DATA);
         try (final PipedInputStream pipedInput = new PipedInputStream();

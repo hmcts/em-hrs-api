@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;

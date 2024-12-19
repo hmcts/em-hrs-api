@@ -1,12 +1,14 @@
 package uk.gov.hmcts.reform.em.hrs.controller;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class WelcomeControllerTest {
@@ -17,8 +19,8 @@ class WelcomeControllerTest {
     void testEndPointResponseCode() {
         ResponseEntity<Map<String, String>> responseEntity = welcomeController.welcome();
 
-        Assertions.assertNotNull(responseEntity);
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertNotNull(responseEntity);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
 
     @Test
@@ -30,8 +32,8 @@ class WelcomeControllerTest {
 
         String cacheHeader = responseEntity.getHeaders().getCacheControl();
 
-        Assertions.assertNotNull(responseEntity);
-        Assertions.assertEquals("no-cache", cacheHeader);
-        Assertions.assertEquals(expectedResponse, responseEntity.getBody());
+        assertNotNull(responseEntity);
+        assertEquals("no-cache", cacheHeader);
+        assertEquals(expectedResponse, responseEntity.getBody());
     }
 }

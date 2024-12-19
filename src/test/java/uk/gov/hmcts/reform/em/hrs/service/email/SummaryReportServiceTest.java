@@ -79,7 +79,7 @@ class SummaryReportServiceTest {
         given(hearingRecordingStorage.getStorageReport())
             .willReturn(mock(StorageReport.class));
         doThrow(new EmailNotificationException(new Exception("Email error")))
-            .when(emailSender).sendMessageWithAttachments(anyString(),anyString(),anyString(),any(),any());;
+            .when(emailSender).sendMessageWithAttachments(anyString(),anyString(),anyString(),any(),any());
         summaryReportService.sendReport();
         verify(hearingRecordingStorage).getStorageReport();
         verify(emailSender).sendMessageWithAttachments(anyString(),anyString(),anyString(),any(),any());

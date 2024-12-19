@@ -10,8 +10,7 @@ import jakarta.annotation.PostConstruct;
 import net.serenitybdd.annotations.WithTag;
 import net.serenitybdd.annotations.WithTags;
 import net.serenitybdd.rest.SerenityRest;
-import org.junit.Rule;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDataContent;
@@ -37,7 +36,6 @@ import uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper;
 import uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper;
 import uk.gov.hmcts.reform.em.test.idam.IdamConfiguration;
 import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
-import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 
@@ -66,7 +64,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
     EmTestConfig.class
 })
 @TestPropertySource(value = "classpath:application.yml")
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @WithTags({@WithTag("testType:Functional")})
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {
@@ -113,9 +111,6 @@ public abstract class BaseTest {
     DateTimeFormatter datePartFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     DateTimeFormatter dateTimePartFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHMMssSSS");
     DateTimeFormatter timePartFormatter = DateTimeFormatter.ofPattern("HH-MM-ss---SSS");
-
-    @Rule
-    public RetryRule retryRule = new RetryRule(3);//3 is standard across hmcts projects
 
     @Value("${test.url}")
     protected String testUrl;

@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs;
 
-import jakarta.annotation.PostConstruct;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -27,8 +28,12 @@ public class DownloadNonSharedScenarios extends BaseTest {
     private CaseDetails caseDetails;
     private int expectedFileSize;
 
-    @PostConstruct
+    @BeforeEach
     public void setup() throws Exception {
+        if (Objects.nonNull(caseDetails) && Objects.nonNull(caseDetails.getData())) {
+            LOGGER.info("CaseDetails is not null, setup done already");
+            return;
+        }
         createFolderIfDoesNotExistInHrsDB(FOLDER);
         caseRef = timebasedCaseRef();
         filename = filename(caseRef, 0);

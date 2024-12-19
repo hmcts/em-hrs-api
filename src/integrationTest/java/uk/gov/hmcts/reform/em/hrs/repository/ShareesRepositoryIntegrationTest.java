@@ -40,8 +40,7 @@ class ShareesRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest
         final HearingRecordingSharee savedSharee = underTest.save(hearingRecordingSharee);
 
         final LocalDateTime postTest = LocalDateTime.now(Clock.systemDefaultZone());
-        assertThat(savedSharee).satisfies(x -> {
-            assertThat(x.getSharedOn()).isBetween(preTest, postTest);
-        });
+        assertThat(savedSharee)
+            .satisfies(x -> assertThat(x.getSharedOn()).isBetween(preTest, postTest));
     }
 }

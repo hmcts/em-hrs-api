@@ -48,13 +48,16 @@ class EmailSenderTest {
         File file2 = new File(Resources.getResource(FILE_NAME_2).toURI());
 
         // when
-        SendEmailException ex = catchThrowableOfType(() -> emailSender.sendMessageWithAttachments(
-            SUBJECT,
-            BODY,
-            FROM_ADDRESS,
-            new String[]{RECIPIENT_1, RECIPIENT_2},
-            Map.of(FILE_NAME_1, file1, FILE_NAME_2, file2)
-        ), SendEmailException.class);
+        SendEmailException ex = catchThrowableOfType(
+            SendEmailException.class,
+            () -> emailSender.sendMessageWithAttachments(
+                SUBJECT,
+                BODY,
+                FROM_ADDRESS,
+                new String[]{RECIPIENT_1, RECIPIENT_2},
+                Map.of(FILE_NAME_1, file1, FILE_NAME_2, file2)
+            )
+        );
 
         // then
         assertThat(ex.getMessage())
