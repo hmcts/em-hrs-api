@@ -21,6 +21,8 @@ public class FolderControllerTest extends BaseWebTest {
     @MockitoBean
     FolderService folderService;
 
+    private static final String FILENAMES_$ = "$.filenames";
+
     @Test
     public void should_return_full_list_of_files() throws Exception {
         var folderName = "audioStream123";
@@ -32,11 +34,9 @@ public class FolderControllerTest extends BaseWebTest {
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.folder-name").value(folderName))
-            .andExpect(jsonPath("$.filenames", hasSize(2)))
-            .andExpect(jsonPath("$.filenames", containsInAnyOrder(fileName1, fileName2)));
-
+            .andExpect(jsonPath(FILENAMES_$, hasSize(2)))
+            .andExpect(jsonPath(FILENAMES_$, containsInAnyOrder(fileName1, fileName2)));
     }
-
 
     @Test
     public void should_return_empty_list_of_files() throws Exception {
@@ -47,6 +47,6 @@ public class FolderControllerTest extends BaseWebTest {
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.folder-name").value(folderName))
-            .andExpect(jsonPath("$.filenames", hasSize(0)));
+            .andExpect(jsonPath(FILENAMES_$, hasSize(0)));
     }
 }

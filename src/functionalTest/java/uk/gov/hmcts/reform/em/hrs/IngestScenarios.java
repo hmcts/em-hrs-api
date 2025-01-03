@@ -1,9 +1,8 @@
 package uk.gov.hmcts.reform.em.hrs;
 
-import jakarta.annotation.PostConstruct;
 import org.joda.time.LocalDate;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 import uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +22,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class IngestScenarios extends BaseTest {
 
@@ -41,19 +40,9 @@ public class IngestScenarios extends BaseTest {
     @Autowired
     private BlobUtil testUtil;
 
-
-    @PostConstruct
-    public void setup() throws Exception {
+    @BeforeEach
+    public void setup() {
         createFolderIfDoesNotExistInHrsDB(FOLDER);
-
-
-        ZonedDateTime now = ZonedDateTime.now();
-        String fileNamePrefixToNotDelete = JURISDICTION + "-" + LOCATION_CODE + "-" + CASEREF_PREFIX
-            + datePartFormatter.format(now);
-
-        //TODO CCD and postgres database ought to be cleaned out as well, by archiving the case -
-        // however this functionality is not yet available
-
     }
 
 
@@ -105,7 +94,7 @@ public class IngestScenarios extends BaseTest {
 
         long vhFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.vhBlobContainerClient);
         long hrsFileSize = testUtil.getFileSizeFromStore(filenames, testUtil.hrsVhBlobContainerClient);
-        Assert.assertEquals(hrsFileSize, vhFileSize);
+        assertEquals(hrsFileSize, vhFileSize);
 
         assertHearingCcdUpload(filenames, caseRef, "VH", 1);
     }
@@ -180,7 +169,7 @@ public class IngestScenarios extends BaseTest {
 
         long cvpFileSize = testUtil.getFileSizeFromStore(filename, testUtil.cvpBlobContainerClient);
         long hrsFileSize = testUtil.getFileSizeFromStore(filename, testUtil.hrsCvpBlobContainerClient);
-        Assert.assertEquals(hrsFileSize, cvpFileSize);
+        assertEquals(hrsFileSize, cvpFileSize);
 
         assertHearingCcdUpload(filenames, caseRef, FOLDER, 1);
 

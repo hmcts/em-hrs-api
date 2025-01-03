@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -161,7 +160,7 @@ class SegmentDownloadServiceImplTest {
             segmentDownloadService.fetchSegmentByRecordingIdAndFileNameForSharee(
                 SEGMENT11_ID, FILE_NAME_11_ID, TestUtil.AUTHORIZATION_TOKEN);
         } catch (ValidationErrorException validationErrorException) {
-            Assertions.assertEquals(Constants.SHARED_EXPIRED_LINK_MSG, validationErrorException.getData().get("error"));
+            assertEquals(Constants.SHARED_EXPIRED_LINK_MSG, validationErrorException.getData().get("error"));
         }
     }
 

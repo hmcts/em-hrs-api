@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.em.hrs.service.impl;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +27,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -86,7 +88,7 @@ class AuditEntryServiceTests {
             .thenReturn(Stream.of(new HearingRecordingAuditEntry()).toList());
         List<HearingRecordingAuditEntry> entries =
             auditEntryService.findHearingRecordingAudits(testHearingRecording);
-        Assertions.assertEquals(1, entries.size());
+        assertEquals(1, entries.size());
     }
 
     @Test
@@ -165,9 +167,9 @@ class AuditEntryServiceTests {
             auditEntryService.listHearingRecordingAudits(startDate, endDate);
 
         // then
-        Assertions.assertEquals(2, result.size());
-        Assertions.assertTrue(result.contains(auditEntry1));
-        Assertions.assertTrue(result.contains(auditEntry2));
+        assertEquals(2, result.size());
+        assertTrue(result.contains(auditEntry1));
+        assertTrue(result.contains(auditEntry2));
         verify(auditEntryRepository, times(1))
             .findByEventDateTimeBetween(startDate, endDate);
     }
@@ -186,7 +188,7 @@ class AuditEntryServiceTests {
             auditEntryService.listHearingRecordingAudits(startDate, endDate);
 
         // then
-        Assertions.assertTrue(result.isEmpty());
+        assertTrue(result.isEmpty());
         verify(auditEntryRepository, times(1))
             .findByEventDateTimeBetween(startDate, endDate);
     }
@@ -201,7 +203,7 @@ class AuditEntryServiceTests {
             .thenThrow(new RuntimeException("Database error"));
 
         // when / then
-        Assertions.assertThrows(
+        assertThrows(
             RuntimeException.class,
             () -> auditEntryService.listHearingRecordingAudits(startDate, endDate)
         );
@@ -216,9 +218,9 @@ class AuditEntryServiceTests {
     }
 
     private void assertSecurityServiceValues(AuditEntry entry) {
-        Assertions.assertEquals(USER_EMAIL, entry.getUsername());
-        Assertions.assertEquals(SERVICE_NAME, entry.getServiceName());
-        Assertions.assertEquals(CLIENT_IP, entry.getIpAddress());
+        assertEquals(USER_EMAIL, entry.getUsername());
+        assertEquals(SERVICE_NAME, entry.getServiceName());
+        assertEquals(CLIENT_IP, entry.getIpAddress());
     }
 
     private void assertLogFormatterInvoked() {

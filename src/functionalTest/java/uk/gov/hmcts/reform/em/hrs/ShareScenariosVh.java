@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.em.hrs;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class ShareScenariosVh extends BaseTest {
 
     private Long ccdCaseId;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         LOGGER.info("SETTING UP SHARE RECORDING SCENARIOS....");
 
@@ -66,7 +66,7 @@ public class ShareScenariosVh extends BaseTest {
 
     }
 
-    @After
+    @AfterEach
     public void clearUp() {
         LOGGER.info("closeCcdCase AfterEach ====> {}", closeCcdCase);
         if (closeCcdCase) {
