@@ -201,12 +201,13 @@ public class IngestScenarios extends BaseTest {
         LOGGER.info("num recordings: " + recordingFiles.size());
 
         Map ttlObject = (Map)data.get("TTL");
+        LocalDate creationDate = LocalDate.parse(DATE);
         if (ttlEnabled) {
             assertThat(ttlObject.get("SystemTTL")).isEqualTo(ttlObject.get("OverrideTTL"));
             assertThat(ttlObject.get("Suspended")).isEqualTo("No");
             String ttl = (String) ttlObject.get("SystemTTL");
-            assertThat(LocalDate.parse(ttl)).isGreaterThan(LocalDate.now().plusYears(6).minusDays(2));
-            assertThat(LocalDate.parse(ttl)).isLessThan(LocalDate.now().plusYears(6).plusDays(2));
+            assertThat(LocalDate.parse(ttl)).isGreaterThan(creationDate.plusYears(6).minusDays(2));
+            assertThat(LocalDate.parse(ttl)).isLessThan(creationDate.plusYears(6).plusDays(2));
         } else {
             assertThat(ttlObject == null);
         }

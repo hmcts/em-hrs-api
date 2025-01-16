@@ -94,7 +94,9 @@ public abstract class BaseTest {
 
     protected static final String FOLDER =
         "audiostream" + LocalDate.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"));
-    protected static final String TIME = "2020-11-04-14.56.32.819";
+
+    protected static final String DATE = "2020-11-04";
+    protected static final String TIME = DATE + "-14.56.32.819";
     public static final String CASEREF_PREFIX = "FUNCTEST_";
 
     public static final String VH_CASEREF_PREFIX = "VH-FUNCT-";
