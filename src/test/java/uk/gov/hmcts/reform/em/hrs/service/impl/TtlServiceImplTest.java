@@ -27,7 +27,7 @@ class TtlServiceImplTest {
         when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of(serviceCode, periodForService));
 
         // When
-        LocalDate ttlDate = ttlServiceImpl.createTtl(serviceCode, null);
+        LocalDate ttlDate = ttlServiceImpl.createTtl(serviceCode, null, LocalDate.now());
 
         // Then
         LocalDate now = LocalDate.now();
@@ -43,7 +43,7 @@ class TtlServiceImplTest {
         when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of(jurisdictionCode, periodForJurisdiction));
 
         // When
-        LocalDate ttlDate = ttlServiceImpl.createTtl("notFound_service", jurisdictionCode);
+        LocalDate ttlDate = ttlServiceImpl.createTtl("notFound_service", jurisdictionCode, LocalDate.now());
 
         // Then
         LocalDate now = LocalDate.now();
@@ -66,7 +66,7 @@ class TtlServiceImplTest {
         when(ttlMapperConfig.getDefaultTTL()).thenReturn(defaultTtl);
 
         // When
-        LocalDate ttlDate = ttlServiceImpl.createTtl("notFound_service", "notFound_jurisdiction");
+        LocalDate ttlDate = ttlServiceImpl.createTtl("notFound_service", "notFound_jurisdiction", LocalDate.now());
 
         // Then
         LocalDate now = LocalDate.now();

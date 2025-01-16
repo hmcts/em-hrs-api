@@ -115,7 +115,7 @@ class CcdUploadServiceImplTest {
         doReturn(SEGMENT_1).when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
         doReturn(true).when(ttlService).isTtlEnabled();
         doReturn(ttl).when(ttlService)
-            .createTtl(HEARING_RECORDING_DTO.getServiceCode(),HEARING_RECORDING_DTO.getJurisdictionCode());
+            .createTtl(HEARING_RECORDING_DTO.getServiceCode(),HEARING_RECORDING_DTO.getJurisdictionCode(), LocalDate.now());
 
         underTest.upload(HEARING_RECORDING_DTO);
 

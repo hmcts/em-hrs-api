@@ -29,10 +29,6 @@ public class TtlServiceImpl implements TtlService {
         return ttlEnabled;
     }
 
-    public LocalDate createTtl(String serviceCode, String jurisdictionCode) {
-        return createTtl(serviceCode, jurisdictionCode, LocalDate.now(EUROPE_LONDON_ZONE_ID));
-    }
-
     public LocalDate createTtl(String serviceCode, String jurisdictionCode, LocalDate createdDate) {
         var ttlPeriod = Optional.ofNullable(serviceCode)
             .map(ttlMapperConfig.getTtlServiceMap()::get)

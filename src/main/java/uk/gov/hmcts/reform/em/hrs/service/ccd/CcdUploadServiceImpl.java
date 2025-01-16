@@ -170,7 +170,11 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         Optional<LocalDate> ttlOpt = Optional.empty();
         if (ttlService.isTtlEnabled()) {
             recording.setTtlSet(true);
-            var ttl = ttlService.createTtl(recordingDto.getServiceCode(), recordingDto.getJurisdictionCode());
+            var ttl = ttlService.createTtl(
+                recordingDto.getServiceCode(),
+                recordingDto.getJurisdictionCode(),
+                recordingDto.getRecordingDateTime().toLocalDate()
+            );
             ttlOpt = Optional.of(ttl);
             recording.setTtl(ttl);
         }
