@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
 import uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper;
 
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +37,9 @@ public class IngestScenarios extends BaseTest {
 
     @Value("${ttl.enabled}")
     protected boolean ttlEnabled;
+
+    @Value("${ttl.default-ttl}")
+    private Period defaultTTL;
 
     @Autowired
     private BlobUtil testUtil;
@@ -206,8 +210,8 @@ public class IngestScenarios extends BaseTest {
             assertThat(ttlObject.get("SystemTTL")).isEqualTo(ttlObject.get("OverrideTTL"));
             assertThat(ttlObject.get("Suspended")).isEqualTo("No");
             String ttl = (String) ttlObject.get("SystemTTL");
-            assertThat(LocalDate.parse(ttl)).isGreaterThan(creationDate.plusYears(6).minusDays(2));
-            assertThat(LocalDate.parse(ttl)).isLessThan(creationDate.plusYears(6).plusDays(2));
+            assertThat(LocalDate.parse(ttl)).isGreaterThan(creationDate.plusYears(defaultTTL.getYears()).minusDays(2));
+            assertThat(LocalDate.parse(ttl)).isLessThan(creationDate.plusYears(defaultTTL.getYears()).plusDays(2));
         } else {
             assertThat(ttlObject == null);
         }
