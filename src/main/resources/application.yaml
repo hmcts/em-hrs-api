@@ -209,7 +209,7 @@ logging:
     uk.gov.hmcts.reform.authorisation.filters: DEBUG
 
 ttl:
-  default-ttl: ${DEFAULT_TTL:P6Y}
+  default-ttl: ${DEFAULT_TTL:P7Y}
   enabled: ${TTL_ENABLED:false}
 
 endpoint:
