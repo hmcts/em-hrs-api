@@ -65,25 +65,6 @@ class SecurityServiceImplTest {
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
     }
 
-    @Test
-    void testShouldGetUserId() {
-        doReturn(USER_INFO).when(idamClient).getUserInfo(AUTHORIZATION_TOKEN);
-
-        final String userId = underTest.getUserId(AUTHORIZATION_TOKEN);
-
-        assertThat(userId).isEqualTo(USER_ID);
-        verify(idamClient, times(1)).getUserInfo(AUTHORIZATION_TOKEN);
-    }
-
-    @Test
-    void testShouldGetUserToken() {
-        doReturn(AUTHORIZATION_TOKEN).when(idamClient).getAccessToken(SYSTEM_USER, SYSTEM_USER_PASSWORD);
-
-        final String userToken = underTest.getUserToken();
-
-        assertThat(userToken).isEqualTo(AUTHORIZATION_TOKEN);
-        verify(idamClient, times(1)).getAccessToken(SYSTEM_USER, SYSTEM_USER_PASSWORD);
-    }
 
     @Test
     void testShouldGetUserEmail() {
@@ -101,36 +82,12 @@ class SecurityServiceImplTest {
         doReturn(USER_INFO).when(idamClient).getUserInfo(AUTHORIZATION_TOKEN);
         doReturn(SERVICE_AUTHORIZATION_TOKEN).when(authTokenGenerator).generate();
 
-        final Map<String, String> tokens = underTest.getTokens();
+        final Map<String, String> tokens = underTest.createTokens();
 
         assertThat(tokens).isNotNull().isNotEmpty();
         verify(idamClient, times(1)).getAccessToken(SYSTEM_USER, SYSTEM_USER_PASSWORD);
         verify(idamClient, times(1)).getUserInfo(AUTHORIZATION_TOKEN);
         verify(authTokenGenerator, times(1)).generate();
-    }
-
-    @Test
-    void testShouldDefaultGetUserId() {
-        doReturn(AUTHORIZATION_TOKEN).when(idamClient).getAccessToken(SYSTEM_USER, SYSTEM_USER_PASSWORD);
-        doReturn(USER_INFO).when(idamClient).getUserInfo(AUTHORIZATION_TOKEN);
-
-        final String userId = underTest.getUserId();
-
-        assertThat(userId).isEqualTo(USER_ID);
-        verify(idamClient, times(1)).getAccessToken(SYSTEM_USER, SYSTEM_USER_PASSWORD);
-        verify(idamClient, times(1)).getUserInfo(AUTHORIZATION_TOKEN);
-    }
-
-    @Test
-    void testShouldDefaultGetUserEmail() {
-        doReturn(AUTHORIZATION_TOKEN).when(idamClient).getAccessToken(SYSTEM_USER, SYSTEM_USER_PASSWORD);
-        doReturn(USER_INFO).when(idamClient).getUserInfo(AUTHORIZATION_TOKEN);
-
-        final String userEmail = underTest.getUserEmail();
-
-        assertThat(userEmail).isEqualTo(SHARER_EMAIL_ADDRESS);
-        verify(idamClient, times(1)).getAccessToken(SYSTEM_USER, SYSTEM_USER_PASSWORD);
-        verify(idamClient, times(1)).getUserInfo(AUTHORIZATION_TOKEN);
     }
 
     @Test

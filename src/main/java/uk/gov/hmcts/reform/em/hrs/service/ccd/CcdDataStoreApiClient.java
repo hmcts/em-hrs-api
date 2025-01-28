@@ -55,7 +55,7 @@ public class CcdDataStoreApiClient {
         CaseDataContent caseData = null;
         try {
             LOGGER.info("Starting Case Event");
-            Map<String, String> tokens = securityService.getTokens();
+            Map<String, String> tokens = securityService.createTokens();
             StartEventResponse startEventResponse =
                 coreCaseDataApi.startCase(tokens.get(USER), tokens.get(SERVICE), CASE_TYPE, EVENT_CREATE_CASE);
 
@@ -98,7 +98,7 @@ public class CcdDataStoreApiClient {
         CaseDataContent caseData = null;
 
         try {
-            Map<String, String> tokens = securityService.getTokens();
+            Map<String, String> tokens = securityService.createTokens();
             StartEventResponse startEventResponse =
                 coreCaseDataApi.startEvent(
                     tokens.get(USER),
@@ -146,7 +146,7 @@ public class CcdDataStoreApiClient {
 
     public void updateCaseWithTtl(Long ccdCaseId, LocalDate ttl) {
         try {
-            Map<String, String> tokens = securityService.getTokens();
+            Map<String, String> tokens = securityService.createTokens();
 
             StartEventResponse startEventResponse = coreCaseDataApi.startEvent(
                 tokens.get(USER),

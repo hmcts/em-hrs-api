@@ -65,7 +65,7 @@ class CcdDataStoreApiClientTest {
         doReturn(Map.of("user", USER_TOKEN,
                         "userId", USER_ID,
                         "service", SERVICE_TOKEN
-        )).when(securityService).getTokens();
+        )).when(securityService).createTokens();
 
         StartEventResponse startEventResponse = StartEventResponse.builder().build();
 
@@ -92,7 +92,7 @@ class CcdDataStoreApiClientTest {
 
     @Test
     void shouldThrowCcdUploadExceptionDuringCreateCaseGetTokens() {
-        doThrow(CcdUploadException.class).when(securityService).getTokens();
+        doThrow(CcdUploadException.class).when(securityService).createTokens();
 
         assertThatExceptionOfType(CcdUploadException.class).isThrownBy(() -> underTest.createCase(
             RECORDING_ID,
@@ -106,7 +106,7 @@ class CcdDataStoreApiClientTest {
         doReturn(Map.of("user", USER_TOKEN,
                         "userId", USER_ID,
                         "service", SERVICE_TOKEN
-        )).when(securityService).getTokens();
+        )).when(securityService).createTokens();
 
         doThrow(CcdUploadException.class).when(coreCaseDataApi)
             .startCase(USER_TOKEN, SERVICE_TOKEN, CASE_TYPE, CREATE_CASE);
@@ -124,7 +124,7 @@ class CcdDataStoreApiClientTest {
         doReturn(Map.of("user", USER_TOKEN,
                         "userId", USER_ID,
                         "service", SERVICE_TOKEN
-        )).when(securityService).getTokens();
+        )).when(securityService).createTokens();
 
         StartEventResponse startEventResponse = StartEventResponse.builder().build();
 
@@ -147,7 +147,7 @@ class CcdDataStoreApiClientTest {
         doReturn(Map.of("user", USER_TOKEN,
                         "userId", USER_ID,
                         "service", SERVICE_TOKEN
-        )).when(securityService).getTokens();
+        )).when(securityService).createTokens();
 
         StartEventResponse startEventResponse = StartEventResponse.builder().build();
 
@@ -181,7 +181,7 @@ class CcdDataStoreApiClientTest {
         doReturn(Map.of("user", USER_TOKEN,
                         "userId", USER_ID,
                         "service", SERVICE_TOKEN
-        )).when(securityService).getTokens();
+        )).when(securityService).createTokens();
 
         StartEventResponse startEventResponse = StartEventResponse.builder()
             .caseDetails(CaseDetails.builder().id(CASE_ID).build())
@@ -216,7 +216,7 @@ class CcdDataStoreApiClientTest {
         doReturn(Map.of("user", USER_TOKEN,
                         "userId", USER_ID,
                         "service", SERVICE_TOKEN
-        )).when(securityService).getTokens();
+        )).when(securityService).createTokens();
 
         StartEventResponse startEventResponse = StartEventResponse.builder()
             .caseDetails(CaseDetails.builder().id(CASE_ID).build())
@@ -265,7 +265,7 @@ class CcdDataStoreApiClientTest {
 
         TtlCcdObject ttlObject = new TtlCcdObject();
 
-        doReturn(tokens).when(securityService).getTokens();
+        doReturn(tokens).when(securityService).createTokens();
         doReturn(startEventResponse).when(coreCaseDataApi)
             .startEvent(USER_TOKEN, SERVICE_TOKEN, ccdCaseId.toString(), AMEND_CASE);
         doReturn(ttlObject).when(caseDataContentCreator).createTTLObject(Optional.of(ttl));
@@ -292,7 +292,7 @@ class CcdDataStoreApiClientTest {
             .token("eventToken")
             .build();
 
-        doReturn(tokens).when(securityService).getTokens();
+        doReturn(tokens).when(securityService).createTokens();
         doReturn(startEventResponse).when(coreCaseDataApi)
             .startEvent(USER_TOKEN, SERVICE_TOKEN, ccdCaseId.toString(), AMEND_CASE);
         doThrow(new RuntimeException("CCD update failed")).when(coreCaseDataApi)

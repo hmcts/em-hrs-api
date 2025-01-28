@@ -36,11 +36,13 @@ public class SecurityServiceImpl implements SecurityService {
     private final String systemUserPassword;
 
     @Autowired
-    public SecurityServiceImpl(final IdamClient idamClient,
-                               final AuthTokenGenerator authTokenGenerator,
-                               final AuthTokenValidator authTokenValidator,
-                               final @Value("${idam.system-user.username}") String systemUsername,
-                               final @Value("${idam.system-user.password}") String systemUserPassword) {
+    public SecurityServiceImpl(
+        final IdamClient idamClient,
+        final AuthTokenGenerator authTokenGenerator,
+        final AuthTokenValidator authTokenValidator,
+        final @Value("${idam.system-user.username}") String systemUsername,
+        final @Value("${idam.system-user.password}") String systemUserPassword
+    ) {
         this.idamClient = idamClient;
         this.authTokenGenerator = authTokenGenerator;
         this.authTokenValidator = authTokenValidator;
@@ -49,15 +51,14 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public Map<String, String> getTokens() {
-        final String token = getUserToken();
+    public Map<String, String> createTokens() {
+        final String token = createSystemToken();
         return Map.of("user", token,
                       "userId", getUserId(token),
                       "service", authTokenGenerator.generate());
     }
 
-    @Override
-    public String getUserToken() {
+    private String createSystemToken() {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("retrieving access token with these credentials ({}/{})",
                         systemUsername, systemUserPassword.substring(0, 4).concat("*****")
@@ -66,19 +67,8 @@ public class SecurityServiceImpl implements SecurityService {
         return idamClient.getAccessToken(systemUsername, systemUserPassword);
     }
 
-    @Override
-    public String getUserId() {
-        return getUserId(getUserToken());
-    }
-
-    @Override
-    public String getUserId(String userAuthorization) {
+    private String getUserId(String userAuthorization) {
         return idamClient.getUserInfo(userAuthorization).getUid();
-    }
-
-    @Override
-    public String getUserEmail() {
-        return getUserEmail(getUserToken());
     }
 
     @Override

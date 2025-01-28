@@ -5,15 +5,7 @@ import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 import java.util.Map;
 
 public interface SecurityService {
-    Map<String, String> getTokens();
-
-    String getUserToken();
-
-    String getUserId();
-
-    String getUserId(String userAuthorization);
-
-    String getUserEmail();
+    Map<String, String> createTokens();
 
     String getUserEmail(String userAuthorization);
 
