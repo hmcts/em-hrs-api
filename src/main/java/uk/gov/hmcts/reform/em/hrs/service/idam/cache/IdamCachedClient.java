@@ -51,7 +51,7 @@ public class IdamCachedClient {
      * @return The IDAM credentials
      */
     public CachedIdamCredential getIdamCredentials() {
-        log.info("Getting idam credential for systemUser");
+        log.info("Getting idam credential for systemUser {}", this.systemUsername);
         return this.idamCache.get(this.systemUsername, this::retrieveIdamInfo);
     }
 
