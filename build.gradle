@@ -234,7 +234,7 @@ repositories {
 }
 
 def versions = [
-  serenity           : '4.2.13',
+  serenity           : '4.2.15',
   lombok             : '1.18.36',
   reformLogging      : '6.1.7',
   log4JVersion       : "2.17.1",
