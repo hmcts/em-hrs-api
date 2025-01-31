@@ -6,10 +6,12 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.reform.em.hrs.config.JacksonMappingConfig;
+import uk.gov.hmcts.reform.em.hrs.config.security.UserJwtAuthenticationFilter;
 
 @ActiveProfiles("integration-web-test")
 @Import(JacksonMappingConfig.class)
@@ -20,6 +22,9 @@ public class BaseWebTest {
 
     @Autowired
     private WebApplicationContext context;
+
+    @MockitoBean
+    protected UserJwtAuthenticationFilter userJwtAuthenticationFilter;
 
     @BeforeEach
     public void setup() {

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
@@ -61,11 +62,16 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
         LOGGER.info("SECURITY FILTER");
         LOGGER.info("********************************");
         LOGGER.info(
-            "User ({}:{}) with roles ({}) attempting to access recording",
+            "User (Uid {}: name:{}) with roles:({}) attempting to access recording",
             userInfo.getUid(),
             userInfo.getName(),
             userInfo.getRoles()
         );
+
+        var authorities = jwtAuthenticationToken.getAuthorities();
+        for (GrantedAuthority authority : authorities) {
+            LOGGER.info("Role: " + authority.getAuthority());
+        }
 
         if (!isEmpty(userInfo.getRoles())) {
             Optional<String> userRole = userInfo.getRoles().stream()

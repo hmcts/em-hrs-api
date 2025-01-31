@@ -12,6 +12,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
+import uk.gov.hmcts.reform.em.hrs.config.security.UserContext;
 import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 import uk.gov.hmcts.reform.idam.client.models.UserInfo;
@@ -52,12 +53,11 @@ public class SecurityServiceImpl implements SecurityService {
     public Map<String, String> getTokens() {
         final String token = getUserToken();
         return Map.of("user", token,
-                      "userId", getUserId(token),
+                      "userId", getServiceUserId(token),
                       "service", authTokenGenerator.generate());
     }
 
-    @Override
-    public String getUserToken() {
+    private String getUserToken() {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("retrieving access token with these credentials ({}/{})",
                         systemUsername, systemUserPassword.substring(0, 4).concat("*****")
@@ -66,23 +66,13 @@ public class SecurityServiceImpl implements SecurityService {
         return idamClient.getAccessToken(systemUsername, systemUserPassword);
     }
 
-    @Override
-    public String getUserId() {
-        return getUserId(getUserToken());
-    }
-
-    @Override
-    public String getUserId(String userAuthorization) {
+    private String getServiceUserId(String userAuthorization) {
+        LOGGER.info("getUid from idam");
         return idamClient.getUserInfo(userAuthorization).getUid();
     }
 
     @Override
-    public String getUserEmail() {
-        return getUserEmail(getUserToken());
-    }
-
-    @Override
-    public String getUserEmail(String userAuthorization) {
+    public String  getUserEmail(String userAuthorization) {
         return idamClient.getUserInfo(userAuthorization).getSub();
     }
 
@@ -117,11 +107,18 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public String getAuditUserEmail() {
+        UserContext.UserDetails userDetails = UserContext.get();
+        if (userDetails != null) {
+            String email = userDetails.getEmail();
+            LOGGER.info("UserContext User Email: {}", email);
+            return email;
+        }
         HttpServletRequest request = getCurrentRequest();
         if (Objects.isNull(request)) {
             return HRS_INGESTOR;
         }
         String jwt = request.getHeader(USER_AUTH);
+        LOGGER.info("Still getting user info from idam ");
 
         return getUserEmail(jwt);
     }
