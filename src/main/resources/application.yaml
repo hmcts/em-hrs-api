@@ -175,8 +175,8 @@ scheduling:
       cron: ${MONTHLY_AUDIT_REPORT_CRON:0 0 6 ? * *}
     delete-inprogress-jobs:
       enabled: ${DELETE_INPROGRESS_ENABLED:true}
-      cron:  ${DELETE_INPROGRESS_CRON:0 0 */3 * * *}
-      ttl-hours: 3
+      cron:  ${DELETE_INPROGRESS_CRON:0 0 */1 * * *}
+      ttl-hours: 1
     update-ttl:
       cron: ${UPDATE_TTL_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
       batch-size: ${UPDATE_TTL_BATCH_SIZE:10}
