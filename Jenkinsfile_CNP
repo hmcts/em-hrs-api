@@ -88,7 +88,6 @@ env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
 env.S2S_BASE_URI = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
 env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
 env.HRS_VH_DEST_CONTAINER_NAME = 'vhrecordings'
-env.TTL_ENABLED=true;
 // Feature Flags
 env.DELETE_CASE_ENDPOINT_ENABLED = false
 
@@ -157,7 +156,6 @@ withPipeline(type, product, component) {
       env.VH_STORAGE_CONNECTION_STRING="DefaultEndpointsProtocol=https;AccountName=${env.VH_BLOB_ACCOUNT_NAME};AccountKey=${env.VH_BLOB_ACCESS_KEY};EndpointSuffix=core.windows.net"
 
       env.HRS_STORAGEACCOUNT_CONNECTION_STRING= "DefaultEndpointsProtocol=https;AccountName=${env.HRS_BLOB_ACCOUNT_NAME};AccountKey=${env.HRS_BLOB_ACCESS_KEY};EndpointSuffix=core.windows.net"
-      env.TTL_ENABLED=true;
       echo "CVP_STORAGE_CONNECTION_STRING : ${env.CVP_STORAGE_CONNECTION_STRING}"
       echo "VH_STORAGE_CONNECTION_STRING : ${env.VH_STORAGE_CONNECTION_STRING}"
       echo "HRS_STORAGEACCOUNT_CONNECTION_STRING : ${env.HRS_STORAGEACCOUNT_CONNECTION_STRING}"
