@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.service.impl;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.config.TTLMapperConfig;
@@ -14,6 +15,8 @@ public class TtlServiceImpl implements TtlService {
 
     private final boolean ttlEnabled;
     private final TTLMapperConfig ttlMapperConfig;
+
+    private static final org.slf4j.Logger LOGGER =  LoggerFactory.getLogger(TtlServiceImpl.class);
 
     public TtlServiceImpl(
         @Value("${ttl.enabled}") boolean ttlEnabled,
@@ -32,7 +35,11 @@ public class TtlServiceImpl implements TtlService {
             .map(ttlMapperConfig.getTtlServiceMap()::get)
             .or(() -> Optional.ofNullable(jurisdictionCode)
                 .map(ttlMapperConfig.getTtlJurisdictionMap()::get))
-            .orElseGet(ttlMapperConfig::getDefaultTTL);
+            .orElseGet(
+                () -> {
+                    LOGGER.info("Missing Service Code : {} and Jurisdiction Id : {}", serviceCode, jurisdictionCode);
+                    return ttlMapperConfig.getDefaultTTL();
+                });
         return calculateTtl(ttlPeriod, createdDate);
     }
 
