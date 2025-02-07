@@ -16,7 +16,7 @@ class TtlServiceImplTest {
 
     private TTLMapperConfig ttlMapperConfig = mock(TTLMapperConfig.class);
 
-    private TtlServiceImpl ttlServiceImpl =  new TtlServiceImpl(true, ttlMapperConfig);
+    private TtlServiceImpl ttlServiceImpl =  new TtlServiceImpl(ttlMapperConfig);
 
 
     @Test
