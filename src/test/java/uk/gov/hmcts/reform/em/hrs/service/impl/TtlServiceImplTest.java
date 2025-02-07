@@ -73,25 +73,4 @@ class TtlServiceImplTest {
         assertEquals(now.plusDays(30), ttlDate);
         verify(ttlMapperConfig).getDefaultTTL();
     }
-
-    @Test
-    void shouldReturnTtlDisabled() {
-        //given
-        TtlServiceImpl ttlServiceDisabled = new TtlServiceImpl(false, ttlMapperConfig);
-
-        // When
-        boolean ttlEnabled = ttlServiceDisabled.isTtlEnabled();
-
-        // Then
-        assertEquals(false, ttlEnabled);
-    }
-
-    @Test
-    void shouldReturnTtlEnabled() {
-        // When
-        boolean ttlEnabled = ttlServiceImpl.isTtlEnabled();
-
-        // Then
-        assertEquals(true, ttlEnabled);
-    }
 }

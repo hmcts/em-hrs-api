@@ -79,7 +79,6 @@ class CcdUploadServiceImplTest {
         doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).createCase(recording.getId(), HEARING_RECORDING_DTO, optTtl);
         doReturn(recording).when(recordingRepository).saveAndFlush(any(HearingRecording.class));
         doReturn(SEGMENT_1).when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
-        doReturn(false).when(ttlService).isTtlEnabled();
 
         underTest.upload(HEARING_RECORDING_DTO);
 
@@ -113,7 +112,6 @@ class CcdUploadServiceImplTest {
             .createCase(recording.getId(), HEARING_RECORDING_DTO, Optional.of(ttl));
         doReturn(recording).when(recordingRepository).saveAndFlush(any(HearingRecording.class));
         doReturn(SEGMENT_1).when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
-        doReturn(true).when(ttlService).isTtlEnabled();
         doReturn(ttl).when(ttlService)
             .createTtl(HEARING_RECORDING_DTO.getServiceCode(),
                        HEARING_RECORDING_DTO.getJurisdictionCode(),
@@ -182,7 +180,6 @@ class CcdUploadServiceImplTest {
             .createCase(recording.getId(), VH_HEARING_RECORDING_DTO, optTtl);
         doReturn(recording).when(recordingRepository).saveAndFlush(any(HearingRecording.class));
         doReturn(VH_SEGMENT_1).when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
-        doReturn(false).when(ttlService).isTtlEnabled();
 
         underTest.upload(VH_HEARING_RECORDING_DTO);
 

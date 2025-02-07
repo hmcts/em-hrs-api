@@ -6,5 +6,4 @@ public interface TtlService {
 
     LocalDate createTtl(String service, String jurisdiction, LocalDate createdDate);
 
-    boolean isTtlEnabled();
 }

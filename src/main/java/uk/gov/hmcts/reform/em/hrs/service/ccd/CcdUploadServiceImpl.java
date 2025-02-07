@@ -168,16 +168,14 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         LOGGER.info("About to create case in CCD");
 
         Optional<LocalDate> ttlOpt = Optional.empty();
-        if (ttlService.isTtlEnabled()) {
-            recording.setTtlSet(true);
-            var ttl = ttlService.createTtl(
-                recordingDto.getServiceCode(),
-                recordingDto.getJurisdictionCode(),
-                recordingDto.getRecordingDateTime().toLocalDate()
-            );
-            ttlOpt = Optional.of(ttl);
-            recording.setTtl(ttl);
-        }
+        recording.setTtlSet(true);
+        var ttl = ttlService.createTtl(
+            recordingDto.getServiceCode(),
+            recordingDto.getJurisdictionCode(),
+            recordingDto.getRecordingDateTime().toLocalDate()
+        );
+        ttlOpt = Optional.of(ttl);
+        recording.setTtl(ttl);
 
         final Long caseId = ccdDataStoreApiClient.createCase(recording.getId(), recordingDto, ttlOpt);
         recording.setCcdCaseId(caseId);
