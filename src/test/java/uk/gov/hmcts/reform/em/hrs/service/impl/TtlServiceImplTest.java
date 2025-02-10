@@ -90,6 +90,30 @@ class TtlServiceImplTest {
         verify(ttlMapperConfig).getDefaultTTL();
     }
 
+
+    @Test
+    void shouldReturnDefaultTtlWhenServiceAndJurisdictionCodeNull() {
+        // Given
+        String serviceCode = "serviceA";
+        Period periodForService = Period.ofDays(10);
+        when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of(serviceCode, periodForService));
+
+        String jurisdictionCode = "jurisdictionA";
+        Period periodForJurisdiction = Period.ofDays(15);
+        when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of(jurisdictionCode, periodForJurisdiction));
+
+        Period defaultTtl = Period.ofDays(30);
+        when(ttlMapperConfig.getDefaultTTL()).thenReturn(defaultTtl);
+
+        // When
+        LocalDate ttlDate = ttlServiceImpl.createTtl(null, null, LocalDate.now());
+
+        // Then
+        LocalDate now = LocalDate.now();
+        assertEquals(now.plusDays(30), ttlDate);
+        verify(ttlMapperConfig).getDefaultTTL();
+    }
+
     @Test
     void shouldReturnTtlDisabled() {
         //given
