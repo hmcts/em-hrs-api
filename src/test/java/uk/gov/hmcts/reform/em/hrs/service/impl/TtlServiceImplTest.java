@@ -36,11 +36,27 @@ class TtlServiceImplTest {
     }
 
     @Test
+    void shouldCheckUpperCaseForCodes() {
+        // Given
+        String serviceCode = "servicea";
+        Period periodForService = Period.ofDays(10);
+        when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of("SERVICEA", periodForService));
+
+        // When
+        LocalDate ttlDate = ttlServiceImpl.createTtl(serviceCode, null, LocalDate.now());
+
+        // Then
+        LocalDate now = LocalDate.now();
+        assertEquals(now.plusDays(10), ttlDate);
+        verify(ttlMapperConfig).getTtlServiceMap();
+    }
+
+    @Test
     void shouldReturnTtlForJurisdictionCodeWhenServiceCodeNotFound() {
         // Given
-        String jurisdictionCode = "JURISDICTIONA";
+        String jurisdictionCode = "jurisDictionA";
         Period periodForJurisdiction = Period.ofDays(15);
-        when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of(jurisdictionCode, periodForJurisdiction));
+        when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of("JURISDICTIONA", periodForJurisdiction));
 
         // When
         LocalDate ttlDate = ttlServiceImpl.createTtl("notFound_service", jurisdictionCode, LocalDate.now());
