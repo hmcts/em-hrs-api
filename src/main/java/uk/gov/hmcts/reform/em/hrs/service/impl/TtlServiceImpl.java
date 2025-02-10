@@ -30,16 +30,16 @@ public class TtlServiceImpl implements TtlService {
         return ttlEnabled;
     }
 
+
     public LocalDate createTtl(String serviceCode, String jurisdictionCode, LocalDate createdDate) {
         var ttlPeriod = Optional.ofNullable(serviceCode)
-            .map(ttlMapperConfig.getTtlServiceMap()::get)
+            .map(code -> ttlMapperConfig.getTtlServiceMap().get(code.toUpperCase()))
             .or(() -> Optional.ofNullable(jurisdictionCode)
-                .map(ttlMapperConfig.getTtlJurisdictionMap()::get))
-            .orElseGet(
-                () -> {
-                    LOGGER.info("Missing Service Code : {} and Jurisdiction Id : {}", serviceCode, jurisdictionCode);
-                    return ttlMapperConfig.getDefaultTTL();
-                });
+                .map(code -> ttlMapperConfig.getTtlJurisdictionMap().get(code.toUpperCase())))
+            .orElseGet(() -> {
+                LOGGER.info("Missing Service Code : {} and Jurisdiction Id : {}", serviceCode, jurisdictionCode);
+                return ttlMapperConfig.getDefaultTTL();
+            });
         return calculateTtl(ttlPeriod, createdDate);
     }
 
