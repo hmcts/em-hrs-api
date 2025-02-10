@@ -22,7 +22,7 @@ class TtlServiceImplTest {
     @Test
     void shouldReturnTtlForServiceCode() {
         // Given
-        String serviceCode = "serviceA";
+        String serviceCode = "SERVICEA";
         Period periodForService = Period.ofDays(10);
         when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of(serviceCode, periodForService));
 
@@ -38,7 +38,7 @@ class TtlServiceImplTest {
     @Test
     void shouldReturnTtlForJurisdictionCodeWhenServiceCodeNotFound() {
         // Given
-        String jurisdictionCode = "jurisdictionA";
+        String jurisdictionCode = "JURISDICTIONA";
         Period periodForJurisdiction = Period.ofDays(15);
         when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of(jurisdictionCode, periodForJurisdiction));
 
