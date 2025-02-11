@@ -69,6 +69,8 @@ class CcdUploadServiceImplTest {
 
     private static final Optional<LocalDate> optTtl = Optional.empty();
 
+    private static final LocalDate ttl = LocalDate.now();
+
     @Test
     void testShouldCreateNewCaseInCcdAndPersistRecordingAndSegmentToPostgresWhenHearingRecordingIsNotInDatabase() {
         HearingRecording recording = hearingRecordingWithNoDataBuilder();
@@ -76,9 +78,13 @@ class CcdUploadServiceImplTest {
             .findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER_1.getName());
         doReturn(TEST_FOLDER_1).when(folderService).getFolderByName(TEST_FOLDER_1.getName());
 
-        doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).createCase(recording.getId(), HEARING_RECORDING_DTO, optTtl);
+        doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).createCase(recording.getId(), HEARING_RECORDING_DTO, ttl);
         doReturn(recording).when(recordingRepository).saveAndFlush(any(HearingRecording.class));
         doReturn(SEGMENT_1).when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
+        doReturn(ttl).when(ttlService)
+            .createTtl(HEARING_RECORDING_DTO.getServiceCode(),
+                       HEARING_RECORDING_DTO.getJurisdictionCode(),
+                       LocalDate.now());
 
         underTest.upload(HEARING_RECORDING_DTO);
 
@@ -180,6 +186,10 @@ class CcdUploadServiceImplTest {
             .createCase(recording.getId(), VH_HEARING_RECORDING_DTO, optTtl);
         doReturn(recording).when(recordingRepository).saveAndFlush(any(HearingRecording.class));
         doReturn(VH_SEGMENT_1).when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
+        doReturn(ttl).when(ttlService)
+            .createTtl(HEARING_RECORDING_DTO.getServiceCode(),
+                       HEARING_RECORDING_DTO.getJurisdictionCode(),
+                       LocalDate.now());
 
         underTest.upload(VH_HEARING_RECORDING_DTO);
 
