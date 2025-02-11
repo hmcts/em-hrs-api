@@ -84,6 +84,7 @@ public class UpdateJurisdictionCodesTask {
         } catch (IOException e) {
             logger.info("Encountered error updating jurisdiction codes: {}", e.getMessage());
         }
+        csvBlobClient.get().delete();
         stopWatch.stop();
         logger.info("Update job for jurisdiction codes took {} ms", stopWatch.getDuration().toMillis());
         logger.info("Finished {} job", TASK_NAME);
