@@ -50,7 +50,7 @@ public class CcdDataStoreApiClient {
     public Long createCase(
         final UUID recordingId,
         final HearingRecordingDto hearingRecordingDto,
-        Optional<LocalDate> ttl
+        LocalDate ttl
     ) {
         CaseDataContent caseData = null;
         try {
@@ -161,7 +161,7 @@ public class CcdDataStoreApiClient {
             CaseDetails caseDetails = startEventResponse.getCaseDetails();
             CaseHearingRecording caseHearingRecording = mapper.convertValue(
                 caseDetails.getData(), CaseHearingRecording.class);
-            TtlCcdObject ttlObject = caseDataCreator.createTTLObject(Optional.of(ttl));
+            TtlCcdObject ttlObject = caseDataCreator.createTTLObject(ttl);
             caseHearingRecording.setTimeToLive(ttlObject);
 
             CaseDataContent caseDataContent = CaseDataContent.builder()

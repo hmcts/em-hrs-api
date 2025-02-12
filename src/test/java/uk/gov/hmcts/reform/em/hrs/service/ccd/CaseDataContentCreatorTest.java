@@ -80,7 +80,7 @@ class CaseDataContentCreatorTest {
     @Test
     void createCaseStartData() {
 
-        JsonNode actual = underTest.createCaseStartData(hearingRecordingDto, RECORDING_ID, Optional.empty());
+        JsonNode actual = underTest.createCaseStartData(hearingRecordingDto, RECORDING_ID, LocalDate.now());
 
         assertEquals("FM", actual.get("jurisdictionCode").asText());
         assertEquals(RECORDING_REF, actual.get("recordingReference").asText());
@@ -100,7 +100,7 @@ class CaseDataContentCreatorTest {
     void createCaseStartDataWithTtl() {
 
         var ttl = LocalDate.now();
-        JsonNode actual = underTest.createCaseStartData(hearingRecordingDto, RECORDING_ID, Optional.of(ttl));
+        JsonNode actual = underTest.createCaseStartData(hearingRecordingDto, RECORDING_ID, ttl);
 
         assertEquals("FM", actual.get("jurisdictionCode").asText());
         assertEquals(RECORDING_REF, actual.get("recordingReference").asText());
