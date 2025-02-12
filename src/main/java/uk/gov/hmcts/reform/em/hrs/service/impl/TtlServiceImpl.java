@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.em.hrs.config.TTLMapperConfig;
 import uk.gov.hmcts.reform.em.hrs.service.TtlService;

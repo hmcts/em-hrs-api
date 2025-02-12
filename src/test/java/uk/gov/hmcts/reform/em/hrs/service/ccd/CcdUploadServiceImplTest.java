@@ -67,8 +67,6 @@ class CcdUploadServiceImplTest {
     @InjectMocks
     private CcdUploadServiceImpl underTest;
 
-    private static final Optional<LocalDate> optTtl = Optional.empty();
-
     private static final LocalDate ttl = LocalDate.now();
 
     @Test
@@ -95,14 +93,13 @@ class CcdUploadServiceImplTest {
         ArgumentCaptor<HearingRecording> hearingRecordingCaptor = ArgumentCaptor.forClass(HearingRecording.class);
         verify(recordingRepository, times(2)).saveAndFlush(hearingRecordingCaptor.capture());
         List<HearingRecording> hearingRecordingList = hearingRecordingCaptor.getAllValues();
-        //TODO: uncomment, if understanding is correct they now need to be true.
         var firstSave = hearingRecordingList.get(0);
-//        assertThat(firstSave.isTtlSet()).isFalse();
-//        assertThat(firstSave.getTtl()).isNull();
+        assertThat(firstSave.isTtlSet()).isFalse();
+        assertThat(firstSave.getTtl()).isNull();
         assertThat(firstSave.getCcdCaseId()).isNull();
         var secondSave = hearingRecordingList.get(1);
-//        assertThat(secondSave.isTtlSet()).isFalse();
-//        assertThat(secondSave.getTtl()).isNull();
+        assertThat(secondSave.isTtlSet()).isTrue();
+        assertThat(secondSave.getTtl()).isNotNull();
         assertThat(secondSave.getCcdCaseId()).isEqualTo(CCD_CASE_ID);
 
         verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
@@ -202,9 +199,8 @@ class CcdUploadServiceImplTest {
         verify(recordingRepository, times(2)).saveAndFlush(hearingRecordingCaptor.capture());
         List<HearingRecording> hearingRecordingList = hearingRecordingCaptor.getAllValues();
 
-        //TODO: Change to true when logic is confirmed
-//        assertThat(hearingRecordingList.get(0).isTtlSet()).isFalse();
-//        assertThat(hearingRecordingList.get(1).isTtlSet()).isFalse();
+        assertThat(hearingRecordingList.get(0).isTtlSet()).isFalse();
+        assertThat(hearingRecordingList.get(1).isTtlSet()).isTrue();
 
         verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
         verify(blobIndexMarker, times(1)).setProcessed(VH_HEARING_RECORDING_DTO.getFilename());

@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.em.hrs.service.ccd;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import net.bytebuddy.asm.Advice;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,7 +19,6 @@ import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -45,7 +43,6 @@ class CcdDataStoreApiClientTest {
     private static final String SERVICE_TOKEN = "serviceToken";
     private static final String USER_ID = "123456";
     private static final UUID RECORDING_ID = UUID.randomUUID();
-    private static final Optional<LocalDate> optTtl = Optional.empty();
     private static final LocalDate ttl = LocalDate.now();
     private static final HearingRecordingDto HEARING_RECORDING_DTO = HearingRecordingDto.builder()
         .recordingRef("recordingRef").build();

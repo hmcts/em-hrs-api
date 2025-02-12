@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.em.hrs.service.FolderService;
 import uk.gov.hmcts.reform.em.hrs.service.TtlService;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobIndexMarker;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;

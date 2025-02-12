@@ -20,7 +20,6 @@ import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service

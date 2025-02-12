@@ -116,19 +116,11 @@ public class CaseDataContentCreator {
             .map(dateTime -> dateTime.getHour() < 12 ? "AM" : "PM").orElse("");
     }
 
-    public TtlCcdObject createTTLObject(LocalDate timeToLive) {
-//        return timeToLive.map(ttl -> {
-//            var ttlString = ttl.toString();
-//            return TtlCcdObject.builder()
-//                .suspended(TTL_SUSPENDED_NO)
-//                .overrideTTL(ttlString)
-//                .systemTTL(ttlString)
-//                .build();
-//        }).orElse(null);
+    public TtlCcdObject createTTLObject(LocalDate ttl) {
         return TtlCcdObject.builder()
             .suspended(TTL_SUSPENDED_NO)
-            .overrideTTL(timeToLive.toString())
-            .systemTTL(timeToLive.toString())
+            .overrideTTL(ttl.toString())
+            .systemTTL(ttl.toString())
             .build();
     }
 }
