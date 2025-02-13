@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.em.hrs.job;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -50,6 +51,8 @@ public class UpdateJurisdictionCodesTask {
     @SchedulerLock(name = TASK_NAME)
     public void run() {
         logger.info("Started {} job", TASK_NAME);
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         Optional<BlobClient> csvBlobClient = loadWorkbookBlobClient();
         if (csvBlobClient.isEmpty()) {
             throw new BlobNotFoundException("blobName", "jurisdictionWorkbook");
@@ -81,6 +84,9 @@ public class UpdateJurisdictionCodesTask {
         } catch (IOException e) {
             logger.info("Encountered error updating jurisdiction codes: {}", e.getMessage());
         }
+        csvBlobClient.get().delete();
+        stopWatch.stop();
+        logger.info("Update job for jurisdiction codes took {} ms", stopWatch.getDuration().toMillis());
         logger.info("Finished {} job", TASK_NAME);
     }
 
