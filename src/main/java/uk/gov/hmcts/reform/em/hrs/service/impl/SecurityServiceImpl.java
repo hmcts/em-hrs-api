@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -13,6 +12,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
+import uk.gov.hmcts.reform.em.hrs.service.idam.cache.CachedIdamCredential;
+import uk.gov.hmcts.reform.em.hrs.service.idam.cache.IdamCachedClient;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
@@ -32,44 +33,33 @@ public class SecurityServiceImpl implements SecurityService {
     private final IdamClient idamClient;
     private final AuthTokenGenerator authTokenGenerator;
     private final AuthTokenValidator authTokenValidator;
-    private final String systemUsername;
-    private final String systemUserPassword;
+    private final IdamCachedClient idamCachedClient;
 
     @Autowired
     public SecurityServiceImpl(
         final IdamClient idamClient,
         final AuthTokenGenerator authTokenGenerator,
         final AuthTokenValidator authTokenValidator,
-        final @Value("${idam.system-user.username}") String systemUsername,
-        final @Value("${idam.system-user.password}") String systemUserPassword
+        final IdamCachedClient idamCachedClient
     ) {
         this.idamClient = idamClient;
         this.authTokenGenerator = authTokenGenerator;
         this.authTokenValidator = authTokenValidator;
-        this.systemUsername = systemUsername;
-        this.systemUserPassword = systemUserPassword;
+        this.idamCachedClient = idamCachedClient;
     }
 
     @Override
     public Map<String, String> createTokens() {
-        final String token = createSystemToken();
-        return Map.of("user", token,
-                      "userId", getUserId(token),
+        final CachedIdamCredential token = createSystemToken();
+        return Map.of("user", token.accessToken,
+                      "userId", token.userId,
                       "service", authTokenGenerator.generate());
     }
 
-    private String createSystemToken() {
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("retrieving access token with these credentials ({}/{})",
-                        systemUsername, systemUserPassword.substring(0, 4).concat("*****")
-            );
-        }
-        return idamClient.getAccessToken(systemUsername, systemUserPassword);
+    private CachedIdamCredential createSystemToken() {
+        return idamCachedClient.getIdamCredentials();
     }
 
-    private String getUserId(String userAuthorization) {
-        return idamClient.getUserInfo(userAuthorization).getUid();
-    }
 
     @Override
     public String getUserEmail(String userAuthorization) {

@@ -12,6 +12,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
+import uk.gov.hmcts.reform.em.hrs.service.idam.cache.CachedIdamCredential;
+import uk.gov.hmcts.reform.em.hrs.service.idam.cache.IdamCachedClient;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
@@ -52,6 +54,9 @@ class SecurityServiceImplTest {
     private IdamClient idamClient;
 
     @MockitoBean
+    private IdamCachedClient idamCachedClient;
+
+    @MockitoBean
     private AuthTokenGenerator authTokenGenerator;
 
     @MockitoBean
@@ -78,15 +83,14 @@ class SecurityServiceImplTest {
 
     @Test
     void testShouldGetTokensMap() {
-        doReturn(AUTHORIZATION_TOKEN).when(idamClient).getAccessToken(SYSTEM_USER, SYSTEM_USER_PASSWORD);
-        doReturn(USER_INFO).when(idamClient).getUserInfo(AUTHORIZATION_TOKEN);
+        CachedIdamCredential cachedIdamCredential = new CachedIdamCredential(AUTHORIZATION_TOKEN, USER_ID, 3600);
+        doReturn(cachedIdamCredential).when(idamCachedClient).getIdamCredentials();
         doReturn(SERVICE_AUTHORIZATION_TOKEN).when(authTokenGenerator).generate();
 
         final Map<String, String> tokens = underTest.createTokens();
 
         assertThat(tokens).isNotNull().isNotEmpty();
-        verify(idamClient, times(1)).getAccessToken(SYSTEM_USER, SYSTEM_USER_PASSWORD);
-        verify(idamClient, times(1)).getUserInfo(AUTHORIZATION_TOKEN);
+        verify(idamCachedClient, times(1)).getIdamCredentials();
         verify(authTokenGenerator, times(1)).generate();
     }
 
