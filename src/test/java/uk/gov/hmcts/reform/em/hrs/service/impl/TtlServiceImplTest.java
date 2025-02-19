@@ -16,7 +16,7 @@ class TtlServiceImplTest {
 
     private TTLMapperConfig ttlMapperConfig = mock(TTLMapperConfig.class);
 
-    private TtlServiceImpl ttlServiceImpl =  new TtlServiceImpl(true, ttlMapperConfig);
+    private TtlServiceImpl ttlServiceImpl =  new TtlServiceImpl(ttlMapperConfig);
 
 
     @Test
@@ -89,8 +89,7 @@ class TtlServiceImplTest {
         assertEquals(now.plusDays(30), ttlDate);
         verify(ttlMapperConfig).getDefaultTTL();
     }
-
-
+  
     @Test
     void shouldReturnDefaultTtlWhenServiceAndJurisdictionCodeNull() {
         // Given
@@ -112,26 +111,5 @@ class TtlServiceImplTest {
         LocalDate now = LocalDate.now();
         assertEquals(now.plusDays(30), ttlDate);
         verify(ttlMapperConfig).getDefaultTTL();
-    }
-
-    @Test
-    void shouldReturnTtlDisabled() {
-        //given
-        TtlServiceImpl ttlServiceDisabled = new TtlServiceImpl(false, ttlMapperConfig);
-
-        // When
-        boolean ttlEnabled = ttlServiceDisabled.isTtlEnabled();
-
-        // Then
-        assertEquals(false, ttlEnabled);
-    }
-
-    @Test
-    void shouldReturnTtlEnabled() {
-        // When
-        boolean ttlEnabled = ttlServiceImpl.isTtlEnabled();
-
-        // Then
-        assertEquals(true, ttlEnabled);
     }
 }
