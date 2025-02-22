@@ -7,4 +7,7 @@ public interface TtlService {
     LocalDate createTtl(String service, String jurisdiction, LocalDate createdDate);
 
     boolean isTtlEnabled();
+
+    boolean hasTtlConfig(String serviceCode, String jurisdictionCode);
+
 }

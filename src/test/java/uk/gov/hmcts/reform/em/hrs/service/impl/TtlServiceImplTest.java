@@ -8,6 +8,8 @@ import java.time.Period;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,7 +18,7 @@ class TtlServiceImplTest {
 
     private TTLMapperConfig ttlMapperConfig = mock(TTLMapperConfig.class);
 
-    private TtlServiceImpl ttlServiceImpl =  new TtlServiceImpl(true, ttlMapperConfig);
+    private TtlServiceImpl ttlServiceImpl = new TtlServiceImpl(true, ttlMapperConfig);
 
 
     @Test
@@ -133,5 +135,40 @@ class TtlServiceImplTest {
 
         // Then
         assertEquals(true, ttlEnabled);
+    }
+
+    @Test
+    void testHasTtlConfigWithValidServiceCode() {
+        String serviceCode = "SERVICE1";
+        Period periodForService = Period.ofDays(10);
+        when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of(serviceCode, periodForService));
+
+        assertTrue(ttlServiceImpl.hasTtlConfig(serviceCode, null));
+    }
+
+    @Test
+    void testHasTtlConfigWithValidJurisdictionCode() {
+        String jurisdictionCode = "JURISDICTION1";
+        when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of(jurisdictionCode, Period.ofDays(10)));
+
+        assertTrue(ttlServiceImpl.hasTtlConfig(null, jurisdictionCode));
+    }
+
+    @Test
+    void testHasTtlConfigWithInvalidCodes() {
+        when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of());
+        when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of("JRS", Period.ofDays(10)));
+
+        assertFalse(ttlServiceImpl.hasTtlConfig("INVALID", "INVALID"));
+    }
+
+    @Test
+    void testHasTtlConfigWithBothValidCodes() {
+        String serviceCode = "SERVICE1";
+        String jurisdictionCode = "JURISDICTION1";
+        when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of(serviceCode, Period.ofDays(10)));
+        when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of(jurisdictionCode, Period.ofDays(10)));
+
+        assertTrue(ttlServiceImpl.hasTtlConfig(serviceCode, jurisdictionCode));
     }
 }

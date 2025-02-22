@@ -4,6 +4,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
+import uk.gov.hmcts.reform.em.hrs.service.TtlService;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -17,9 +18,18 @@ import static java.util.Collections.emptyList;
 @SuppressWarnings("squid:S5443")
 public class HearingReportCsvWriter {
 
+
+    private final TtlService ttlService;
     private static final String[] HEARING_SUMMARY_CSV_HEADERS = {
-        "File Name", "Source URI","Hearing Source","Service Code","File Size KB","CCD Case Id", "Date Processed"
+        "File Name", "Source URI","Hearing Source","Service Code",
+        "File Size KB","CCD Case Id","Date Processed","Has Ttl Config"
     };
+
+
+
+    public HearingReportCsvWriter(TtlService ttlService) {
+        this.ttlService = ttlService;
+    }
 
     public File writeHearingRecordingSummaryToCsv(
         List<HearingRecordingSegment> data
@@ -39,14 +49,16 @@ public class HearingReportCsvWriter {
             CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)
         ) {
             for (HearingRecordingSegment hearingRecSeg : Optional.ofNullable(data).orElse(emptyList())) {
+                var hearingRec = hearingRecSeg.getHearingRecording();
                 printer.printRecord(
                     hearingRecSeg.getFilename(),
                     hearingRecSeg.getIngestionFileSourceUri(),
-                    hearingRecSeg.getHearingRecording().getHearingSource(),
-                    hearingRecSeg.getHearingRecording().getServiceCode(),
+                    hearingRec.getHearingSource(),
+                    hearingRec.getServiceCode(),
                     (int)Math.ceil((float) hearingRecSeg.getFileSizeMb() / 1000),
-                    hearingRecSeg.getHearingRecording().getCcdCaseId(),
-                    hearingRecSeg.getCreatedOn()
+                    hearingRec.getCcdCaseId(),
+                    hearingRecSeg.getCreatedOn(),
+                    this.ttlService.hasTtlConfig(hearingRec.getServiceCode(), hearingRec.getJurisdictionCode())
                 );
             }
         }
