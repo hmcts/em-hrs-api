@@ -302,4 +302,55 @@ class CcdDataStoreApiClientTest {
             .isThrownBy(() -> underTest.updateCaseWithTtl(ccdCaseId, ttl));
     }
 
+
+    @Test
+    void shouldUpdateCaseWithCodesSuccessfully() {
+        Long ccdCaseId = 123L;
+        Map<String, String> tokens = Map.of(
+            "user", USER_TOKEN,
+            "service", SERVICE_TOKEN,
+            "userId", USER_ID);
+
+        StartEventResponse startEventResponse = StartEventResponse.builder()
+            .caseDetails(CaseDetails.builder().id(ccdCaseId).data(Map.of()).build())
+            .eventId("eventId")
+            .token("eventToken")
+            .build();
+
+        doReturn(tokens).when(securityService).createTokens();
+        doReturn(startEventResponse).when(coreCaseDataApi)
+            .startEvent(USER_TOKEN, SERVICE_TOKEN, ccdCaseId.toString(), AMEND_CASE);
+
+        underTest.updateCaseWithCodes(ccdCaseId, "jurisdiction code", "service codes");
+
+        verify(coreCaseDataApi).submitEventForCaseWorker(eq(USER_TOKEN), eq(SERVICE_TOKEN), eq(USER_ID),
+                                                         eq(JURISDICTION), eq(CASE_TYPE), eq(ccdCaseId.toString()),
+                                                         eq(false), any(CaseDataContent.class));
+    }
+
+    @Test
+    void shouldHandleExceptionDuringUpdateCaseWithCodes() {
+        Long ccdCaseId = 123L;
+        Map<String, String> tokens = Map.of(
+            "user", USER_TOKEN,
+            "service", SERVICE_TOKEN,
+            "userId", USER_ID);
+
+        StartEventResponse startEventResponse = StartEventResponse.builder()
+            .caseDetails(CaseDetails.builder().id(ccdCaseId).data(Map.of()).build())
+            .eventId("eventId")
+            .token("eventToken")
+            .build();
+
+        doReturn(tokens).when(securityService).createTokens();
+        doReturn(startEventResponse).when(coreCaseDataApi)
+            .startEvent(USER_TOKEN, SERVICE_TOKEN, ccdCaseId.toString(), AMEND_CASE);
+        doThrow(new RuntimeException("CCD update failed")).when(coreCaseDataApi)
+            .submitEventForCaseWorker(any(), any(), any(), any(), any(), any(), anyBoolean(), any());
+
+        assertThatExceptionOfType(CcdUploadException.class)
+            .isThrownBy(() -> underTest.updateCaseWithCodes(
+                ccdCaseId, "jurisdiction code", "service codes"));
+    }
+
 }
