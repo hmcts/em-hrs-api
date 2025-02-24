@@ -11,16 +11,16 @@ dependencies:
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
   - name: blobstorage
     alias: hrsblobstorage
-    version: 2.0.2
+    version: 2.1.0
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
     condition: hrsblobstorage.enabled
   - name: blobstorage
     alias: cvpblobstorage
-    version: 2.0.2
+    version: 2.1.0
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
     condition: cvpblobstorage.enabled
   - name: blobstorage
     alias: vhblobstorage
-    version: 2.0.2
+    version: 2.1.0
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
     condition: vhblobstorage.enabled
