@@ -17,13 +17,15 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.exception.BlobCopyException;
 import uk.gov.hmcts.reform.em.hrs.exception.BlobNotFoundException;
+import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
+import uk.gov.hmcts.reform.em.hrs.service.ccd.CcdDataStoreApiClient;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -39,11 +41,17 @@ public class UpdateJurisdictionCodesTask {
     private final BlobContainerClient blobClient;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final int batchSize = 10;
+    private final CcdDataStoreApiClient ccdDataStoreApiClient;
+    private final HearingRecordingService hearingRecordingService;
 
     public UpdateJurisdictionCodesTask(@Qualifier("jurisdictionCodesContainerClient") BlobContainerClient blobClient,
-                                       NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+                                       NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+                                       CcdDataStoreApiClient ccdDataStoreApiClient,
+                                       HearingRecordingService hearingRecordingService) {
         this.blobClient = blobClient;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        this.ccdDataStoreApiClient = ccdDataStoreApiClient;
+        this.hearingRecordingService = hearingRecordingService;
     }
 
 
@@ -61,16 +69,18 @@ public class UpdateJurisdictionCodesTask {
         List<UpdateRecordingRecord> records = new ArrayList<>();
 
         try (XSSFWorkbook workbook = loadWorkbook(csvBlobClient.get())) {
-
             XSSFSheet sheet = workbook.getSheetAt(0);
-            Iterator<Row> iterator = sheet.rowIterator();
-            while (iterator.hasNext()) {
-                Row row = iterator.next();
-                records.add(new UpdateRecordingRecord(
+            for (Row row : sheet) {
+                UpdateRecordingRecord updateRecordingRecord = new UpdateRecordingRecord(
                     getStringCellValue(row.getCell(0)),
                     getStringCellValue(row.getCell(1)),
                     getStringCellValue(row.getCell(2))
-                ));
+                );
+                if (!updateCase(updateRecordingRecord)) {
+                    continue;
+                }
+
+                records.add(updateRecordingRecord);
 
                 if (records.size() >= batchSize) {
                     batchUpdate(records);
@@ -90,8 +100,26 @@ public class UpdateJurisdictionCodesTask {
         logger.info("Finished {} job", TASK_NAME);
     }
 
+    private boolean updateCase(UpdateRecordingRecord recordingRecord) {
+        String filename = recordingRecord.filename;
+        Long ccdCaseId = hearingRecordingService.findCcdCaseIdByFilename(filename);
+        if (Objects.isNull(ccdCaseId)) {
+            logger.info("Failed to find ccd case id for filename: {}", filename);
+            return false;
+        }
+        try {
+            ccdDataStoreApiClient.updateCaseWithCodes(
+                ccdCaseId, recordingRecord.jurisdictionCode, recordingRecord.serviceCode);
+        } catch (Exception e) {
+            logger.info("Failed to update case with jurisdiction and service codes for filename: {}",
+                         filename, e);
+            return false;
+        }
+        return true;
+    }
+
     private String getStringCellValue(Cell cell) {
-        return Objects.isNull(cell) ? null : cell.getStringCellValue();
+        return Objects.isNull(cell) || cell.getStringCellValue().isBlank() ? null : cell.getStringCellValue();
     }
 
     private void batchUpdate(List<UpdateRecordingRecord> records) {
@@ -110,13 +138,13 @@ public class UpdateJurisdictionCodesTask {
     }
 
 
-    private XSSFWorkbook loadWorkbook(BlobClient client) {
+    private XSSFWorkbook loadWorkbook(BlobClient client) throws IOException {
         File spreadsheetFile = null;
         try {
             spreadsheetFile = File.createTempFile("jurisdictionCodes", ".xslx");
             final String filename = spreadsheetFile.getAbsolutePath();
 
-            spreadsheetFile.delete();
+            Files.deleteIfExists(spreadsheetFile.toPath());
             client.downloadToFile(filename);
 
             try (InputStream stream = new FileInputStream(filename)) {
@@ -126,7 +154,7 @@ public class UpdateJurisdictionCodesTask {
             throw new BlobCopyException(e.getMessage());
         } finally {
             if (Objects.nonNull(spreadsheetFile) && spreadsheetFile.exists()) {
-                spreadsheetFile.delete();
+                Files.deleteIfExists(spreadsheetFile.toPath());
             }
         }
     }

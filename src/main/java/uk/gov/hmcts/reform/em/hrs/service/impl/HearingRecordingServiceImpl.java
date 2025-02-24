@@ -43,4 +43,8 @@ public class HearingRecordingServiceImpl implements HearingRecordingService {
         segments.forEach(segment -> blobStorageDeleteService.deleteBlob(
             segment.getFilename(), HearingSource.valueOf(segment.getHearingRecording().getHearingSource())));
     }
+
+    public Long findCcdCaseIdByFilename(String filename) {
+        return hearingRecordingRepository.findCcdCaseIdByFilename(filename);
+    }
 }
