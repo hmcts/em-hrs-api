@@ -59,11 +59,10 @@ public class CcdDataStoreApiClient {
             StartEventResponse startEventResponse =
                 coreCaseDataApi.startCase(tokens.get(USER), tokens.get(SERVICE), CASE_TYPE, EVENT_CREATE_CASE);
 
-            caseData = CaseDataContent.builder()
-                .event(Event.builder().id(startEventResponse.getEventId()).build())
-                .eventToken(startEventResponse.getToken())
-                .data(caseDataCreator.createCaseStartData(hearingRecordingDto, recordingId, ttl))
-                .build();
+            caseData = buildCaseDataContent(
+                startEventResponse,
+                caseDataCreator.createCaseStartData(hearingRecordingDto, recordingId, ttl)
+            );
 
             CaseDetails caseDetails = coreCaseDataApi
                 .submitForCaseworker(tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
@@ -100,19 +99,10 @@ public class CcdDataStoreApiClient {
         try {
             Map<String, String> tokens = securityService.createTokens();
             StartEventResponse startEventResponse =
-                coreCaseDataApi.startEvent(
-                    tokens.get(USER),
-                    tokens.get(SERVICE),
-                    caseId.toString(),
-                    EVENT_MANAGE_FILES
-                );
+                startEvent(tokens, caseId, EVENT_MANAGE_FILES);
 
-            caseData = CaseDataContent.builder()
-                .event(Event.builder().id(startEventResponse.getEventId()).build())
-                .eventToken(startEventResponse.getToken())
-                .data(caseDataCreator.createCaseUpdateData(
-                    startEventResponse.getCaseDetails().getData(), recordingId, hearingRecordingDto)
-                ).build();
+            caseData = buildCaseDataContent(startEventResponse, caseDataCreator.createCaseUpdateData(
+                startEventResponse.getCaseDetails().getData(), recordingId, hearingRecordingDto));
 
             LOGGER.info(
                 "updating ccd case (id {}) with new recording (ref {})",
@@ -147,13 +137,7 @@ public class CcdDataStoreApiClient {
     public void updateCaseWithTtl(Long ccdCaseId, LocalDate ttl) {
         try {
             Map<String, String> tokens = securityService.createTokens();
-
-            StartEventResponse startEventResponse = coreCaseDataApi.startEvent(
-                tokens.get(USER),
-                tokens.get(SERVICE),
-                ccdCaseId.toString(),
-                EVENT_AMEND_CASE
-            );
+            StartEventResponse startEventResponse = startEvent(tokens, ccdCaseId, EVENT_AMEND_CASE);
 
             final ObjectMapper mapper = new ObjectMapper();
             mapper.findAndRegisterModules();
@@ -164,17 +148,55 @@ public class CcdDataStoreApiClient {
             TtlCcdObject ttlObject = caseDataCreator.createTTLObject(Optional.of(ttl));
             caseHearingRecording.setTimeToLive(ttlObject);
 
-            CaseDataContent caseDataContent = CaseDataContent.builder()
-                .event(Event.builder().id(startEventResponse.getEventId()).build())
-                .eventToken(startEventResponse.getToken())
-                .data(mapper.convertValue(caseHearingRecording, JsonNode.class))
-                .build();
+            CaseDataContent caseDataContent = buildCaseDataContent(
+                startEventResponse, mapper.convertValue(caseHearingRecording, JsonNode.class));
             coreCaseDataApi.submitEventForCaseWorker(tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
                                                      JURISDICTION, CASE_TYPE, ccdCaseId.toString(),
                                                      false, caseDataContent);
         } catch (Exception e) {
             throw new CcdUploadException("Error Updating TTL", e);
         }
+    }
+
+    public void updateCaseWithCodes(Long ccdCaseId, String jurisdictionCode, String serviceCode) {
+        try {
+            Map<String, String> tokens = securityService.createTokens();
+            StartEventResponse startEventResponse = startEvent(tokens, ccdCaseId, EVENT_AMEND_CASE);
+
+            final ObjectMapper mapper = new ObjectMapper();
+            mapper.findAndRegisterModules();
+
+            CaseDetails caseDetails = startEventResponse.getCaseDetails();
+            CaseHearingRecording caseHearingRecording = mapper.convertValue(
+                caseDetails.getData(), CaseHearingRecording.class);
+            caseHearingRecording.setJurisdictionCode(jurisdictionCode);
+            caseHearingRecording.setServiceCode(serviceCode);
+
+            CaseDataContent caseDataContent = buildCaseDataContent(
+                startEventResponse, mapper.convertValue(caseHearingRecording, JsonNode.class));
+            coreCaseDataApi.submitEventForCaseWorker(tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
+                                                     JURISDICTION, CASE_TYPE, ccdCaseId.toString(),
+                                                     false, caseDataContent);
+        } catch (Exception e) {
+            throw new CcdUploadException("Error Updating Codes", e);
+        }
+    }
+
+    private StartEventResponse startEvent(Map<String, String> tokens, Long caseId, String eventType) {
+        return coreCaseDataApi.startEvent(
+            tokens.get(USER),
+            tokens.get(SERVICE),
+            caseId.toString(),
+            eventType
+        );
+    }
+
+    private CaseDataContent buildCaseDataContent(StartEventResponse startEventResponse, Object data) {
+        return CaseDataContent.builder()
+            .event(Event.builder().id(startEventResponse.getEventId()).build())
+            .eventToken(startEventResponse.getToken())
+            .data(data)
+            .build();
     }
 
     private void logCaseDataError(CaseDataContent caseData) {
@@ -197,6 +219,7 @@ public class CcdDataStoreApiClient {
         String jsonOutput = gson.toJson(jsonData);
         LOGGER.info("caseData Pretty: {}", jsonOutput);
     }
+
 }
 
 

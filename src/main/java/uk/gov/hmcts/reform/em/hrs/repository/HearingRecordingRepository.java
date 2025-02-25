@@ -30,4 +30,7 @@ public interface HearingRecordingRepository extends JpaRepository<HearingRecordi
     List<HearingRecording> deleteByCcdCaseIdIn(Collection<Long> ccdCaseIds);
 
     List<HearingRecording> findByTtlSetFalseOrderByCreatedOnAsc(Limit limit);
+
+    @Query("SELECT hr.ccdCaseId FROM HearingRecording hr JOIN hr.segments hrs WHERE hrs.filename = :filename")
+    Long findCcdCaseIdByFilename(@Param("filename") String filename);
 }
