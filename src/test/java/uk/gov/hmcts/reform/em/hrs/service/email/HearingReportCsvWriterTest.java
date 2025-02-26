@@ -45,7 +45,7 @@ class HearingReportCsvWriterTest {
         HearingReportCsvWriter hearingReportCsvWriter = new HearingReportCsvWriter(ttlService);
 
         when(ttlService.hasTtlConfig("servicecode-1", null))
-            .thenReturn(true);
+            .thenReturn("Yes");
 
         File csvFile = hearingReportCsvWriter.writeHearingRecordingSummaryToCsv(data);
 
@@ -64,7 +64,7 @@ class HearingReportCsvWriterTest {
             13,
             1234567,
             CREATED_ON,
-            true
+            "Yes"
         ), lines.get(1));
     }
 

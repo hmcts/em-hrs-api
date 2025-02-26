@@ -44,12 +44,14 @@ public class TtlServiceImpl implements TtlService {
         return calculateTtl(ttlPeriod, createdDate);
     }
 
-    public boolean hasTtlConfig(String serviceCode, String jurisdictionCode) {
-        return (Objects.nonNull(serviceCode)
+    public String hasTtlConfig(String serviceCode, String jurisdictionCode) {
+        boolean result = (Objects.nonNull(serviceCode)
             && ttlMapperConfig.getTtlServiceMap().containsKey(serviceCode.toUpperCase()))
             ||
             (Objects.nonNull(jurisdictionCode)
                 && ttlMapperConfig.getTtlJurisdictionMap().containsKey(jurisdictionCode.toUpperCase()));
+
+        return result ? "Yes" : "No";
     }
 
     private LocalDate calculateTtl(Period ttl, LocalDate createdDate) {

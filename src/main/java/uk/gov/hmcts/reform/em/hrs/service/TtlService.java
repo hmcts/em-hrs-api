@@ -8,6 +8,6 @@ public interface TtlService {
 
     boolean isTtlEnabled();
 
-    boolean hasTtlConfig(String serviceCode, String jurisdictionCode);
+    String hasTtlConfig(String serviceCode, String jurisdictionCode);
 
 }
