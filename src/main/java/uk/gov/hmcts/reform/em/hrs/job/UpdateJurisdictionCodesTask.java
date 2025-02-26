@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -66,31 +69,30 @@ public class UpdateJurisdictionCodesTask {
             throw new BlobNotFoundException("blobName", "jurisdictionWorkbook");
         }
 
-        List<UpdateRecordingRecord> records = new ArrayList<>();
+        try (ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
+             XSSFWorkbook workbook = loadWorkbook(csvBlobClient.get())) {
 
-        try (XSSFWorkbook workbook = loadWorkbook(csvBlobClient.get())) {
             XSSFSheet sheet = workbook.getSheetAt(0);
+            List<CompletableFuture<UpdateRecordingRecord>> futures = new ArrayList<>();
+
             for (Row row : sheet) {
                 UpdateRecordingRecord updateRecordingRecord = new UpdateRecordingRecord(
                     getStringCellValue(row.getCell(0)),
                     getStringCellValue(row.getCell(1)),
                     getStringCellValue(row.getCell(2))
                 );
-                if (!updateCase(updateRecordingRecord)) {
-                    continue;
-                }
 
-                records.add(updateRecordingRecord);
+                futures.add(CompletableFuture.supplyAsync(() ->
+                    updateCase(updateRecordingRecord) ? updateRecordingRecord : null, executorService));
 
-                if (records.size() >= batchSize) {
-                    batchUpdate(records);
-                    records.clear();
-                }
+                List<UpdateRecordingRecord> completedRecords = futures.stream()
+                    .map(CompletableFuture::join)
+                    .filter(Objects::nonNull)
+                    .toList();
+
+                batchUpdate(completedRecords);
             }
 
-            if (!records.isEmpty()) {
-                batchUpdate(records);
-            }
         } catch (IOException e) {
             logger.info("Encountered error updating jurisdiction codes: {}", e.getMessage());
         }
@@ -123,11 +125,15 @@ public class UpdateJurisdictionCodesTask {
     }
 
     private void batchUpdate(List<UpdateRecordingRecord> records) {
-        namedParameterJdbcTemplate.batchUpdate("UPDATE hearing_recording "
-                                      + "SET jurisdiction_code = :jurisdictionCode, service_code = :serviceCode "
-                                      + "WHERE id = (" + "SELECT hearing_recording_id "
-                                      + "FROM hearing_recording_segment "
-                                      + "WHERE filename = :filename)", SqlParameterSourceUtils.createBatch(records));
+        for (int i = 0; i < records.size(); i += batchSize) {
+            List<UpdateRecordingRecord> batchList = records.subList(i, Math.min(i + batchSize, records.size()));
+            namedParameterJdbcTemplate.batchUpdate(
+                "UPDATE hearing_recording "
+                    + "SET jurisdiction_code = :jurisdictionCode, service_code = :serviceCode "
+                    + "WHERE id = (SELECT hearing_recording_id "
+                    + "FROM hearing_recording_segment "
+                    + "WHERE filename = :filename)", SqlParameterSourceUtils.createBatch(batchList));
+        }
     }
 
     private Optional<BlobClient> loadWorkbookBlobClient() {
