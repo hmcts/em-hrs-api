@@ -182,6 +182,11 @@ scheduling:
     jurisdiction-codes:
       cron: ${JURISDICTION_CODES_UPDATE_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
       enabled: ${JURISDICTION_CODES_UPDATE_ENABLED:true}
+    test-file-creation:
+      enabled: ${JOB_TEST_FILE_CREATION_ENABLED:false}
+      test-cases: ${JOB_TEST_FILE_CREATION_TEST_CASES:1000}
+      schedule: ${JOB_TEST_FILE_CREATION_SCHEDULE:0 0/5 * * * *}
+      max-concurrent-uploads: ${JOB_TEST_FILE_CREATION_MAX_CONCURRENT_UPLOADS:100}
 report:
   recipients: ${SUMMARY_REPORT_RECIPIENTS:xxxx}
   from: ${SMTP_USERNAME:xxxx}
