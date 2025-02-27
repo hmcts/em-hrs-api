@@ -22,7 +22,7 @@ class TtlServiceImplTest {
     @Test
     void shouldReturnTtlForServiceCode() {
         // Given
-        String serviceCode = "serviceA";
+        String serviceCode = "SERVICEA";
         Period periodForService = Period.ofDays(10);
         when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of(serviceCode, periodForService));
 
@@ -36,11 +36,27 @@ class TtlServiceImplTest {
     }
 
     @Test
+    void shouldCheckUpperCaseForCodes() {
+        // Given
+        String serviceCode = "servicea";
+        Period periodForService = Period.ofDays(10);
+        when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of("SERVICEA", periodForService));
+
+        // When
+        LocalDate ttlDate = ttlServiceImpl.createTtl(serviceCode, null, LocalDate.now());
+
+        // Then
+        LocalDate now = LocalDate.now();
+        assertEquals(now.plusDays(10), ttlDate);
+        verify(ttlMapperConfig).getTtlServiceMap();
+    }
+
+    @Test
     void shouldReturnTtlForJurisdictionCodeWhenServiceCodeNotFound() {
         // Given
-        String jurisdictionCode = "jurisdictionA";
+        String jurisdictionCode = "jurisDictionA";
         Period periodForJurisdiction = Period.ofDays(15);
-        when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of(jurisdictionCode, periodForJurisdiction));
+        when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of("JURISDICTIONA", periodForJurisdiction));
 
         // When
         LocalDate ttlDate = ttlServiceImpl.createTtl("notFound_service", jurisdictionCode, LocalDate.now());
@@ -67,6 +83,30 @@ class TtlServiceImplTest {
 
         // When
         LocalDate ttlDate = ttlServiceImpl.createTtl("notFound_service", "notFound_jurisdiction", LocalDate.now());
+
+        // Then
+        LocalDate now = LocalDate.now();
+        assertEquals(now.plusDays(30), ttlDate);
+        verify(ttlMapperConfig).getDefaultTTL();
+    }
+
+
+    @Test
+    void shouldReturnDefaultTtlWhenServiceAndJurisdictionCodeNull() {
+        // Given
+        String serviceCode = "serviceA";
+        Period periodForService = Period.ofDays(10);
+        when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of(serviceCode, periodForService));
+
+        String jurisdictionCode = "jurisdictionA";
+        Period periodForJurisdiction = Period.ofDays(15);
+        when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of(jurisdictionCode, periodForJurisdiction));
+
+        Period defaultTtl = Period.ofDays(30);
+        when(ttlMapperConfig.getDefaultTTL()).thenReturn(defaultTtl);
+
+        // When
+        LocalDate ttlDate = ttlServiceImpl.createTtl(null, null, LocalDate.now());
 
         // Then
         LocalDate now = LocalDate.now();

@@ -88,7 +88,6 @@ env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
 env.S2S_BASE_URI = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
 env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
 env.HRS_VH_DEST_CONTAINER_NAME = 'vhrecordings'
-env.TTL_ENABLED=false;
 // Feature Flags
 env.DELETE_CASE_ENDPOINT_ENABLED = false
 
@@ -157,7 +156,6 @@ withPipeline(type, product, component) {
       env.VH_STORAGE_CONNECTION_STRING="DefaultEndpointsProtocol=https;AccountName=${env.VH_BLOB_ACCOUNT_NAME};AccountKey=${env.VH_BLOB_ACCESS_KEY};EndpointSuffix=core.windows.net"
 
       env.HRS_STORAGEACCOUNT_CONNECTION_STRING= "DefaultEndpointsProtocol=https;AccountName=${env.HRS_BLOB_ACCOUNT_NAME};AccountKey=${env.HRS_BLOB_ACCESS_KEY};EndpointSuffix=core.windows.net"
-      env.TTL_ENABLED=true;
       echo "CVP_STORAGE_CONNECTION_STRING : ${env.CVP_STORAGE_CONNECTION_STRING}"
       echo "VH_STORAGE_CONNECTION_STRING : ${env.VH_STORAGE_CONNECTION_STRING}"
       echo "HRS_STORAGEACCOUNT_CONNECTION_STRING : ${env.HRS_STORAGEACCOUNT_CONNECTION_STRING}"
@@ -182,163 +180,33 @@ withPipeline(type, product, component) {
     }
 
   afterAlways('test') {
-
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/tests/contract",
-      reportFiles          : "index.html",
-      reportName           : "HRS API Contract Tests Report"
-    ]
-
-  publishHTML target: [
-        allowMissing         : true,
-        alwaysLinkToLastBuild: true,
-        keepAll              : true,
-        reportDir            : "build/reports/checkstyle",
-        reportFiles          : "main.html",
-        reportName           : "HRS API Checkstyle Main Report"
-      ]
-
-      publishHTML target: [
-        allowMissing         : true,
-        alwaysLinkToLastBuild: true,
-        keepAll              : true,
-        reportDir            : "build/reports/checkstyle",
-        reportFiles          : "test.html",
-        reportName           : "HRS API Checkstyle Test Report"
-      ]
-
-      publishHTML target: [
-        allowMissing         : true,
-        alwaysLinkToLastBuild: true,
-        keepAll              : true,
-        reportDir            : "build/reports/pmd",
-        reportFiles          : "main.html",
-        reportName           : "HRS API PMD Main Report"
-      ]
-
-      publishHTML target: [
-        allowMissing         : true,
-        alwaysLinkToLastBuild: true,
-        keepAll              : true,
-        reportDir            : "build/reports/tests/test",
-        reportFiles          : "index.html",
-        reportName           : "HRS API Unit Tests Report"
-      ]
-    }
-
-
-
-  afterAlways('smoketest:aat') {
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/tests/smoke",
-      reportFiles          : "index.html",
-      reportName           : "HRS API Smoke Test Report"
-    ]
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/reports/tests/**/*'
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/reports/checkstyle/**/*'
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/reports/tests/integration/**/*'
   }
 
-  afterAlways('functionalTest:aat') {
-
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/tests/functional",
-      reportFiles          : "index.html",
-      reportName           : "HRS API Functional Test Report"
-    ]
-    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
-  }
-
-  afterAlways('test') {
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/checkstyle",
-      reportFiles          : "main.html",
-      reportName           : "HRS API Checkstyle Main Report"
-    ]
-
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/checkstyle",
-      reportFiles          : "test.html",
-      reportName           : "HRS API Checkstyle Test Report"
-    ]
-
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/pmd",
-      reportFiles          : "main.html",
-      reportName           : "HRS API PMD Main Report"
-    ]
-
-
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/tests/test",
-      reportFiles          : "index.html",
-      reportName           : "HRS API Unit Tests Report"
-    ]
-
+  afterAlways('pact-consumer-tests') {
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/reports/tests/**/*'
   }
 
   afterAlways('smoketest:preview') {
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/tests/smoke",
-      reportFiles          : "index.html",
-      reportName           : "HRS API Smoke Test Report"
-    ]
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/reports/tests/**/*'
+  }
+
+  afterAlways('smoketest:aat') {
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/reports/tests/**/*'
   }
 
   afterAlways('functionalTest:preview') {
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/tests/functional",
-      reportFiles          : "index.html",
-      reportName           : "HRS API Functional Test Report"
-    ]
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/reports/tests/**/*'
     steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
   }
 
-  afterAlways('pactconsumerVerification:preview') {
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/tests/contract",
-      reportFiles          : "index.html",
-      reportName           : "HRS API Contract Test Report Preview"
-    ]
+  afterAlways('functionalTest:aat') {
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/reports/tests/**/*'
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
   }
 
-  afterAlways('pactconsumerVerification:aat') {
-    publishHTML target: [
-      allowMissing         : true,
-      alwaysLinkToLastBuild: true,
-      keepAll              : true,
-      reportDir            : "build/reports/tests/contract",
-      reportFiles          : "index.html",
-      reportName           : "HRS API Contract Test Report AAT"
-    ]
-  }
   syncBranchesWithMaster(['demo', 'perftest', 'ithc'])
 }
 

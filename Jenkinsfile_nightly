@@ -72,7 +72,6 @@ env.HRS_VH_DEST_CONTAINER_NAME = 'vhrecordings'
 env.VH_STORAGE_URL= "https://emhrsapiaat.blob.core.windows.net/vhsimulator/"
 env.DELETE_CASE_ENDPOINT_ENABLED = false
 env.CVP_STORAGE_URL= "https://emhrsapiaat.blob.core.windows.net/cvpsimulator/"
-env.TTL_ENABLED=false;
 
 def vaultOverrides = [
   'preview' : 'aat',
