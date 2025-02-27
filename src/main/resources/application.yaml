@@ -168,6 +168,9 @@ scheduling:
     monthly-hearing-report:
       enabled: ${MONTHLY_HEARING_REPORT_ENABLED:false}
       cron: ${MONTHLY_HEARING_REPORT_CRON:0 0 6 ? * *}
+    weekly-hearing-report:
+      enabled: ${WEEKLY_HEARING_REPORT_ENABLED:false}
+      cron: ${WEEKLY_HEARING_REPORT_CRON:0 0 6 ? * *}
     monthly-audit-report:
       enabled: ${MONTHLY_AUDIT_REPORT_ENABLED:false}
       cron: ${MONTHLY_AUDIT_REPORT_CRON:0 0 6 ? * *}
