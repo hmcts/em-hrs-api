@@ -85,13 +85,13 @@ public class UpdateJurisdictionCodesTask {
                 futures.add(CompletableFuture.supplyAsync(() ->
                     updateCase(updateRecordingRecord) ? updateRecordingRecord : null, executorService));
 
-                List<UpdateRecordingRecord> completedRecords = futures.stream()
-                    .map(CompletableFuture::join)
-                    .filter(Objects::nonNull)
-                    .toList();
-
-                batchUpdate(completedRecords);
             }
+            List<UpdateRecordingRecord> completedRecords = futures.stream()
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .toList();
+
+            batchUpdate(completedRecords);
 
         } catch (IOException e) {
             logger.info("Encountered error updating jurisdiction codes: {}", e.getMessage());
