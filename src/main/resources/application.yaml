@@ -84,6 +84,8 @@ idam:
     redirect_uri: ${IDAM_REDIRECT_URI:http://localhost:8081/oauth2/callback}
     grant_type: password
     scope: openid roles profile
+    cache:
+      refresh-before-expire-in-sec: 300
   api:
     url: ${IDAM_API_BASE_URI:http://localhost:5062}
   system-user:
