@@ -20,7 +20,6 @@ import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -50,7 +49,7 @@ public class CcdDataStoreApiClient {
     public Long createCase(
         final UUID recordingId,
         final HearingRecordingDto hearingRecordingDto,
-        Optional<LocalDate> ttl
+        LocalDate ttl
     ) {
         CaseDataContent caseData = null;
         try {
@@ -145,7 +144,7 @@ public class CcdDataStoreApiClient {
             CaseDetails caseDetails = startEventResponse.getCaseDetails();
             CaseHearingRecording caseHearingRecording = mapper.convertValue(
                 caseDetails.getData(), CaseHearingRecording.class);
-            TtlCcdObject ttlObject = caseDataCreator.createTTLObject(Optional.of(ttl));
+            TtlCcdObject ttlObject = caseDataCreator.createTTLObject(ttl);
             caseHearingRecording.setTimeToLive(ttlObject);
 
             CaseDataContent caseDataContent = buildCaseDataContent(

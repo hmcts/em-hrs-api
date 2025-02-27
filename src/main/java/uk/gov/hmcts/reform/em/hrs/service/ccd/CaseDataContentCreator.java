@@ -35,7 +35,7 @@ public class CaseDataContentCreator {
     public JsonNode createCaseStartData(
         final HearingRecordingDto hearingRecordingDto,
         final UUID recordingId,
-        Optional<LocalDate> ttl
+        LocalDate ttl
     ) {
 
         CaseHearingRecording caseRecording = CaseHearingRecording.builder()
@@ -116,15 +116,12 @@ public class CaseDataContentCreator {
             .map(dateTime -> dateTime.getHour() < 12 ? "AM" : "PM").orElse("");
     }
 
-    public TtlCcdObject createTTLObject(Optional<LocalDate> ttlOpt) {
-        return ttlOpt.map(ttl -> {
-            var ttlString = ttl.toString();
-            return TtlCcdObject.builder()
-                .suspended(TTL_SUSPENDED_NO)
-                .overrideTTL(ttlString)
-                .systemTTL(ttlString)
-                .build();
-        }).orElse(null);
+    public TtlCcdObject createTTLObject(LocalDate ttl) {
+        return TtlCcdObject.builder()
+            .suspended(TTL_SUSPENDED_NO)
+            .overrideTTL(ttl.toString())
+            .systemTTL(ttl.toString())
+            .build();
     }
 }
 
