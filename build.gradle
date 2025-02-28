@@ -369,10 +369,10 @@ dependencies {
 
   functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.12.0'
   functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.12.0'
+  functionalTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: versions.junitPlatform
 
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.12.0'
   testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.12.0'
-
 
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
