@@ -31,10 +31,9 @@ class WeeklyHearingReportTaskTest {
     @Test
     void should_call_summary_report_service() throws IOException {
         File mockReport = mock(File.class);
-        LocalDate now = LocalDate.now().minusWeeks(1);
+        LocalDate now = LocalDate.now();
 
         when(hearingReportService.createWeeklyReport(any(LocalDate.class))).thenReturn(mockReport);
-        when(hearingReportService.getStartOfWeekDateTime(any(LocalDate.class))).thenReturn(now);
 
         WeeklyHearingReportTask task = new WeeklyHearingReportTask(
             hearingReportEmailService,

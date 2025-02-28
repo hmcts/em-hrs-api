@@ -42,7 +42,7 @@ public class WeeklyHearingReportTask {
         logger.info("Started {} job", TASK_NAME);
 
         if (reportStartDateList.isEmpty()) {
-            reportStartDateList.add(hearingReportService.getStartOfWeekDateTime(LocalDate.now()));
+            reportStartDateList.add(LocalDate.now());
         }
 
         for (var reportStartDate : reportStartDateList) {
