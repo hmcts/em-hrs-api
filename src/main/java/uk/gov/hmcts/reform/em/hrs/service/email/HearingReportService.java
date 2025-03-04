@@ -7,10 +7,12 @@ import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
 
 @Service
 public class HearingReportService {
@@ -35,6 +37,23 @@ public class HearingReportService {
         var list = hearingRecordingSegmentRepository
             .findByCreatedOnBetweenDatesWithHearingRecording(startOfMonth, endOfMonth);
         return hearingReportCsvWriter.writeHearingRecordingSummaryToCsv(list);
+    }
+
+
+    public File createWeeklyReport(LocalDate reportDate) throws IOException {
+        LocalDate startOfWeek = getStartOfWeekDateTime(reportDate);
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+        LocalDateTime startOfWeekDateTime = startOfWeek.atStartOfDay();
+        LocalDateTime endOfWeekDateTime = endOfWeek.atTime(23, 59, 59);
+        LOGGER.info("Fetching records from: {} to: {}", startOfWeekDateTime, endOfWeekDateTime);
+        var list = hearingRecordingSegmentRepository
+            .findByCreatedOnBetweenDatesWithHearingRecording(startOfWeekDateTime, endOfWeekDateTime);
+        return hearingReportCsvWriter.writeHearingRecordingSummaryToCsv(list);
+    }
+
+    public LocalDate getStartOfWeekDateTime(LocalDate reportDate) {
+        return reportDate.minusWeeks(1)
+            .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
     }
 
     private LocalDateTime getStartOfMonth(Month month, int year) {
