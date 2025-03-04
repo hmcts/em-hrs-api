@@ -145,11 +145,6 @@ notify:
   email.template: 1e10b560-4a3f-49a7-81f7-c3c6eceab455
 
 hrs:
-  ingestion-queue-size: 1000
-  thread-pool:
-    core-size: 5
-    max-size: 10
-    queue-capacity: 100
   ingestion-interval-in-seconds: ${INGESTION_INTERVAL_IN_SECONDS:1} # how long between each fired job (per server: 4 servers at 1 seconds = 4 per second)
   ccdupload-interval-in-seconds: ${CCDUPLOAD_INTERVAL_IN_SECONDS:30} # how long between each upload (per server: 4 servers at 30 seconds = 8 per minute)
   allowed-roles: ${ALLOWED_ROLES:caseworker-hrs-searcher,caseworker-hrs} #TODO remove caseworker-hrs after all PRS synced to master
