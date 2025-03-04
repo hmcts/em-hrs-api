@@ -22,7 +22,7 @@ class MonthlyAuditReportTaskTest {
     void should_call_audit_report_service_and_send_email() throws IOException {
         // given
         var hearingReportEmailService = mock(HearingReportEmailService.class);
-        var auditReportService = mock(MonthlyAuditReportTask.AuditReportService.class);
+        var auditReportService = mock(AuditReportService.class);
 
         File mockReport = mock(File.class);
         var now = LocalDate.now().minusMonths(1);
@@ -47,7 +47,7 @@ class MonthlyAuditReportTaskTest {
             LocalDate.now().minusMonths(2)
         );
         var hearingReportEmailService = mock(HearingReportEmailService.class);
-        var auditReportService = mock(MonthlyAuditReportTask.AuditReportService.class);
+        var auditReportService = mock(AuditReportService.class);
 
         File mockReport = mock(File.class);
         when(auditReportService.createMonthlyReport(any(Month.class), anyInt())).thenReturn(mockReport);
@@ -71,7 +71,7 @@ class MonthlyAuditReportTaskTest {
             LocalDate.now().minusMonths(2)
         );
         var hearingReportEmailService = mock(HearingReportEmailService.class);
-        var auditReportService = mock(MonthlyAuditReportTask.AuditReportService.class);
+        var auditReportService = mock(AuditReportService.class);
 
         File mockReport = mock(File.class);
         when(auditReportService.createMonthlyReport(any(Month.class), anyInt()))
@@ -93,7 +93,7 @@ class MonthlyAuditReportTaskTest {
     void should_add_previous_month_if_report_start_date_list_is_empty() throws IOException {
         // given
         var hearingReportEmailService = mock(HearingReportEmailService.class);
-        var auditReportService = mock(MonthlyAuditReportTask.AuditReportService.class);
+        var auditReportService = mock(AuditReportService.class);
 
         File mockReport = mock(File.class);
         var previousMonth = LocalDate.now().minusMonths(1);
