@@ -28,6 +28,8 @@ public class CaseDataContentCreator {
 
     private final ObjectMapper objectMapper;
 
+    private static final long MB_FROM_BYTE = (1024 * 1024);
+
     public CaseDataContentCreator(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
@@ -103,10 +105,14 @@ public class CaseDataContentCreator {
             .binaryUrl(documentUrl)
             .build();
 
+
+        float fileSizeInMB = (float) hearingRecordingDto.getFileSize() /  MB_FROM_BYTE;
+        fileSizeInMB = Math.max(0.0001f, Math.round(fileSizeInMB * 1000) / 1000.0f);
+
         return CaseRecordingFile.builder()
             .caseDocument(recordingFile)
             .segmentNumber(String.valueOf(hearingRecordingDto.getSegment()))
-            .fileSize(hearingRecordingDto.getFileSize() / (1024 * 1024))
+            .fileSize(fileSizeInMB)
             .build();
     }
 
