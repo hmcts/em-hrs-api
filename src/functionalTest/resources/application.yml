@@ -1,8 +1,8 @@
 ---
 spring:
   main:
-    debug: false
     allow-bean-definition-overriding: true
+    debug: false
   autoconfigure:
     debug: false
     exclude:
