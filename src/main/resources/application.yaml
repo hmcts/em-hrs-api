@@ -41,8 +41,6 @@ spring:
         jdbc:
           batch_size: 5
           batch_versioned_data: true
-  main:
-    allow-bean-definition-overriding: true
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:6432/emhrs}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
@@ -209,6 +207,16 @@ dbMigration:
 logging:
   level:
     uk.gov.hmcts.reform.authorisation.filters: DEBUG
+    uk:
+      gov:
+        hmcts:
+          reform:
+            em:
+              hrs:
+                config:
+                  BeanDefinitionLogger: INFO
+    org.springframework: DEBUG
+
 
 ttl:
   default-ttl: ${DEFAULT_TTL:P7Y}

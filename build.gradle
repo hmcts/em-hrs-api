@@ -267,8 +267,6 @@ dependencies {
   implementation group: 'org.springframework.security', name: 'spring-security-web', version: versions.springSecurity
 
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.2.0'
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.2.0'
-
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
@@ -284,7 +282,7 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.3.0'
 
 //hmcts ccd
-  implementation group: 'com.github.hmcts', name: 'core-case-data-store-client', version: '5.0.3'
+  implementation group: 'com.github.hmcts', name: 'ccd-client', version: '5.0.3'
 
 //hmcts logging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
@@ -351,7 +349,7 @@ dependencies {
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
 
-  functionalTestImplementation 'com.github.hmcts:em-test-helper:2.1.1'
+//  functionalTestImplementation 'com.github.hmcts:em-test-helper:2.1.1'
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
 
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
@@ -385,7 +383,6 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenity
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '2.0.9'
 
 
 /***********************************************************************************************************************
@@ -462,6 +459,21 @@ task contract(type: Test) {
   include "uk/gov/hmcts/reform/em/hrs/consumer/**"
   systemProperty 'pact.rootDir', "pacts"
   environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
+}
+
+tasks.register('findTransitiveDependency') {
+  doLast {
+    def targetDependency = 'com.github.hmcts:ccd-client'
+    rootProject.allprojects {
+      project -> project.configurations.all {
+        configuration -> configuration.resolvedConfiguration.allModuleDependencies.each {
+          dependency -> if (dependency.moduleName == targetDependency) {
+            println "Found dependency in project: ${project.name}"
+          }
+        }
+      }
+    }
+  }
 }
 
 task runAndPublishConsumerPactTests(type: Test){
