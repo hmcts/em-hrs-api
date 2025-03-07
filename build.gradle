@@ -383,7 +383,7 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenity
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '2.0.9'
+  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '2.1.1'
 
 
 /***********************************************************************************************************************
