@@ -165,6 +165,9 @@ scheduling:
     monthly-hearing-report:
       enabled: ${MONTHLY_HEARING_REPORT_ENABLED:false}
       cron: ${MONTHLY_HEARING_REPORT_CRON:0 0 6 ? * *}
+    weekly-hearing-report:
+      enabled: ${WEEKLY_HEARING_REPORT_ENABLED:false}
+      cron: ${WEEKLY_HEARING_REPORT_CRON:* 30 3 * * 1}
     monthly-audit-report:
       enabled: ${MONTHLY_AUDIT_REPORT_ENABLED:false}
       cron: ${MONTHLY_AUDIT_REPORT_CRON:0 0 6 ? * *}
@@ -186,6 +189,10 @@ report:
   monthly-hearing:
     recipients: ${MONTHLY_HEARING_REPORT_RECIPIENTS:xxxx}
     reportStartDates: ${MONTHLY_HEARING_REPORT_REPORTSTART_DATES:}
+    from: ${SMTP_USERNAME:xxxx}
+  weekly-hearing:
+    recipients: ${WEEKLY_HEARING_REPORT_RECIPIENTS:xxxx}
+    reportStartDates: ${WEEKLY_HEARING_REPORT_REPORTSTART_DATES:}
     from: ${SMTP_USERNAME:xxxx}
   monthly-audit:
     recipients: ${MONTHLY_AUDIT_REPORT_RECIPIENTS:xxxx}
