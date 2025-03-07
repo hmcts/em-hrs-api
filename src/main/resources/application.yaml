@@ -207,17 +207,7 @@ dbMigration:
 logging:
   level:
     uk.gov.hmcts.reform.authorisation.filters: DEBUG
-    uk:
-      gov:
-        hmcts:
-          reform:
-            em:
-              hrs:
-                config:
-                  BeanDefinitionLogger: INFO
-    org.springframework: DEBUG
-
-
+    
 ttl:
   default-ttl: ${DEFAULT_TTL:P7Y}
   enabled: ${TTL_ENABLED:true}
