@@ -181,6 +181,7 @@ scheduling:
       enabled: ${UPDATE_TTL_JOB_ENABLED:true}
     jurisdiction-codes:
       cron: ${JURISDICTION_CODES_UPDATE_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
+      batch-size: ${JURISDICTION_CODES_BATCH_SIZE:10}
       enabled: ${JURISDICTION_CODES_UPDATE_ENABLED:true}
 report:
   recipients: ${SUMMARY_REPORT_RECIPIENTS:xxxx}

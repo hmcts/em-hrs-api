@@ -10,6 +10,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
@@ -43,7 +44,10 @@ public class UpdateJurisdictionCodesTask {
     private static final Logger logger = getLogger(UpdateJurisdictionCodesTask.class);
     private final BlobContainerClient blobClient;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    private final int batchSize = 10;
+
+    @Value("${scheduling.task.jurisdiction-codes.batch-size}")
+    private int batchSize;
+
     private final CcdDataStoreApiClient ccdDataStoreApiClient;
     private final HearingRecordingService hearingRecordingService;
 
