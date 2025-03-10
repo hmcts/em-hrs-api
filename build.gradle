@@ -269,7 +269,6 @@ dependencies {
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.2.0'
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.2.0'
 
-
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
   implementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
@@ -284,7 +283,7 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.3.0'
 
 //hmcts ccd
-  implementation group: 'com.github.hmcts', name: 'core-case-data-store-client', version: '5.0.3'
+  implementation group: 'com.github.hmcts', name: 'ccd-client', version: '5.0.3'
 
 //hmcts logging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
@@ -385,7 +384,7 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenity
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '2.0.9'
+  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '2.1.1'
 
 
 /***********************************************************************************************************************
@@ -463,6 +462,7 @@ task contract(type: Test) {
   systemProperty 'pact.rootDir', "pacts"
   environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
 }
+
 
 task runAndPublishConsumerPactTests(type: Test){
   logger.lifecycle("Runs pact Tests")
