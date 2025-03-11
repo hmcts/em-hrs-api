@@ -65,7 +65,7 @@ variable "action_group_name" {
 
 variable "email_address_key" {
   description = "Email address key in azure Key Vault."
-  type        = stringå
+  type        = string
   default     = "db-alert-monitoring-email-address"
 }
 
