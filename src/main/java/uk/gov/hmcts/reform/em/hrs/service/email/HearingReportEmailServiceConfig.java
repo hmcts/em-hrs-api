@@ -23,6 +23,23 @@ public class HearingReportEmailServiceConfig {
         );
     }
 
+
+    @Bean(name = "weeklyHearingEmailService")
+    @Lazy
+    public HearingReportEmailService weeklyHearingEmailService(
+        EmailSender emailSender,
+        @Value("${report.weekly-hearing.recipients}") String[] recipients,
+        @Value("${report.weekly-hearing.from}") String from
+    ) {
+        return new HearingReportEmailService(
+            emailSender,
+            recipients,
+            from,
+            "Weekly hearing report for ",
+            "Weekly-hearing-report-"
+        );
+    }
+
     @Bean(name = "monthlyAuditEmailService")
     @Lazy
     public HearingReportEmailService monthlyAuditEmailService(
