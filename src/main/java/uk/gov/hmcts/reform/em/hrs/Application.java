@@ -26,6 +26,7 @@ public class Application implements CommandLineRunner {
         final var application = new SpringApplication(Application.class);
         final var instance = application.run(args);
 
+        //When TASK_NAME exists, we need the Application to be run as AKS job.
         if (Objects.nonNull(System.getenv(TASK_NAME))) {
             instance.close();
         }
