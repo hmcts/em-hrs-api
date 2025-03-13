@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.math.RoundingMode;
 import java.util.UUID;
 
 @Component
@@ -106,7 +107,8 @@ public class CaseDataContentCreator {
             .build();
 
         BigDecimal fileSizeMb = BigDecimal.valueOf(hearingRecordingDto.getFileSize())
-            .divide(BigDecimal.valueOf(MB_FROM_BYTE), 6, BigDecimal.ROUND_HALF_UP);
+            .divide(BigDecimal.valueOf(MB_FROM_BYTE), 6, RoundingMode.UP);
+
         return CaseRecordingFile.builder()
             .caseDocument(recordingFile)
             .segmentNumber(String.valueOf(hearingRecordingDto.getSegment()))
