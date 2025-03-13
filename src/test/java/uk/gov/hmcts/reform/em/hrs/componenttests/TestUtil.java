@@ -222,7 +222,7 @@ public class TestUtil {
                 .filename("filename")
                 .build()
         )
-        .fileSize(123456789L)
+        .fileSize("123456789")
         .segmentNumber("0")
         .build();
 
