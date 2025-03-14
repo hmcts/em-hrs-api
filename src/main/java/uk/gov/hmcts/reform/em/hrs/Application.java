@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.em.hrs;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,8 +18,12 @@ public class Application implements CommandLineRunner {
 
     private static final String TASK_NAME = "TASK_NAME";
 
-    @Autowired
-    ScheduledTaskRunner taskRunner;
+
+    private final ScheduledTaskRunner taskRunner;
+
+    public Application(ScheduledTaskRunner taskRunner) {
+        this.taskRunner = taskRunner;
+    }
 
     public static void main(String[] args) {
         final var application = new SpringApplication(Application.class);
