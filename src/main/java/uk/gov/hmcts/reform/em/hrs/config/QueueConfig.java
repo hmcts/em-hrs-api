@@ -9,7 +9,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Configuration
 public class QueueConfig {
 
-    private static final int DEFAULT_CAPACITY = 1000;
+    private static final int DEFAULT_CAPACITY = 5000;
 
     @Bean
     public LinkedBlockingQueue<HearingRecordingDto> ingestionQueue() {

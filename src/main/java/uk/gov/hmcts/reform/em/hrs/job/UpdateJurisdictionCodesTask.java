@@ -27,9 +27,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -79,17 +81,47 @@ public class UpdateJurisdictionCodesTask {
             XSSFSheet sheet = workbook.getSheetAt(0);
             List<CompletableFuture<UpdateRecordingRecord>> futures = new ArrayList<>();
 
+            Set<Long> ccdCaseIds = new HashSet<>();
+            int count = 0;
+            List<UpdateRecordingRecord> unProcessedRecords = new ArrayList<>();
             for (Row row : sheet) {
+                logger.info("Processing row: {}", count++);
                 UpdateRecordingRecord updateRecordingRecord = new UpdateRecordingRecord(
                     getStringCellValue(row.getCell(0)),
                     getStringCellValue(row.getCell(1)),
                     getStringCellValue(row.getCell(2))
                 );
-
-                futures.add(CompletableFuture.supplyAsync(() ->
-                    updateCase(updateRecordingRecord) ? updateRecordingRecord : null, executorService));
-
+                unProcessedRecords.add(updateRecordingRecord);
             }
+            unProcessedRecords.forEach(
+                updateRecordingRecord -> {
+                    Long ccdCaseId = hearingRecordingService.findCcdCaseIdByFilename(updateRecordingRecord.filename);
+                    if (ccdCaseIds.contains(ccdCaseId)) {
+                        logger.info("Skipping duplicate ccd case id: {}", ccdCaseId);
+                        return;
+                    }
+                    ccdCaseIds.add(ccdCaseId);
+
+                    logger.info("Submitting updateCase task for filename: {}, ccdCaseId: {}",
+                            updateRecordingRecord.filename, ccdCaseId);
+
+                    futures.add(CompletableFuture.supplyAsync(() ->
+                        updateCase(updateRecordingRecord, ccdCaseId) ? updateRecordingRecord : null,
+                            executorService));
+
+                    if (futures.size() >= batchSize) {
+                        List<UpdateRecordingRecord> completedRecords = futures.stream()
+                                .map(CompletableFuture::join)
+                                .filter(Objects::nonNull)
+                                .toList();
+
+                        batchUpdate(completedRecords);
+                        futures.clear();
+                    }
+                }
+            );
+
+            // Process any remaining records
             List<UpdateRecordingRecord> completedRecords = futures.stream()
                 .map(CompletableFuture::join)
                 .filter(Objects::nonNull)
@@ -106,9 +138,14 @@ public class UpdateJurisdictionCodesTask {
         logger.info("Finished {} job", TASK_NAME);
     }
 
-    private boolean updateCase(UpdateRecordingRecord recordingRecord) {
+    private boolean updateCase(UpdateRecordingRecord recordingRecord, Long ccdCaseId) {
+        Thread currentThread = Thread.currentThread();
+        logger.info("Running updateCase on thread: {}, virtual: {}, threadGroup: {}",
+                    currentThread.getName(),
+                    currentThread.isVirtual(),
+                    currentThread.getThreadGroup().getName()
+        );
         String filename = recordingRecord.filename;
-        Long ccdCaseId = hearingRecordingService.findCcdCaseIdByFilename(filename);
         if (Objects.isNull(ccdCaseId)) {
             logger.info("Failed to find ccd case id for filename: {}", filename);
             return false;
@@ -120,6 +157,8 @@ public class UpdateJurisdictionCodesTask {
             logger.info("Failed to update case with jurisdiction and service codes for filename: {}",
                          filename, e);
             return false;
+        } finally {
+            logger.info("End updateCase for {}", recordingRecord.filename);
         }
         return true;
     }
