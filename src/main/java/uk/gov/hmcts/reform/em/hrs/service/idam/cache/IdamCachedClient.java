@@ -2,8 +2,6 @@ package uk.gov.hmcts.reform.em.hrs.service.idam.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
@@ -16,7 +14,6 @@ import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 @Service
 public class IdamCachedClient {
 
-    private static final Logger log = LoggerFactory.getLogger(IdamCachedClient.class);
     public static final String BEARER_AUTH_TYPE = "Bearer ";
 
     private Cache<String, CachedIdamCredential> idamCache;
@@ -51,7 +48,6 @@ public class IdamCachedClient {
      * @return The IDAM credentials
      */
     public CachedIdamCredential getIdamCredentials() {
-        log.info("Getting idam credential for systemUser {}", this.systemUsername);
         return this.idamCache.get(this.systemUsername, this::retrieveIdamInfo);
     }
 
@@ -60,7 +56,6 @@ public class IdamCachedClient {
      * @param key The username or token
      */
     public void removeAccessTokenFromCache(String key) {
-        log.info("Removing idam credential from cache for key: {} ", key);
         this.idamCache.invalidate(key);
     }
 
@@ -70,18 +65,11 @@ public class IdamCachedClient {
      * @return The IDAM credentials
      */
     private CachedIdamCredential retrieveIdamInfo(String key) {
-        log.info("Retrieving access token for key: {} from IDAM", key);
         TokenResponse tokenResponse = idamClient
             .getAccessTokenResponse(
                 key,
                 this.systemUserPassword
             );
-
-        log.info(
-            "Retrieving user details for systemUsername: {} from IDAM, token scope: {}",
-            systemUsername,
-            tokenResponse.scope
-        );
 
         String tokenWithBearer = BEARER_AUTH_TYPE + tokenResponse.accessToken;
         UserInfo userDetails = idamClient.getUserInfo(tokenWithBearer);
