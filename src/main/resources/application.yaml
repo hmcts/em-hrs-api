@@ -181,6 +181,7 @@ scheduling:
       cron: ${JURISDICTION_CODES_UPDATE_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
       batch-size: ${JURISDICTION_CODES_BATCH_SIZE:10}
       enabled: ${JURISDICTION_CODES_UPDATE_ENABLED:true}
+      thread-limit: ${JURISDICTION_CODES_THREAD_LIMIT:2}
 report:
   recipients: ${SUMMARY_REPORT_RECIPIENTS:xxxx}
   from: ${SMTP_USERNAME:xxxx}
