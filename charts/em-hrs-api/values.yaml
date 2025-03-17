@@ -89,6 +89,7 @@ java:
     UPDATE_TTL_CRONJOB_SCHEDULE: 0 15 17 26 8 * # Some time in future
     UPDATE_TTL_BATCH_SIZE: 10
     UPDATE_TTL_JOB_ENABLED: false
+    UPDATE_TTL_THREAD_LIMIT: 25
 
 hrsblobstorage:
   enabled: false

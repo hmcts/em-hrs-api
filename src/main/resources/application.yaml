@@ -177,6 +177,7 @@ scheduling:
       cron: ${UPDATE_TTL_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
       batch-size: ${UPDATE_TTL_BATCH_SIZE:10}
       enabled: ${UPDATE_TTL_JOB_ENABLED:true}
+      thread-limit: ${UPDATE_TTL_THREAD_LIMIT:2}
     jurisdiction-codes:
       cron: ${JURISDICTION_CODES_UPDATE_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
       batch-size: ${JURISDICTION_CODES_BATCH_SIZE:10}
