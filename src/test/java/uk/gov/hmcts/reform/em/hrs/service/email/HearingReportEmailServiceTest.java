@@ -43,7 +43,6 @@ class HearingReportEmailServiceTest {
 
     @Test
     void should_throw_exception_when_recipients_are_null() {
-        var func = HearingReportEmailServiceConfig.monthlyReportAttachmentName("Monthly-hearing-report-");
         assertThrows(EmailRecipientNotFoundException.class, () -> {
             new HearingReportEmailService(
                 emailSender,
