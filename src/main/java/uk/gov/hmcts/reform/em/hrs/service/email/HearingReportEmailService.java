@@ -30,7 +30,7 @@ public class HearingReportEmailService {
         String[] recipients,
         String from,
         String subjectPrefix,
-        Function<LocalDate,String>getReportAttachmentName
+        Function<LocalDate, String> getReportAttachmentName
     ) {
         this.emailSender = emailSender;
         if (ArrayUtils.isEmpty(recipients)) {
@@ -59,11 +59,6 @@ public class HearingReportEmailService {
             LOGGER.error("Report sending failed ", ex);
         }
     }
-
-
-//    private String getReportAttachmentName(LocalDate reportDate) {
-//        return this.attachmentPrefix + reportDate.getMonth() + "-" + reportDate.getYear() + ".csv";
-//    }
 
     private String createBody(LocalDate date) {
         return """
