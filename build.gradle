@@ -153,7 +153,8 @@ def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/util/debug/HttpHeadersLogging.java',
   '**uk/gov/hmcts/reform/em/hrs/data/migration/PendingMigrationScriptException*',
   '**uk/gov/hmcts/reform/em/hrs/data/migration/FlywayNoOpStrategy*',
-  '**uk/gov/hmcts/reform/em/hrs/job/UpdateJurisdictionCodes*'
+  '**uk/gov/hmcts/reform/em/hrs/job/UpdateJurisdictionCodes*',
+  '**uk.gov.hmcts.reform.em.hrs.service.email.HearingReportEmailServiceConfig'
 ]
 
 checkstyle {

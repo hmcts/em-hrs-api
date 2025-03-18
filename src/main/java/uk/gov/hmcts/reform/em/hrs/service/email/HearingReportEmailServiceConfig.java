@@ -11,8 +11,6 @@ import java.util.function.Function;
 @Configuration
 public class HearingReportEmailServiceConfig {
 
-
-
     public static Function<LocalDate, String> monthlyReportAttachmentName(String prefix) {
         return reportDate -> prefix + reportDate.getMonth() + "-" + reportDate.getYear() + ".csv";
     }
