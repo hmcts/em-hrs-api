@@ -33,7 +33,7 @@ class HearingReportEmailServiceTest {
             new String[]{"recipient@example.com"},
             "sender@example.com",
             "Monthly hearing report for ",
-            "Monthly-hearing-report-"
+            HearingReportEmailServiceConfig.monthlyReportAttachmentName("Monthly-hearing-report-")
         );
     }
 
@@ -45,7 +45,7 @@ class HearingReportEmailServiceTest {
                 null,
                 "sender@example.com",
                 "Monthly hearing report for ",
-                "Monthly-hearing-report-"
+                HearingReportEmailServiceConfig.monthlyReportAttachmentName("Monthly-hearing-report-")
             );
         });
     }
@@ -58,7 +58,7 @@ class HearingReportEmailServiceTest {
                 new String[]{},
                 "sender@example.com",
                 "Monthly hearing report for ",
-                "Monthly-hearing-report-"
+                HearingReportEmailServiceConfig.monthlyReportAttachmentName("Monthly-hearing-report-")
             );
         });
     }
