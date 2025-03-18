@@ -10,12 +10,14 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.support.TestPropertySourceUtils;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import uk.gov.hmcts.reform.em.hrs.service.ScheduledTaskRunner;
 
 @ActiveProfiles("test")
 @DataJpaTest
@@ -47,6 +49,9 @@ public abstract class AbstractRepositoryIntegrationTest {
     static {
         POSTGRES_CONTAINER.start();
     }
+
+    @MockitoBean
+    public ScheduledTaskRunner taskRunner;
 
     public static class DockerPostgreDataSourceInitializer
         implements ApplicationContextInitializer<ConfigurableApplicationContext> {
