@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.repository;
 
+import com.microsoft.applicationinsights.TelemetryClient;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,9 @@ public abstract class AbstractRepositoryIntegrationTest {
 
     @MockitoBean
     public ScheduledTaskRunner taskRunner;
+
+    @MockitoBean
+    public TelemetryClient client;
 
     public static class DockerPostgreDataSourceInitializer
         implements ApplicationContextInitializer<ConfigurableApplicationContext> {
