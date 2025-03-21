@@ -69,6 +69,26 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   key_vault_id = module.key-vault.key_vault_id
 }
 
+locals {
+  private_endpoint_rg_name   = var.businessArea == "sds" ? "ss-${var.env}-network-rg" : "${var.businessArea}-${var.env}-network-rg"
+  private_endpoint_vnet_name = var.businessArea == "sds" ? "ss-${var.env}-vnet" : "${var.businessArea}-${var.env}-vnet"
+}
+
+provider "azurerm" {
+  alias           = "private_endpoints"
+  subscription_id = var.aks_subscription_id
+  features {}
+  skip_provider_registration = true
+}
+
+data "azurerm_subnet" "private_endpoints" {
+  provider = azurerm.private_endpoints
+
+  resource_group_name  = local.private_endpoint_rg_name
+  virtual_network_name = local.private_endpoint_vnet_name
+  name                 = "private-endpoints"
+}
+
 module "storage_account" {
   source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=4.x"
   env                      = var.env
@@ -86,6 +106,8 @@ module "storage_account" {
   enable_change_feed     = true
 
   default_action = "Allow"
+
+  private_endpoint_subnet_id = data.azurerm_subnet.private_endpoints.id
 
   // Tags
   common_tags  = local.tags
