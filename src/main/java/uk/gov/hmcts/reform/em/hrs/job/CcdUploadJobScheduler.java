@@ -11,9 +11,11 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(value = "hrs.ccdupload-enabled")
 public class CcdUploadJobScheduler {
     private final Scheduler scheduler;
     private final int intervalInSeconds;
