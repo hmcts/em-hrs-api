@@ -1,7 +1,7 @@
 
 buildscript {
   dependencies {
-    classpath("org.flywaydb:flyway-database-postgresql:11.3.4")
+    classpath("org.flywaydb:flyway-database-postgresql:11.4.0")
   }
 }
 
@@ -13,7 +13,7 @@ plugins {
   id 'org.springframework.boot' version '3.4.3'
   id 'com.github.ben-manes.versions' version '0.52.0'
   id 'org.sonarqube' version '6.0.1.5171'
-  id 'org.flywaydb.flyway' version '11.3.4'
+  id 'org.flywaydb.flyway' version '11.4.0'
   id 'au.com.dius.pact' version '4.6.17'
   id "info.solidsoft.pitest" version '1.15.0'
   id 'com.github.hmcts.rse-cft-lib' version '0.19.1612'
@@ -241,9 +241,9 @@ def versions = [
   postgresql         : '42.7.5',
   pact_version       : '4.6.17',
   restAssured        : '5.3.0',
-  junit              : '5.12.0',
-  junitPlatform      : '1.12.0',
-  springSecurity     : '6.4.3',
+  junit              : '5.12.1',
+  junitPlatform      : '1.12.1',
+  springSecurity     : '6.4.4',
   shedlock           : '6.3.0',
   testcontainers     : '1.20.6'
 ]
@@ -266,9 +266,8 @@ dependencies {
   implementation group: 'org.springframework.security', name: 'spring-security-core', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-web', version: versions.springSecurity
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.2.0'
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.2.0'
-
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.2.1'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.2.1'
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
@@ -284,7 +283,7 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.3.0'
 
 //hmcts ccd
-  implementation group: 'com.github.hmcts', name: 'core-case-data-store-client', version: '5.0.3'
+  implementation group: 'com.github.hmcts', name: 'ccd-client', version: '5.0.3'
 
 //hmcts logging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
@@ -306,7 +305,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: versions.shedlock
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: versions.shedlock
 
-  implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.13.0'
+  implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.14.0'
   implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '5.4.0'
 
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.0'
@@ -318,8 +317,8 @@ dependencies {
  **********************************************************************************************************************/
 
   implementation group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '11.3.4'
-  runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: '11.3.4'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: '11.4.0'
+  runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: '11.4.0'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
   implementation "org.springframework.boot:spring-boot-starter-jdbc"
 
@@ -367,12 +366,12 @@ dependencies {
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.3.0'
 
-  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.12.0'
-  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.12.0'
+  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.12.1'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.12.1'
   functionalTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: versions.junitPlatform
 
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.12.0'
-  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.12.0'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.12.1'
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.12.1'
 
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
@@ -385,7 +384,7 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenity
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '2.0.9'
+  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '2.1.1'
 
 
 /***********************************************************************************************************************
@@ -408,8 +407,8 @@ dependencies {
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit', version: versions.pact_version
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact_version
 
-  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.12.0"
-  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.12.0"
+  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.12.1"
+  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.12.1"
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: versions.junitPlatform
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
@@ -463,6 +462,7 @@ task contract(type: Test) {
   systemProperty 'pact.rootDir', "pacts"
   environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
 }
+
 
 task runAndPublishConsumerPactTests(type: Test){
   logger.lifecycle("Runs pact Tests")
