@@ -11,6 +11,8 @@ import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 import uk.gov.hmcts.reform.em.hrs.model.TtlCcdObject;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -22,6 +24,7 @@ import java.util.UUID;
 @Component
 public class CaseDataContentCreator {
 
+    private static final long MB_FROM_BYTE = (1024 * 1024);
     private static final Logger LOGGER = LoggerFactory.getLogger(CaseDataContentCreator.class);
 
     private static final String TTL_SUSPENDED_NO = "No";
@@ -103,10 +106,13 @@ public class CaseDataContentCreator {
             .binaryUrl(documentUrl)
             .build();
 
+        BigDecimal fileSizeMb = BigDecimal.valueOf(hearingRecordingDto.getFileSize())
+            .divide(BigDecimal.valueOf(MB_FROM_BYTE), 6, RoundingMode.UP);
+
         return CaseRecordingFile.builder()
             .caseDocument(recordingFile)
             .segmentNumber(String.valueOf(hearingRecordingDto.getSegment()))
-            .fileSize(hearingRecordingDto.getFileSize() / (1024 * 1024))
+            .fileSize(fileSizeMb.toString())
             .build();
     }
 
