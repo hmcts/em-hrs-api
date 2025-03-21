@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.em.hrs.job;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.microsoft.applicationinsights.core.dependencies.google.common.collect.Lists;
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -12,13 +11,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.exception.BlobCopyException;
-import uk.gov.hmcts.reform.em.hrs.exception.BlobNotFoundException;
 import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
 import uk.gov.hmcts.reform.em.hrs.service.ccd.CcdDataStoreApiClient;
 
@@ -39,8 +35,7 @@ import java.util.concurrent.Executors;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
-@ConditionalOnProperty(value = "scheduling.task.jurisdiction-codes.enabled")
-public class UpdateJurisdictionCodesTask {
+public class UpdateJurisdictionCodesTask  implements Runnable {
 
     private static final String TASK_NAME = "jurisdiction-codes";
     private static final Logger logger = getLogger(UpdateJurisdictionCodesTask.class);
@@ -66,9 +61,7 @@ public class UpdateJurisdictionCodesTask {
         this.hearingRecordingService = hearingRecordingService;
     }
 
-
-    @Scheduled(cron = "${scheduling.task.jurisdiction-codes.cron}", zone = "Europe/London")
-    @SchedulerLock(name = TASK_NAME)
+    @Override
     public void run() {
 
         logger.info("Started {} job", TASK_NAME);
@@ -78,7 +71,8 @@ public class UpdateJurisdictionCodesTask {
 
         Optional<BlobClient> csvBlobClient = loadWorkbookBlobClient();
         if (csvBlobClient.isEmpty()) {
-            throw new BlobNotFoundException("blobName", "jurisdictionWorkbook");
+            logger.info("No files present for processing");
+            return;
         }
 
         try (ExecutorService executorService = Executors.newFixedThreadPool(defaultThreadLimit);
