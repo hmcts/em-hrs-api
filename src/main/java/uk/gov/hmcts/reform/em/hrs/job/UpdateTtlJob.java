@@ -14,6 +14,8 @@ import uk.gov.hmcts.reform.em.hrs.service.ccd.CcdDataStoreApiClient;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -31,6 +33,9 @@ public class UpdateTtlJob {
     @Value("${scheduling.task.update-ttl.batch-size}")
     private int batchSize;
 
+    @Value("${scheduling.task.update-ttl.thread-limit}")
+    private int threadLimit;
+
     public UpdateTtlJob(TtlService ttlService,
                         HearingRecordingRepository hearingRecordingRepository,
                         CcdDataStoreApiClient ccdDataStoreApiClient) {
@@ -38,7 +43,6 @@ public class UpdateTtlJob {
         this.hearingRecordingRepository = hearingRecordingRepository;
         this.ccdDataStoreApiClient = ccdDataStoreApiClient;
     }
-
 
     @Scheduled(cron = "${scheduling.task.update-ttl.cron}", zone = "Europe/London")
     @SchedulerLock(name = TASK_NAME)
@@ -48,21 +52,37 @@ public class UpdateTtlJob {
         List<HearingRecording> recordingsWithoutTtl =
             hearingRecordingRepository.findByTtlSetFalseOrderByCreatedOnAsc(Limit.of(batchSize));
 
-        for (HearingRecording recording : recordingsWithoutTtl) {
-            LocalDate ttl = ttlService.createTtl(recording.getServiceCode(), recording.getJurisdictionCode(),
-                                                 LocalDate.from(recording.getCreatedOn())
-            );
-            try {
-                ccdDataStoreApiClient.updateCaseWithTtl(recording.getCcdCaseId(), ttl);
-            } catch (Exception e) {
-                logger.error("Failed to update case with ttl for recording id: {}", recording.getId(), e);
-                continue;
+        try (ExecutorService executorService = Executors.newFixedThreadPool(threadLimit)) {
+            for (HearingRecording recording : recordingsWithoutTtl) {
+                LocalDate ttl = ttlService.createTtl(recording.getServiceCode(), recording.getJurisdictionCode(),
+                                                     LocalDate.from(recording.getCreatedOn())
+                );
+
+                executorService.submit(() -> processRecording(recording, ttl));
             }
-            recording.setTtlSet(true);
-            recording.setTtl(ttl);
-            hearingRecordingRepository.save(recording);
         }
+
         logger.info("Finished {} job", TASK_NAME);
     }
 
+    private void processRecording(HearingRecording recording, LocalDate ttl) {
+        try {
+            ccdDataStoreApiClient.updateCaseWithTtl(recording.getCcdCaseId(), ttl);
+        } catch (Exception e) {
+            logger.error("Failed to update case with ttl for recording id: {}", recording.getId(), e);
+            return;
+        }
+
+        updateRecordingTtl(recording, ttl);
+    }
+
+    private void updateRecordingTtl(HearingRecording recording, LocalDate ttl) {
+        try {
+            recording.setTtlSet(true);
+            recording.setTtl(ttl);
+            hearingRecordingRepository.save(recording);
+        } catch (Exception e) {
+            logger.error("Failed to update recording ttl for recording id: {}", recording.getId(), e);
+        }
+    }
 }

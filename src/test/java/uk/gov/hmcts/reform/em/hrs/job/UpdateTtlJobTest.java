@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.data.domain.Limit;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.service.TtlService;
@@ -38,6 +39,7 @@ class UpdateTtlJobTest {
     @BeforeEach
     void setUp() {
         openMocks(this);
+        ReflectionTestUtils.setField(updateTtlJob, "threadLimit", 1);
     }
 
     @Test
