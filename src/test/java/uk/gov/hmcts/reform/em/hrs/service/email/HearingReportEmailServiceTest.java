@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.em.hrs.exception.EmailRecipientNotFoundException;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,6 +27,9 @@ class HearingReportEmailServiceTest {
 
     private HearingReportEmailService hearingReportEmailService;
 
+    private Function<LocalDate, String> func
+        = HearingReportEmailServiceConfig.monthlyReportAttachmentName("Monthly-hearing-report-");
+
     @BeforeEach
     void setUp() {
         hearingReportEmailService = new HearingReportEmailService(
@@ -33,7 +37,7 @@ class HearingReportEmailServiceTest {
             new String[]{"recipient@example.com"},
             "sender@example.com",
             "Monthly hearing report for ",
-            "Monthly-hearing-report-"
+            func
         );
     }
 
@@ -45,7 +49,7 @@ class HearingReportEmailServiceTest {
                 null,
                 "sender@example.com",
                 "Monthly hearing report for ",
-                "Monthly-hearing-report-"
+                func
             );
         });
     }
@@ -58,7 +62,7 @@ class HearingReportEmailServiceTest {
                 new String[]{},
                 "sender@example.com",
                 "Monthly hearing report for ",
-                "Monthly-hearing-report-"
+                func
             );
         });
     }
