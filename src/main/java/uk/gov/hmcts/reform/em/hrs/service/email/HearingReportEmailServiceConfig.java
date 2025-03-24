@@ -5,8 +5,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
+import java.time.LocalDate;
+import java.util.function.Function;
+
 @Configuration
 public class HearingReportEmailServiceConfig {
+
+    public static Function<LocalDate, String> monthlyReportAttachmentName(String prefix) {
+        return reportDate -> prefix + reportDate.getMonth() + "-" + reportDate.getYear() + ".csv";
+    }
+
+    public static Function<LocalDate, String> weeklyReportAttachmentName(String prefix) {
+        return reportDate -> prefix + reportDate.minusDays(7) + ".csv";
+    }
+
     @Bean(name = "monthlyHearingEmailService")
     @Lazy
     public HearingReportEmailService monthlyHearingEmailService(
@@ -19,7 +31,7 @@ public class HearingReportEmailServiceConfig {
             recipients,
             from,
             "Monthly hearing report for ",
-            "Monthly-hearing-report-"
+            monthlyReportAttachmentName("Monthly-hearing-report-")
         );
     }
 
@@ -36,7 +48,7 @@ public class HearingReportEmailServiceConfig {
             recipients,
             from,
             "Weekly hearing report for ",
-            "Weekly-hearing-report-"
+            weeklyReportAttachmentName("Weekly-hearing-report-from-")
         );
     }
 
@@ -52,7 +64,7 @@ public class HearingReportEmailServiceConfig {
             recipients,
             from,
             "Monthly audit report for ",
-            "Monthly-audit-report-"
+            monthlyReportAttachmentName("Monthly-audit-report-")
         );
     }
 }
