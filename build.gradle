@@ -153,7 +153,8 @@ def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/util/debug/HttpHeadersLogging.java',
   '**uk/gov/hmcts/reform/em/hrs/data/migration/PendingMigrationScriptException*',
   '**uk/gov/hmcts/reform/em/hrs/data/migration/FlywayNoOpStrategy*',
-  '**uk/gov/hmcts/reform/em/hrs/job/UpdateJurisdictionCodes*'
+  '**uk/gov/hmcts/reform/em/hrs/job/UpdateJurisdictionCodes*',
+  '**uk/gov/hmcts/reform/em/hrs/service/email/HearingReportEmailServiceConfig*'
 ]
 
 checkstyle {
@@ -243,7 +244,7 @@ def versions = [
   restAssured        : '5.3.0',
   junit              : '5.12.1',
   junitPlatform      : '1.12.1',
-  springSecurity     : '6.4.3',
+  springSecurity     : '6.4.4',
   shedlock           : '6.3.0',
   testcontainers     : '1.20.6'
 ]
@@ -266,8 +267,8 @@ dependencies {
   implementation group: 'org.springframework.security', name: 'spring-security-core', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-web', version: versions.springSecurity
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.2.0'
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.2.0'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.2.1'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.2.1'
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
@@ -305,7 +306,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: versions.shedlock
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: versions.shedlock
 
-  implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.13.0'
+  implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.14.0'
   implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '5.4.0'
 
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.0'
