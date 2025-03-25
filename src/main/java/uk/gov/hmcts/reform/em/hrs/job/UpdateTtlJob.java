@@ -88,7 +88,7 @@ public class UpdateTtlJob implements Runnable {
             recording.setTtl(ttl);
             hearingRecordingRepository.save(recording);
         } catch (Exception e) {
-            logger.error("Failed to update recording ttl for recording id: {}, caseId: {}",
+            logger.info("Failed to update recording ttl for recording id: {}, caseId: {}",
                          recording.getId(), ccdCaseId, e);
         }
     }
