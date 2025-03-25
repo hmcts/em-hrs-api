@@ -17,7 +17,7 @@ import java.util.concurrent.Executors;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
-public class UpdateTtlJob implements Runnable{
+public class UpdateTtlJob implements Runnable {
 
     private static final String TASK_NAME = "update-ttl";
     private static final Logger logger = getLogger(UpdateTtlJob.class);
