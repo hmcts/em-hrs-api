@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.job;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Limit;
@@ -43,6 +44,9 @@ public class UpdateTtlJob implements Runnable {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
         List<HearingRecording> recordingsWithoutTtl =
             hearingRecordingRepository.findByTtlSetFalseOrderByCreatedOnAsc(Limit.of(batchSize));
 
@@ -56,6 +60,9 @@ public class UpdateTtlJob implements Runnable {
             }
         }
 
+        stopWatch.stop();
+        logger.info("Update job for ttl took {} ms", stopWatch.getDuration().toMillis());
+
         logger.info("Finished {} job", TASK_NAME);
     }
 
@@ -65,7 +72,8 @@ public class UpdateTtlJob implements Runnable {
             logger.info("Updating case with ttl for recording id: {}, caseId: {}", recording.getId(), ccdCaseId);
             ccdDataStoreApiClient.updateCaseWithTtl(ccdCaseId, ttl);
         } catch (Exception e) {
-            logger.error("Failed to update case with ttl for recording id: {}", recording.getId(), e);
+            logger.info("Failed to update case with ttl for recording id: {}, caseId: {}",
+                        recording.getId(), recording.getCcdCaseId(), e);
             return;
         }
 
@@ -73,13 +81,15 @@ public class UpdateTtlJob implements Runnable {
     }
 
     private void updateRecordingTtl(HearingRecording recording, LocalDate ttl) {
-        logger.info("Updating recording ttl for recording id: {}", recording.getId());
+        Long ccdCaseId = recording.getCcdCaseId();
+        logger.info("Updating recording ttl for recording id: {}, caseId: {}", recording.getId(), ccdCaseId);
         try {
             recording.setTtlSet(true);
             recording.setTtl(ttl);
             hearingRecordingRepository.save(recording);
         } catch (Exception e) {
-            logger.error("Failed to update recording ttl for recording id: {}", recording.getId(), e);
+            logger.error("Failed to update recording ttl for recording id: {}, caseId: {}",
+                         recording.getId(), ccdCaseId, e);
         }
     }
 }
