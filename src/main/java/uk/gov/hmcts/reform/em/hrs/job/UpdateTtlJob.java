@@ -61,7 +61,9 @@ public class UpdateTtlJob implements Runnable {
 
     private void processRecording(HearingRecording recording, LocalDate ttl) {
         try {
-            ccdDataStoreApiClient.updateCaseWithTtl(recording.getCcdCaseId(), ttl);
+            Long ccdCaseId = recording.getCcdCaseId();
+            logger.info("Updating case with ttl for recording id: {}, caseId: {}", recording.getId(), ccdCaseId);
+            ccdDataStoreApiClient.updateCaseWithTtl(ccdCaseId, ttl);
         } catch (Exception e) {
             logger.error("Failed to update case with ttl for recording id: {}", recording.getId(), e);
             return;
@@ -71,6 +73,7 @@ public class UpdateTtlJob implements Runnable {
     }
 
     private void updateRecordingTtl(HearingRecording recording, LocalDate ttl) {
+        logger.info("Updating recording ttl for recording id: {}", recording.getId());
         try {
             recording.setTtlSet(true);
             recording.setTtl(ttl);
