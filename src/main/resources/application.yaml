@@ -41,8 +41,6 @@ spring:
         jdbc:
           batch_size: 5
           batch_versioned_data: true
-  main:
-    allow-bean-definition-overriding: true
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:6432/emhrs}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
@@ -145,9 +143,12 @@ notify:
   email.template: 1e10b560-4a3f-49a7-81f7-c3c6eceab455
 
 hrs:
+  ingestion-enabled: ${INGESTION_ENABLED:true}
   ingestion-interval-in-seconds: ${INGESTION_INTERVAL_IN_SECONDS:1} # how long between each fired job (per server: 4 servers at 1 seconds = 4 per second)
+  ccdupload-enabled: ${CCDUPLOAD_ENABLED:true}
   ccdupload-interval-in-seconds: ${CCDUPLOAD_INTERVAL_IN_SECONDS:30} # how long between each upload (per server: 4 servers at 30 seconds = 8 per minute)
   allowed-roles: ${ALLOWED_ROLES:caseworker-hrs-searcher,caseworker-hrs} #TODO remove caseworker-hrs after all PRS synced to master
+
 auth:
   provider:
     service:
@@ -176,13 +177,11 @@ scheduling:
       cron:  ${DELETE_INPROGRESS_CRON:0 0 */1 * * *}
       ttl-hours: 1
     update-ttl:
-      cron: ${UPDATE_TTL_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
       batch-size: ${UPDATE_TTL_BATCH_SIZE:10}
-      enabled: ${UPDATE_TTL_JOB_ENABLED:true}
+      thread-limit: ${UPDATE_TTL_THREAD_LIMIT:1}
     jurisdiction-codes:
-      cron: ${JURISDICTION_CODES_UPDATE_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
       batch-size: ${JURISDICTION_CODES_BATCH_SIZE:10}
-      enabled: ${JURISDICTION_CODES_UPDATE_ENABLED:true}
+      thread-limit: ${JURISDICTION_CODES_THREAD_LIMIT:2}
 report:
   recipients: ${SUMMARY_REPORT_RECIPIENTS:xxxx}
   from: ${SMTP_USERNAME:xxxx}

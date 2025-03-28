@@ -18,7 +18,9 @@ import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestSecurityConfiguratio
 import uk.gov.hmcts.reform.em.hrs.config.WebConfig;
 import uk.gov.hmcts.reform.em.hrs.config.security.JwtGrantedAuthoritiesConverter;
 
-@SpringBootTest(classes = {TestApplicationConfig.class, TestSecurityConfiguration.class, TestAzureStorageConfig.class})
+@SpringBootTest(classes = {TestApplicationConfig.class, TestSecurityConfiguration.class, TestAzureStorageConfig.class},
+    properties = { "spring.main.allow-bean-definition-overriding = true" }
+)
 @ExtendWith({MockitoExtension.class})
 public abstract class AbstractBaseTest extends AbstractDataSourceTest {
 

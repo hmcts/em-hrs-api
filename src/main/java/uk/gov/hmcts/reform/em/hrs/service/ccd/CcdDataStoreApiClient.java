@@ -159,27 +159,25 @@ public class CcdDataStoreApiClient {
     }
 
     public void updateCaseWithCodes(Long ccdCaseId, String jurisdictionCode, String serviceCode) {
-        try {
-            Map<String, String> tokens = securityService.createTokens();
-            StartEventResponse startEventResponse = startEvent(tokens, ccdCaseId, EVENT_AMEND_CASE);
 
-            final ObjectMapper mapper = new ObjectMapper();
-            mapper.findAndRegisterModules();
+        Map<String, String> tokens = securityService.createTokens();
+        StartEventResponse startEventResponse = startEvent(tokens, ccdCaseId, EVENT_AMEND_CASE);
 
-            CaseDetails caseDetails = startEventResponse.getCaseDetails();
-            CaseHearingRecording caseHearingRecording = mapper.convertValue(
-                caseDetails.getData(), CaseHearingRecording.class);
-            caseHearingRecording.setJurisdictionCode(jurisdictionCode);
-            caseHearingRecording.setServiceCode(serviceCode);
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
 
-            CaseDataContent caseDataContent = buildCaseDataContent(
-                startEventResponse, mapper.convertValue(caseHearingRecording, JsonNode.class));
-            coreCaseDataApi.submitEventForCaseWorker(tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
-                                                     JURISDICTION, CASE_TYPE, ccdCaseId.toString(),
-                                                     false, caseDataContent);
-        } catch (Exception e) {
-            throw new CcdUploadException("Error Updating Codes", e);
-        }
+        CaseDetails caseDetails = startEventResponse.getCaseDetails();
+        CaseHearingRecording caseHearingRecording = mapper.convertValue(
+            caseDetails.getData(), CaseHearingRecording.class);
+        caseHearingRecording.setJurisdictionCode(jurisdictionCode);
+        caseHearingRecording.setServiceCode(serviceCode);
+
+        CaseDataContent caseDataContent = buildCaseDataContent(
+            startEventResponse, mapper.convertValue(caseHearingRecording, JsonNode.class));
+        coreCaseDataApi.submitEventForCaseWorker(tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
+                                                 JURISDICTION, CASE_TYPE, ccdCaseId.toString(),
+                                                 false, caseDataContent);
+
     }
 
     private StartEventResponse startEvent(Map<String, String> tokens, Long caseId, String eventType) {
