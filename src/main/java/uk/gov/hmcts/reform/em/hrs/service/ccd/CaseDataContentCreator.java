@@ -127,7 +127,7 @@ public class CaseDataContentCreator {
             var ttlString = ttl.toString();
             return TtlCcdObject.builder()
                 .suspended(TTL_SUSPENDED_NO)
-                .overrideTTL(ttlString)
+                .overrideTTL(null)
                 .systemTTL(ttlString)
                 .build();
         }).orElse(null);
