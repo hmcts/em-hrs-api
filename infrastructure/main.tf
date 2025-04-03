@@ -90,7 +90,7 @@ data "azurerm_subnet" "private_endpoints" {
 }
 
 module "storage_account" {
-  source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=4.x"
+  source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=fix/private-endpoint-provider-4.x"
   env                      = var.env
   storage_account_name     = "emhrsapi${var.env}"
   resource_group_name      = azurerm_resource_group.rg.name
@@ -107,7 +107,10 @@ module "storage_account" {
 
   default_action = "Allow"
 
-  private_endpoint_subnet_id = data.azurerm_subnet.private_endpoints.id
+  private_endpoint_subscription_id = var.aks_subscription_id
+  private_endpoint_subnet_id       = data.azurerm_subnet.private_endpoints.id
+  private_endpoint_rg_name         = local.private_endpoint_rg_name
+
 
   // Tags
   common_tags  = local.tags
