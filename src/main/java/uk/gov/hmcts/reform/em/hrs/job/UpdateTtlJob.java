@@ -4,8 +4,9 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingTtlMigrationDTO;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.service.TtlService;
@@ -13,6 +14,7 @@ import uk.gov.hmcts.reform.em.hrs.service.ccd.CcdDataStoreApiClient;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,6 +29,7 @@ public class UpdateTtlJob implements Runnable {
     private final TtlService ttlService;
     private final HearingRecordingRepository hearingRecordingRepository;
     private final CcdDataStoreApiClient ccdDataStoreApiClient;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Value("${scheduling.task.update-ttl.batch-size}")
     private int batchSize;
@@ -36,10 +39,12 @@ public class UpdateTtlJob implements Runnable {
 
     public UpdateTtlJob(TtlService ttlService,
                         HearingRecordingRepository hearingRecordingRepository,
-                        CcdDataStoreApiClient ccdDataStoreApiClient) {
+                        CcdDataStoreApiClient ccdDataStoreApiClient,
+                        NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.ttlService = ttlService;
         this.hearingRecordingRepository = hearingRecordingRepository;
         this.ccdDataStoreApiClient = ccdDataStoreApiClient;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     public void run() {
@@ -111,11 +116,7 @@ public class UpdateTtlJob implements Runnable {
             StopWatch hrsUpdateDBStopWatch = new StopWatch();
             hrsUpdateDBStopWatch.start();
 
-            HearingRecording recording = new HearingRecording();
-            recording.setId(recordingDto.id());
-            recording.setTtlSet(true);
-            recording.setTtl(ttl);
-            hearingRecordingRepository.save(recording);
+            updateHrsMetaData(new UpdateRecordingRecord(recordingDto.id(), true,ttl));
 
             hrsUpdateDBStopWatch.stop();
             logger.info("Updating HRS details in HRS with caseId:{} took : {} ms", ccdCaseId,
@@ -125,4 +126,14 @@ public class UpdateTtlJob implements Runnable {
                          recordingDto.id(), ccdCaseId, e);
         }
     }
+
+    private void updateHrsMetaData(UpdateRecordingRecord updateRecordingRecord) {
+        // This maps the object's properties to the named parameters in the SQL
+        BeanPropertySqlParameterSource params = new BeanPropertySqlParameterSource(updateRecordingRecord);
+        namedParameterJdbcTemplate.update("""
+            UPDATE hearing_recording SET ttl_set = :ttlSet, ttl = :ttl WHERE id = :id
+            """, params);
+    }
+
+    private record UpdateRecordingRecord(UUID id, boolean ttlSet, LocalDate ttl){}
 }

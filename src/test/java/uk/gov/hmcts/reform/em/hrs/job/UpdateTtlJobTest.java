@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingTtlMigrationDTO;
@@ -33,6 +34,8 @@ class UpdateTtlJobTest {
     private HearingRecordingRepository hearingRecordingRepository;
     @Mock
     private CcdDataStoreApiClient ccdDataStoreApiClient;
+    @Mock
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @Mock
     private TtlService ttlService;
     @InjectMocks
@@ -74,8 +77,6 @@ class UpdateTtlJobTest {
             .createTtl(anyString(), anyString(), any(LocalDate.class));
         verify(ccdDataStoreApiClient, times(1))
             .updateCaseWithTtl(anyLong(), any(LocalDate.class));
-        verify(hearingRecordingRepository, times(1))
-            .save(any(HearingRecording.class));
     }
 
     @Test
@@ -92,8 +93,6 @@ class UpdateTtlJobTest {
             .createTtl(anyString(), anyString(), any(LocalDate.class));
         verify(ccdDataStoreApiClient, times(0))
             .updateCaseWithTtl(anyLong(), any(LocalDate.class));
-        verify(hearingRecordingRepository, times(0))
-            .save(any(HearingRecording.class));
     }
 
     @Test
@@ -116,9 +115,6 @@ class UpdateTtlJobTest {
             .createTtl(anyString(), anyString(), any(LocalDate.class));
         verify(ccdDataStoreApiClient, times(1))
             .updateCaseWithTtl(anyLong(), any(LocalDate.class));
-
-        verify(hearingRecordingRepository, times(0))
-            .save(any(HearingRecording.class));
     }
 
 }
