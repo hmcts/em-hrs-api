@@ -98,7 +98,7 @@ module "storage_account" {
 
   default_action = "Allow"
 
-  private_endpoint_subscription_id = var.aks_subscription_id
+  private_endpoint_subnet_id = data.azurerm_subnet.private_endpoints.id
 
   // Tags
   common_tags  = local.tags
