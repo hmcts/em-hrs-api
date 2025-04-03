@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
@@ -40,6 +40,7 @@ class UpdateTtlJobTest {
     void setUp() {
         openMocks(this);
         ReflectionTestUtils.setField(updateTtlJob, "threadLimit", 1);
+        ReflectionTestUtils.setField(updateTtlJob, "batchSize", 1);
     }
 
     @Test
@@ -52,7 +53,7 @@ class UpdateTtlJobTest {
         List<HearingRecording> recordings = List.of(recording);
 
         doReturn(recordings).when(hearingRecordingRepository)
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(Limit.class));
+            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
 
         doReturn(LocalDate.now().plusDays(30)).when(ttlService)
             .createTtl(anyString(), anyString(), any(LocalDate.class));
@@ -66,7 +67,7 @@ class UpdateTtlJobTest {
         updateTtlJob.run();
 
         verify(hearingRecordingRepository, times(1))
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(Limit.class));
+            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
         verify(ttlService, times(1))
             .createTtl(anyString(), anyString(), any(LocalDate.class));
         verify(ccdDataStoreApiClient, times(1))
@@ -77,12 +78,13 @@ class UpdateTtlJobTest {
 
     @Test
     void shouldNotRunUpdateTtlJobWhenNoRecordingsFound() {
-        doReturn(List.of()).when(hearingRecordingRepository).findByTtlSetFalseOrderByCreatedOnAsc(any(Limit.class));
+        doReturn(List.of()).when(hearingRecordingRepository)
+                .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
 
         updateTtlJob.run();
 
         verify(hearingRecordingRepository, times(1))
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(Limit.class));
+            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
 
         verify(ttlService, times(0))
             .createTtl(anyString(), anyString(), any(LocalDate.class));
@@ -102,7 +104,7 @@ class UpdateTtlJobTest {
         List<HearingRecording> recordings = List.of(recording);
 
         doReturn(recordings).when(hearingRecordingRepository)
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(Limit.class));
+            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
 
         doReturn(LocalDate.now().plusDays(30)).when(ttlService)
             .createTtl(anyString(), anyString(), any(LocalDate.class));
@@ -113,7 +115,7 @@ class UpdateTtlJobTest {
         updateTtlJob.run();
 
         verify(hearingRecordingRepository, times(1))
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(Limit.class));
+            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
         verify(ttlService, times(1))
             .createTtl(anyString(), anyString(), any(LocalDate.class));
         verify(ccdDataStoreApiClient, times(1))

@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.em.hrs.job;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
@@ -47,8 +47,15 @@ public class UpdateTtlJob implements Runnable {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
+        StopWatch hrsGetQueryStopWatch = new StopWatch();
+        hrsGetQueryStopWatch.start();
+
         List<HearingRecording> recordingsWithoutTtl =
-            hearingRecordingRepository.findByTtlSetFalseOrderByCreatedOnAsc(Limit.of(batchSize));
+            hearingRecordingRepository.findByTtlSetFalseOrderByCreatedOnAsc(PageRequest.of(0, batchSize));
+
+        hrsGetQueryStopWatch.stop();
+        logger.info("Time taken to get {} rows from DB : {} ms", batchSize,
+                hrsGetQueryStopWatch.getDuration().toMillis());
 
         try (ExecutorService executorService = Executors.newFixedThreadPool(threadLimit)) {
             for (HearingRecording recording : recordingsWithoutTtl) {
@@ -67,10 +74,22 @@ public class UpdateTtlJob implements Runnable {
     }
 
     private void processRecording(HearingRecording recording, LocalDate ttl) {
+
+        StopWatch processRecordingStopWatch = new StopWatch();
+        processRecordingStopWatch.start();
+
+        Long ccdCaseId = recording.getCcdCaseId();
         try {
-            Long ccdCaseId = recording.getCcdCaseId();
+            StopWatch ccdUpdateCallStopWatch = new StopWatch();
+            ccdUpdateCallStopWatch.start();
+
             logger.info("Updating case with ttl for recording id: {}, caseId: {}", recording.getId(), ccdCaseId);
             ccdDataStoreApiClient.updateCaseWithTtl(ccdCaseId, ttl);
+
+            ccdUpdateCallStopWatch.stop();
+            logger.info("Updating case in CCD with caseId:{} took : {} ms", ccdCaseId,
+                    ccdUpdateCallStopWatch.getDuration().toMillis());
+
         } catch (Exception e) {
             logger.info("Failed to update case with ttl for recording id: {}, caseId: {}",
                         recording.getId(), recording.getCcdCaseId(), e);
@@ -78,15 +97,26 @@ public class UpdateTtlJob implements Runnable {
         }
 
         updateRecordingTtl(recording, ttl);
+
+        processRecordingStopWatch.stop();
+        logger.info("Processing case with caseId:{} took : {} ms", ccdCaseId,
+                processRecordingStopWatch.getDuration().toMillis());
     }
 
     private void updateRecordingTtl(HearingRecording recording, LocalDate ttl) {
         Long ccdCaseId = recording.getCcdCaseId();
         logger.info("Updating recording ttl for recording id: {}, caseId: {}", recording.getId(), ccdCaseId);
         try {
+            StopWatch hrsUpdateDBStopWatch = new StopWatch();
+            hrsUpdateDBStopWatch.start();
+
             recording.setTtlSet(true);
             recording.setTtl(ttl);
             hearingRecordingRepository.save(recording);
+
+            hrsUpdateDBStopWatch.stop();
+            logger.info("Updating HRS details in HRS with caseId:{} took : {} ms", ccdCaseId,
+                    hrsUpdateDBStopWatch.getDuration().toMillis());
         } catch (Exception e) {
             logger.info("Failed to update recording ttl for recording id: {}, caseId: {}",
                          recording.getId(), ccdCaseId, e);
