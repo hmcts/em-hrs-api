@@ -10,10 +10,24 @@ provider "azurerm" {
   subscription_id            = var.aks_subscription_id
 }
 
+provider "azurerm" {
+  features {}
+  skip_provider_registration = true
+  alias                      = "vh_vnet"
+  subscription_id            = var.vh_subscription_id
+}
+
+provider "azurerm" {
+  features {}
+  skip_provider_registration = true
+  alias                      = "cvp_vnet"
+  subscription_id            = var.cvp_subscription_id
+}
+
 locals {
   app_full_name = "${var.product}-${var.component}"
   tags          = var.common_tags
-  db_name = "${local.app_full_name}-postgres-db-v15"
+  db_name       = "${local.app_full_name}-postgres-db-v15"
 }
 
 resource "azurerm_resource_group" "rg" {
@@ -69,6 +83,14 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   key_vault_id = module.key-vault.key_vault_id
 }
 
+data "azurerm_subnet" "cft_private_endpoints" {
+  provider = azurerm.cft_vnet
+
+  resource_group_name  = "cft-${var.env}-network-rg"
+  virtual_network_name = "cft-${var.env}-vnet"
+  name                 = "private-endpoints"
+}
+
 module "storage_account" {
   source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=4.x"
   env                      = var.env
@@ -86,6 +108,8 @@ module "storage_account" {
   enable_change_feed     = true
 
   default_action = "Allow"
+
+  private_endpoint_subnet_id = data.azurerm_subnet.cft_private_endpoints.id
 
   // Tags
   common_tags  = local.tags
@@ -206,18 +230,18 @@ module "db-v15" {
   providers = {
     azurerm.postgres_network = azurerm.cft_vnet
   }
-  source                      = "git@github.com:hmcts/terraform-module-postgresql-flexible?ref=master"
-  env                         = var.env
-  product                     = var.product
-  component                   = var.component
-  common_tags                 = var.common_tags
-  name                        = local.db_name
-  pgsql_version               = "15"
-  admin_user_object_id        = var.jenkins_AAD_objectId
-  business_area               = "CFT"
-  action_group_name           = join("-", [local.db_name, var.action_group_name, var.env])
-  email_address_key           = var.email_address_key
-  email_address_key_vault_id  = module.key-vault.key_vault_id
+  source                     = "git@github.com:hmcts/terraform-module-postgresql-flexible?ref=master"
+  env                        = var.env
+  product                    = var.product
+  component                  = var.component
+  common_tags                = var.common_tags
+  name                       = local.db_name
+  pgsql_version              = "15"
+  admin_user_object_id       = var.jenkins_AAD_objectId
+  business_area              = "CFT"
+  action_group_name          = join("-", [local.db_name, var.action_group_name, var.env])
+  email_address_key          = var.email_address_key
+  email_address_key_vault_id = module.key-vault.key_vault_id
   # The original subnet is full, this is required to use the new subnet for new databases
   subnet_suffix = "expanded"
   pgsql_databases = [
@@ -235,4 +259,68 @@ module "db-v15" {
   pgsql_sku                      = var.pgsql_sku
   pgsql_storage_mb               = var.pgsql_storage_mb
   force_user_permissions_trigger = "2"
+}
+
+# Private Endpoint in VH Wowza subnet
+data "azurerm_subnet" "vh_private_endpoints" {
+  provider = azurerm.vh_vnet
+
+  resource_group_name  = "vh-infra-wowza-${var.vh_environment}"
+  virtual_network_name = "vh-infra-wowza-${var.vh_environment}"
+  name                 = "wowza"
+}
+
+resource "azurerm_private_endpoint" "vh_vnet_private_endpoint" {
+  count = var.vh_subscription_id != "" ? 1 : 0
+
+  name                = azurerm_storage_account.storage_account.name
+  resource_group_name = data.azurerm_subnet.vh_private_endpoints.resource_group_name
+  location            = data.azurerm_subnet.vh_private_endpoints.location
+  subnet_id           = data.azurerm_subnet.vh_private_endpoints.id
+
+  private_service_connection {
+    name                           = azurerm_storage_account.storage_account.name
+    is_manual_connection           = false
+    private_connection_resource_id = azurerm_storage_account.storage_account.id
+    subresource_names              = ["blob"]
+  }
+
+  private_dns_zone_group {
+    name                 = "endpoint-dnszonegroup"
+    private_dns_zone_ids = ["/subscriptions/1baf5470-1c3e-40d3-a6f7-74bfbce4b348/resourceGroups/core-infra-intsvc-rg/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"]
+  }
+
+  tags = var.common_tags
+}
+
+# Private Endpoint in CVP Wowza subnet
+data "azurerm_subnet" "cvp_private_endpoints" {
+  provider = azurerm.cvp_vnet
+
+  resource_group_name  = "cvp-recordings-${var.cvp_environment}-rg"
+  virtual_network_name = "cvp-recordings-${var.cvp_environment}-vnet"
+  name                 = "wowza"
+}
+
+resource "azurerm_private_endpoint" "cvp_vnet_private_endpoint" {
+  count = var.cvp_subscription_id != "" ? 1 : 0
+
+  name                = azurerm_storage_account.storage_account.name
+  resource_group_name = data.azurerm_subnet.cvp_private_endpoints.resource_group_name
+  location            = data.azurerm_subnet.cvp_private_endpoints.location
+  subnet_id           = data.azurerm_subnet.cvp_private_endpoints.id
+
+  private_service_connection {
+    name                           = azurerm_storage_account.storage_account.name
+    is_manual_connection           = false
+    private_connection_resource_id = azurerm_storage_account.storage_account.id
+    subresource_names              = ["blob"]
+  }
+
+  private_dns_zone_group {
+    name                 = "endpoint-dnszonegroup"
+    private_dns_zone_ids = ["/subscriptions/1baf5470-1c3e-40d3-a6f7-74bfbce4b348/resourceGroups/core-infra-intsvc-rg/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"]
+  }
+
+  tags = var.common_tags
 }

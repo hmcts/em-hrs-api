@@ -46,6 +46,14 @@ variable "sku_capacity" {
 
 variable "aks_subscription_id" {}
 
+variable "vh_subscription_id" {}
+
+variable "cvp_subscription_id" {}
+
+variable "vh_environment" {}
+
+variable "cvp_environment" {}
+
 variable "pgsql_sku" {
   description = "The PGSql flexible server instance sku"
   default     = "GP_Standard_D2ds_v4"
