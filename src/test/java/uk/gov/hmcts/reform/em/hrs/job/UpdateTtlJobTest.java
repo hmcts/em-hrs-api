@@ -48,6 +48,7 @@ class UpdateTtlJobTest {
         openMocks(this);
         ReflectionTestUtils.setField(updateTtlJob, "threadLimit", 1);
         ReflectionTestUtils.setField(updateTtlJob, "batchSize", 1);
+        ReflectionTestUtils.setField(updateTtlJob, "noOfIterations", 1);
         recordingDto = new HearingRecordingTtlMigrationDTO(
                 UUID.randomUUID(), LocalDateTime.now().minusDays(1),
                 "serviceCode","jurisdictionCode",123L);

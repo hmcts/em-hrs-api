@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.job;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +35,9 @@ public class UpdateTtlJob implements Runnable {
     @Value("${scheduling.task.update-ttl.batch-size}")
     private int batchSize;
 
+    @Value("${scheduling.task.update-ttl.no-of-iterations}")
+    private int noOfIterations;
+
     @Value("${scheduling.task.update-ttl.thread-limit}")
     private int threadLimit;
 
@@ -53,24 +57,38 @@ public class UpdateTtlJob implements Runnable {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        StopWatch hrsGetQueryStopWatch = new StopWatch();
-        hrsGetQueryStopWatch.start();
+        for (int i = 0; i < noOfIterations; i++) {
+            StopWatch iterationStopWatch = new StopWatch();
+            iterationStopWatch.start();
 
-        List<HearingRecordingTtlMigrationDTO> recordingsWithoutTtl =
-            hearingRecordingRepository.findByTtlSetFalseOrderByCreatedOnAsc(PageRequest.of(0, batchSize));
+            StopWatch hrsGetQueryStopWatch = new StopWatch();
+            hrsGetQueryStopWatch.start();
 
-        hrsGetQueryStopWatch.stop();
-        logger.info("Time taken to get {} rows from DB : {} ms", batchSize,
-                hrsGetQueryStopWatch.getDuration().toMillis());
+            List<HearingRecordingTtlMigrationDTO> recordingsWithoutTtl =
+                    hearingRecordingRepository.findByTtlSetFalseOrderByCreatedOnAsc(PageRequest.of(0, batchSize));
 
-        try (ExecutorService executorService = Executors.newFixedThreadPool(threadLimit)) {
-            for (HearingRecordingTtlMigrationDTO recording : recordingsWithoutTtl) {
-                LocalDate ttl = ttlService.createTtl(recording.serviceCode(), recording.jurisdictionCode(),
-                                                     LocalDate.from(recording.createdOn())
-                );
+            hrsGetQueryStopWatch.stop();
+            logger.info("Time taken to get {} rows from DB : {} ms", recordingsWithoutTtl.size(),
+                    hrsGetQueryStopWatch.getDuration().toMillis());
 
-                executorService.submit(() -> processRecording(recording, ttl));
+            if (CollectionUtils.isEmpty(recordingsWithoutTtl)) {
+                iterationStopWatch.stop();
+                logger.info("Time taken to complete iteration number :  {} was : {} ms", i,
+                        hrsGetQueryStopWatch.getDuration().toMillis());
+                break;
             }
+            try (ExecutorService executorService = Executors.newFixedThreadPool(threadLimit)) {
+                for (HearingRecordingTtlMigrationDTO recording : recordingsWithoutTtl) {
+                    LocalDate ttl = ttlService.createTtl(recording.serviceCode(), recording.jurisdictionCode(),
+                            LocalDate.from(recording.createdOn())
+                    );
+
+                    executorService.submit(() -> processRecording(recording, ttl));
+                }
+            }
+            iterationStopWatch.stop();
+            logger.info("Time taken to complete iteration number :  {} was : {} ms", i,
+                    hrsGetQueryStopWatch.getDuration().toMillis());
         }
 
         stopWatch.stop();
