@@ -69,6 +69,14 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   key_vault_id = module.key-vault.key_vault_id
 }
 
+data "azurerm_subnet" "cft_private_endpoints_subnet" {
+  provider = azurerm.cft_vnet
+
+  resource_group_name  = "cft-${var.env}-network-rg"
+  virtual_network_name = "cft-${var.env}-vnet"
+  name                 = "private-endpoints"
+}
+
 module "storage_account" {
   source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=4.x"
   env                      = var.env
@@ -86,6 +94,8 @@ module "storage_account" {
   enable_change_feed     = true
 
   default_action = "Allow"
+
+  private_endpoint_subnet_id       = data.azurerm_subnet.cft_private_endpoints_subnet.id
 
   // Tags
   common_tags  = local.tags
