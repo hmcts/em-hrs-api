@@ -69,7 +69,7 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   key_vault_id = module.key-vault.key_vault_id
 }
 
-data "azurerm_subnet" "cft_private_endpoints" {
+data "azurerm_subnet" "cft_private_endpoints_subnet" {
   provider = azurerm.cft_vnet
 
   resource_group_name  = "cft-${var.env}-network-rg"
@@ -95,7 +95,7 @@ module "storage_account" {
 
   default_action = "Allow"
 
-  private_endpoint_subnet_id       = data.azurerm_subnet.private_endpoints.id
+  private_endpoint_subnet_id       = data.cft_private_endpoints_subnet.private_endpoints.id
 
   // Tags
   common_tags  = local.tags
