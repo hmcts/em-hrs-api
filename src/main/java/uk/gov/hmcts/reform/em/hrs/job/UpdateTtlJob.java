@@ -74,7 +74,7 @@ public class UpdateTtlJob implements Runnable {
             if (CollectionUtils.isEmpty(recordingsWithoutTtl)) {
                 iterationStopWatch.stop();
                 logger.info("Time taken to complete iteration number :  {} was : {} ms", i,
-                        hrsGetQueryStopWatch.getDuration().toMillis());
+                        iterationStopWatch.getDuration().toMillis());
                 break;
             }
             try (ExecutorService executorService = Executors.newFixedThreadPool(threadLimit)) {
@@ -88,7 +88,7 @@ public class UpdateTtlJob implements Runnable {
             }
             iterationStopWatch.stop();
             logger.info("Time taken to complete iteration number :  {} was : {} ms", i,
-                    hrsGetQueryStopWatch.getDuration().toMillis());
+                    iterationStopWatch.getDuration().toMillis());
         }
 
         stopWatch.stop();
