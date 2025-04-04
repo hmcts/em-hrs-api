@@ -72,3 +72,8 @@ variable "email_address_key" {
 variable "businessArea" {
   default = "cft"
 }
+
+variable "private_endpoint_subscription_id" {
+  description = "Subscription ID for the private endpoint"
+  type        = string
+}
