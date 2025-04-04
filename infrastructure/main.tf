@@ -74,15 +74,8 @@ locals {
   private_endpoint_vnet_name = var.businessArea == "sds" ? "ss-${var.env}-vnet" : "${var.businessArea}-${var.env}-vnet"
 }
 
-provider "azurerm" {
-  alias           = "private_endpoints"
-  subscription_id = var.private_endpoint_subscription_id
-  features {}
-  skip_provider_registration = true
-}
-
 data "azurerm_subnet" "private_endpoints" {
-  provider = azurerm.private_endpoints
+  provider = azurerm.cft_vnet
 
   resource_group_name  = local.private_endpoint_rg_name
   virtual_network_name = local.private_endpoint_vnet_name
