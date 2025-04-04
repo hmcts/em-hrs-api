@@ -69,7 +69,3 @@ variable "email_address_key" {
   default     = "db-alert-monitoring-email-address"
 }
 
-variable "businessArea" {
-  default = "cft"
-}
-
