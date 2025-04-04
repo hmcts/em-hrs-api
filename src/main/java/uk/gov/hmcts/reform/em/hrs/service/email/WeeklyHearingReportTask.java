@@ -37,7 +37,7 @@ public class WeeklyHearingReportTask {
 
 
     @Scheduled(cron = "${scheduling.task.weekly-hearing-report.cron}", zone = "Europe/London")
-    @SchedulerLock(name = TASK_NAME, lockAtLeastFor = "PT10M" )
+    @SchedulerLock(name = TASK_NAME, lockAtLeastFor = "PT10M")
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
