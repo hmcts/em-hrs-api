@@ -74,7 +74,16 @@ locals {
   private_endpoint_vnet_name = var.businessArea == "sds" ? "ss-${var.env}-vnet" : "${var.businessArea}-${var.env}-vnet"
 }
 
+provider "azurerm" {
+  alias           = "private_endpoints"
+  subscription_id = var.private_endpoint_subscription_id
+  features {}
+  skip_provider_registration = true
+}
+
 data "azurerm_subnet" "private_endpoints" {
+  provider = azurerm.private_endpoints
+
   resource_group_name  = local.private_endpoint_rg_name
   virtual_network_name = local.private_endpoint_vnet_name
   name                 = "private-endpoints"
@@ -98,7 +107,7 @@ module "storage_account" {
 
   default_action = "Allow"
 
-  private_endpoint_subnet_id = data.azurerm_subnet.private_endpoints.id
+  private_endpoint_subnet_id       = data.azurerm_subnet.private_endpoints.id
 
   // Tags
   common_tags  = local.tags
