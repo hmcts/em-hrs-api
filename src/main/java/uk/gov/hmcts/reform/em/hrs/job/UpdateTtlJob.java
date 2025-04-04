@@ -104,16 +104,7 @@ public class UpdateTtlJob implements Runnable {
 
         Long ccdCaseId = recording.ccdCaseId();
         try {
-            StopWatch ccdUpdateCallStopWatch = new StopWatch();
-            ccdUpdateCallStopWatch.start();
-
-            logger.info("Updating case with ttl for recording id: {}, caseId: {}", recording.id(), ccdCaseId);
             ccdDataStoreApiClient.updateCaseWithTtl(ccdCaseId, ttl);
-
-            ccdUpdateCallStopWatch.stop();
-            logger.info("Updating case in CCD with caseId:{} took : {} ms", ccdCaseId,
-                    ccdUpdateCallStopWatch.getDuration().toMillis());
-
         } catch (Exception e) {
             logger.info("Failed to update case with ttl for recording id: {}, caseId: {}",
                         recording.id(), recording.ccdCaseId(), e);
@@ -129,16 +120,8 @@ public class UpdateTtlJob implements Runnable {
 
     private void updateRecordingTtl(HearingRecordingTtlMigrationDTO recordingDto, LocalDate ttl) {
         Long ccdCaseId = recordingDto.ccdCaseId();
-        logger.info("Updating recording ttl for recording id: {}, caseId: {}", recordingDto.id(), ccdCaseId);
         try {
-            StopWatch hrsUpdateDBStopWatch = new StopWatch();
-            hrsUpdateDBStopWatch.start();
-
             updateHrsMetaData(new UpdateRecordingRecord(recordingDto.id(), true,ttl));
-
-            hrsUpdateDBStopWatch.stop();
-            logger.info("Updating HRS details in HRS with caseId:{} took : {} ms", ccdCaseId,
-                    hrsUpdateDBStopWatch.getDuration().toMillis());
         } catch (Exception e) {
             logger.info("Failed to update recording ttl for recording id: {}, caseId: {}",
                          recordingDto.id(), ccdCaseId, e);
