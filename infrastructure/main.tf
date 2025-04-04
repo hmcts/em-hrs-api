@@ -95,7 +95,7 @@ module "storage_account" {
 
   default_action = "Allow"
 
-  private_endpoint_subnet_id       = data.cft_private_endpoints_subnet.private_endpoints.id
+  private_endpoint_subnet_id       = data.azurerm_subnet.cft_private_endpoints_subnet.id
 
   // Tags
   common_tags  = local.tags
