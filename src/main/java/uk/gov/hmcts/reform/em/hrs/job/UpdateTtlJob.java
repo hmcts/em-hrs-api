@@ -1,17 +1,21 @@
 package uk.gov.hmcts.reform.em.hrs.job;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingTtlMigrationDTO;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.service.TtlService;
 import uk.gov.hmcts.reform.em.hrs.service.ccd.CcdDataStoreApiClient;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,19 +30,25 @@ public class UpdateTtlJob implements Runnable {
     private final TtlService ttlService;
     private final HearingRecordingRepository hearingRecordingRepository;
     private final CcdDataStoreApiClient ccdDataStoreApiClient;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Value("${scheduling.task.update-ttl.batch-size}")
     private int batchSize;
+
+    @Value("${scheduling.task.update-ttl.no-of-iterations}")
+    private int noOfIterations;
 
     @Value("${scheduling.task.update-ttl.thread-limit}")
     private int threadLimit;
 
     public UpdateTtlJob(TtlService ttlService,
                         HearingRecordingRepository hearingRecordingRepository,
-                        CcdDataStoreApiClient ccdDataStoreApiClient) {
+                        CcdDataStoreApiClient ccdDataStoreApiClient,
+                        NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.ttlService = ttlService;
         this.hearingRecordingRepository = hearingRecordingRepository;
         this.ccdDataStoreApiClient = ccdDataStoreApiClient;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     public void run() {
@@ -47,17 +57,38 @@ public class UpdateTtlJob implements Runnable {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        List<HearingRecording> recordingsWithoutTtl =
-            hearingRecordingRepository.findByTtlSetFalseOrderByCreatedOnAsc(Limit.of(batchSize));
+        for (int i = 0; i < noOfIterations; i++) {
+            StopWatch iterationStopWatch = new StopWatch();
+            iterationStopWatch.start();
 
-        try (ExecutorService executorService = Executors.newFixedThreadPool(threadLimit)) {
-            for (HearingRecording recording : recordingsWithoutTtl) {
-                LocalDate ttl = ttlService.createTtl(recording.getServiceCode(), recording.getJurisdictionCode(),
-                                                     LocalDate.from(recording.getCreatedOn())
-                );
+            StopWatch hrsGetQueryStopWatch = new StopWatch();
+            hrsGetQueryStopWatch.start();
 
-                executorService.submit(() -> processRecording(recording, ttl));
+            List<HearingRecordingTtlMigrationDTO> recordingsWithoutTtl =
+                    hearingRecordingRepository.findByTtlSetFalseOrderByCreatedOnAsc(PageRequest.of(0, batchSize));
+
+            hrsGetQueryStopWatch.stop();
+            logger.info("Time taken to get {} rows from DB : {} ms", recordingsWithoutTtl.size(),
+                    hrsGetQueryStopWatch.getDuration().toMillis());
+
+            if (CollectionUtils.isEmpty(recordingsWithoutTtl)) {
+                iterationStopWatch.stop();
+                logger.info("Time taken to complete iteration number :  {} was : {} ms", i,
+                        iterationStopWatch.getDuration().toMillis());
+                break;
             }
+            try (ExecutorService executorService = Executors.newFixedThreadPool(threadLimit)) {
+                for (HearingRecordingTtlMigrationDTO recording : recordingsWithoutTtl) {
+                    LocalDate ttl = ttlService.createTtl(recording.serviceCode(), recording.jurisdictionCode(),
+                            LocalDate.from(recording.createdOn())
+                    );
+
+                    executorService.submit(() -> processRecording(recording, ttl));
+                }
+            }
+            iterationStopWatch.stop();
+            logger.info("Time taken to complete iteration number :  {} was : {} ms", i,
+                    iterationStopWatch.getDuration().toMillis());
         }
 
         stopWatch.stop();
@@ -66,30 +97,44 @@ public class UpdateTtlJob implements Runnable {
         logger.info("Finished {} job", TASK_NAME);
     }
 
-    private void processRecording(HearingRecording recording, LocalDate ttl) {
+    private void processRecording(HearingRecordingTtlMigrationDTO recording, LocalDate ttl) {
+
+        StopWatch processRecordingStopWatch = new StopWatch();
+        processRecordingStopWatch.start();
+
+        Long ccdCaseId = recording.ccdCaseId();
         try {
-            Long ccdCaseId = recording.getCcdCaseId();
-            logger.info("Updating case with ttl for recording id: {}, caseId: {}", recording.getId(), ccdCaseId);
             ccdDataStoreApiClient.updateCaseWithTtl(ccdCaseId, ttl);
         } catch (Exception e) {
             logger.info("Failed to update case with ttl for recording id: {}, caseId: {}",
-                        recording.getId(), recording.getCcdCaseId(), e);
+                        recording.id(), recording.ccdCaseId(), e);
             return;
         }
 
         updateRecordingTtl(recording, ttl);
+
+        processRecordingStopWatch.stop();
+        logger.info("Processing case with caseId:{} took : {} ms", ccdCaseId,
+                processRecordingStopWatch.getDuration().toMillis());
     }
 
-    private void updateRecordingTtl(HearingRecording recording, LocalDate ttl) {
-        Long ccdCaseId = recording.getCcdCaseId();
-        logger.info("Updating recording ttl for recording id: {}, caseId: {}", recording.getId(), ccdCaseId);
+    private void updateRecordingTtl(HearingRecordingTtlMigrationDTO recordingDto, LocalDate ttl) {
+        Long ccdCaseId = recordingDto.ccdCaseId();
         try {
-            recording.setTtlSet(true);
-            recording.setTtl(ttl);
-            hearingRecordingRepository.save(recording);
+            updateHrsMetaData(new UpdateRecordingRecord(recordingDto.id(), true,ttl));
         } catch (Exception e) {
             logger.info("Failed to update recording ttl for recording id: {}, caseId: {}",
-                         recording.getId(), ccdCaseId, e);
+                         recordingDto.id(), ccdCaseId, e);
         }
     }
+
+    private void updateHrsMetaData(UpdateRecordingRecord updateRecordingRecord) {
+        // This maps the object's properties to the named parameters in the SQL
+        BeanPropertySqlParameterSource params = new BeanPropertySqlParameterSource(updateRecordingRecord);
+        namedParameterJdbcTemplate.update("""
+            UPDATE hearing_recording SET ttl_set = :ttlSet, ttl = :ttl WHERE id = :id
+            """, params);
+    }
+
+    private record UpdateRecordingRecord(UUID id, boolean ttlSet, LocalDate ttl){}
 }
