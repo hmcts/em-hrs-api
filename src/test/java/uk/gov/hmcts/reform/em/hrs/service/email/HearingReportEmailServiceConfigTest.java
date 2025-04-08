@@ -5,7 +5,8 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.Month;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 class HearingReportEmailServiceConfigTest {
 
@@ -44,16 +45,18 @@ class HearingReportEmailServiceConfigTest {
         String result = HearingReportEmailServiceConfig.weeklyReportEmailBody(testDate);
 
         // Assert
-        assertEquals(result,
-         """
-            <html>
-                <body>
-                    <h1>Weekly Hearing Recording Report for week 2023-03-08</h1>
-                    <br>
-                    <br><br>
-                </body>
-            </html>
-            """);
+        assertEquals(
+            result,
+            """
+                <html>
+                    <body>
+                        <h1>Weekly Hearing Recording Report for week 2023-03-08</h1>
+                        <br>
+                        <br><br>
+                    </body>
+                </html>
+                """
+        );
     }
 
 

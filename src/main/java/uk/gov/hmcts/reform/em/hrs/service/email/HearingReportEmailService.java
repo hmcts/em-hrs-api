@@ -92,6 +92,5 @@ public class HearingReportEmailService {
                 </body>
             </html>
             """.formatted(date.getMonth(), date.getYear());
-
     }
 }
