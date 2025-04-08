@@ -277,7 +277,7 @@ data "azurerm_subnet" "vh_private_endpoints" {
 }
 
 resource "azurerm_private_endpoint" "vh_vnet_private_endpoint" {
-  count = var.vh_subscription_id != "" ? 1 : 0
+  count = var.create_vh_vnet_private_endpoint == "true" ? 1 : 0
 
   name                = module.storage_account.storageaccount_name
   resource_group_name = data.azurerm_subnet.vh_private_endpoints.resource_group_name
@@ -309,7 +309,7 @@ data "azurerm_subnet" "cvp_private_endpoints" {
 }
 
 resource "azurerm_private_endpoint" "cvp_vnet_private_endpoint" {
-  count = var.cvp_subscription_id != "" ? 1 : 0
+  count = var.create_cvp_vnet_private_endpoint == "true" ? 1 : 0
 
   name                = module.storage_account.storageaccount_name
   resource_group_name = data.azurerm_subnet.cvp_private_endpoints.resource_group_name

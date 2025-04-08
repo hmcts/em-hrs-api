@@ -44,24 +44,24 @@ variable "sku_capacity" {
   default = "2"
 }
 
-variable "aks_subscription_id" {
-  default = ""
+variable "aks_subscription_id" {}
+
+variable "vh_subscription_id" {}
+
+variable "cvp_subscription_id" {}
+
+variable "vh_environment" {}
+
+variable "cvp_environment" {}
+
+variable "create_vh_vnet_private_endpoint" {
+  description = "Create a private endpoint for the VNet"
+  default     = "false"
 }
 
-variable "vh_subscription_id" {
-  default = ""
-}
-
-variable "cvp_subscription_id" {
-  default = ""
-}
-
-variable "vh_environment" {
-  default = ""
-}
-
-variable "cvp_environment" {
-  default = ""
+variable "create_cvp_vnet_private_endpoint" {
+  description = "Create a private endpoint for the VNet"
+  default     = "false"
 }
 
 variable "pgsql_sku" {
