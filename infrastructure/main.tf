@@ -25,9 +25,12 @@ provider "azurerm" {
 }
 
 locals {
-  app_full_name = "${var.product}-${var.component}"
-  tags          = var.common_tags
-  db_name       = "${local.app_full_name}-postgres-db-v15"
+  app_full_name              = "${var.product}-${var.component}"
+  tags                       = var.common_tags
+  db_name                    = "${local.app_full_name}-postgres-db-v15"
+  private_endpoint_rg_name   = var.businessArea == "sds" ? "ss-${var.env}-network-rg" : "${var.businessArea}-${var.env}-network-rg"
+  private_endpoint_vnet_name = var.businessArea == "sds" ? "ss-${var.env}-vnet" : "${var.businessArea}-${var.env}-vnet"
+  private_dns_zone_ids       = ["/subscriptions/1baf5470-1c3e-40d3-a6f7-74bfbce4b348/resourceGroups/core-infra-intsvc-rg/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"]
 }
 
 resource "azurerm_resource_group" "rg" {
@@ -83,35 +86,8 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   key_vault_id = module.key-vault.key_vault_id
 }
 
-locals {
-  private_endpoint_rg_name   = var.businessArea == "sds" ? "ss-${var.env}-network-rg" : "${var.businessArea}-${var.env}-network-rg"
-  private_endpoint_vnet_name = var.businessArea == "sds" ? "ss-${var.env}-vnet" : "${var.businessArea}-${var.env}-vnet"
-  private_dns_zone_ids       = ["/subscriptions/1baf5470-1c3e-40d3-a6f7-74bfbce4b348/resourceGroups/core-infra-intsvc-rg/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"]
-}
-
-provider "azurerm" {
-  alias           = "private_endpoints"
-  subscription_id = var.aks_subscription_id
-  features {}
-  skip_provider_registration = true
-}
-
-provider "azurerm" {
-  features {}
-  skip_provider_registration = true
-  alias                      = "vh_vnet"
-  subscription_id            = var.vh_subscription_id
-}
-
-provider "azurerm" {
-  features {}
-  skip_provider_registration = true
-  alias                      = "cvp_vnet"
-  subscription_id            = var.cvp_subscription_id
-}
-
 data "azurerm_subnet" "private_endpoints" {
-  provider = azurerm.private_endpoints
+  provider = azurerm.cft_vnet
 
   resource_group_name  = local.private_endpoint_rg_name
   virtual_network_name = local.private_endpoint_vnet_name
