@@ -86,6 +86,7 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 locals {
   private_endpoint_rg_name   = var.businessArea == "sds" ? "ss-${var.env}-network-rg" : "${var.businessArea}-${var.env}-network-rg"
   private_endpoint_vnet_name = var.businessArea == "sds" ? "ss-${var.env}-vnet" : "${var.businessArea}-${var.env}-vnet"
+  private_dns_zone_ids       = ["/subscriptions/1baf5470-1c3e-40d3-a6f7-74bfbce4b348/resourceGroups/core-infra-intsvc-rg/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"]
 }
 
 provider "azurerm" {
@@ -93,6 +94,20 @@ provider "azurerm" {
   subscription_id = var.aks_subscription_id
   features {}
   skip_provider_registration = true
+}
+
+provider "azurerm" {
+  features {}
+  skip_provider_registration = true
+  alias                      = "vh_vnet"
+  subscription_id            = var.vh_subscription_id
+}
+
+provider "azurerm" {
+  features {}
+  skip_provider_registration = true
+  alias                      = "cvp_vnet"
+  subscription_id            = var.cvp_subscription_id
 }
 
 data "azurerm_subnet" "private_endpoints" {
@@ -302,7 +317,7 @@ resource "azurerm_private_endpoint" "vh_vnet_private_endpoint" {
 
   private_dns_zone_group {
     name                 = "endpoint-dnszonegroup"
-    private_dns_zone_ids = ["/subscriptions/1baf5470-1c3e-40d3-a6f7-74bfbce4b348/resourceGroups/core-infra-intsvc-rg/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"]
+    private_dns_zone_ids = local.private_dns_zone_ids
   }
 
   tags = var.common_tags
@@ -334,7 +349,7 @@ resource "azurerm_private_endpoint" "cvp_vnet_private_endpoint" {
 
   private_dns_zone_group {
     name                 = "endpoint-dnszonegroup"
-    private_dns_zone_ids = ["/subscriptions/1baf5470-1c3e-40d3-a6f7-74bfbce4b348/resourceGroups/core-infra-intsvc-rg/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"]
+    private_dns_zone_ids = local.private_dns_zone_ids
   }
 
   tags = var.common_tags
