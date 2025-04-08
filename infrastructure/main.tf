@@ -281,7 +281,7 @@ resource "azurerm_private_endpoint" "vh_vnet_private_endpoint" {
 
   name                = module.storage_account.storageaccount_name
   resource_group_name = data.azurerm_subnet.vh_private_endpoints.resource_group_name
-  location            = data.azurerm_subnet.vh_private_endpoints.location
+  location            = var.location
   subnet_id           = data.azurerm_subnet.vh_private_endpoints.id
 
   private_service_connection {
@@ -313,7 +313,7 @@ resource "azurerm_private_endpoint" "cvp_vnet_private_endpoint" {
 
   name                = module.storage_account.storageaccount_name
   resource_group_name = data.azurerm_subnet.cvp_private_endpoints.resource_group_name
-  location            = data.azurerm_subnet.cvp_private_endpoints.location
+  location            = var.location
   subnet_id           = data.azurerm_subnet.cvp_private_endpoints.id
 
   private_service_connection {

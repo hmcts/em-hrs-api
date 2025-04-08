@@ -5,7 +5,7 @@ output "cft_aks_subscription_id" {
 
 output "cft_aks_resource_group_name" {
   description = "The resource group name for the CFT AKS cluster."
-  value       = data.azurerm_subnet.private_endpoints[0].name
+  value       = data.azurerm_subnet.private_endpoints.name
 }
 
 output "vh_vnet_private_endpointnt" {
