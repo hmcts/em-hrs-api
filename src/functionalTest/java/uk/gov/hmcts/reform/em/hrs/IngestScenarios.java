@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class IngestScenarios extends BaseTest {
 
@@ -207,7 +208,7 @@ public class IngestScenarios extends BaseTest {
         Map ttlObject = (Map)data.get("TTL");
         LocalDate creationDate = LocalDate.parse(DATE);
         if (ttlEnabled) {
-            assertThat(ttlObject.get("SystemTTL")).isEqualTo(ttlObject.get("OverrideTTL"));
+            assertNull(ttlObject.get("OverrideTTL"));
             assertThat(ttlObject.get("Suspended")).isEqualTo("No");
             String ttl = (String) ttlObject.get("SystemTTL");
             assertThat(LocalDate.parse(ttl)).isGreaterThan(creationDate.plusYears(defaultTTL.getYears()).minusDays(2));

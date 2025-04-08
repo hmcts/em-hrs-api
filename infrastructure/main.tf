@@ -83,16 +83,28 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   key_vault_id = module.key-vault.key_vault_id
 }
 
-data "azurerm_subnet" "cft_private_endpoints" {
-  provider = azurerm.cft_vnet
+locals {
+  private_endpoint_rg_name   = var.businessArea == "sds" ? "ss-${var.env}-network-rg" : "${var.businessArea}-${var.env}-network-rg"
+  private_endpoint_vnet_name = var.businessArea == "sds" ? "ss-${var.env}-vnet" : "${var.businessArea}-${var.env}-vnet"
+}
 
-  resource_group_name  = "cft-${var.env}-network-rg"
-  virtual_network_name = "cft-${var.env}-vnet"
+provider "azurerm" {
+  alias           = "private_endpoints"
+  subscription_id = var.aks_subscription_id
+  features {}
+  skip_provider_registration = true
+}
+
+data "azurerm_subnet" "private_endpoints" {
+  provider = azurerm.private_endpoints
+
+  resource_group_name  = local.private_endpoint_rg_name
+  virtual_network_name = local.private_endpoint_vnet_name
   name                 = "private-endpoints"
 }
 
 module "storage_account" {
-  source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=4.x"
+  source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=fix/private-endpoint-provider-4.x"
   env                      = var.env
   storage_account_name     = "emhrsapi${var.env}"
   resource_group_name      = azurerm_resource_group.rg.name
@@ -109,7 +121,10 @@ module "storage_account" {
 
   default_action = "Allow"
 
-  private_endpoint_subnet_id = data.azurerm_subnet.cft_private_endpoints.id
+  private_endpoint_subscription_id = var.aks_subscription_id
+  private_endpoint_subnet_id       = data.azurerm_subnet.private_endpoints.id
+  private_endpoint_rg_name         = local.private_endpoint_rg_name
+
 
   // Tags
   common_tags  = local.tags

@@ -4,9 +4,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingTtlMigrationDTO;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.service.TtlService;
 import uk.gov.hmcts.reform.em.hrs.service.ccd.CcdDataStoreApiClient;
@@ -14,6 +16,7 @@ import uk.gov.hmcts.reform.em.hrs.service.ccd.CcdDataStoreApiClient;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -32,27 +35,31 @@ class UpdateTtlJobTest {
     @Mock
     private CcdDataStoreApiClient ccdDataStoreApiClient;
     @Mock
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    @Mock
     private TtlService ttlService;
     @InjectMocks
     private UpdateTtlJob updateTtlJob;
+    private HearingRecordingTtlMigrationDTO recordingDto;
+    private List<HearingRecordingTtlMigrationDTO> recordingDtos;
 
     @BeforeEach
     void setUp() {
         openMocks(this);
         ReflectionTestUtils.setField(updateTtlJob, "threadLimit", 1);
+        ReflectionTestUtils.setField(updateTtlJob, "batchSize", 1);
+        ReflectionTestUtils.setField(updateTtlJob, "noOfIterations", 1);
+        recordingDto = new HearingRecordingTtlMigrationDTO(
+                UUID.randomUUID(), LocalDateTime.now().minusDays(1),
+                "serviceCode","jurisdictionCode",123L);
+        recordingDtos = List.of(recordingDto);
     }
 
     @Test
     void shouldRunUpdateTtlJobSuccessfully() {
-        HearingRecording recording = new HearingRecording();
-        recording.setCcdCaseId(123L);
-        recording.setServiceCode("serviceCode");
-        recording.setJurisdictionCode("jurisdictionCode");
-        recording.setCreatedOn(LocalDateTime.now().minusDays(1));
-        List<HearingRecording> recordings = List.of(recording);
 
-        doReturn(recordings).when(hearingRecordingRepository)
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(Limit.class));
+        doReturn(recordingDtos).when(hearingRecordingRepository)
+            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
 
         doReturn(LocalDate.now().plusDays(30)).when(ttlService)
             .createTtl(anyString(), anyString(), any(LocalDate.class));
@@ -60,49 +67,40 @@ class UpdateTtlJobTest {
         doNothing().when(ccdDataStoreApiClient)
             .updateCaseWithTtl(anyLong(), any(LocalDate.class));
 
-        doReturn(recording).when(hearingRecordingRepository)
+        doReturn(recordingDto).when(hearingRecordingRepository)
             .save(any(HearingRecording.class));
 
         updateTtlJob.run();
 
         verify(hearingRecordingRepository, times(1))
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(Limit.class));
+            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
         verify(ttlService, times(1))
             .createTtl(anyString(), anyString(), any(LocalDate.class));
         verify(ccdDataStoreApiClient, times(1))
             .updateCaseWithTtl(anyLong(), any(LocalDate.class));
-        verify(hearingRecordingRepository, times(1))
-            .save(any(HearingRecording.class));
     }
 
     @Test
     void shouldNotRunUpdateTtlJobWhenNoRecordingsFound() {
-        doReturn(List.of()).when(hearingRecordingRepository).findByTtlSetFalseOrderByCreatedOnAsc(any(Limit.class));
+        doReturn(List.of()).when(hearingRecordingRepository)
+                .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
 
         updateTtlJob.run();
 
         verify(hearingRecordingRepository, times(1))
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(Limit.class));
+            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
 
         verify(ttlService, times(0))
             .createTtl(anyString(), anyString(), any(LocalDate.class));
         verify(ccdDataStoreApiClient, times(0))
             .updateCaseWithTtl(anyLong(), any(LocalDate.class));
-        verify(hearingRecordingRepository, times(0))
-            .save(any(HearingRecording.class));
     }
 
     @Test
     void shouldHandleExceptionDuringUpdateCaseWithTtl() {
-        HearingRecording recording = new HearingRecording();
-        recording.setCcdCaseId(123L);
-        recording.setServiceCode("serviceCode");
-        recording.setJurisdictionCode("jurisdictionCode");
-        recording.setCreatedOn(LocalDateTime.now().minusDays(1));
-        List<HearingRecording> recordings = List.of(recording);
 
-        doReturn(recordings).when(hearingRecordingRepository)
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(Limit.class));
+        doReturn(recordingDtos).when(hearingRecordingRepository)
+            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
 
         doReturn(LocalDate.now().plusDays(30)).when(ttlService)
             .createTtl(anyString(), anyString(), any(LocalDate.class));
@@ -113,14 +111,11 @@ class UpdateTtlJobTest {
         updateTtlJob.run();
 
         verify(hearingRecordingRepository, times(1))
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(Limit.class));
+            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
         verify(ttlService, times(1))
             .createTtl(anyString(), anyString(), any(LocalDate.class));
         verify(ccdDataStoreApiClient, times(1))
             .updateCaseWithTtl(anyLong(), any(LocalDate.class));
-
-        verify(hearingRecordingRepository, times(0))
-            .save(any(HearingRecording.class));
     }
 
 }
