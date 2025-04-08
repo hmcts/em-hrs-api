@@ -9,6 +9,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 
@@ -24,13 +25,16 @@ public class HearingReportEmailService {
     private final String from;
 
     private final Function<LocalDate,String> getReportAttachmentName;
+    private final Optional<Function<LocalDate,String>> createEmailBodyOpt;
+
 
     public HearingReportEmailService(
         EmailSender emailSender,
         String[] recipients,
         String from,
         String subjectPrefix,
-        Function<LocalDate, String> getReportAttachmentName
+        Function<LocalDate, String> getReportAttachmentName,
+        Optional<Function<LocalDate, String>> createEmailBodyOpt
     ) {
         this.emailSender = emailSender;
         if (ArrayUtils.isEmpty(recipients)) {
@@ -41,6 +45,17 @@ public class HearingReportEmailService {
         this.from = from;
         this.subjectPrefix = subjectPrefix;
         this.getReportAttachmentName = getReportAttachmentName;
+        this.createEmailBodyOpt = createEmailBodyOpt;
+    }
+
+    public HearingReportEmailService(
+        EmailSender emailSender,
+        String[] recipients,
+        String from,
+        String subjectPrefix,
+        Function<LocalDate, String> getReportAttachmentName
+    ) {
+        this(emailSender, recipients, from, subjectPrefix, getReportAttachmentName, Optional.empty());
     }
 
     public void sendReport(LocalDate reportDate, File reportFile) {
@@ -50,7 +65,7 @@ public class HearingReportEmailService {
 
             emailSender.sendMessageWithAttachments(
                 this.subjectPrefix + reportDate,
-                createBody(reportDate),
+                generateEmailBody(reportDate),
                 from,
                 recipients,
                 Map.of(getReportAttachmentName.apply(reportDate), reportFile)
@@ -60,7 +75,14 @@ public class HearingReportEmailService {
         }
     }
 
-    private String createBody(LocalDate date) {
+
+    public String generateEmailBody(LocalDate date) {
+        return createEmailBodyOpt
+            .map(func -> func.apply(date))
+            .orElseGet(() -> createDefaultEmailBody(date));
+    }
+
+    private String createDefaultEmailBody(LocalDate date) {
         return """
             <html>
                 <body>
@@ -70,5 +92,6 @@ public class HearingReportEmailService {
                 </body>
             </html>
             """.formatted(date.getMonth(), date.getYear());
+
     }
 }
