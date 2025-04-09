@@ -32,7 +32,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class DeleteOrphanHearingRecordingAatTask implements Runnable {
 
-    private static final String TASK_NAME = "orphan-aat-cases";
+    private static final String TASK_NAME = "orphan-aat-orpahn-metadata";
     private static final Logger logger = getLogger(DeleteOrphanHearingRecordingAatTask.class);
     private final BlobContainerClient blobClient;
 
@@ -87,13 +87,13 @@ public class DeleteOrphanHearingRecordingAatTask implements Runnable {
             }
 
         } catch (IOException e) {
-            logger.info("Encountered error deleting orphan HRS cases: {}", e.getMessage());
+            logger.info("Encountered error deleting orphan HRS metadata: {}", e.getMessage());
         }
 
         csvBlobClient.get().delete();
         stopWatch.stop();
 
-        logger.info("Deletion job for orphan HRS cases took {} ms", stopWatch.getDuration().toMillis());
+        logger.info("Deletion job for orphan HRS metadata took {} ms", stopWatch.getDuration().toMillis());
         logger.info("Finished {} job", TASK_NAME);
     }
 
