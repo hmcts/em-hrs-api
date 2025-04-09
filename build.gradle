@@ -110,7 +110,7 @@ task functional(type: Test) {
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
   environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
-  include "uk/gov/hmcts/reform/em/hrs/**"
+  include "uk/gov/hmcts/reform/em/hrs/dummy/**"
   logger.info("Functional tests info:")
   logger.info('A {} log message', 'info')
 }
