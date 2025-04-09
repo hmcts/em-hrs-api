@@ -154,7 +154,6 @@ def coverageExclusionList = [
   '**uk/gov/hmcts/reform/em/hrs/data/migration/PendingMigrationScriptException*',
   '**uk/gov/hmcts/reform/em/hrs/data/migration/FlywayNoOpStrategy*',
   '**uk/gov/hmcts/reform/em/hrs/job/UpdateJurisdictionCodes*',
-  '**uk/gov/hmcts/reform/em/hrs/job/DeleteOrphanHearingRecordingAatTask*',
   '**uk/gov/hmcts/reform/em/hrs/service/email/HearingReportEmailServiceConfig*'
 ]
 
