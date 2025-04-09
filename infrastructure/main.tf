@@ -111,6 +111,7 @@ module "storage_account" {
   enable_change_feed     = true
 
   default_action = "Allow"
+  public_network_access_enabled = false
 
   private_endpoint_subscription_id = var.aks_subscription_id
   private_endpoint_subnet_id       = data.azurerm_subnet.private_endpoints.id
