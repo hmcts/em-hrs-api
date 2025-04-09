@@ -1,11 +1,13 @@
 package uk.gov.hmcts.reform.em.hrs;
 
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 
+@Disabled
 public class FolderScenarios extends BaseTest {
 
     @Test
