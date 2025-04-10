@@ -293,10 +293,10 @@ resource "azurerm_private_endpoint" "vh_vnet_private_endpoint" {
     subresource_names              = ["blob"]
   }
 
-  private_dns_zone_group {
-    name                 = "endpoint-dnszonegroup"
-    private_dns_zone_ids = local.private_dns_zone_ids
-  }
+  # private_dns_zone_group {
+  #   name                 = "endpoint-dnszonegroup"
+  #   private_dns_zone_ids = local.private_dns_zone_ids
+  # }
 
   tags = var.common_tags
 }
@@ -326,10 +326,10 @@ resource "azurerm_private_endpoint" "cvp_vnet_private_endpoint" {
     subresource_names              = ["blob"]
   }
 
-  private_dns_zone_group {
-    name                 = "endpoint-dnszonegroup"
-    private_dns_zone_ids = local.private_dns_zone_ids
-  }
+  # private_dns_zone_group {
+  #   name                 = "endpoint-dnszonegroup"
+  #   private_dns_zone_ids = local.private_dns_zone_ids
+  # }
 
   tags = var.common_tags
 }
