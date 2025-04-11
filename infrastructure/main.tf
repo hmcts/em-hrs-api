@@ -272,9 +272,9 @@ module "db-v15" {
 data "azurerm_subnet" "vh_private_endpoints" {
   provider = azurerm.vh_vnet
 
-  resource_group_name  = "vh-infra-wowza-${var.vh_environment}"
-  virtual_network_name = "vh-infra-wowza-${var.vh_environment}"
-  name                 = "wowza"
+  resource_group_name  = "vss-${var.vh_environment}-network-rg"
+  virtual_network_name = "ss-${var.vh_environment}-vnet"
+  name                 = "vh_private_endpoints"
 }
 
 resource "azurerm_private_endpoint" "vh_vnet_private_endpoint" {
