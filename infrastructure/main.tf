@@ -272,7 +272,7 @@ module "db-v15" {
 data "azurerm_subnet" "vh_private_endpoints" {
   provider = azurerm.vh_vnet
 
-  resource_group_name  = "vss-${var.vh_environment}-network-rg"
+  resource_group_name  = "ss-${var.vh_environment}-network-rg"
   virtual_network_name = "ss-${var.vh_environment}-vnet"
   name                 = "vh_private_endpoints"
 }
