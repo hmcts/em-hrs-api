@@ -19,7 +19,7 @@ plugins {
   id 'com.github.hmcts.rse-cft-lib' version '0.19.1612'
   id 'uk.gov.hmcts.java' version '0.12.65'
   id 'org.owasp.dependencycheck' version '12.1.1'
-  id 'net.serenity-bdd.serenity-gradle-plugin' version '4.2.16'
+  id 'net.serenity-bdd.serenity-gradle-plugin' version '4.2.22'
 }
 
 
