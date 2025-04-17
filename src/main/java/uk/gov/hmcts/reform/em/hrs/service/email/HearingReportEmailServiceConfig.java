@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Configuration
@@ -17,6 +18,18 @@ public class HearingReportEmailServiceConfig {
 
     public static Function<LocalDate, String> weeklyReportAttachmentName(String prefix) {
         return reportDate -> prefix + reportDate.minusDays(7) + ".csv";
+    }
+
+    public static String weeklyReportEmailBody(LocalDate reportDate) {
+        return """
+            <html>
+                <body>
+                    <h1>Weekly Hearing Recording Report for week %s</h1>
+                    <br>
+                    <br><br>
+                </body>
+            </html>
+            """.formatted(reportDate.minusDays(7).toString());
     }
 
     @Bean(name = "monthlyHearingEmailService")
@@ -48,7 +61,8 @@ public class HearingReportEmailServiceConfig {
             recipients,
             from,
             "Weekly hearing report for ",
-            weeklyReportAttachmentName("Weekly-hearing-report-from-")
+            weeklyReportAttachmentName("Weekly-hearing-report-from-"),
+            Optional.of(reportDate -> weeklyReportEmailBody(reportDate))
         );
     }
 
