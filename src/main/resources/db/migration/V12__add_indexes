@@ -1,0 +1,5 @@
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_hearing_recording_segment_hearing_recording_id ON hearing_recording_segment (hearing_recording_id);
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_hearing_recording_sharee_hearing_recording_id ON hearing_recording_sharee (hearing_recording_id);
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_audit_entry_hearing_recording_segment_id ON audit_entry (hearing_recording_segment_id);
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_audit_entry_hearing_recording_sharee_id ON audit_entry (hearing_recording_sharee_id);
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_audit_entry_hearing_recording_id ON audit_entry (hearing_recording_id);
