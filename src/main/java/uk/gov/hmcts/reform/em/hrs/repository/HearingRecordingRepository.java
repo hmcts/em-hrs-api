@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDeletionDto;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingTtlMigrationDTO;
 
 import java.time.LocalDateTime;
@@ -41,4 +42,20 @@ public interface HearingRecordingRepository extends JpaRepository<HearingRecordi
 
     @Query("SELECT hr.ccdCaseId FROM HearingRecording hr JOIN hr.segments hrs WHERE hrs.filename = :filename")
     Long findCcdCaseIdByFilename(@Param("filename") String filename);
+
+    @Query("""
+        SELECT new uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDeletionDto(
+        hr.id, null, null, hr.hearingSource, null)
+        FROM HearingRecording hr WHERE hr.ccdCaseId IN :ccdCaseIds
+        """)
+    List<HearingRecordingDeletionDto> findHearingRecordingIdsAndSourceByCcdCaseIds(@Param("ccdCaseIds")
+                                                                                   Collection<Long> ccdCaseIds);
+
+
+    @Query("""
+            DELETE FROM HearingRecording hr
+            WHERE hr.id IN :hearingRecordingIds
+            """)
+    void deleteByHearingRecordingIds(@Param("hearingRecordingIds") Collection<UUID> hearingRecordingIds);
+
 }

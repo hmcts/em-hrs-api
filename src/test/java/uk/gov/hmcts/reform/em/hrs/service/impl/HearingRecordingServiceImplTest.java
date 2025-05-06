@@ -1,78 +1,154 @@
 package uk.gov.hmcts.reform.em.hrs.service.impl;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
-import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
-import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDeletionDto;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
+import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingAuditEntryRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
+import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentAuditEntryRepository;
+import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
+import uk.gov.hmcts.reform.em.hrs.repository.ShareesAuditEntryRepository;
+import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
 import uk.gov.hmcts.reform.em.hrs.service.BlobStorageDeleteService;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class HearingRecordingServiceImplTest {
 
-    private final List<HearingRecording> recordings = new ArrayList<>();
-    private final List<HearingRecordingSegment> segments = new ArrayList<>();
-
     @Mock
-    private HearingRecordingRepository recordingRepository;
+    private HearingRecordingRepository hearingRecordingRepository;
     @Mock
-    private BlobStorageDeleteService deleteService;
+    private BlobStorageDeleteService blobStorageDeleteService;
+    @Mock
+    private HearingRecordingSegmentRepository hearingRecordingSegmentRepository;
+    @Mock
+    private ShareesRepository shareesRepository;
+    @Mock
+    private HearingRecordingAuditEntryRepository hearingRecordingAuditEntryRepository;
+    @Mock
+    private HearingRecordingSegmentAuditEntryRepository hearingRecordingSegmentAuditEntryRepository;
+    @Mock
+    private ShareesAuditEntryRepository shareesAuditEntryRepository;
     @InjectMocks
     private HearingRecordingServiceImpl recordingService;
 
-    @BeforeEach
-    void setUp() {
-        for (int i = 0; i < 2; ++i) {
-            HearingRecording recording = new HearingRecording();
-            recordings.add(recording);
-            recording.setHearingSource(HearingSource.CVP.toString());
-            recording.setSegments(new HashSet<>());
-            for (int j = 0; j < 3; ++j) {
-                HearingRecordingSegment segment = new HearingRecordingSegment();
-                segment.setFilename(RandomStringUtils.randomAlphanumeric(9));
-                segment.setHearingRecording(recording);
-                segments.add(segment);
-                recording.getSegments().add(segment);
-            }
-        }
+    @Test
+    void deleteCaseHearingRecordingsDeletesAllRelatedDataSuccessfully() {
+        List<Long> ccdCaseIds = List.of(1L, 2L);
+        UUID hearingRecordingId = UUID.randomUUID();
+        List<HearingRecordingDeletionDto> hearingRecordingDtos = List.of(
+                new HearingRecordingDeletionDto(hearingRecordingId, null, null, "CVP", null)
+        );
+        List<HearingRecordingDeletionDto> segmentDtos = List.of(
+                new HearingRecordingDeletionDto(hearingRecordingId, UUID.randomUUID(), null, "CVP", "file1.mp4"),
+                new HearingRecordingDeletionDto(hearingRecordingId, UUID.randomUUID(), null, "VH", "file2.mp4")
+        );
+
+        doReturn(hearingRecordingDtos).when(hearingRecordingRepository)
+                .findHearingRecordingIdsAndSourceByCcdCaseIds(ccdCaseIds);
+        doReturn(segmentDtos).when(hearingRecordingSegmentRepository)
+                .findFilenamesByHearingRecordingId(any(UUID.class));
+
+        recordingService.deleteCaseHearingRecordings(ccdCaseIds);
+
+        verify(blobStorageDeleteService,times(2)).deleteBlob(any(String.class), any(HearingSource.class));
+        verify(hearingRecordingSegmentAuditEntryRepository,times(2))
+                .deleteByHearingRecordingSegmentId(any(UUID.class));
+        verify(hearingRecordingSegmentRepository, times(2)).deleteByHearingRecordingId(any(UUID.class));
+        verify(shareesAuditEntryRepository, times(1)).deleteByHearingRecordingShareeIds(anyList());
+        verify(shareesRepository).deleteByHearingRecordingIds(anyList());
+        verify(hearingRecordingAuditEntryRepository).deleteByHearingRecordingIds(anyList());
+        verify(hearingRecordingRepository).deleteByHearingRecordingIds(anyList());
     }
 
     @Test
-    void deleteCaseHearingRecordings() {
-        List<Long> caseIds = Collections.emptyList();
-        doReturn(recordings).when(recordingRepository).deleteByCcdCaseIdIn(caseIds);
-        recordingService.deleteCaseHearingRecordings(caseIds);
-        for (HearingRecordingSegment segment : segments) {
-            HearingSource source = HearingSource.valueOf(segment.getHearingRecording().getHearingSource());
-            verify(deleteService).deleteBlob(segment.getFilename(), source);
-        }
+    void deleteCaseHearingRecordingsHandlesEmptyCcdCaseIdsGracefully() {
+        List<Long> ccdCaseIds = List.of();
 
+        recordingService.deleteCaseHearingRecordings(ccdCaseIds);
+
+        verifyNoInteractions(blobStorageDeleteService);
+        verifyNoInteractions(hearingRecordingSegmentAuditEntryRepository);
+        verifyNoInteractions(hearingRecordingSegmentRepository);
+        verifyNoInteractions(shareesAuditEntryRepository);
+        verifyNoInteractions(shareesRepository);
+        verifyNoInteractions(hearingRecordingAuditEntryRepository);
     }
 
     @Test
-    void databaseFailureDoesNotDeleteBlobs() {
-        List<Long> caseIds = List.of(12L,23L);
-        doThrow(RuntimeException.class).when(recordingRepository).deleteByCcdCaseIdIn(caseIds);
-        recordingService.deleteCaseHearingRecordings(caseIds);
-        verify(deleteService, never()).deleteBlob(anyString(), any());
+    void deleteCaseHearingRecordingsHandlesNullCcdCaseIdsGracefully() {
+        recordingService.deleteCaseHearingRecordings(null);
+
+        verifyNoInteractions(blobStorageDeleteService);
+        verifyNoInteractions(hearingRecordingSegmentAuditEntryRepository);
+        verifyNoInteractions(hearingRecordingSegmentRepository);
+        verifyNoInteractions(shareesAuditEntryRepository);
+        verifyNoInteractions(shareesRepository);
+        verifyNoInteractions(hearingRecordingAuditEntryRepository);
     }
 
+    @Test
+    void deleteCaseHearingRecordingsLogsErrorOnException() {
+        List<Long> ccdCaseIds = List.of(1L);
+        doThrow(RuntimeException.class).when(hearingRecordingRepository)
+                .findHearingRecordingIdsAndSourceByCcdCaseIds(ccdCaseIds);
+
+        recordingService.deleteCaseHearingRecordings(ccdCaseIds);
+
+        verifyNoInteractions(blobStorageDeleteService);
+        verifyNoInteractions(hearingRecordingSegmentAuditEntryRepository);
+        verifyNoInteractions(hearingRecordingSegmentRepository);
+        verifyNoInteractions(shareesAuditEntryRepository);
+        verifyNoInteractions(shareesRepository);
+        verifyNoInteractions(hearingRecordingAuditEntryRepository);
+    }
+
+    @Test
+    void findCcdCaseIdByFilenameReturnsCcdCaseIdWhenFilenameExists() {
+        String filename = "file1.mp4";
+        Long expectedCcdCaseId = 12345L;
+
+        doReturn(expectedCcdCaseId).when(hearingRecordingRepository).findCcdCaseIdByFilename(filename);
+
+        Long actualCcdCaseId = recordingService.findCcdCaseIdByFilename(filename);
+
+        assertEquals(expectedCcdCaseId, actualCcdCaseId);
+    }
+
+    @Test
+    void findCcdCaseIdByFilenameReturnsNullWhenFilenameDoesNotExist() {
+        String filename = "nonexistent.mp4";
+
+        doReturn(null).when(hearingRecordingRepository).findCcdCaseIdByFilename(filename);
+
+        Long actualCcdCaseId = recordingService.findCcdCaseIdByFilename(filename);
+
+        assertNull(actualCcdCaseId);
+    }
+
+    @Test
+    void findCcdCaseIdByFilenameThrowsExceptionWhenRepositoryFails() {
+        String filename = "file1.mp4";
+
+        doThrow(RuntimeException.class).when(hearingRecordingRepository).findCcdCaseIdByFilename(filename);
+
+        assertThrows(RuntimeException.class, () -> recordingService.findCcdCaseIdByFilename(filename));
+    }
 }
