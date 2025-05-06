@@ -62,14 +62,6 @@ public class UpdateTtlJob implements Runnable {
             iterationStopWatch.start();
 
             StopWatch hrsGetQueryStopWatch = new StopWatch();
-            hrsGetQueryStopWatch.start();
-
-            List<HearingRecordingTtlMigrationDTO> recordingsWithoutTtl =
-                    hearingRecordingRepository.findByTtlSetFalseOrderByCreatedOnAsc(PageRequest.of(0, batchSize));
-
-            hrsGetQueryStopWatch.stop();
-            logger.info("Time taken to get {} rows from DB : {} ms", recordingsWithoutTtl.size(),
-                    hrsGetQueryStopWatch.getDuration().toMillis());
 
             if (CollectionUtils.isEmpty(recordingsWithoutTtl)) {
                 iterationStopWatch.stop();
@@ -121,7 +113,7 @@ public class UpdateTtlJob implements Runnable {
     private void updateRecordingTtl(HearingRecordingTtlMigrationDTO recordingDto, LocalDate ttl) {
         Long ccdCaseId = recordingDto.ccdCaseId();
         try {
-            updateHrsMetaData(new UpdateRecordingRecord(recordingDto.id(), true,ttl));
+            updateHrsMetaData(new UpdateRecordingRecord(recordingDto.id(),ttl));
         } catch (Exception e) {
             logger.info("Failed to update recording ttl for recording id: {}, caseId: {}",
                          recordingDto.id(), ccdCaseId, e);
@@ -132,9 +124,9 @@ public class UpdateTtlJob implements Runnable {
         // This maps the object's properties to the named parameters in the SQL
         BeanPropertySqlParameterSource params = new BeanPropertySqlParameterSource(updateRecordingRecord);
         namedParameterJdbcTemplate.update("""
-            UPDATE hearing_recording SET ttl_set = :ttlSet, ttl = :ttl WHERE id = :id
+            UPDATE hearing_recording SET ttl = :ttl WHERE id = :id
             """, params);
     }
 
-    private record UpdateRecordingRecord(UUID id, boolean ttlSet, LocalDate ttl){}
+    private record UpdateRecordingRecord(UUID id, LocalDate ttl){}
 }

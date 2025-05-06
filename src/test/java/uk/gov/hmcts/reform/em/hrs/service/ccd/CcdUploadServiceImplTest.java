@@ -90,11 +90,9 @@ class CcdUploadServiceImplTest {
         verify(recordingRepository, times(2)).saveAndFlush(hearingRecordingCaptor.capture());
         List<HearingRecording> hearingRecordingList = hearingRecordingCaptor.getAllValues();
         var firstSave = hearingRecordingList.get(0);
-        assertThat(firstSave.isTtlSet()).isFalse();
         assertThat(firstSave.getTtl()).isNull();
         assertThat(firstSave.getCcdCaseId()).isNull();
         var secondSave = hearingRecordingList.get(1);
-        assertThat(secondSave.isTtlSet()).isFalse();
         assertThat(secondSave.getTtl()).isNull();
         assertThat(secondSave.getCcdCaseId()).isEqualTo(CCD_CASE_ID);
 
@@ -128,11 +126,9 @@ class CcdUploadServiceImplTest {
         verify(recordingRepository, times(2)).saveAndFlush(hearingRecordingCaptor.capture());
         List<HearingRecording> hearingRecordingList = hearingRecordingCaptor.getAllValues();
         var firstSave = hearingRecordingList.get(0);
-        assertThat(firstSave.isTtlSet()).isFalse();
         assertThat(firstSave.getTtl()).isNull();
         assertThat(firstSave.getCcdCaseId()).isNull();
         var secondSave = hearingRecordingList.get(1);
-        assertThat(secondSave.isTtlSet()).isTrue();
         assertThat(secondSave.getTtl()).isEqualTo(ttl);
         assertThat(secondSave.getCcdCaseId()).isEqualTo(CCD_CASE_ID);
 
@@ -192,8 +188,6 @@ class CcdUploadServiceImplTest {
         ArgumentCaptor<HearingRecording> hearingRecordingCaptor = ArgumentCaptor.forClass(HearingRecording.class);
         verify(recordingRepository, times(2)).saveAndFlush(hearingRecordingCaptor.capture());
         List<HearingRecording> hearingRecordingList = hearingRecordingCaptor.getAllValues();
-        assertThat(hearingRecordingList.get(0).isTtlSet()).isFalse();
-        assertThat(hearingRecordingList.get(1).isTtlSet()).isFalse();
 
         verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
         verify(blobIndexMarker, times(1)).setProcessed(VH_HEARING_RECORDING_DTO.getFilename());

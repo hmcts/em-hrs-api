@@ -58,8 +58,6 @@ class UpdateTtlJobTest {
     @Test
     void shouldRunUpdateTtlJobSuccessfully() {
 
-        doReturn(recordingDtos).when(hearingRecordingRepository)
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
 
         doReturn(LocalDate.now().plusDays(30)).when(ttlService)
             .createTtl(anyString(), anyString(), any(LocalDate.class));
@@ -72,8 +70,6 @@ class UpdateTtlJobTest {
 
         updateTtlJob.run();
 
-        verify(hearingRecordingRepository, times(1))
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
         verify(ttlService, times(1))
             .createTtl(anyString(), anyString(), any(LocalDate.class));
         verify(ccdDataStoreApiClient, times(1))
@@ -82,13 +78,7 @@ class UpdateTtlJobTest {
 
     @Test
     void shouldNotRunUpdateTtlJobWhenNoRecordingsFound() {
-        doReturn(List.of()).when(hearingRecordingRepository)
-                .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
-
         updateTtlJob.run();
-
-        verify(hearingRecordingRepository, times(1))
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
 
         verify(ttlService, times(0))
             .createTtl(anyString(), anyString(), any(LocalDate.class));
@@ -99,9 +89,6 @@ class UpdateTtlJobTest {
     @Test
     void shouldHandleExceptionDuringUpdateCaseWithTtl() {
 
-        doReturn(recordingDtos).when(hearingRecordingRepository)
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
-
         doReturn(LocalDate.now().plusDays(30)).when(ttlService)
             .createTtl(anyString(), anyString(), any(LocalDate.class));
 
@@ -110,8 +97,6 @@ class UpdateTtlJobTest {
 
         updateTtlJob.run();
 
-        verify(hearingRecordingRepository, times(1))
-            .findByTtlSetFalseOrderByCreatedOnAsc(any(PageRequest.class));
         verify(ttlService, times(1))
             .createTtl(anyString(), anyString(), any(LocalDate.class));
         verify(ccdDataStoreApiClient, times(1))
