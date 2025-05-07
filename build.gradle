@@ -16,7 +16,7 @@ plugins {
   id 'org.flywaydb.flyway' version '11.8.0'
   id 'au.com.dius.pact' version '4.6.17'
   id "info.solidsoft.pitest" version '1.15.0'
-  id 'com.github.hmcts.rse-cft-lib' version '0.19.1612'
+  id 'com.github.hmcts.rse-cft-lib' version '0.19.1687'
   id 'uk.gov.hmcts.java' version '0.12.65'
   id 'org.owasp.dependencycheck' version '12.1.1'
   id 'net.serenity-bdd.serenity-gradle-plugin' version '4.2.22'
@@ -245,7 +245,7 @@ def versions = [
   junit              : '5.12.2',
   junitPlatform      : '1.12.2',
   springSecurity     : '6.4.5',
-  shedlock           : '6.5.0',
+  shedlock           : '6.6.0',
   testcontainers     : '1.21.0'
 ]
 
