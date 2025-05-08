@@ -114,8 +114,8 @@ public class HearingRecordingServiceImpl implements HearingRecordingService {
 
         hearingRecordingSegmentAuditEntryRepository.deleteByHearingRecordingSegmentId(
                 hearingRecordingDeletionDto.hearingRecordingSegmentId());
-        hearingRecordingSegmentRepository.deleteByHearingRecordingId(
-                hearingRecordingDeletionDto.hearingRecordingId());
+        hearingRecordingSegmentRepository.deleteById(
+                hearingRecordingDeletionDto.hearingRecordingSegmentId());
 
         log.info("Database deletion successful for HearingRecordingSegment ID: {}",
                 hearingRecordingDeletionDto.hearingRecordingSegmentId());
