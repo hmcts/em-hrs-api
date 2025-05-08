@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.repository;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -17,6 +18,7 @@ public interface HearingRecordingAuditEntryRepository
 
     List<HearingRecordingAuditEntry> findByHearingRecordingOrderByEventDateTimeAsc(HearingRecording hearingRecording);
 
+    @Modifying
     @Query("""
             DELETE FROM HearingRecordingAuditEntry ae
             WHERE ae.hearingRecording.id IN :hearingRecordingIds

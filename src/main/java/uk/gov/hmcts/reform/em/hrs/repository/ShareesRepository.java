@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.repository;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -15,6 +16,7 @@ public interface ShareesRepository extends CrudRepository<HearingRecordingSharee
 
     List<HearingRecordingSharee> findByShareeEmailIgnoreCase(String shareeEmail);
 
+    @Modifying
     @Query("""
             DELETE FROM HearingRecordingSharee hrs
             WHERE hrs.hearingRecording.id IN :hearingRecordingIds
