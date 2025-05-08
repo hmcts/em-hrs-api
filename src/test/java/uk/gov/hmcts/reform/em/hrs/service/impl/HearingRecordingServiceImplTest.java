@@ -71,7 +71,7 @@ class HearingRecordingServiceImplTest {
         verify(blobStorageDeleteService,times(2)).deleteBlob(any(String.class), any(HearingSource.class));
         verify(hearingRecordingSegmentAuditEntryRepository,times(2))
                 .deleteByHearingRecordingSegmentId(any(UUID.class));
-        verify(hearingRecordingSegmentRepository, times(2)).deleteByHearingRecordingId(any(UUID.class));
+        verify(hearingRecordingSegmentRepository, times(2)).deleteById(any(UUID.class));
         verify(shareesAuditEntryRepository, times(1)).deleteByHearingRecordingShareeIds(anyList());
         verify(shareesRepository).deleteByHearingRecordingIds(anyList());
         verify(hearingRecordingAuditEntryRepository).deleteByHearingRecordingIds(anyList());
