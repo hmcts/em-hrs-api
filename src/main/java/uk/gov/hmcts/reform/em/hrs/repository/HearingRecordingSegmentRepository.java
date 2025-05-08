@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -41,7 +42,7 @@ public interface HearingRecordingSegmentRepository extends JpaRepository<Hearing
             """)
     List<HearingRecordingDeletionDto> findFilenamesByHearingRecordingId(UUID hearingRecordingId);
 
-
+    @Modifying
     @Query("""
             DELETE FROM HearingRecordingSegment hrs
             WHERE hrs.hearingRecording.id = :hearingRecordingId

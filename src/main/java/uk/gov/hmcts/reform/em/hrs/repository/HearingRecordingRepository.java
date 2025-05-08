@@ -52,6 +52,7 @@ public interface HearingRecordingRepository extends JpaRepository<HearingRecordi
                                                                                    Collection<Long> ccdCaseIds);
 
 
+    @Modifying
     @Query("""
             DELETE FROM HearingRecording hr
             WHERE hr.id IN :hearingRecordingIds
