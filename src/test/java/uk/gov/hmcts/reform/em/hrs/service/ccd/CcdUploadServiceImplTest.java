@@ -187,7 +187,6 @@ class CcdUploadServiceImplTest {
 
         ArgumentCaptor<HearingRecording> hearingRecordingCaptor = ArgumentCaptor.forClass(HearingRecording.class);
         verify(recordingRepository, times(2)).saveAndFlush(hearingRecordingCaptor.capture());
-        List<HearingRecording> hearingRecordingList = hearingRecordingCaptor.getAllValues();
 
         verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
         verify(blobIndexMarker, times(1)).setProcessed(VH_HEARING_RECORDING_DTO.getFilename());
