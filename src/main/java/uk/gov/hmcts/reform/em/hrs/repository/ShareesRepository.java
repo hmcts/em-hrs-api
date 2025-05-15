@@ -23,5 +23,7 @@ public interface ShareesRepository extends CrudRepository<HearingRecordingSharee
             """)
     void deleteByHearingRecordingIds(@Param("hearingRecordingIds") Collection<UUID> hearingRecordingIds);
 
+    @Query("SELECT hrs.id FROM HearingRecordingSharee hrs WHERE hrs.hearingRecording.id IN :hearingRecordingIds")
+    List<UUID> findAllByHearingRecordingIds(List<UUID> hearingRecordingIds);
 }
 

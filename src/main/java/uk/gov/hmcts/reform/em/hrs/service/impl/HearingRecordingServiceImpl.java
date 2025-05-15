@@ -81,8 +81,9 @@ public class HearingRecordingServiceImpl implements HearingRecordingService {
                     .map(HearingRecordingDeletionDto::hearingRecordingId)
                     .distinct()
                     .toList();
+            List<UUID> shareeIds = shareesRepository.findAllByHearingRecordingIds(hearingRecordingIds);
 
-            deleteShareeDetails(hearingRecordingIds);
+            deleteShareeDetails(hearingRecordingIds,shareeIds);
 
             deleteHearingRecordingDetails(hearingRecordingIds);
 
@@ -98,8 +99,8 @@ public class HearingRecordingServiceImpl implements HearingRecordingService {
                 hearingRecordingIds);
     }
 
-    private void deleteShareeDetails(List<UUID> hearingRecordingIds) {
-        shareesAuditEntryRepository.deleteByHearingRecordingShareeIds(hearingRecordingIds);
+    private void deleteShareeDetails(List<UUID> hearingRecordingIds, List<UUID> shareeIds) {
+        shareesAuditEntryRepository.deleteByHearingRecordingShareeIds(shareeIds);
         shareesRepository.deleteByHearingRecordingIds(hearingRecordingIds);
         log.info("Database deletion successful for Sharee with HearingRecording IDs: {}",
                 hearingRecordingIds);
