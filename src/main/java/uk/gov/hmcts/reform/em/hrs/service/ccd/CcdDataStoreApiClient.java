@@ -81,6 +81,7 @@ public class CcdDataStoreApiClient {
             if (caseData != null) {
                 logCaseDataError(caseData);
             } else {
+                LOGGER.error("case creation failed --->", e);
                 LOGGER.error(
                     "caseReference: {}, eventSummary: {}",
                     hearingRecordingDto.getCaseRef(),
