@@ -90,6 +90,7 @@ env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
 env.HRS_VH_DEST_CONTAINER_NAME = 'vhrecordings'
 // Feature Flags
 env.DELETE_CASE_ENDPOINT_ENABLED = false
+env.UPLOAD_CCD_DEF = false
 
 def vaultOverrides = [
   'preview' : 'aat',
@@ -112,6 +113,7 @@ withPipeline(type, product, component) {
   env.CVP_STORAGE_URL= "https://emhrsapiaat.blob.core.windows.net/cvpsimulator/"
   env.VH_STORAGE_URL= "https://emhrsapiaat.blob.core.windows.net/vhsimulator/"
   before('smoketest:preview') {
+    env.UPLOAD_CCD_DEF = true
     withAksClient('nonprod', product) {
       def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME, env.GIT_COMMIT, env.LAST_COMMIT_TIMESTAMP)
       def subscription = env.SUBSCRIPTION_NAME

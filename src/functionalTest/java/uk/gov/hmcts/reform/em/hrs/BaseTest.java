@@ -142,6 +142,9 @@ public abstract class BaseTest {
     @Value("${idam.hrs-ingestor.password}")
     private String idamHrsIngestorPassword;
 
+    @Value("${upload-cdd-definition}")
+    protected boolean uploadCcdDefinition;
+
     @Autowired
     protected IdamClient idamClient;
 
@@ -164,7 +167,7 @@ public abstract class BaseTest {
     public void init() {
         int maxRuns = 1;
 
-        if (createUsersBaseTestRunCount < maxRuns) {
+        if (uploadCcdDefinition && createUsersBaseTestRunCount < maxRuns) {
 
             LOGGER.info("BASE TEST POST CONSTRUCT INITIALISATIONS....");
             SerenityRest.useRelaxedHTTPSValidation();
@@ -188,6 +191,7 @@ public abstract class BaseTest {
                 extendedCcdHelper.importDefinitionFile();
             } catch (IOException e) {
                 e.printStackTrace();
+                LOGGER.error("IMPORTING CCD DEFINITION failed", e);
             }
 
             createUsersBaseTestRunCount++;
