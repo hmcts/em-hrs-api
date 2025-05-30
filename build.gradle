@@ -239,14 +239,14 @@ def versions = [
   lombok             : '1.18.38',
   reformLogging      : '6.1.9',
   log4JVersion       : "2.17.1",
-  postgresql         : '42.7.5',
+  postgresql         : '42.7.6',
   pact_version       : '4.6.17',
   restAssured        : '5.3.0',
   junit              : '5.12.2',
   junitPlatform      : '1.12.2',
-  springSecurity     : '6.4.5',
+  springSecurity     : '6.5.0',
   shedlock           : '6.7.0',
-  testcontainers     : '1.21.0'
+  testcontainers     : '1.21.1'
 ]
 
 dependencies {
@@ -267,8 +267,8 @@ dependencies {
   implementation group: 'org.springframework.security', name: 'spring-security-core', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-web', version: versions.springSecurity
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.2.1'
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.2.1'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.3.0'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.3.0'
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
