@@ -58,7 +58,7 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 
 // Vars for Kubernetes Endpoints
 env.CCD_DATA_API_URL = 'http://ccd-data-store-api-aat.service.core-compute-aat.internal'
-env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition_v1.0_AAT.xlsx'
+env.CCD_DEFINITION_FILE = 'CCD_HRS_v1.7-AAT.xlsx'
 env.CCD_DEF_API = 'http://ccd-definition-store-api-aat.service.core-compute-aat.internal'
 env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/cvpsimulator/'
 env.IDAM_API_BASE_URI = 'https://idam-api.aat.platform.hmcts.net'
@@ -72,6 +72,7 @@ env.HRS_VH_DEST_CONTAINER_NAME = 'vhrecordings'
 env.VH_STORAGE_URL= "https://emhrsapiaat.blob.core.windows.net/vhsimulator/"
 env.DELETE_CASE_ENDPOINT_ENABLED = false
 env.CVP_STORAGE_URL= "https://emhrsapiaat.blob.core.windows.net/cvpsimulator/"
+env.UPLOAD_CCD_DEF = false
 
 def vaultOverrides = [
   'preview' : 'aat',

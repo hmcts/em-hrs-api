@@ -87,6 +87,7 @@ app-insights:
 
 
 close-ccd-test-cases: ${CLOSE_CCD_TEST_CASES:false}
+upload-cdd-definition: ${UPLOAD_CCD_DEF:false}
 ttl:
   default-ttl: ${DEFAULT_TTL:P7Y}
   enabled: ${TTL_ENABLED:true}
