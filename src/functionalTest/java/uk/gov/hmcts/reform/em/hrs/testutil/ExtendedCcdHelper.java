@@ -88,10 +88,13 @@ public class ExtendedCcdHelper {
     }
 
     private void createCcdUserRole(String userRole) {
+
+        var valur = ccdAuthTokenGenerator.generate();
+        System.out.println("ccd au.generate() ===> " + valur);
         ccdDefUserRoleApi.createUserRole(
             new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
             idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION),
-            ccdAuthTokenGenerator.generate()
+            valur
         );
     }
 
