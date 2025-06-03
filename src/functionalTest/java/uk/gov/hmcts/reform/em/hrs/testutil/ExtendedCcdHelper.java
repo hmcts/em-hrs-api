@@ -96,6 +96,8 @@ public class ExtendedCcdHelper {
             idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION),
             valur
         );
+        System.out.println("userRole created===> " + userRole);
+
     }
 
     public void closeCcdCase(Long caseId) {

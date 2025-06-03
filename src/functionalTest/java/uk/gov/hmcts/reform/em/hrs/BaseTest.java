@@ -37,7 +37,6 @@ import uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper;
 import uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper;
 import uk.gov.hmcts.reform.em.test.idam.IdamConfiguration;
 import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
-import uk.gov.hmcts.reform.em.test.retry.RetryExtension;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 
@@ -160,9 +159,6 @@ public abstract class BaseTest {
     @Autowired
     protected ExtendedCcdHelper extendedCcdHelper;
 
-    @RegisterExtension
-    RetryExtension retryExtension = new RetryExtension(3);
-
     @PostConstruct
     public void init() {
         int maxRuns = 1;
@@ -190,7 +186,6 @@ public abstract class BaseTest {
             try {
                 extendedCcdHelper.importDefinitionFile();
             } catch (IOException e) {
-                e.printStackTrace();
                 LOGGER.error("IMPORTING CCD DEFINITION failed", e);
             }
 
