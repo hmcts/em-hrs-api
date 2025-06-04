@@ -53,7 +53,7 @@ def secretsForPreview = [
     secret('microservicekey-ccd-gw', 'FUNCTIONAL_TEST_CCD_GW_SERVICE_SECRET'),
     secret('microservicekey-em-gw', 'FUNCTIONAL_TEST_CLIENT_S2S_TOKEN'),
     secret('microservicekey-ccd-gw', 'CCD_API_GATEWAY_S2S_SECRET'),
-    secret('microservicekey-ccd-data', 'DATA_STORE_IDAM_KEY'),
+    secret('microservicekey-ccd-data', 'CCD_DATA_STORE_S2S_SECRET'),
     secret('microservicekey-ccd-definition', 'CCD_DEFINITION_STORE_S2S_SECRET')
   ],
   'rpa-${env}': [
