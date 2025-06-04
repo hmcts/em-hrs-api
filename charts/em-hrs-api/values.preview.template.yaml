@@ -114,9 +114,8 @@ ccd:
       enabled: false
   global:
     ccdApiGatewayIngress: http://${SERVICE_NAME}-ccd-api-gw
-    ccdDataStoreUrl: http://${SERVICE_NAME}-ccd-data-store-api
-    ccdStitchUrl: http://${SERVICE_NAME}-emstitch
-    ccdDefinitionStoreUrl: http://${SERVICE_NAME}-ccd-definition-store
+    ccdDataStoreUrl: ${CCD_DATA_API_URL}
+    ccdDefinitionStoreUrl: ${CCD_DEF_API}
     ccdUserProfileUrl: http://ccd-user-profile-api-aat.service.core-compute-aat.internal
     dmStoreUrl: http://dm-store-aat.service.core-compute-aat.internal
     idamApiUrl: https://idam-api.aat.platform.hmcts.net
@@ -165,7 +164,7 @@ ccd:
         CCD_MULTIPARTY_CASE_TYPES: CIVIL
         CCD_MULTIPARTY_EVENTS: DEFENDANT_RESPONSE,ACKNOWLEDGE_CLAIM,CLAIMANT_RESPONSE,queryManagementRaiseQuery,queryManagementRespondQuery
         ROLE_ASSIGNMENT_URL: http://am-role-assignment-service-aat.service.core-compute-aat.internal
-        DEFINITION_STORE_HOST: http://${SERVICE_NAME}-ccd-definition-store
+        DEFINITION_STORE_HOST: ${CCD_DEF_API}
       secrets:
         DATA_STORE_DB_PASSWORD:
           secretRef: "{{ .Values.global.postgresSecret }}"
