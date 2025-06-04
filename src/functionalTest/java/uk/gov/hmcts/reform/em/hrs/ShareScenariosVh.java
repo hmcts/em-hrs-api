@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs;
 
+import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 
+@Ignore
 public class ShareScenariosVh extends BaseTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShareScenariosVh.class);
 

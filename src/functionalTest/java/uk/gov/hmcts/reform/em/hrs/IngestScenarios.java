@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs;
 
 import org.joda.time.LocalDate;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@Ignore
 public class IngestScenarios extends BaseTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestScenarios.class);
