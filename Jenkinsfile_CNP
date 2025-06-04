@@ -25,10 +25,7 @@ def secrets = [
   's2s-${env}': [
     secret('microservicekey-em-hrs-api', 'S2S_KEY'),
     secret('microservicekey-ccd-gw', 'FUNCTIONAL_TEST_CCD_GW_SERVICE_SECRET'),
-    secret('microservicekey-em-gw', 'FUNCTIONAL_TEST_CLIENT_S2S_TOKEN'),
-    secret('microservicekey-ccd-gw', 'CCD_API_GATEWAY_S2S_SECRET'),
-    secret('microservicekey-ccd-data', 'DATA_STORE_IDAM_KEY'),
-    secret('microservicekey-ccd-definition', 'CCD_DEFINITION_STORE_S2S_SECRET')
+    secret('microservicekey-em-gw', 'FUNCTIONAL_TEST_CLIENT_S2S_TOKEN')
   ],
   'rpa-${env}': [
     secret('oauth2-client-id', 'OAUTH_CLIENT_ID'),
@@ -54,7 +51,10 @@ def secretsForPreview = [
   's2s-${env}': [
     secret('microservicekey-em-hrs-api', 'S2S_KEY'),
     secret('microservicekey-ccd-gw', 'FUNCTIONAL_TEST_CCD_GW_SERVICE_SECRET'),
-    secret('microservicekey-em-gw', 'FUNCTIONAL_TEST_CLIENT_S2S_TOKEN')
+    secret('microservicekey-em-gw', 'FUNCTIONAL_TEST_CLIENT_S2S_TOKEN'),
+    secret('microservicekey-ccd-gw', 'CCD_API_GATEWAY_S2S_SECRET'),
+    secret('microservicekey-ccd-data', 'DATA_STORE_IDAM_KEY'),
+    secret('microservicekey-ccd-definition', 'CCD_DEFINITION_STORE_S2S_SECRET')
   ],
   'rpa-${env}': [
     secret('oauth2-client-id', 'OAUTH_CLIENT_ID'),
@@ -70,7 +70,6 @@ def secretsForPreview = [
     secret('idam-data-store-system-user-password', 'IDAM_DATA_STORE_SYSTEM_USER_PASSWORD'),
     secret('microservicekey-ccd-gw', 'CCD_API_GATEWAY_S2S_KEY'),
     secret('definition-store-api-POSTGRES-PASS-V15', 'CCD_DEFINITION_STORE_POSTGRES_PASSWORD'),
-    secret('ccd-definition-s2s-secret', 'CCD_DEFINITION_STORE_S2S_SECRET'),
     secret('data-store-api-POSTGRES-PASS-V15', 'DATASTORE_POSTGRES_PASSWORD'),
     secret('AppInsightsInstrumentationKey', 'CCD_APPINSIGHTS_INSTRUMENTATION_KEY'),
     secret('app-insights-connection-string', 'APP_INSIGHTS_CONNECTION_STRING'),
