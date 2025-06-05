@@ -39,11 +39,10 @@ s2s:
 toggle:
   enable_metadata_endpoint: ${ENABLE_METADATA_ENDPOINT:false}
 
-
 ccd-def:
   file: ${CCD_DEFINITION_FILE:CCD_HRS_v1.3-AAT.xslx}
   api:
-    url: 'http://localhost:4451'
+    url: ${CCD_DEF_API:http://localhost:4451}
 
 document_management:
   url: 'http://localhost:4603'
