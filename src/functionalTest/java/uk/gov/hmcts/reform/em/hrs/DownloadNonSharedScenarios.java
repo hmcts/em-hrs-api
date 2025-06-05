@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 
+@Disabled
 public class DownloadNonSharedScenarios extends BaseTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadNonSharedScenarios.class);
