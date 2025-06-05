@@ -2,12 +2,10 @@ package uk.gov.hmcts.reform.em.hrs;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import net.serenitybdd.rest.SerenityRest;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@Disabled
 public class SecurityScenarios extends BaseTest {
 
     @Test
