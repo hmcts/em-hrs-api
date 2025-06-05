@@ -37,8 +37,6 @@ import static org.hamcrest.Matchers.equalTo;
     "uk.gov.hmcts.reform.em.test",
     "uk.gov.hmcts.reform.document"
 })
-
-
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(value = "classpath:application.yml")
 @WithTags({@WithTag("testType:Smoke")})
