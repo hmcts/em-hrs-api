@@ -11,14 +11,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import uk.gov.hmcts.reform.em.EmTestConfig;
+import uk.gov.hmcts.reform.em.test.idam.IdamConfiguration;
 import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 
 import java.io.IOException;
 import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
+
+@SpringBootTest(classes = {
+    ExtendedCcdHelper.class,
+    CcdAuthTokenGeneratorConfiguration.class,
+    AuthTokenGeneratorConfiguration.class,
+    IdamConfiguration.class,
+    EmTestConfig.class
+})
+@EnableAutoConfiguration
+@ComponentScan(basePackages = {
+    "uk.gov.hmcts.reform.em.test",
+    "uk.gov.hmcts.reform.document"
+})
+
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(value = "classpath:application.yml")
