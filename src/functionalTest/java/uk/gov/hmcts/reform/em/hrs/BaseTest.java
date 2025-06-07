@@ -158,7 +158,22 @@ public abstract class BaseTest {
     @Autowired
     protected ExtendedCcdHelper extendedCcdHelper;
 
+
+    private static boolean initialized = false;
+
     @PostConstruct
+    public void initOnce() {
+        synchronized (BaseTest.class) {
+            if (!initialized) {
+                initialized = true;
+                init();
+            }
+        }
+        LOGGER.info("AUTHENTICATING TEST USER FOR CCD CALLS");
+        hrsS2sAuth = BEARER + s2sHelper.getS2sToken();
+    }
+
+
     public void init() {
         int maxRuns = 1;
 
@@ -191,8 +206,6 @@ public abstract class BaseTest {
             createUsersBaseTestRunCount++;
 
         }
-        LOGGER.info("AUTHENTICATING TEST USER FOR CCD CALLS");
-        hrsS2sAuth = BEARER + s2sHelper.getS2sToken();
     }
 
     private void createIdamUserIfNotExists(String email, List<String> roles) {
