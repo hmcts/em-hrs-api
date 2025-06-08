@@ -67,7 +67,9 @@ public class ExtendedCcdHelper {
 
 
         var serviceToken = ccdAuthTokenGenerator.generate();
+        System.out.println("serviceToken " + serviceToken);
         var idamToken = idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
+        System.out.println("idamToken---> " + idamToken);
         //These roles need to exist in both IDAM and CCD
         //Their counterparts are created in idam as part of docker/dependencies/start-local-environment.sh
         createCcdUserRole("caseworker", serviceToken, idamToken);
