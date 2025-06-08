@@ -64,8 +64,7 @@ public class ExtendedCcdHelper {
     }
 
     public void importDefinitionFile() throws IOException {
-
-
+        System.out.println("importDefinitionFile IMPORTING HRS DEFINITION FILE");
         var serviceToken = ccdAuthTokenGenerator.generate();
         System.out.println("serviceToken " + serviceToken);
         var idamToken = idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
