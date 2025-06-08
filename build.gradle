@@ -105,6 +105,7 @@ task functional(type: Test) {
     events = ["passed", "failed", "skipped"]
     showStandardStreams = true
   }
+  failFast = true
   description = "Runs functional tests"
   group = "Verification"
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
