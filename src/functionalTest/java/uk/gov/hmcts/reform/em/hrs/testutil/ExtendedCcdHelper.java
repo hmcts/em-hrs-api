@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,6 +53,9 @@ public class ExtendedCcdHelper {
     protected String ccdDefinitionFile;
 
 
+    @Value("${ccd-def.api.url}")
+    protected String ccdDefinitionUrl;
+
     @Value("${core_case_data.api.url}")
     protected String ccdApiUrl;
 
@@ -93,6 +97,10 @@ public class ExtendedCcdHelper {
 
         var valur = ccdAuthTokenGenerator.generate();
         System.out.println("ccd au.generate() ===> " + valur);
+        System.out.println("Creating userRole ===> " + userRole);
+        System.out.println("ccdDefUserRoleApi ===> " + SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
+        System.out.println("URL " + ccdDefinitionUrl + " file ==> " + ccdDefinitionFile);
+        System.out.println("idam tk ===> " + idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION));
         ccdDefUserRoleApi.createUserRole(
             new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
             idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION),
