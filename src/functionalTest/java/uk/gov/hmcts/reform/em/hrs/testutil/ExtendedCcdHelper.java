@@ -122,13 +122,35 @@ public class ExtendedCcdHelper {
     }
 
     private void createCcdUserRole(String userRole, String serviceToken, String idamToken) {
-        ccdDefUserRoleApi.createUserRole(
-            new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
-            idamToken,
-            serviceToken
-        );
-        System.out.println("userRole created===> " + userRole);
+        int maxAttempts = 3;
+        int attempt = 0;
+        while (attempt < maxAttempts) {
+            try {
+                ccdDefUserRoleApi.createUserRole(
+                    new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
+                    idamToken,
+                    serviceToken
+                );
+                System.out.println("userRole created===> " + userRole);
+                break; // Success, exit loop
+            } catch (Exception e) {
+                attempt++;
+                if (attempt >= maxAttempts) {
+                    System.err.println("Failed to create userRole after " + maxAttempts + " attempts");
+                    throw e; // Rethrow after final attempt
+                }
+                System.out.println(e.getSuppressed());
+                System.err.println("Attempt " + attempt + " failed, retrying in 2 seconds...");
+                try {
+                    Thread.sleep(2000); // Wait 2 seconds before retrying
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Retry interrupted", ie);
+                }
+            }
+        }
     }
+
 
     public void closeCcdCase(Long caseId) {
 
