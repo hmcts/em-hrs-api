@@ -16,7 +16,7 @@ plugins {
   id 'org.flywaydb.flyway' version '11.8.2'
   id 'au.com.dius.pact' version '4.6.17'
   id "info.solidsoft.pitest" version '1.15.0'
-  id 'com.github.hmcts.rse-cft-lib' version '0.19.1705'
+  id 'com.github.hmcts.rse-cft-lib' version '0.19.1697'
   id 'uk.gov.hmcts.java' version '0.12.66'
   id 'org.owasp.dependencycheck' version '12.1.1'
   id 'net.serenity-bdd.serenity-gradle-plugin' version '4.2.30'
@@ -236,13 +236,11 @@ repositories {
       includeVersion 'com.github.hmcts.java-logging', 'logging', '6.0.1'
       includeVersion 'com.github.hmcts', 'service-auth-provider-java-client', '4.0.3'
       includeVersion 'com.github.hmcts', 'idam-java-client', '2.0.1'
-      includeVersion 'com.github.hmcts', 'rse-cft-lib', '0.19.1705'
+      includeVersion 'com.github.hmcts', 'rse-cft-lib', '0.19.1697'
     }
   }
   maven { url  'https://repo.spring.io/milestone/'}
 }
-
-
 
 def versions = [
   serenity           : '4.2.30',
