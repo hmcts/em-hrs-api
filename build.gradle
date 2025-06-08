@@ -231,9 +231,18 @@ configurations.all {
 repositories {
   mavenLocal()
   mavenCentral()
-  maven { url 'https://jitpack.io' }
+  maven { url 'https://jitpack.io'
+    content {
+      includeVersion 'com.github.hmcts.java-logging', 'logging', '6.0.1'
+      includeVersion 'com.github.hmcts', 'service-auth-provider-java-client', '4.0.3'
+      includeVersion 'com.github.hmcts', 'idam-java-client', '2.0.1'
+      includeVersion 'com.github.hmcts', 'rse-cft-lib', '0.19.1705'
+    }
+  }
   maven { url  'https://repo.spring.io/milestone/'}
 }
+
+
 
 def versions = [
   serenity           : '4.2.30',
