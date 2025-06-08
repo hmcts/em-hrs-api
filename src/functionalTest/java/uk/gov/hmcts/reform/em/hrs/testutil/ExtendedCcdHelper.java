@@ -71,6 +71,8 @@ public class ExtendedCcdHelper {
         createCcdUserRole("caseworker-hrs");//required as is 'parent' of caseworker-hrs-searcher
         createCcdUserRole("caseworker-hrs-searcher");
         createCcdUserRole("cft-ttl-manager");
+
+        System.out.println("CREATING caseworker-hrs-systemupdate ------");
         createCcdUserRole("caseworker-hrs-systemupdate");
 
         System.out.println("SYSTEM_USER_FOR_ON ===> " + SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
@@ -100,9 +102,12 @@ public class ExtendedCcdHelper {
 
     private void createCcdUserRole(String userRole) {
         var valur = ccdAuthTokenGenerator.generate();
+        System.out.println("Creating userRole " + userRole + " with token " + valur);
+        var usTkn = idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
+        System.out.println("idam user tkn " + usTkn);
         ccdDefUserRoleApi.createUserRole(
             new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
-            idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION),
+            usTkn,
             valur
         );
         System.out.println("userRole created===> " + userRole);
