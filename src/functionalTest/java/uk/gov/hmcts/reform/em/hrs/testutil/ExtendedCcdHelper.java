@@ -73,7 +73,7 @@ public class ExtendedCcdHelper {
         createCcdUserRole("cft-ttl-manager");
         createCcdUserRole("caseworker-hrs-systemupdate");
 
-        System.out.println("SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION ===> " + SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
+        System.out.println("SYSTEM_USER_FOR_ON ===> " + SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
 
         String systemUserAuthenticatedToken = idamHelper.authenticateUser(
             SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
