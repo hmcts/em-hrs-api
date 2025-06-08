@@ -73,14 +73,7 @@ public class ExtendedCcdHelper {
         createCcdUserRole("cft-ttl-manager");
         createCcdUserRole("caseworker-hrs-systemupdate");
 
-        MultipartFile ccdDefinitionRequest = new MockMultipartFile(
-            "x",
-            "x",
-            "application/octet-stream",
-            getHrsDefinitionFile()
-        );
-
-        System.out.println("ccdDefUserRoleApi ===> " + SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
+        System.out.println("SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION ===> " + SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
 
         String systemUserAuthenticatedToken = idamHelper.authenticateUser(
             SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
@@ -89,6 +82,12 @@ public class ExtendedCcdHelper {
         System.out.println(
             "importing ******** microserviceEmHrsApiAuthenticatedToken " + microserviceEmHrsApiAuthenticatedToken);
         System.out.println("URL " + ccdDefinitionUrl);
+        MultipartFile ccdDefinitionRequest = new MockMultipartFile(
+            "x",
+            "x",
+            "application/octet-stream",
+            getHrsDefinitionFile()
+        );
         ccdDefImportApi.importCaseDefinition(systemUserAuthenticatedToken,
                                              microserviceEmHrsApiAuthenticatedToken, ccdDefinitionRequest
         );
