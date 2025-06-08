@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.testutil;
 
+import feign.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,11 @@ public class AuthTokenGeneratorConfiguration {
         final ServiceAuthorisationApi serviceAuthorisationApi
     ) {
         return AuthTokenGeneratorFactory.createDefaultGenerator(secret, microService, serviceAuthorisationApi);
+    }
+
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
     }
 
 }
