@@ -65,15 +65,22 @@ public class ExtendedCcdHelper {
 
     public void importDefinitionFile() throws IOException {
 
+
+        var serviceToken = ccdAuthTokenGenerator.generate();
+        var idamToken = idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
         //These roles need to exist in both IDAM and CCD
         //Their counterparts are created in idam as part of docker/dependencies/start-local-environment.sh
-        createCcdUserRole("caseworker");
-        createCcdUserRole("caseworker-hrs");//required as is 'parent' of caseworker-hrs-searcher
-        createCcdUserRole("caseworker-hrs-searcher");
-        createCcdUserRole("cft-ttl-manager");
+        createCcdUserRole("caseworker", serviceToken, idamToken);
+        createCcdUserRole(
+            "caseworker-hrs",
+            serviceToken,
+            idamToken
+        );//required as is 'parent' of caseworker-hrs-searcher
+        createCcdUserRole("caseworker-hrs-searcher", serviceToken, idamToken);
+        createCcdUserRole("cft-ttl-manager", serviceToken, idamToken);
 
         System.out.println("CREATING caseworker-hrs-systemupdate ------");
-        createCcdUserRole("caseworker-hrs-systemupdate");
+        createCcdUserRole("caseworker-hrs-systemupdate", serviceToken, idamToken);
 
         System.out.println("SYSTEM_USER_FOR_ON ===> " + SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
 
@@ -109,6 +116,15 @@ public class ExtendedCcdHelper {
             new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
             usTkn,
             valur
+        );
+        System.out.println("userRole created===> " + userRole);
+    }
+
+    private void createCcdUserRole(String userRole, String serviceToken, String idamToken) {
+        ccdDefUserRoleApi.createUserRole(
+            new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
+            idamToken,
+            serviceToken
         );
         System.out.println("userRole created===> " + userRole);
     }
