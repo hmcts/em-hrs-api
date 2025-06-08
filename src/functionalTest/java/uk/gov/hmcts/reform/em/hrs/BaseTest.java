@@ -162,7 +162,7 @@ public abstract class BaseTest {
     private static boolean initialized = false;
 
     @PostConstruct
-    public void initOnce() {
+    public void initOnce() throws IOException {
         LOGGER.info("INITIALISING BASE TEST ONCE");
         synchronized (BaseTest.class) {
             if (!initialized) {
@@ -176,7 +176,7 @@ public abstract class BaseTest {
     }
 
 
-    public void init() {
+    public void init() throws IOException {
         int maxRuns = 1;
 
         if (uploadCcdDefinition && createUsersBaseTestRunCount < maxRuns) {
@@ -199,12 +199,7 @@ public abstract class BaseTest {
 
             LOGGER.info("IMPORTING CCD DEFINITION");
 
-            try {
-                extendedCcdHelper.importDefinitionFile();
-            } catch (IOException e) {
-                LOGGER.error("IMPORTING CCD DEFINITION failed", e);
-            }
-
+            extendedCcdHelper.importDefinitionFile();
             createUsersBaseTestRunCount++;
 
         }
