@@ -163,10 +163,12 @@ public abstract class BaseTest {
 
     @PostConstruct
     public void initOnce() {
+        LOGGER.info("INITIALISING BASE TEST ONCE");
         synchronized (BaseTest.class) {
             if (!initialized) {
                 initialized = true;
                 init();
+                LOGGER.info("DONE ---> INITIALISING BASE TEST ONCE");
             }
         }
         LOGGER.info("AUTHENTICATING TEST USER FOR CCD CALLS");
