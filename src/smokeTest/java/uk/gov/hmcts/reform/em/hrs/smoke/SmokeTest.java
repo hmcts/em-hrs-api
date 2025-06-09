@@ -6,6 +6,7 @@ import net.serenitybdd.annotations.WithTag;
 import net.serenitybdd.annotations.WithTags;
 import net.serenitybdd.rest.SerenityRest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 @SpringBootTest(classes = {
     ExtendedCcdHelper.class,
@@ -40,6 +42,7 @@ import static org.hamcrest.Matchers.equalTo;
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(value = "classpath:application.yml")
 @WithTags({@WithTag("testType:Smoke")})
+@TestInstance(PER_CLASS)
 public class SmokeTest {
     private static final String MESSAGE = "Welcome to the HRS API!";
 
@@ -75,6 +78,7 @@ public class SmokeTest {
     public void init() {
         int maxRuns = 1;
 
+        LOGGER.info("INITIALISING SMOKE TESTS....", uploadCcdDefinition, createUsersBaseTestRunCount);
         if (uploadCcdDefinition && createUsersBaseTestRunCount < maxRuns) {
 
             LOGGER.info("BASE TEST POST CONSTRUCT INITIALISATIONS....");
