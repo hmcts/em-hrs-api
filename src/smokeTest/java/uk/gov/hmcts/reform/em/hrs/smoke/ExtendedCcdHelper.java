@@ -49,14 +49,22 @@ public class ExtendedCcdHelper {
     }
 
     public void importDefinitionFile() throws IOException {
+        var serviceToken = ccdAuthTokenGenerator.generate();
+        System.out.println("serviceToken " + serviceToken);
+        var idamToken = idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
+        System.out.println("idamToken---> " + idamToken);
 
         //These roles need to exist in both IDAM and CCD
         //Their counterparts are created in idam as part of docker/dependencies/start-local-environment.sh
-        createCcdUserRole("caseworker");
-        createCcdUserRole("caseworker-hrs");//required as is 'parent' of caseworker-hrs-searcher
-        createCcdUserRole("caseworker-hrs-searcher");
-        createCcdUserRole("cft-ttl-manager");
-        createCcdUserRole("caseworker-hrs-systemupdate");
+        createCcdUserRole("caseworker", serviceToken, idamToken);
+        createCcdUserRole(
+            "caseworker-hrs",
+            serviceToken,
+            idamToken
+        );//required as is 'parent' of caseworker-hrs-searcher
+        createCcdUserRole("caseworker-hrs-searcher", serviceToken, idamToken);
+        createCcdUserRole("cft-ttl-manager", serviceToken, idamToken);
+        createCcdUserRole("caseworker-hrs-systemupdate", serviceToken, idamToken);
 
         MultipartFile ccdDefinitionRequest = new MockMultipartFile(
             "x",
@@ -90,4 +98,33 @@ public class ExtendedCcdHelper {
 
     }
 
+    private void createCcdUserRole(String userRole, String serviceToken, String idamToken) {
+        int maxAttempts = 3;
+        int attempt = 0;
+        while (attempt < maxAttempts) {
+            try {
+                ccdDefUserRoleApi.createUserRole(
+                    new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
+                    idamToken,
+                    serviceToken
+                );
+                System.out.println("userRole created===> " + userRole);
+                break; // Success, exit loop
+            } catch (Exception e) {
+                attempt++;
+                if (attempt >= maxAttempts) {
+                    System.err.println("Failed to create userRole after " + maxAttempts + " attempts");
+                    throw e; // Rethrow after final attempt
+                }
+                System.out.println(e.getSuppressed());
+                System.err.println("Attempt " + attempt + " failed, retrying in 2 seconds...");
+                try {
+                    Thread.sleep(2000); // Wait 2 seconds before retrying
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Retry interrupted", ie);
+                }
+            }
+        }
+    }
 }
