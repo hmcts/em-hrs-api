@@ -25,6 +25,8 @@ logging:
         boot:
           autoconfigure:
             logging: INFO
+    uk.gov.hmcts.reform: DEBUG
+    feign.client: DEBUG
 
 test:
   url: ${TEST_URL:http://localhost:8081}

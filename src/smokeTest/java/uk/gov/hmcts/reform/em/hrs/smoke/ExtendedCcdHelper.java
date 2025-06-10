@@ -50,10 +50,7 @@ public class ExtendedCcdHelper {
 
     public void importDefinitionFile() throws IOException {
         var serviceToken = ccdAuthTokenGenerator.generate();
-        System.out.println("serviceToken " + serviceToken);
         var idamToken = idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
-        System.out.println("idamToken---> " + idamToken);
-
         //These roles need to exist in both IDAM and CCD
         //Their counterparts are created in idam as part of docker/dependencies/start-local-environment.sh
         createCcdUserRole("caseworker", serviceToken, idamToken);
@@ -85,19 +82,6 @@ public class ExtendedCcdHelper {
         return ClassLoader.getSystemResourceAsStream(ccdDefinitionFile);
     }
 
-    private void createCcdUserRole(String userRole) {
-
-        var valur = ccdAuthTokenGenerator.generate();
-        System.out.println("ccd au.generate() ===> " + valur);
-        ccdDefUserRoleApi.createUserRole(
-            new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
-            idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION),
-            valur
-        );
-        System.out.println("userRole created===> " + userRole);
-
-    }
-
     private void createCcdUserRole(String userRole, String serviceToken, String idamToken) {
         int maxAttempts = 3;
         int attempt = 0;
@@ -116,7 +100,6 @@ public class ExtendedCcdHelper {
                     System.err.println("Failed to create userRole after " + maxAttempts + " attempts");
                     throw e; // Rethrow after final attempt
                 }
-                System.out.println(e.getSuppressed());
                 System.err.println("Attempt " + attempt + " failed, retrying in 2 seconds...");
                 try {
                     Thread.sleep(2000); // Wait 2 seconds before retrying
