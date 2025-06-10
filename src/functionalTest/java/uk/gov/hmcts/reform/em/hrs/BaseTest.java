@@ -233,14 +233,16 @@ public abstract class BaseTest {
     }
 
     protected ValidatableResponse getFilenamesCompletedOrInProgress(String folder) {
-
-        return authRequestForHrsIngestor()
+        System.out.println("getFilenamesCompletedOrInProgress CALLING with folder: " + folder);
+        var response = authRequestForHrsIngestor()
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .when().log().all()
             .get("/folders/" + folder)
-            .then();
+            .then().log().body();
+        System.out.println("getFilenamesCompletedOrInProgress called with folder: " + folder);
+        return response;
     }
 
     protected Response postRecordingSegment(String caseRef, int segment) {
