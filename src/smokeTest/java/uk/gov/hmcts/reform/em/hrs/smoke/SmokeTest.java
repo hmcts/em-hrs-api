@@ -109,23 +109,9 @@ public class SmokeTest {
 
         }
         LOGGER.info("AUTHENTICATING TEST USER FOR CCD CALLS");
-
     }
 
     private void createIdamUserIfNotExists(String email, List<String> roles) {
-        /*
-
-        if multiple PR branches are triggered, then it means the user token cache used by em-test-helper
-        will become stale
-
-        potential for conflict with hrs-api using the hrs.tester@hmcts.net system user
-        probably these tests should not use that user, however many issues arose when
-        trying to refactor this logic and there was not enough time to see it through.
-
-        good to have set to true for local environments, when testing role changes etc
-
-        TODO make recreateUsers an environment value so that it is true for local dev, and false for AAT
-         */
         boolean recreateUsers = true;
 
         if (recreateUsers) {
