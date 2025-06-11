@@ -239,7 +239,7 @@ public abstract class BaseTest {
             .contentType(APPLICATION_JSON_VALUE)
             .when().log().all()
             .get("/folders/" + folder)
-            .then().log().body();
+            .then();
     }
 
     protected Response postRecordingSegment(String caseRef, int segment) {
