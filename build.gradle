@@ -16,7 +16,7 @@ plugins {
   id 'org.flywaydb.flyway' version '11.9.1'
   id 'au.com.dius.pact' version '4.6.17'
   id "info.solidsoft.pitest" version '1.15.0'
-  id 'com.github.hmcts.rse-cft-lib' version '0.19.1697'
+  id 'com.github.hmcts.rse-cft-lib' version '0.19.1748'
   id 'uk.gov.hmcts.java' version '0.12.66'
   id 'org.owasp.dependencycheck' version '12.1.1'
   id 'net.serenity-bdd.serenity-gradle-plugin' version '4.2.30'
@@ -227,12 +227,6 @@ configurations.all {
   exclude group: 'com.vaadin.external.google',   module: 'android-json'
 }
 
-repositories {
-  mavenLocal()
-  mavenCentral()
-  maven { url 'https://jitpack.io' }
-  maven { url  'https://repo.spring.io/milestone/'}
-}
 
 def versions = [
   serenity           : '4.2.30',
@@ -278,18 +272,19 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-json"
   implementation "org.springframework.boot:spring-boot-starter-validation"
   implementation "org.springframework.boot:spring-boot-starter-web"
+  
+  implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '8.1'
 
 //hmcts autho
   implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '3.0.4'
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.3.2'
 
 //hmcts ccd
-  implementation group: 'com.github.hmcts', name: 'ccd-client', version: '5.1.0'
+  implementation group: 'com.github.hmcts', name: 'core-case-data-store-client', version: '5.1.0'
 
 //hmcts logging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
-  implementation group: 'com.github.hmcts.java-logging', name: 'logging-spring', version: '5.1.9'
 
 //gov notify email service
   implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '5.2.1-RELEASE'
@@ -328,7 +323,7 @@ dependencies {
   testImplementation group: 'net.serenity-bdd', name: 'serenity-junit5', version: versions.serenity
   testImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
   testImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenity
-  testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.8', classifier: 'all'
+  testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.9', classifier: 'all'
 
 /***********************************************************************************************************************
  * TEST DEPENDENCIES
@@ -351,7 +346,7 @@ dependencies {
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
 
-  functionalTestImplementation 'com.github.hmcts:em-test-helper:2.1.1'
+  functionalTestImplementation group: 'uk.gov.hmcts.reform', name: 'em-test-helper', version:'2.2.0'
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
 
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
@@ -385,7 +380,7 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenity
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version: '2.1.1'
+  smokeTestImplementation group: 'uk.gov.hmcts.reform', name: 'em-test-helper', version:'2.2.0'
 
 
 /***********************************************************************************************************************
