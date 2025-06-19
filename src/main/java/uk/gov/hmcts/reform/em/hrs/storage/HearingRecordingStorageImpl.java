@@ -63,9 +63,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private final String vhConnectionString;
     private final boolean useAdAuth;
 
-    @Value("${vh.enable-report}")
-    private boolean enableVhReport;
-
     @Autowired
     public HearingRecordingStorageImpl(
         final @Qualifier("hrsCvpBlobContainerClient") BlobContainerClient hrsCvpContainerClient,
@@ -325,19 +322,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             blobItem -> blobItem.getName().contains("/") && blobItem.getName().contains(".mp")
         );
 
-        StorageReport.HrsSourceVsDestinationCounts vhCounts = enableVhReport
-            ? getSourceVsDestinationCounts(
-            vhContainerClient,
-            hrsVhBlobContainerClient,
-            options,
-            duration,
-            today,
-            cutoffDateTime,
-            blobItem -> blobItem.getName().contains(".mp")
-        )
-            : new StorageReport.HrsSourceVsDestinationCounts(0, 0, 0, 0);
-
-        return new StorageReport(today, cvpCounts, vhCounts);
+        return new StorageReport(today, cvpCounts);
     }
 
     private StorageReport.HrsSourceVsDestinationCounts getSourceVsDestinationCounts(
