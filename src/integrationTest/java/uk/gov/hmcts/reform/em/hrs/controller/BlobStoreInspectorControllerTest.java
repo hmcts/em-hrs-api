@@ -107,10 +107,10 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
         OffsetDateTime time = OffsetDateTime.now(EUROPE_LONDON_ZONE_ID).truncatedTo(ChronoUnit.SECONDS);
 
         String blobUrl = "http://cvp.blob/" + blobName;
-        when(hearingRecordingStorage.findBlob(HearingSource.VH, blobName)).thenReturn(
+        when(hearingRecordingStorage.findBlob(HearingSource.CVP, blobName)).thenReturn(
             new HearingRecordingStorageImpl.BlobDetail(blobUrl, 10, time)
         );
-        mockMvc.perform(get("/report/hrs/VH/" + blobName)
+        mockMvc.perform(get("/report/hrs/CVP/" + blobName)
                             .header(AUTHORIZATION, "Bearer " + testDummyKey))
             .andDo(print())
             .andExpect(status().isOk())
