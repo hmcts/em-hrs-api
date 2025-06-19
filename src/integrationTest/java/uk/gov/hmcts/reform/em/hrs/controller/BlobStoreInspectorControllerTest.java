@@ -122,7 +122,7 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
     @Test
     public void findBlobEndpointReturns401ErrorIfApiKeyInvalid() throws Exception {
         String blobName = UUID.randomUUID() + ".txt";
-        mockMvc.perform(get("/report/hrs/VH/" + blobName)
+        mockMvc.perform(get("/report/hrs/CVP/" + blobName)
                             .header(AUTHORIZATION, "Bearer invalid"))
             .andDo(print())
             .andExpect(status().isUnauthorized());
