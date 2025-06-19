@@ -55,7 +55,7 @@ public class BlobStoreInspectorController {
     @GetMapping(value = "/report/hrs/{hearingSourceStr}/{blobName}", consumes = MediaType.ALL_VALUE)
     public HearingRecordingStorageImpl.BlobDetail findBlob(
         @RequestHeader(value = AUTHORIZATION, required = false) String authHeader,
-        @PathVariable @Pattern(regexp = "^(VH|CVP)$", message = "Container must be 'VH' or 'CVP'")
+        @PathVariable @Pattern(regexp = "^(CVP)$", message = "Container must be CVP'")
         String hearingSourceStr,
         @PathVariable String blobName
     ) {
