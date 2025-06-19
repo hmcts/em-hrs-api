@@ -58,9 +58,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private final BlobContainerClient hrsCvpBlobContainerClient;
     private final BlobContainerClient hrsVhBlobContainerClient;
     private final BlobContainerClient cvpBlobContainerClient;
-    private final BlobContainerClient vhContainerClient;
     private final String cvpConnectionString;
-    private final String vhConnectionString;
     private final boolean useAdAuth;
 
     @Autowired
@@ -68,17 +66,13 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         final @Qualifier("hrsCvpBlobContainerClient") BlobContainerClient hrsCvpContainerClient,
         final @Qualifier("hrsVhBlobContainerClient") BlobContainerClient hrsVhContainerClient,
         final @Qualifier("CvpBlobContainerClient") BlobContainerClient cvpContainerClient,
-        final @Qualifier("vhBlobContainerClient") BlobContainerClient vhContainerClient,
         @Value("${azure.storage.cvp.connection-string}") String cvpConnectionString,
-        @Value("${azure.storage.vh.connection-string}") String vhConnectionString,
         @Value("${azure.storage.use-ad-auth}") boolean useAdAuth
     ) {
         this.hrsCvpBlobContainerClient = hrsCvpContainerClient;
         this.hrsVhBlobContainerClient = hrsVhContainerClient;
         this.cvpBlobContainerClient = cvpContainerClient;
-        this.vhContainerClient = vhContainerClient;
         this.cvpConnectionString = cvpConnectionString;
-        this.vhConnectionString = vhConnectionString;
         this.useAdAuth = useAdAuth;
     }
 
@@ -233,23 +227,13 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 BlockBlobClient destinationBlobClient =
                     hrsCvpBlobContainerClient.getBlobClient(fileName).getBlockBlobClient();
                 return new BlobClientsForCopy(sourceBlobClient, destinationBlobClient);
-            case VH:
-                sourceBlobClient =
-                    vhContainerClient.getBlobClient(fileName).getBlockBlobClient();
-                destinationBlobClient =
-                    hrsVhBlobContainerClient.getBlobClient(fileName).getBlockBlobClient();
-                return new BlobClientsForCopy(sourceBlobClient, destinationBlobClient);
             default:
                 throw new RuntimeException("Source Container" + recordingSource + "not Found");
         }
     }
 
     private String generateReadSas(String fileName, HearingSource recordingSource) {
-        if (HearingSource.CVP == recordingSource) {
-            return generateReadSas(fileName, this.cvpBlobContainerClient, this.cvpConnectionString);
-        } else {
-            return generateReadSas(fileName, this.vhContainerClient, this.vhConnectionString);
-        }
+        return generateReadSas(fileName, this.cvpBlobContainerClient, this.cvpConnectionString);
     }
 
     private String generateReadSas(String fileName, BlobContainerClient blobContainerClient, String connectionString) {

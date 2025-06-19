@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static uk.gov.hmcts.reform.em.hrs.dto.HearingSource.VH;
-
 public class TestUtil {
     private static final String DOWNLOAD_URL_PREFIX = "https://xui/hearing-recordings/";
 
@@ -47,13 +45,8 @@ public class TestUtil {
     public static final String RECORDING_TIMEOFDAY = RECORDING_DATETIME.getHour() > 12 ? "AM" : "PM";
     public static final String RECORDING_REFERENCE = "file-1";
     public static final Folder TEST_FOLDER_1 = Folder.builder().name(TEST_FOLDER_1_NAME).build();
-    public static final String VH_FOLDER_NAME = "VH";
-    public static final Folder VH_FOLDER = Folder.builder().name(VH_FOLDER_NAME).build();
     public static final String SERVER_ERROR_MESSAGE = "We have detected a problem and our engineers are working on it."
         + "\nPlease try again later and thank you for your patience";
-    public static final String VH_BLOB_SEGMENT1_URI = "http://blob.windows.er/dedd.mp4";
-    public static final String VH_BLOB_SEGMENT2_URI = "http://blob.windows.er/hearing-recording-file-name.mp4";
-
     public static final HearingRecordingSegment SEGMENT_1 = HearingRecordingSegment.builder()
         .id(RANDOM_UUID)
         .filename(FILENAME_1)
@@ -67,16 +60,6 @@ public class TestUtil {
         .filename(FILENAME_3)
         .build();
 
-    public static final HearingRecordingSegment VH_SEGMENT_1 = HearingRecordingSegment.builder()
-        .id(RANDOM_UUID)
-        .ingestionFileSourceUri(VH_BLOB_SEGMENT1_URI)
-        .filename(FILENAME_1)
-        .build();
-    public static final HearingRecordingSegment VH_SEGMENT_2 = HearingRecordingSegment.builder()
-        .id(RANDOM_UUID)
-        .ingestionFileSourceUri(VH_BLOB_SEGMENT2_URI)
-        .filename(FILENAME_2)
-        .build();
     public static final HearingRecordingDto HEARING_RECORDING_DTO = HearingRecordingDto.builder()
         .folder(TEST_FOLDER_1_NAME)
         .caseRef(CASE_REFERENCE)
@@ -94,23 +77,6 @@ public class TestUtil {
         .checkSum("erI2foA30B==")
         .build();
 
-    public static final HearingRecordingDto VH_HEARING_RECORDING_DTO = HearingRecordingDto.builder()
-        .folder(VH_FOLDER_NAME)
-        .caseRef(CASE_REFERENCE)
-        .recordingSource(HearingSource.VH)
-        .courtLocationCode("LC")
-        .jurisdictionCode("JC")
-        .hearingRoomRef("123")
-        .recordingRef(RECORDING_REFERENCE)
-        .filename("hearing-recording-file-name")
-        .recordingDateTime(RECORDING_DATETIME)
-        .filenameExtension("mp4")
-        .fileSize(123456789L)
-        .segment(0)
-        .sourceBlobUrl(VH_BLOB_SEGMENT2_URI)
-        .checkSum("erI2foA30B==")
-        .interpreter("Interpreter1")
-        .build();
     public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(
         MediaType.APPLICATION_JSON.getType(),
         MediaType.APPLICATION_JSON.getSubtype(),
@@ -186,26 +152,6 @@ public class TestUtil {
         .caseRef(CASE_REFERENCE)
         .ccdCaseId(CCD_CASE_ID)
         .segments(Set.of(SEGMENT_1, SEGMENT_2, SEGMENT_3))
-        .folder(Folder.builder().id(RANDOM_UUID).build())
-        .createdOn(RECORDING_DATETIME)
-        .build();
-
-    public static final HearingRecording VH_HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3 = HearingRecording.builder()
-        .id(RANDOM_UUID)
-        .hearingSource(VH.name())
-        .caseRef(CASE_REFERENCE)
-        .ccdCaseId(CCD_CASE_ID)
-        .segments(Set.of(VH_SEGMENT_1, SEGMENT_3, VH_SEGMENT_2))
-        .folder(Folder.builder().id(RANDOM_UUID).build())
-        .createdOn(RECORDING_DATETIME)
-        .build();
-
-    public static final HearingRecording VH_HEARING_RECORDING_WITH_SEGMENTS_1_3 = HearingRecording.builder()
-        .id(RANDOM_UUID)
-        .hearingSource(VH.name())
-        .caseRef(CASE_REFERENCE)
-        .ccdCaseId(CCD_CASE_ID)
-        .segments(Set.of(VH_SEGMENT_1, SEGMENT_3))
         .folder(Folder.builder().id(RANDOM_UUID).build())
         .createdOn(RECORDING_DATETIME)
         .build();

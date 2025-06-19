@@ -56,7 +56,6 @@ import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDI
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.INGESTION_QUEUE_SIZE;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SERVICE_AUTHORIZATION_TOKEN;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHAREE_EMAIL_ADDRESS;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.VH_HEARING_RECORDING_DTO;
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.convertObjectToJsonString;
 
 class HearingRecordingControllerTest extends AbstractBaseTest {
@@ -138,17 +137,6 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
             .andReturn();
     }
 
-    @Test
-    void testShouldReturnRequestAcceptedForVhFile() throws Exception {
-        final String path = "/segments";
-        ingestionQueue.clear();
-
-        mockMvc.perform(post(path)
-                            .content(convertObjectToJsonString(VH_HEARING_RECORDING_DTO))
-                            .contentType(APPLICATION_JSON_VALUE))
-            .andExpect(status().isAccepted())
-            .andReturn();
-    }
 
     @Test
     void testShouldReturnTooManyRequests() throws Exception {

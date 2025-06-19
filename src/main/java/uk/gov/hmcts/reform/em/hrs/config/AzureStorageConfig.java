@@ -32,12 +32,6 @@ public class AzureStorageConfig {
     @Value("${azure.storage.cvp.blob-container-reference}")
     private String cvpContainer;
 
-    @Value("${azure.storage.vh.connection-string}")
-    private String vhConnectionString;
-
-    @Value("${azure.storage.vh.blob-container-name}")
-    private String vhContainer;
-
     @Value("${azure.storage.jurisdiction-codes.connection-string}")
     private String jurisdictionCodesConnectionString;
 
@@ -75,14 +69,6 @@ public class AzureStorageConfig {
         LOGGER.info("************   CVP   ***********");
 
         BlobContainerClient blobContainerClient = createBlobClient(cvpConnectionString, cvpContainer);
-        createIfNotExists(blobContainerClient);
-        return blobContainerClient;
-    }
-
-    @Bean("vhBlobContainerClient")
-    public BlobContainerClient getVhBlobContainerClient() {
-        LOGGER.info("************   VH   ***********");
-        BlobContainerClient blobContainerClient = createBlobClient(vhConnectionString, vhContainer);
         createIfNotExists(blobContainerClient);
         return blobContainerClient;
     }

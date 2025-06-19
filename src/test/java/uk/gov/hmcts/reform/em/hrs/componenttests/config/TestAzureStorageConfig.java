@@ -31,7 +31,6 @@ public class TestAzureStorageConfig {
     private static final String HRS_CVP_CONTAINER = "hrs-cvp-test-container";
     private static final String HRS_VH_CONTAINER = "hrs-vh-test-container";
     private static final String CVP_CONTAINER = "cvp-test-container";
-    private static final String VH_CONTAINER = "vh-test-container";
     private static final String JURISDICTION_CODES_CONTAINER = "jurisdictioncodes";
 
     //docker run -p 10000:10000 mcr.microsoft.com/azure-storage/azurite azurite-blob --blobHost 0.0.0.0 --blobPort 10000
@@ -102,12 +101,6 @@ public class TestAzureStorageConfig {
     @Bean("CvpBlobContainerClient")
     public BlobContainerClient cvpBlobContainerClient() {
         return createBlobClient(connectionString, CVP_CONTAINER);
-    }
-
-    @Primary
-    @Bean("vhBlobContainerClient")
-    public BlobContainerClient vhBlobContainerClient() {
-        return createBlobClient(connectionString, VH_CONTAINER);
     }
 
     @Primary

@@ -9,13 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
-import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.exception.CcdUploadException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
 import uk.gov.hmcts.reform.em.hrs.service.TtlService;
-import uk.gov.hmcts.reform.em.hrs.storage.BlobIndexMarker;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,7 +30,6 @@ public class CcdUploadServiceImpl implements CcdUploadService {
     private final HearingRecordingRepository recordingRepository;
     private final HearingRecordingSegmentRepository segmentRepository;
     private final FolderService folderService;
-    private final BlobIndexMarker blobIndexMarker;
     private final TtlService ttlService;
 
     @Autowired
@@ -41,14 +38,12 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         final HearingRecordingRepository recordingRepository,
         final HearingRecordingSegmentRepository segmentRepository,
         final FolderService folderService,
-        final BlobIndexMarker blobIndexMarker,
         final TtlService ttlService
     ) {
         this.ccdDataStoreApiClient = ccdDataStoreApiClient;
         this.recordingRepository = recordingRepository;
         this.segmentRepository = segmentRepository;
         this.folderService = folderService;
-        this.blobIndexMarker = blobIndexMarker;
         this.ttlService = ttlService;
     }
 
@@ -93,19 +88,6 @@ public class CcdUploadServiceImpl implements CcdUploadService {
             return null;
         }
 
-        if (recordingDto.getRecordingSource() == HearingSource.VH
-            && recording.getSegments().stream()
-            .anyMatch(segment -> recordingDto.getSourceBlobUrl().equals(segment.getIngestionFileSourceUri()))
-        ) {
-            LOGGER.info(
-                "Skip blob: {}, it is already added to case: {}",
-                recordingDto.getSourceBlobUrl(),
-                recording.getCcdCaseId()
-            );
-            blobIndexMarker.setProcessed(recordingDto.getFilename());
-            return null;
-        }
-
         LOGGER.info(
             "adding  recording (ref {}) in folder {} to case (ccdId {})", recordingRef, folder, ccdCaseId);
 
@@ -118,9 +100,6 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         try {
             HearingRecordingSegment segment = createSegment(recording, recordingDto);
             segmentRepository.saveAndFlush(segment);
-            if (HearingSource.VH == recordingDto.getRecordingSource()) {
-                blobIndexMarker.setProcessed(recordingDto.getFilename());
-            }
         } catch (ConstraintViolationException e) {
             LOGGER.warn(
                 "Segment not added to database, which is acceptable for duplicate segments (ref {}), (ccdId {})",
@@ -185,9 +164,6 @@ public class CcdUploadServiceImpl implements CcdUploadService {
 
         HearingRecordingSegment segment = createSegment(recording, recordingDto);
         segmentRepository.saveAndFlush(segment);
-        if (HearingSource.VH == recordingDto.getRecordingSource()) {
-            blobIndexMarker.setProcessed(recordingDto.getFilename());
-        }
         return caseId;
     }
 
@@ -206,6 +182,4 @@ public class CcdUploadServiceImpl implements CcdUploadService {
             .interpreter(recordingDto.getInterpreter())
             .build();
     }
-
-
 }
