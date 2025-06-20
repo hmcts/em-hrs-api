@@ -2,10 +2,11 @@ spring:
   jpa:
     database: postgresql
     show-sql: true
-    generate-ddl: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: false
 
 logging:
   level:
