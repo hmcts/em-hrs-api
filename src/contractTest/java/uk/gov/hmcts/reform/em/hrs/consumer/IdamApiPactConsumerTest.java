@@ -38,12 +38,10 @@ public class IdamApiPactConsumerTest {
 
     private static final String IDAM_OPENID_TOKEN_URL = "/o/token";
     private static final String IDAM_DETAILS_URL = "/o/userinfo";
-
     private static final String ROLES = "roles";
     private static final String PASSWORD = "password";
     private static final String SCOPE = "scope";
     private static final String PASSWORD_VALUE = "Password123";
-
     private static final String EM_CASE_OFFICER = "emCaseOfficer@email.net";
 
     @Pact(provider = "Idam_api", consumer = "hrs_api")
@@ -78,7 +76,6 @@ public class IdamApiPactConsumerTest {
             .toPact();
     }
 
-
     @PactTestFor(pactMethod = "executeGetIdamAccessTokenAndGet200")
     @Test
     public void should_post_to_token_endpoint_and_receive_access_token_with_200_response(MockServer mockServer)
@@ -105,7 +102,7 @@ public class IdamApiPactConsumerTest {
     }
 
     @Pact(provider = "Idam_api", consumer = "hrs_api")
-    public RequestResponsePact executeGetUserDetailsAndGet200(PactDslWithProvider builder) {
+    public RequestResponsePact executeGetUserInfoAndGet200(PactDslWithProvider builder) {
 
         Map<String, String> requestHeaders = Maps.newHashMap();
         requestHeaders.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
@@ -134,10 +131,9 @@ public class IdamApiPactConsumerTest {
             .toPact();
     }
 
-
     @Test
-    @PactTestFor(pactMethod = "executeGetUserDetailsAndGet200")
-    public void should_get_user_details_with_access_token(MockServer mockServer) throws JSONException {
+    @PactTestFor(pactMethod = "executeGetUserInfoAndGet200")
+    public void should_get_user_info_with_access_token(MockServer mockServer) throws JSONException {
 
         Map<String, String> headers = Maps.newHashMap();
         headers.put(HttpHeaders.AUTHORIZATION, "Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiJiL082T3ZWdjEre");
@@ -161,15 +157,12 @@ public class IdamApiPactConsumerTest {
         assertThat(detailsResponseBody).isNotNull();
         assertThat(response).hasNoNullFieldsOrProperties();
         assertThat(response.getString("uid")).isNotBlank();
-        assertThat(response.getString("given_name")).isNotBlank();
-        assertThat(response.getString("family_name")).isNotBlank();
         JSONArray rolesArr = response.getJSONArray(ROLES);
         assertThat(rolesArr).isNotNull();
         assertThat(rolesArr.length()).isNotZero();
         assertThat(rolesArr.get(0).toString()).isNotBlank();
 
     }
-
 
     private PactDslJsonBody createAuthResponse() {
 
@@ -183,11 +176,8 @@ public class IdamApiPactConsumerTest {
     }
 
     private DslPart createUserInfoResponse() {
-
         return new PactDslJsonBody()
             .stringType("uid", "1234-2345-3456-4567")
-            .stringType("given_name", "emCaseOfficer")
-            .stringType("family_name", "Jar")
             .array(ROLES)
             .stringType("citizen")
             .closeArray();
