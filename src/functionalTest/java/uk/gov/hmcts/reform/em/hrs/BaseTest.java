@@ -49,7 +49,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -82,8 +81,6 @@ public abstract class BaseTest {
     protected static final String CASE_TYPE = "HearingRecordings";
     protected static final String BEARER = "Bearer ";
     protected static final String FILE_EXT = "mp4";
-    protected static final String INTERPRETER = "interpreter12";
-
 
     public static String SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION =
         "hrs.functional.system.user@hmcts.net";
@@ -101,7 +98,6 @@ public abstract class BaseTest {
     protected static final String TIME = DATE + "-14.56.32.819";
     public static final String CASEREF_PREFIX = "FUNCTEST_";
 
-    public static final String VH_CASEREF_PREFIX = "VH-FUNCT-";
     protected static final String CLOSE_CASE = "closeCase";
 
     protected static int FIND_CASE_TIMEOUT = 30;
@@ -113,7 +109,6 @@ public abstract class BaseTest {
 
     //The format "yyyy-MM-dd---HH-MM-ss---SSS" will render "07-30-2021---16-07-35---485"
     DateTimeFormatter datePartFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    DateTimeFormatter dateTimePartFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHMMssSSS");
     DateTimeFormatter timePartFormatter = DateTimeFormatter.ofPattern("HH-MM-ss---SSS");
 
     @Value("${test.url}")
@@ -121,9 +116,6 @@ public abstract class BaseTest {
 
     @Value("${azure.storage.cvp.container-url}")
     private String cvpContainerUrl;
-
-    @Value("${azure.storage.vh.container-url}")
-    private String vhContainerUrl;
 
     @Value("${idam.hrs-ingestor.user-name}")
     private String idamHrsIngestorUserName;
@@ -257,10 +249,6 @@ public abstract class BaseTest {
             .post("/segments");
     }
 
-    protected Response postVhRecordingSegment(String caseRef, int segment, UUID hearingRef, String fileName) {
-        final JsonNode segmentPayload = createVhSegmentPayload(caseRef, segment, hearingRef, fileName);
-        return postRecordingSegment(segmentPayload);
-    }
 
     protected Response shareRecording(String sharerUserName, CallbackRequest callbackRequest) {
         JsonNode reqBody = new ObjectMapper().convertValue(callbackRequest, JsonNode.class);
@@ -344,47 +332,6 @@ public abstract class BaseTest {
             .contentType(APPLICATION_JSON_VALUE)
             .when().log().all()
             .get(recordingUrl + "/sharee");
-    }
-
-    protected JsonNode createVhSegmentPayload(String caseRef, int segment, UUID hearingRef, String fileName) {
-        return createVhRecordingSegment(
-            JURISDICTION,
-            LOCATION_CODE,
-            caseRef,
-            TIME,
-            segment,
-            FILE_EXT,
-            fileName,
-            hearingRef.toString()
-        );
-    }
-
-    protected JsonNode createVhRecordingSegment(
-        String jurisdictionCode,
-        String locationCode,
-        String caseRef,
-        String recordingTime,
-        int segment,
-        String fileExt,
-        String fileName,
-        String recordingRef
-    ) {
-
-        return JsonNodeFactory.instance.objectNode()
-            .put("folder", "VH")
-            .put("recording-ref", recordingRef)
-            .put("recording-source", "VH")
-            .put("court-location-code", locationCode)
-            .put("service-code", "PROBATE")
-            .put("hearing-room-ref", "London")
-            .put("jurisdiction-code", jurisdictionCode)
-            .put("case-ref", caseRef)
-            .put("source-blob-url", vhContainerUrl + fileName)
-            .put("filename", fileName)
-            .put("filename-extension", fileExt)
-            .put("file-size", 200724364L)
-            .put("segment", segment)
-            .put("recording-date-time", recordingTime);
     }
 
     protected JsonNode createSegmentPayload(String caseRef, int segment) {
@@ -484,29 +431,11 @@ public abstract class BaseTest {
         return CASEREF_PREFIX + date + "---" + time;
     }
 
-    protected String timeVhBasedCaseRef() {
-
-        ZonedDateTime now = ZonedDateTime.now();
-
-        String dateTime = dateTimePartFormatter.format(now);
-        //yyyy-MM-dd---HH-MM-ss---SSS=07-30-2021---16-07-35---485
-        return VH_CASEREF_PREFIX + dateTime;
-    }
-
     protected String filename(String caseRef, int segment) {
         return FOLDER + "/" + JURISDICTION + "-" + LOCATION_CODE + "-" + caseRef + "_" + TIME
             + "-UTC_" + segment + ".mp4";
     }
 
-    protected String vhFileName(String caseRef, int segment, String interpreter, UUID hearingRef) {
-        if (interpreter != null && interpreter.toLowerCase().startsWith("interpreter")) {
-            interpreter = interpreter + "_";
-        } else {
-            interpreter = "";
-        }
-        return JURISDICTION + "-" + caseRef + "-" + hearingRef + "_" + interpreter + TIME
-            + "-UTC_" + segment + ".mp4";
-    }
 
     public String closeCaseWithSystemUser(final String caseRef, CaseDetails caseDetails) {
 
