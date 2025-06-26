@@ -157,6 +157,8 @@ public class IdamApiPactConsumerTest {
         assertThat(detailsResponseBody).isNotNull();
         assertThat(response).hasNoNullFieldsOrProperties();
         assertThat(response.getString("uid")).isNotBlank();
+        assertThat(response.getString("given_name")).isNotBlank();
+        assertThat(response.getString("family_name")).isNotBlank();
         JSONArray rolesArr = response.getJSONArray(ROLES);
         assertThat(rolesArr).isNotNull();
         assertThat(rolesArr.length()).isNotZero();
@@ -178,6 +180,8 @@ public class IdamApiPactConsumerTest {
     private DslPart createUserInfoResponse() {
         return new PactDslJsonBody()
             .stringType("uid", "1234-2345-3456-4567")
+            .stringType("given_name", "emCaseOfficer")
+            .stringType("family_name", "Jar")
             .array(ROLES)
             .stringType("citizen")
             .closeArray();
