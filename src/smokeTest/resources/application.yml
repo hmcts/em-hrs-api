@@ -40,7 +40,7 @@ toggle:
   enable_metadata_endpoint: ${ENABLE_METADATA_ENDPOINT:false}
 
 ccd-def:
-  file: ${CCD_DEFINITION_FILE:CCD_HRS_v1.3-AAT.xslx}
+  file: ${CCD_DEFINITION_FILE:CCD_HRS_v1.7-AAT.xslx}
   api:
     url: ${CCD_DEF_API:http://localhost:4451}
 
@@ -53,5 +53,5 @@ core_case_data:
 
 oidc:
   issuer: ${OIDC_ISSUER_BASE_URI:http://localhost:8080/openam/oauth2/hmcts}
-upload-cdd-definition: ${UPLOAD_CCD_DEF:false}
+upload-ccd-definition: ${UPLOAD_CCD_DEF:false}
 

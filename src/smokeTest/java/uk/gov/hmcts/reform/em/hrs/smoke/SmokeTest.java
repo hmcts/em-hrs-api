@@ -67,7 +67,7 @@ public class SmokeTest {
     @Value("${test.url}")
     private String testUrl;
 
-    @Value("${upload-cdd-definition}")
+    @Value("${upload-ccd-definition}")
     protected boolean uploadCcdDefinition;
     @Autowired
     protected ExtendedCcdHelper extendedCcdHelper;
