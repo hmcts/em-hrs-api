@@ -1,7 +1,7 @@
 
 buildscript {
   dependencies {
-    classpath("org.flywaydb:flyway-database-postgresql:11.9.2")
+    classpath("org.flywaydb:flyway-database-postgresql:11.10.0")
   }
 }
 
@@ -13,7 +13,7 @@ plugins {
   id 'org.springframework.boot' version '3.5.3'
   id 'com.github.ben-manes.versions' version '0.52.0'
   id 'org.sonarqube' version '6.2.0.5505'
-  id 'org.flywaydb.flyway' version '11.9.1'
+  id 'org.flywaydb.flyway' version '11.10.0'
   id 'au.com.dius.pact' version '4.6.17'
   id "info.solidsoft.pitest" version '1.15.0'
   id 'com.github.hmcts.rse-cft-lib' version '0.19.1771'
@@ -237,7 +237,7 @@ def versions = [
   pact_version       : '4.6.17',
   restAssured        : '5.3.0',
   junit              : '5.13.2',
-  junitPlatform      : '1.13.1',
+  junitPlatform      : '1.13.2',
   springSecurity     : '6.5.1',
   shedlock           : '6.9.0',
   testcontainers     : '1.21.2'
@@ -313,8 +313,8 @@ dependencies {
  **********************************************************************************************************************/
 
   implementation group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '11.9.2'
-  runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: '11.9.2'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: '11.10.0'
+  runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: '11.10.0'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
   implementation "org.springframework.boot:spring-boot-starter-jdbc"
 
@@ -363,11 +363,11 @@ dependencies {
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.3.0'
 
   functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.13.2'
-  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.13.1'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.13.2'
   functionalTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: versions.junitPlatform
 
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.13.2'
-  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.13.1'
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.13.2'
 
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
@@ -404,7 +404,7 @@ dependencies {
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact_version
 
   contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.13.2"
-  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.13.1"
+  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.13.2"
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: versions.junitPlatform
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
