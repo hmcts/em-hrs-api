@@ -67,6 +67,8 @@ public class ExtendedCcdHelper {
         createCcdUserRole("caseworker");
         createCcdUserRole("caseworker-hrs");//required as is 'parent' of caseworker-hrs-searcher
         createCcdUserRole("caseworker-hrs-searcher");
+        createCcdUserRole("cft-ttl-manager");
+        createCcdUserRole("caseworker-hrs-systemupdate");
 
         MultipartFile ccdDefinitionRequest = new MockMultipartFile(
             "x",
