@@ -51,13 +51,32 @@ def secretsForPreview = [
   's2s-${env}': [
     secret('microservicekey-em-hrs-api', 'S2S_KEY'),
     secret('microservicekey-ccd-gw', 'FUNCTIONAL_TEST_CCD_GW_SERVICE_SECRET'),
-    secret('microservicekey-em-gw', 'FUNCTIONAL_TEST_CLIENT_S2S_TOKEN')
+    secret('microservicekey-em-gw', 'FUNCTIONAL_TEST_CLIENT_S2S_TOKEN'),
+    secret('microservicekey-ccd-gw', 'CCD_API_GATEWAY_S2S_SECRET'),
+    secret('microservicekey-ccd-data', 'CCD_DATA_STORE_S2S_SECRET'),
+    secret('microservicekey-ccd-definition', 'CCD_DEFINITION_STORE_S2S_SECRET')
   ],
   'rpa-${env}': [
     secret('oauth2-client-id', 'OAUTH_CLIENT_ID'),
     secret('show-oauth2-token', 'IDAM_CLIENT_OAUTH_SECRET')
   ],
-
+  'ccd-${env}'  : [
+    secret('ccd-api-gateway-oauth2-client-secret', 'CCD_API_GATEWAY_IDAM_CLIENT_SECRET'),
+    secret('ccd-api-gateway-oauth2-client-secret', 'CCD_API_GATEWAY_OAUTH2_CLIENT_SECRET'),
+    secret('postcode-info-address-lookup-token', 'ADDRESS_LOOKUP_TOKEN'),
+    secret('ccd-admin-web-oauth2-client-secret', 'ADMIN_WEB_IDAM_SECRET'),
+    secret('idam-data-store-client-secret', 'IDAM_OAUTH2_DATA_STORE_CLIENT_SECRET'),
+    secret('idam-data-store-system-user-username', 'IDAM_DATA_STORE_SYSTEM_USER_USERNAME'),
+    secret('idam-data-store-system-user-password', 'IDAM_DATA_STORE_SYSTEM_USER_PASSWORD'),
+    secret('microservicekey-ccd-gw', 'CCD_API_GATEWAY_S2S_KEY'),
+    secret('definition-store-api-POSTGRES-PASS-V15', 'CCD_DEFINITION_STORE_POSTGRES_PASSWORD'),
+    secret('data-store-api-POSTGRES-PASS-V15', 'DATASTORE_POSTGRES_PASSWORD'),
+    secret('AppInsightsInstrumentationKey', 'CCD_APPINSIGHTS_INSTRUMENTATION_KEY'),
+    secret('app-insights-connection-string', 'APP_INSIGHTS_CONNECTION_STRING'),
+    secret('definition-store-api-POSTGRES-USER-V15', 'DEFINITION_STORE_DB_USERNAME'),
+    secret('definition-store-api-POSTGRES-PASS-V15', 'DEFINITION_STORE_DB_PASSWORD'),
+    secret('dm-store-storage-account-primary-access-key', 'DM_STORE_STORAGE_ACCOUNT_PRIMARY_ACCESS_KEY'),
+  ],
   'em-hrs-api-${env}': [
     secret('notification-api-key', 'NOTIFICATION_API_KEY'),
     secret('idam-system-user-name', 'HRS_SYSTEM_USER'),
@@ -78,7 +97,7 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 
 // Vars for Kubernetes Endpoints
 env.CCD_DATA_API_URL = 'http://ccd-data-store-api-aat.service.core-compute-aat.internal'
-env.CCD_DEFINITION_FILE = 'hrs_ccd_case_definition_v1.0_AAT.xlsx'
+env.CCD_DEFINITION_FILE = 'CCD_HRS_v1.7-AAT.xlsx'
 env.CCD_DEF_API = 'http://ccd-definition-store-api-aat.service.core-compute-aat.internal'
 env.CVP_CONTAINER_URL = 'https://emhrsapiaat.blob.core.windows.net/cvpsimulator/'
 env.IDAM_API_BASE_URI = 'https://idam-api.aat.platform.hmcts.net'
@@ -90,6 +109,18 @@ env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
 env.HRS_VH_DEST_CONTAINER_NAME = 'vhrecordings'
 // Feature Flags
 env.DELETE_CASE_ENDPOINT_ENABLED = false
+env.UPLOAD_CCD_DEF = false
+
+
+def setPreviewEnvVars() {
+  env.CCD_DEF_API = "https://ccd-definition-store-em-hrs-api-pr-${CHANGE_ID}.preview.platform.hmcts.net"
+  env.TEST_E2E_URL_WEB = "https://xui-em-hrs-api-pr-${CHANGE_ID}.preview.platform.hmcts.net"
+  env.TEST_E2E_API_URI = "https://em-hrs-api-pr-${CHANGE_ID}.preview.platform.hmcts.net"
+  env.CCD_API_URL = "https://ccd-data-store-api-em-hrs-api-pr-${CHANGE_ID}.preview.platform.hmcts.net"
+  env.CCD_DATA_API_URL = "https://ccd-data-store-api-em-hrs-api-pr-${CHANGE_ID}.preview.platform.hmcts.net"
+  env.CCD_GW_API = "http://em-hrs-api-pr-${CHANGE_ID}-ccd-api-gw"
+  env.UPLOAD_CCD_DEF = true
+}
 
 def vaultOverrides = [
   'preview' : 'aat',
@@ -105,6 +136,7 @@ withPipeline(type, product, component) {
   }
 
   onPR(){
+    setPreviewEnvVars();
     env.CLOSE_CCD_TEST_CASES = true
     loadVaultSecrets(secretsForPreview)
   }

@@ -225,7 +225,6 @@ public abstract class BaseTest {
     }
 
     protected ValidatableResponse getFilenamesCompletedOrInProgress(String folder) {
-
         return authRequestForHrsIngestor()
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
