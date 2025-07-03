@@ -316,7 +316,7 @@ public class HearingRecordingController {
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden")}
     )
-    public ResponseEntity<Long> deleteCaseHearingRecordings(@RequestBody final List<Long> ccdCaseIds) {
+    public ResponseEntity<Void> deleteCaseHearingRecordings(@RequestBody final List<Long> ccdCaseIds) {
         if (!deleteCaseEndpointEnabled) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }

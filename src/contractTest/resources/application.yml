@@ -1,6 +1,5 @@
 ---
 spring:
-  main:
   security:
     oauth2:
       client:
@@ -45,3 +44,7 @@ core_case_data:
 
 oidc:
   issuer: ${OIDC_ISSUER_BASE_URI:http://localhost:8080/openam/oauth2/hmcts}
+
+endpoint:
+  deleteCase:
+    enabled: true
