@@ -23,8 +23,3 @@ dependencies:
     version: 2.1.0
     repository: oci://hmctspublic.azurecr.io/helm
     condition: cvpblobstorage.enabled
-  - name: blobstorage
-    alias: vhblobstorage
-    version: 2.1.0
-    repository: oci://hmctspublic.azurecr.io/helm
-    condition: vhblobstorage.enabled
