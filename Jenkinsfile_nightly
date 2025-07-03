@@ -67,7 +67,6 @@ env.S2S_BASE_URI = 'http://rpe-service-auth-provider-aat.service.core-compute-aa
 env.TEST_URL = "http://em-hrs-api-aat.service.core-compute-aat.internal/"
 env.XUI_API_URL = 'https://manage-case.aat.platform.hmcts.net'
 env.HRS_VH_DEST_CONTAINER_NAME = 'vhrecordings'
-env.VH_STORAGE_URL= "https://emhrsapiaat.blob.core.windows.net/vhsimulator/"
 env.DELETE_CASE_ENDPOINT_ENABLED = false
 env.CVP_STORAGE_URL= "https://emhrsapiaat.blob.core.windows.net/cvpsimulator/"
 env.UPLOAD_CCD_DEF = false
