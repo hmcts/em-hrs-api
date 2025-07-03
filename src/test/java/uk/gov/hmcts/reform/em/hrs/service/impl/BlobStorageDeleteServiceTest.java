@@ -51,7 +51,6 @@ class BlobStorageDeleteServiceTest {
     private String blobName;
 
 
-
     @BeforeEach
     void setUp() {
         lenient().when(cvpBlobContainer.getBlobClient(any())).thenReturn(blobClient);

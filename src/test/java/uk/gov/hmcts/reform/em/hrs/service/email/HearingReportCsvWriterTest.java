@@ -37,7 +37,7 @@ class HearingReportCsvWriterTest {
         hearingRecordingSegment.setFileSizeMb(12023L);
         var hearingRecording = new HearingRecording();
         hearingRecording.setServiceCode("servicecode-1");
-        hearingRecording.setHearingSource("hearing-source VH");
+        hearingRecording.setHearingSource("hearing-source XX");
         hearingRecording.setCcdCaseId(1234567L);
         hearingRecordingSegment.setHearingRecording(hearingRecording);
 
@@ -59,7 +59,7 @@ class HearingReportCsvWriterTest {
             "%s,%s,%s,%s,%s,%s,%s,%s",
             FILE_NAME,
             SOURCE_URI,
-            "hearing-source VH",
+            "hearing-source XX",
             "servicecode-1",
             13,
             1234567,
