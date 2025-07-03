@@ -62,16 +62,6 @@ cvpblobstorage:
     containers:
       - cvp
 
-vhblobstorage:
-  enabled: true
-  resourceGroup: em-aso-preview-rg
-  releaseNameOverride: vh-{{ .Release.Name }}
-  teamName: "EM"
-  location: uksouth
-  setup:
-    containers:
-      - vhrecordings
-
 hrsblobstorage:
   enabled: true
   resourceGroup: em-aso-preview-rg
