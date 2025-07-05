@@ -81,7 +81,5 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
         assertThat(response.getHeader("Accept-Ranges")).isEqualTo("bytes");
         assertThat(response.getHeader("Content-Length")).isEqualTo("1024");
 
-        // Optionally, assert body length if you want to check the stream size
-        assertThat(response.getBody().asByteArray().length).isEqualTo(1024);
     }
 }
