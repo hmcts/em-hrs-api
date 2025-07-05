@@ -4,8 +4,8 @@ package uk.gov.hmcts.reform.em.hrs.provider;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
 import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvider;
 import au.com.dius.pact.provider.junitsupport.IgnoreNoPactsToVerify;
-import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
 import au.com.dius.pact.provider.junitsupport.loader.PactBrokerConsumerVersionSelectors;
+import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
 import au.com.dius.pact.provider.junitsupport.loader.SelectorBuilder;
 import au.com.dius.pact.provider.spring.junit5.MockMvcTestTarget;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,16 +26,15 @@ import uk.gov.hmcts.reform.em.hrs.controller.HearingRecordingController;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
 import uk.gov.hmcts.reform.em.hrs.service.ScheduledTaskRunner;
-import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-@PactBroker(
-    url = "${PACT_BROKER_FULL_URL:http://localhost:80}",
-    providerBranch = "${pact.provider.branch}"
-)
-//@PactFolder("pacts")
+//@PactBroker(
+//    url = "${PACT_BROKER_FULL_URL:http://localhost:80}",
+//    providerBranch = "${pact.provider.branch}"
+//)
+@PactFolder("pacts")
 @IgnoreNoPactsToVerify
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(
@@ -54,8 +53,7 @@ public abstract class HearingControllerBaseProviderTest {
     protected HearingRecordingService hearingRecordingService;
     @MockitoBean
     protected ShareAndNotifyService shareAndNotifyService;
-    @MockitoBean
-    protected SegmentDownloadService segmentDownloadService;
+
     @MockitoBean(name = "ingestionQueue")
     protected LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
 
