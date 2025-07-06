@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.em.hrs.provider;
 
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
-import jakarta.servlet.ServletOutputStream;
 import org.mockito.ArgumentMatchers;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
