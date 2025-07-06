@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.provider;
 
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
+import jakarta.servlet.ServletOutputStream;
 import org.mockito.ArgumentMatchers;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -16,6 +17,7 @@ import uk.gov.hmcts.reform.em.hrs.storage.BlobInfo;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobstoreClient;
 
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -73,12 +75,15 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
         );
 
         doAnswer(invocation -> {
-            OutputStream out = invocation.getArgument(2);
-            out.write(new byte[(int) fileSize]); // Write dummy data
+            OutputStream out = invocation.getArgument(2); // Use OutputStream, not ServletOutputStream directly
+            byte[] data = new byte[1024];
+            Arrays.fill(data, (byte) 'i'); // Fill with ASCII 'i', 1024 times
+            out.write(data);
+            out.flush(); // Ensure everything is sent
             return null;
         }).when(blobstoreClient).downloadFile(
             ArgumentMatchers.eq(filename),
-            ArgumentMatchers.any(),
+            ArgumentMatchers.any(), // blobRange
             ArgumentMatchers.any(OutputStream.class),
             ArgumentMatchers.eq(hearingSource)
         );
