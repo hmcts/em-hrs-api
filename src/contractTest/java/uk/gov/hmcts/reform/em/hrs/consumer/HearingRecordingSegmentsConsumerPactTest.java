@@ -55,7 +55,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
             .willRespondWith()
             .status(HttpStatus.OK.value())
             .headers(Map.of(
-                "Content-Type", "audio/mpeg",
+                "Content-Type", "text/plain",
                 "Content-Disposition", "attachment; filename=testfile.mp3",
                 "Accept-Ranges", "bytes",
                 "Content-Length", "1024"
@@ -78,7 +78,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
             .extract().response();
 
         // Assert headers
-        assertThat(response.getHeader("Content-Type")).isEqualTo("audio/mpeg");
+        assertThat(response.getHeader("Content-Type")).isEqualTo("text/plain");
         assertThat(response.getHeader("Content-Disposition")).isEqualTo("attachment; filename=testfile.mp3");
         assertThat(response.getHeader("Accept-Ranges")).isEqualTo("bytes");
 

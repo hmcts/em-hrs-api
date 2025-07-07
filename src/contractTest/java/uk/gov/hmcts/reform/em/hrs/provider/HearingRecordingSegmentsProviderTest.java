@@ -65,7 +65,7 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
                                                          ArgumentMatchers.eq(segmentNo));
 
         // Mock blobstoreClient
-        String contentType = "audio/mpeg";
+        String contentType = "text/plain";
         long fileSize = 1024L;
         BlobInfo blobInfo = new BlobInfo(fileSize,contentType);
         doReturn(blobInfo).when(blobstoreClient).fetchBlobInfo(
