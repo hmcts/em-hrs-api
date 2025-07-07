@@ -44,7 +44,8 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
     @Pact(provider = PROVIDER, consumer = CONSUMER)
     public V4Pact downloadSegment200(PactDslWithProvider builder) {
         String path = String.format(SEGMENT_API_PATH_TEMPLATE, RECORDING_ID, SEGMENT_NO);
-
+        byte[] expectedBody = new byte[1024];
+        Arrays.fill(expectedBody, (byte) 'i'); // Fill with ASCII 'i'
         return builder
             .given("A hearing recording segment exists for download")
             .uponReceiving("A GET request for a hearing recording segment")
