@@ -60,10 +60,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
                 "Accept-Ranges", "bytes",
                 "Content-Length", "1024"
             ))
-            .body(Arrays.toString(new byte[1024]))
-            .headers(Map.of("Content-Type", "audio/mpeg"))
-
-            // No body matching for binary stream; can use Pact's binary body support if needed
+            .withBinaryData(expectedBody, "audio/mpeg")
             .toPact(V4Pact.class);
     }
 
