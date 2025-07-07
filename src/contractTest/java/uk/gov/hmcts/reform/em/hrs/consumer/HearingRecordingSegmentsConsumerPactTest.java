@@ -60,7 +60,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
                 "Accept-Ranges", "bytes",
                 "Content-Length", "1024"
             ))
-            .withBinaryData(expectedBody, "audio/mpeg")
+            .withBinaryData(expectedBody, "text/plain")
             .toPact(V4Pact.class);
     }
 
