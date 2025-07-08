@@ -75,9 +75,14 @@ public class BlobUtil {
         final InputStream inStream = new ByteArrayInputStream(bytes);
 
         final BlobClient blobClient = cvpBlobContainerClient.getBlobClient(blobName);
-        System.out.println("cvpBlobContainerClient url {}" + cvpBlobContainerClient.getBlobContainerUrl());
-        System.out.println("blobClient url {}" + blobClient.getBlobUrl());
+        System.out.println("cvpBlobContainerClient url" + cvpBlobContainerClient.getBlobContainerUrl());
+        System.out.println("blobClient url " + blobClient.getBlobUrl());
         blobClient.upload(new BufferedInputStream(inStream), bytes.length);
+        System.out.println("uploaded url " + blobClient.getBlobUrl());
+
+        var files = cvpBlobContainerClient.listBlobs().stream().map(c -> c.getName()).collect(Collectors.toList());
+        System.out.println("ALL files uploaded " + files);
+
     }
 
     public void uploadFileFromPathToHrsContainer(final String blobName, final String pathToFile) throws Exception {
