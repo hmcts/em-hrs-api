@@ -6,7 +6,6 @@ import org.mockito.ArgumentMatchers;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 
-
 import static org.mockito.Mockito.doNothing;
 
 @Provider("em_hrs_api_recording_sharees_provider")

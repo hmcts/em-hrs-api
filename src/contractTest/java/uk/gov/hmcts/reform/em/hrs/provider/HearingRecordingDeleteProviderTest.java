@@ -5,7 +5,6 @@ import au.com.dius.pact.provider.junitsupport.State;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 
-
 import java.util.List;
 
 import static org.mockito.Mockito.doNothing;

@@ -26,7 +26,6 @@ import uk.gov.hmcts.reform.em.hrs.controller.HearingRecordingController;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
 import uk.gov.hmcts.reform.em.hrs.service.ScheduledTaskRunner;
-import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
 import java.util.concurrent.LinkedBlockingQueue;
