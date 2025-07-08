@@ -77,7 +77,7 @@ public abstract class BaseTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
 
     protected static final String JURISDICTION = "HRS";
-    protected static final String LOCATION_CODE = "0123";
+    protected static final String LOCATION_CODE = "1234567";
     protected static final String CASE_TYPE = "HearingRecordings";
     protected static final String BEARER = "Bearer ";
     protected static final String FILE_EXT = "mp4";
