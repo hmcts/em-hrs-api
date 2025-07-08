@@ -19,29 +19,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
-import java.util.Map;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
 @ExtendWith(PactConsumerTestExt.class)
 @ExtendWith(SpringExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class HearingRecordingDeleteConsumerPactTest {
+public class HearingRecordingDeleteConsumerPactTest extends BaseConsumerPactTest {
 
-    private static final String AUTH_TOKEN = "Bearer someAuthorizationToken";
-    private static final String SERVICE_AUTH_TOKEN = "Bearer someServiceAuthorizationToken";
     private static final String PROVIDER = "em_hrs_api_recording_delete_provider";
     private static final String CONSUMER = "em_hrs_api_recording_delete_consumer";
     private static final String DELETE_API_PATH = "/delete";
-
-    public Map<String, String> getHeaders() {
-        return Map.of(
-            AUTHORIZATION, AUTH_TOKEN,
-            "ServiceAuthorization", SERVICE_AUTH_TOKEN,
-            "Content-Type", "application/json"
-        );
-    }
 
     @Pact(provider = PROVIDER, consumer = CONSUMER)
     public V4Pact deleteHearingRecordings204(PactDslWithProvider builder) {
