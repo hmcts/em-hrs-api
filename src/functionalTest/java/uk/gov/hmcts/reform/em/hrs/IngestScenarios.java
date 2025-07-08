@@ -64,11 +64,11 @@ public class IngestScenarios extends BaseTest {
                 .statusCode(202);
         }
 
-        LOGGER.info("************* CHECKING CVP HAS UPLOADED **********");
+        System.out.println("************* CHECKING CVP HAS UPLOADED **********");
         testUtil.checkIfUploadedToStore(filenames, testUtil.cvpBlobContainerClient);
-        LOGGER.info("************* Files loaded to cvp storage **********");
+        System.out.println("************* Files loaded to cvp storage **********");
 
-        LOGGER.info("************* CHECKING HRS HAS COPIED TO STORE **********");
+        System.out.println("************* CHECKING HRS HAS COPIED TO STORE **********");
         testUtil.checkIfUploadedToStore(filenames, testUtil.hrsCvpBlobContainerClient);
         assertHearingCcdUpload(filenames, caseRef, FOLDER, SEGMENT_COUNT);
     }

@@ -61,7 +61,8 @@ public class BlobUtil {
         var files = client.listBlobs().stream().map(c -> c.getName()).collect(Collectors.toList());
         System.out.println("getAccountName ---->" + client.getAccountName());
         System.out.println("getBlobContainerUrl ---->" + client.getBlobContainerUrl());
-        System.out.println("files --->" + files);
+        System.out.println("existing files --->" + files);
+        System.out.println("fileNames to search --->" + fileNames);
         return (int) client.listBlobs()
             .stream()
             .filter(c -> fileNames.contains(c.getName()))
@@ -74,7 +75,8 @@ public class BlobUtil {
         final InputStream inStream = new ByteArrayInputStream(bytes);
 
         final BlobClient blobClient = cvpBlobContainerClient.getBlobClient(blobName);
-        LOGGER.debug("cvpBlobContainerClient url {}", cvpBlobContainerClient.getBlobContainerUrl());
+        System.out.println("cvpBlobContainerClient url {}" + cvpBlobContainerClient.getBlobContainerUrl());
+        System.out.println("blobClient url {}" + blobClient.getBlobUrl());
         blobClient.upload(new BufferedInputStream(inStream), bytes.length);
     }
 
