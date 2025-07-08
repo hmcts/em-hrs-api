@@ -59,6 +59,8 @@ public class BlobUtil {
 
     private int getBlobCount(BlobContainerClient client, Set<String> fileNames) {
         var files = client.listBlobs().stream().map(c -> c.getName()).collect(Collectors.toList());
+        System.out.println("getAccountName ---->" + client.getAccountName());
+        System.out.println("getBlobContainerUrl ---->" + client.getBlobContainerUrl());
         System.out.println("files --->" + files);
         return (int) client.listBlobs()
             .stream()
