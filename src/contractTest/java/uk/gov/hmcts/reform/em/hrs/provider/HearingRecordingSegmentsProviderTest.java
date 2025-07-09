@@ -86,6 +86,53 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
             ArgumentMatchers.any(OutputStream.class),
             ArgumentMatchers.eq(hearingSource)
         );
+    }
 
+    @State("A hearing recording file exists for download by file name")
+    public void setupFileExists() {
+        // Prepare dummy data
+        UUID recordingId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        String fileName = "testfile.mp3";
+        String folderName = "folderA";
+        String hearingSource = "CVP";
+        String fileNameDecoded = folderName + java.io.File.separator + fileName;
+
+        // Dummy HearingRecordingSegment
+        HearingRecordingSegment segment = new HearingRecordingSegment();
+        segment.setFilename(fileNameDecoded);
+
+        // Dummy HearingRecording
+        HearingRecording hearingRecording = new HearingRecording();
+        hearingRecording.setId(recordingId);
+        hearingRecording.setHearingSource(hearingSource);
+        hearingRecording.setSegments(Collections.singleton(segment));
+        segment.setHearingRecording(hearingRecording);
+
+        // Mock segmentRepository for both endpoints
+        doReturn(segment).when(segmentRepository)
+            .findByHearingRecordingIdAndFilename(
+                ArgumentMatchers.eq(recordingId),
+                ArgumentMatchers.eq(fileNameDecoded));
+
+        // Mock blobstoreClient
+        String contentType = "audio/mpeg";
+        long fileSize = 2048L;
+        BlobInfo blobInfo = new BlobInfo(fileSize, contentType);
+        doReturn(blobInfo).when(blobstoreClient).fetchBlobInfo(ArgumentMatchers.eq(fileNameDecoded),
+                                                               ArgumentMatchers.eq(hearingSource)
+        );
+
+        doAnswer(invocation -> {
+            OutputStream out = invocation.getArgument(2);
+            byte[] data = new byte[2048];
+            Arrays.fill(data, (byte) 'f');
+            out.write(data);
+            out.flush();
+            return null;
+        }).when(blobstoreClient).downloadFile(ArgumentMatchers.eq(fileNameDecoded),
+                                              ArgumentMatchers.any(),
+                                              ArgumentMatchers.any(OutputStream.class),
+                                              ArgumentMatchers.eq(hearingSource)
+        );
     }
 }
