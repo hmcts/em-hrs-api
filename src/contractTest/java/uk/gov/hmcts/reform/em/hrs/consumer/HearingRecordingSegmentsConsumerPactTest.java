@@ -59,7 +59,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
             .status(HttpStatus.OK.value())
             .headers(Map.of(
                 "Content-Type", "text/plain",
-                "Content-Disposition", "attachment; filename=testfile.mp3",
+                "Content-Disposition", "attachment; filename=folderA/testfile.mp3",
                 "Accept-Ranges", "bytes",
                 "Content-Length", "1024"
             ))
@@ -81,7 +81,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
             .status(HttpStatus.OK.value())
             .headers(Map.of(
                 "Content-Type", "text/plain",
-                "Content-Disposition", "attachment; filename=testfile.mp3",
+                "Content-Disposition", "attachment; filename=folderA/testfile.mp3",
                 "Accept-Ranges", "bytes",
                 "Content-Length", "1024"
             ))
