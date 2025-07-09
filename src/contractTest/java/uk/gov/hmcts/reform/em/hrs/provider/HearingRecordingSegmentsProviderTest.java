@@ -109,14 +109,16 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
         segment.setHearingRecording(hearingRecording);
 
         // Mock segmentRepository for both endpoints
-        doReturn(segment).when(segmentRepository)
+        doReturn(segment)
+            .when(segmentRepository)
             .findByHearingRecordingIdAndFilename(
                 ArgumentMatchers.eq(recordingId),
-                ArgumentMatchers.eq(fileNameDecoded));
+                ArgumentMatchers.eq(fileNameDecoded)
+            );
 
         // Mock blobstoreClient
         String contentType = "text/plain";
-        long fileSize = 1024;
+        long fileSize = 1024L;
         BlobInfo blobInfo = new BlobInfo(fileSize, contentType);
         doReturn(blobInfo).when(blobstoreClient).fetchBlobInfo(ArgumentMatchers.eq(fileNameDecoded),
                                                                ArgumentMatchers.eq(hearingSource)
