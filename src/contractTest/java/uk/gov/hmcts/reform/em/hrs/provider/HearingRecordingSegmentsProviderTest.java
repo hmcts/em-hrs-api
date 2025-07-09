@@ -97,15 +97,14 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
         String hearingSource = "CVP";
         String fileNameDecoded = folderName + java.io.File.separator + fileName;
 
-        // Dummy HearingRecordingSegment
-        HearingRecordingSegment segment = new HearingRecordingSegment();
-        segment.setFilename(fileNameDecoded);
-
-        // Dummy HearingRecording
+        // Create dummy HearingRecording
         HearingRecording hearingRecording = new HearingRecording();
         hearingRecording.setId(recordingId);
-        hearingRecording.setHearingSource(hearingSource);
-        hearingRecording.setSegments(Collections.singleton(segment));
+        hearingRecording.setHearingSource("CVP");
+
+        // Create dummy HearingRecordingSegment and link it
+        HearingRecordingSegment segment = new HearingRecordingSegment();
+        segment.setFilename(fileNameDecoded);
         segment.setHearingRecording(hearingRecording);
 
         // Mock segmentRepository for both endpoints
