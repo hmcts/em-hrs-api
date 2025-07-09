@@ -99,7 +99,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(response.header("Content-Type")).isEqualTo("text/plain");
-        assertThat(response.asByteArray()).hasSize(2048);
+        assertThat(response.asByteArray()).hasSize(1024);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(response.header("Content-Type")).isEqualTo("text/plain");
-        assertThat(response.asByteArray()).hasSize(2048);
+        assertThat(response.asByteArray()).hasSize(1024);
     }
 
     @Pact(provider = PROVIDER, consumer = CONSUMER)
