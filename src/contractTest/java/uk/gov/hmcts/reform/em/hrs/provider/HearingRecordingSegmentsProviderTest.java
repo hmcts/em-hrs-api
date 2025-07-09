@@ -88,7 +88,8 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
         );
     }
 
-    @State("A hearing recording file exists for download by file name")
+    @State({"A hearing recording file exists for download by file name",
+        "A hearing recording file exists for download by folder and file name"})
     public void setupFileExists() {
         // Prepare dummy data
         UUID recordingId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
