@@ -94,7 +94,6 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
         UUID recordingId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         String fileName = "testfile.mp3";
         String folderName = "folderA";
-        String hearingSource = "CVP";
         String fileNameDecoded = folderName + java.io.File.separator + fileName;
 
         // Create dummy HearingRecording
@@ -116,6 +115,7 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
             );
 
         // Mock blobstoreClient
+        String hearingSource = "CVP";
         String contentType = "text/plain";
         long fileSize = 1024L;
         BlobInfo blobInfo = new BlobInfo(fileSize, contentType);
