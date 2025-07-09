@@ -115,8 +115,8 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
                 ArgumentMatchers.eq(fileNameDecoded));
 
         // Mock blobstoreClient
-        String contentType = "audio/mpeg";
-        long fileSize = 2048L;
+        String contentType = "text/plain";
+        long fileSize = 1024;
         BlobInfo blobInfo = new BlobInfo(fileSize, contentType);
         doReturn(blobInfo).when(blobstoreClient).fetchBlobInfo(ArgumentMatchers.eq(fileNameDecoded),
                                                                ArgumentMatchers.eq(hearingSource)
@@ -124,7 +124,7 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
 
         doAnswer(invocation -> {
             OutputStream out = invocation.getArgument(2);
-            byte[] data = new byte[2048];
+            byte[] data = new byte[1024];
             Arrays.fill(data, (byte) 'f');
             out.write(data);
             out.flush();
