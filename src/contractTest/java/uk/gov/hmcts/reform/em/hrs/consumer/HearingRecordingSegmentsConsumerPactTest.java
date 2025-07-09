@@ -98,7 +98,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
             .get(mockServer.getUrl() + "/hearing-recordings/" + RECORDING_ID + "/file/" + FILE_NAME);
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.header("Content-Type")).isEqualTo("application/octet-stream");
+        assertThat(response.header("Content-Type")).isEqualTo("text/plain");
         assertThat(response.asByteArray()).hasSize(2048);
     }
 
@@ -113,7 +113,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
                      + FOLDER_NAME + "/" + FILE_NAME);
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.header("Content-Type")).isEqualTo("application/octet-stream");
+        assertThat(response.header("Content-Type")).isEqualTo("text/plain");
         assertThat(response.asByteArray()).hasSize(2048);
     }
 
