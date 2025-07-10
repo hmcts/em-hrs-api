@@ -59,10 +59,10 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
             out.flush(); // Ensure everything is sent
             return null;
         }).when(blobstoreClient).downloadFile(
-            ArgumentMatchers.eq(ArgumentMatchers.any(String.class)),
+            ArgumentMatchers.any(String.class),
             ArgumentMatchers.any(), // blobRange
             ArgumentMatchers.any(OutputStream.class),
-            ArgumentMatchers.eq(ArgumentMatchers.any(String.class))
+            ArgumentMatchers.any(String.class)
         );
     }
 
