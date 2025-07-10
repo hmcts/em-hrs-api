@@ -15,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -31,16 +30,11 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
     private static final String SEGMENT_API_PATH_TEMPLATE = "/hearing-recordings/%s/segments/%d";
     private static final String AUTH_TOKEN = "Bearer someAuthorizationToken";
     private static final String SERVICE_AUTH_TOKEN = "Bearer someServiceAuthorizationToken";
+
     private static final UUID RECORDING_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private static final int SEGMENT_NO = 1;
     private static final String FILE_NAME = "testfile.mp3";
     private static final String FOLDER_NAME = "folderA";
-    private static final Map<String,String> RESPONSE_HEADER = Map.of(
-        "Content-Type", "text/plain",
-        "Content-Disposition", "attachment; filename=testfile.mp3",
-        "Accept-Ranges", "bytes",
-        "Content-Length", "1024"
-        );
 
     public Map<String, String> getHeaders() {
         return Map.of(
@@ -61,7 +55,12 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
             .headers(getHeaders())
             .willRespondWith()
             .status(HttpStatus.OK.value())
-            .headers(RESPONSE_HEADER)
+            .headers(Map.of(
+                "Content-Type", "text/plain",
+                "Content-Disposition", "attachment; filename=folderA/testfile.mp3",
+                "Accept-Ranges", "bytes",
+                "Content-Length", "1024"
+            ))
             .withBinaryData(expectedBody, "text/plain")
             .toPact(V4Pact.class);
     }
@@ -70,8 +69,6 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
     public V4Pact getFileByFolderAndFileName(PactDslWithProvider builder) {
         byte[] expectedBody = new byte[1024];
         Arrays.fill(expectedBody, (byte) 'f');
-        var headerMap =  new HashMap<>(RESPONSE_HEADER);
-        headerMap.put("Content-Disposition", "attachment; filename=folderA/testfile.mp3");
         return builder
             .given("A hearing recording file exists for download by folder and file name")
             .uponReceiving("A GET request for a hearing recording file by folder and file name")
@@ -80,7 +77,12 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
             .headers(getHeaders())
             .willRespondWith()
             .status(HttpStatus.OK.value())
-            .headers(headerMap)
+            .headers(Map.of(
+                "Content-Type", "text/plain",
+                "Content-Disposition", "attachment; filename=folderA/testfile.mp3",
+                "Accept-Ranges", "bytes",
+                "Content-Length", "1024"
+            ))
             .withBinaryData(expectedBody, "text/plain")
             .toPact(V4Pact.class);
     }
@@ -126,7 +128,12 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
             .headers(getHeaders())
             .willRespondWith()
             .status(HttpStatus.OK.value())
-            .headers(RESPONSE_HEADER)
+            .headers(Map.of(
+                "Content-Type", "text/plain",
+                "Content-Disposition", "attachment; filename=testfile.mp3",
+                "Accept-Ranges", "bytes",
+                "Content-Length", "1024"
+            ))
             .withBinaryData(expectedBody, "text/plain")
             .toPact(V4Pact.class);
     }
