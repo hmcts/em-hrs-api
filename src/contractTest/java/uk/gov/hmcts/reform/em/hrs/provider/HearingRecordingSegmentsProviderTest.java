@@ -119,25 +119,6 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
             );
 
         // Mock blobstoreClient
-        String hearingSource = "CVP";
-        String contentType = "text/plain";
-        long fileSize = 1024L;
-        BlobInfo blobInfo = new BlobInfo(fileSize, contentType);
-        doReturn(blobInfo).when(blobstoreClient).fetchBlobInfo(ArgumentMatchers.any(String.class),
-                                                               ArgumentMatchers.any(String.class)
-        );
-
-        doAnswer(invocation -> {
-            OutputStream out = invocation.getArgument(2);
-            byte[] data = new byte[1024];
-            Arrays.fill(data, (byte) 'f');
-            out.write(data);
-            out.flush();
-            return null;
-        }).when(blobstoreClient).downloadFile(ArgumentMatchers.eq(fileNameDecoded),
-                                              ArgumentMatchers.any(),
-                                              ArgumentMatchers.any(OutputStream.class),
-                                              ArgumentMatchers.eq(hearingSource)
-        );
+        mockBlobClient('f');
     }
 }
