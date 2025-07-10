@@ -38,22 +38,46 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
     @MockitoBean
     private SecurityService securityService;
 
+    private static final String FILE_NAME = "testfile.mp3";
+    private static final String HEARING_SOURCE = "CVP";
+    private static final UUID RECORDING_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
+    private void mockBlobClient(char fillingChar) {
+        // Mock blobstoreClient
+        String contentType = "text/plain";
+        long fileSize = 1024L;
+        BlobInfo blobInfo = new BlobInfo(fileSize, contentType);
+        doReturn(blobInfo).when(blobstoreClient).fetchBlobInfo(
+            ArgumentMatchers.eq(FILE_NAME),
+            ArgumentMatchers.eq(HEARING_SOURCE)
+        );
+
+        doAnswer(invocation -> {
+            OutputStream out = invocation.getArgument(2);
+            byte[] data = new byte[1024];
+            Arrays.fill(data, (byte) fillingChar);
+            out.write(data);
+            out.flush(); // Ensure everything is sent
+            return null;
+        }).when(blobstoreClient).downloadFile(
+            ArgumentMatchers.eq(FILE_NAME),
+            ArgumentMatchers.any(), // blobRange
+            ArgumentMatchers.any(OutputStream.class),
+            ArgumentMatchers.eq(HEARING_SOURCE)
+        );
+    }
 
     @State("A hearing recording segment exists for download")
     public void setupSegmentExists() {
-        // Prepare dummy data
-        UUID recordingId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-        String filename = "testfile.mp3";
-        String hearingSource = "CVP";
 
         // Dummy HearingRecordingSegment
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        segment.setFilename(filename);
+        segment.setFilename(FILE_NAME);
 
         // Dummy HearingRecording
         HearingRecording hearingRecording = new HearingRecording();
-        hearingRecording.setId(recordingId);
-        hearingRecording.setHearingSource(hearingSource);
+        hearingRecording.setId(RECORDING_ID);
+        hearingRecording.setHearingSource(HEARING_SOURCE);
         hearingRecording.setSegments(Collections.singleton(segment));
         segment.setHearingRecording(hearingRecording);
         int segmentNo = 1;
@@ -61,31 +85,11 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
         // Mock segmentRepository
         doReturn(segment)
             .when(segmentRepository)
-            .findByHearingRecordingIdAndRecordingSegment(ArgumentMatchers.eq(recordingId),
+            .findByHearingRecordingIdAndRecordingSegment(ArgumentMatchers.eq(RECORDING_ID),
                                                          ArgumentMatchers.eq(segmentNo));
 
         // Mock blobstoreClient
-        String contentType = "text/plain";
-        long fileSize = 1024L;
-        BlobInfo blobInfo = new BlobInfo(fileSize,contentType);
-        doReturn(blobInfo).when(blobstoreClient).fetchBlobInfo(
-            ArgumentMatchers.eq(filename),
-            ArgumentMatchers.eq(hearingSource)
-        );
-
-        doAnswer(invocation -> {
-            OutputStream out = invocation.getArgument(2); // Use OutputStream, not ServletOutputStream directly
-            byte[] data = new byte[1024];
-            Arrays.fill(data, (byte) 'i'); // Fill with ASCII 'i', 1024 times
-            out.write(data);
-            out.flush(); // Ensure everything is sent
-            return null;
-        }).when(blobstoreClient).downloadFile(
-            ArgumentMatchers.eq(filename),
-            ArgumentMatchers.any(), // blobRange
-            ArgumentMatchers.any(OutputStream.class),
-            ArgumentMatchers.eq(hearingSource)
-        );
+        mockBlobClient('f');
     }
 
     @State({"A hearing recording file exists for download by file name",
