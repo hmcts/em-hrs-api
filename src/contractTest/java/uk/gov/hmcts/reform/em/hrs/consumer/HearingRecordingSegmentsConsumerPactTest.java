@@ -36,7 +36,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
     private static final String FOLDER_NAME = "folderA";
     private static final Map<String,String> RESPONSE_HEADER = Map.of(
         "Content-Type", "text/plain",
-        "Content-Disposition", "attachment; filename=testfile.mp3",
+        "Content-Disposition", "attachment; filename=folderA/testfile.mp3",
         "Accept-Ranges", "bytes",
         "Content-Length", "1024"
     );
