@@ -66,12 +66,13 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
         );
     }
 
-    @State("A hearing recording segment exists for download")
-    public void setupSegmentExists() {
 
-        // Dummy HearingRecordingSegment
+    private static HearingRecordingSegment getHearingRecordingSegment() {
+        String folderName = "folderA";
+        String fileNameDecoded = folderName + java.io.File.separator + FILE_NAME;
+
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        segment.setFilename(FILE_NAME);
+        segment.setFilename(fileNameDecoded);
 
         // Dummy HearingRecording
         HearingRecording hearingRecording = new HearingRecording();
@@ -79,6 +80,14 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
         hearingRecording.setHearingSource(HEARING_SOURCE);
         hearingRecording.setSegments(Collections.singleton(segment));
         segment.setHearingRecording(hearingRecording);
+
+        return segment;
+    }
+
+    @State("A hearing recording segment exists for download")
+    public void setupSegmentExists() {
+
+        HearingRecordingSegment segment = getHearingRecordingSegment();
         int segmentNo = 1;
 
         // Mock segmentRepository
@@ -94,21 +103,8 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
     @State({"A hearing recording file exists for download by file name",
         "A hearing recording file exists for download by folder and file name"})
     public void setupFileExists() {
-        // Prepare dummy data
-        UUID recordingId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-        String fileName = "testfile.mp3";
-        String folderName = "folderA";
-        String fileNameDecoded = folderName + java.io.File.separator + fileName;
 
-        // Create dummy HearingRecording
-        HearingRecording hearingRecording = new HearingRecording();
-        hearingRecording.setId(recordingId);
-        hearingRecording.setHearingSource("CVP");
-
-        // Create dummy HearingRecordingSegment and link it
-        HearingRecordingSegment segment = new HearingRecordingSegment();
-        segment.setFilename(fileNameDecoded);
-        segment.setHearingRecording(hearingRecording);
+        HearingRecordingSegment segment = getHearingRecordingSegment();
 
         // Mock segmentRepository for both endpoints
         doReturn(segment)
