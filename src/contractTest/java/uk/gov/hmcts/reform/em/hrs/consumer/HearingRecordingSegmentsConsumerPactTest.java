@@ -48,10 +48,14 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
         );
     }
 
+    public byte[] getExpectedBodyContent(char content){
+        byte[] expectedBody = new byte[1024];
+        Arrays.fill(expectedBody, (byte) content);
+        return expectedBody;
+    }
+
     @Pact(provider = PROVIDER, consumer = CONSUMER)
     public V4Pact getFileByFileName(PactDslWithProvider builder) {
-        byte[] expectedBody = new byte[1024];
-        Arrays.fill(expectedBody, (byte) 'f');
         return builder
             .given("A hearing recording file exists for download by file name")
             .uponReceiving("A GET request for a hearing recording file by file name")
@@ -61,7 +65,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
             .willRespondWith()
             .status(HttpStatus.OK.value())
             .headers(RESPONSE_HEADER)
-            .withBinaryData(expectedBody, "text/plain")
+            .withBinaryData(getExpectedBodyContent('f'), "text/plain")
             .toPact(V4Pact.class);
     }
 
@@ -83,8 +87,6 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
 
     @Pact(provider = PROVIDER, consumer = CONSUMER)
     public V4Pact getFileByFolderAndFileName(PactDslWithProvider builder) {
-        byte[] expectedBody = new byte[1024];
-        Arrays.fill(expectedBody, (byte) 'f');
         return builder
             .given("A hearing recording file exists for download by folder and file name")
             .uponReceiving("A GET request for a hearing recording file by folder and file name")
@@ -94,7 +96,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
             .willRespondWith()
             .status(HttpStatus.OK.value())
             .headers(RESPONSE_HEADER)
-            .withBinaryData(expectedBody, "text/plain")
+            .withBinaryData(getExpectedBodyContent('f'), "text/plain")
             .toPact(V4Pact.class);
     }
 
@@ -118,8 +120,6 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
     @Pact(provider = PROVIDER, consumer = CONSUMER)
     public V4Pact downloadSegment200(PactDslWithProvider builder) {
         String path = String.format(SEGMENT_API_PATH_TEMPLATE, RECORDING_ID, SEGMENT_NO);
-        byte[] expectedBody = new byte[1024];
-        Arrays.fill(expectedBody, (byte) 'i'); // Fill with ASCII 'i'
         return builder
             .given("A hearing recording segment exists for download")
             .uponReceiving("A GET request for a hearing recording segment")
@@ -129,7 +129,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
             .willRespondWith()
             .status(HttpStatus.OK.value())
             .headers(RESPONSE_HEADER)
-            .withBinaryData(expectedBody, "text/plain")
+            .withBinaryData(getExpectedBodyContent('i'), "text/plain")
             .toPact(V4Pact.class);
     }
 
