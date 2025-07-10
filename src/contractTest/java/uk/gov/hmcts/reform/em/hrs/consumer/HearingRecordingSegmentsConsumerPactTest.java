@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -69,6 +70,8 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
     public V4Pact getFileByFolderAndFileName(PactDslWithProvider builder) {
         byte[] expectedBody = new byte[1024];
         Arrays.fill(expectedBody, (byte) 'f');
+        var headerMap =  new HashMap<>(RESPONSE_HEADER);
+        headerMap.put("Content-Disposition", "attachment; filename=folderA/testfile.mp3");
         return builder
             .given("A hearing recording file exists for download by folder and file name")
             .uponReceiving("A GET request for a hearing recording file by folder and file name")
@@ -77,7 +80,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
             .headers(getHeaders())
             .willRespondWith()
             .status(HttpStatus.OK.value())
-            .headers(RESPONSE_HEADER)
+            .headers(headerMap)
             .withBinaryData(expectedBody, "text/plain")
             .toPact(V4Pact.class);
     }
