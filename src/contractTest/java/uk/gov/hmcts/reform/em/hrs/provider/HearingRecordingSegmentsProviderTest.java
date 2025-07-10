@@ -47,10 +47,9 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
         String contentType = "text/plain";
         long fileSize = 1024L;
         BlobInfo blobInfo = new BlobInfo(fileSize, contentType);
-        doReturn(blobInfo).when(blobstoreClient).fetchBlobInfo(
-            ArgumentMatchers.eq(FILE_NAME),
-            ArgumentMatchers.eq(HEARING_SOURCE)
-        );
+        doReturn(blobInfo)
+            .when(blobstoreClient)
+            .fetchBlobInfo(ArgumentMatchers.any(String.class), ArgumentMatchers.any(String.class));
 
         doAnswer(invocation -> {
             OutputStream out = invocation.getArgument(2);
@@ -60,10 +59,10 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
             out.flush(); // Ensure everything is sent
             return null;
         }).when(blobstoreClient).downloadFile(
-            ArgumentMatchers.eq(FILE_NAME),
+            ArgumentMatchers.eq(ArgumentMatchers.any(String.class)),
             ArgumentMatchers.any(), // blobRange
             ArgumentMatchers.any(OutputStream.class),
-            ArgumentMatchers.eq(HEARING_SOURCE)
+            ArgumentMatchers.eq(ArgumentMatchers.any(String.class))
         );
     }
 
@@ -89,7 +88,7 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
                                                          ArgumentMatchers.eq(segmentNo));
 
         // Mock blobstoreClient
-        mockBlobClient('f');
+        mockBlobClient('i');
     }
 
     @State({"A hearing recording file exists for download by file name",
