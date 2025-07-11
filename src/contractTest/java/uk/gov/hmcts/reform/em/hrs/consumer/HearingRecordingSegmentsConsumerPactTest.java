@@ -48,7 +48,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
         );
     }
 
-    public byte[] getExpectedBodyContent(char content){
+    public byte[] getExpectedBodyContent(char content) {
         byte[] expectedBody = new byte[1024];
         Arrays.fill(expectedBody, (byte) content);
         return expectedBody;
