@@ -66,7 +66,7 @@ class ShareAndNotifyServiceImplTest {
         CaseHearingRecording caseData = CaseHearingRecording.builder()
             .shareeEmail(SHAREE_EMAIL_ADDRESS)
             .recordingReference(CASE_REFERENCE)
-            .hearingSource("VH")
+            .hearingSource("source-1")
             .recordingDate(RECORDING_DATE)
             .recordingTimeOfDay(RECORDING_TIMEOFDAY)
             .recordingFiles(Collections.singletonList(Map.of("value", CASE_RECORDING_FILE))).build();

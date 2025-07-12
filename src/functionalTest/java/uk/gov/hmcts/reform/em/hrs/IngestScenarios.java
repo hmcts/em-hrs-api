@@ -117,15 +117,12 @@ public class IngestScenarios extends BaseTest {
     private void assertHearingCcdUpload(Set<String> filenames, String caseRef, String folder, int segmentCount) {
 
         LOGGER.info("************* CHECKING HRS HAS IT IN DATABASE AND RETURNS EXPECTED FILES VIA API**********");
-        if (!"VH".equalsIgnoreCase(folder)) {
-            getFilenamesCompletedOrInProgress(folder)
-                .assertThat().log().all()
-                .statusCode(200)
-                .body("folder-name", equalTo(folder))
-                .body("filenames", hasItems(filenames.toArray()));
-        }
+        getFilenamesCompletedOrInProgress(folder)
+            .assertThat().log().all()
+            .statusCode(200)
+            .body("folder-name", equalTo(folder))
+            .body("filenames", hasItems(filenames.toArray()));
 
-        LOGGER.info("*****************************");
         LOGGER.info("*****************************");
 
         CaseDetails caseDetails = findCaseWithAutoRetryWithUserWithSearcherRole(caseRef);
