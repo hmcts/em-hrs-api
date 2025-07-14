@@ -6,6 +6,7 @@ import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.core.model.V4Pact;
 import au.com.dius.pact.core.model.annotations.Pact;
+import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.rest.SerenityRest;
@@ -72,7 +73,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
     @Test
     @PactTestFor(pactMethod = "getFileByFileName", providerName = PROVIDER)
     void testGetFileByFileName(MockServer mockServer) {
-        Response response = io.restassured.RestAssured
+        Response response = RestAssured
             .given()
             .headers(getHeaders())
             .get(mockServer.getUrl() + "/hearing-recordings/" + RECORDING_ID + "/file/" + FILE_NAME);
@@ -103,7 +104,7 @@ public class HearingRecordingSegmentsConsumerPactTest extends BaseConsumerPactTe
     @Test
     @PactTestFor(pactMethod = "getFileByFolderAndFileName", providerName = PROVIDER)
     void testGetFileByFolderAndFileName(MockServer mockServer) {
-        Response response = io.restassured.RestAssured
+        Response response = RestAssured
             .given()
             .headers(getHeaders())
             .get(mockServer.getUrl() + "/hearing-recordings/"

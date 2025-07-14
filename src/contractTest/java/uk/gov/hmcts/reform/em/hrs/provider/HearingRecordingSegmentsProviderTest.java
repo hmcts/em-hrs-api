@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
+import static java.io.File.separator;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 
@@ -69,7 +70,7 @@ public class HearingRecordingSegmentsProviderTest extends HearingControllerBaseP
 
     private static HearingRecordingSegment getHearingRecordingSegment() {
         String folderName = "folderA";
-        String fileNameDecoded = folderName + java.io.File.separator + FILE_NAME;
+        String fileNameDecoded = folderName + separator + FILE_NAME;
 
         HearingRecordingSegment segment = new HearingRecordingSegment();
         segment.setFilename(fileNameDecoded);
