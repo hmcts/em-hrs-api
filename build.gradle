@@ -304,7 +304,7 @@ dependencies {
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.14.0'
   implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '5.4.1'
 
-  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.1'
+  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.2'
 
   cftlibImplementation 'org.springframework.boot:spring-boot-devtools'
 
