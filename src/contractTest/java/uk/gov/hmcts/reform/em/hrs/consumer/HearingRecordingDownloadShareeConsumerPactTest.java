@@ -68,7 +68,7 @@ public class HearingRecordingDownloadShareeConsumerPactTest extends BaseConsumer
             .isEqualTo("attachment; filename=mocked-file.mp3");
     }
 
-    public V4Pact buildPact(PactDslWithProvider builder, String path, String given) {
+    public V4Pact buildPact(PactDslWithProvider builder, String given, String path) {
         return builder
             .given(given)
             .uponReceiving("A request to download a segment for a hearing recording")
