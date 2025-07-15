@@ -56,7 +56,10 @@ public class HearingRecordingDownloadShareeConsumerPactTest extends BaseConsumer
                 Map.of(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE,
                        HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=mocked-file.mp3")
             )
-            .withBinaryData("binary-mock-data".getBytes(), "application/octet-stream")
+            .withBinaryData(
+                new byte[] { (byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x00, 0x10, 0x20, 0x30, 0x40 },
+                "application/octet-stream"
+            )
             .toPact(V4Pact.class);
     }
 
