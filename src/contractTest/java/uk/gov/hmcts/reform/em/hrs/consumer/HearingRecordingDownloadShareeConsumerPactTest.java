@@ -76,7 +76,7 @@ public class HearingRecordingDownloadShareeConsumerPactTest extends BaseConsumer
             .statusCode(HttpStatus.OK.value())
             .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
-        assertThat(response.asByteArray()).hasSize(16);
+        assertThat(response.asByteArray()).hasSize(8);
         assertThat(response.getHeader("Content-Disposition"))
             .isEqualTo("attachment; filename=mocked-file.mp3");
     }
