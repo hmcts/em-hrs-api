@@ -18,7 +18,7 @@ import java.util.UUID;
 public class MockSegmentDownloadConfig {
 
 
-    private HearingRecordingSegment getSegment(){
+    private HearingRecordingSegment getSegment() {
         HearingRecordingSegment segment = new HearingRecordingSegment();
         segment.setFilename("mocked-file.mp3");
 
