@@ -16,6 +16,19 @@ import java.util.UUID;
 
 @TestConfiguration
 public class MockSegmentDownloadConfig {
+
+
+    private HearingRecordingSegment getSegment(){
+        HearingRecordingSegment segment = new HearingRecordingSegment();
+        segment.setFilename("mocked-file.mp3");
+
+        HearingRecording recording = new HearingRecording();
+        recording.setHearingSource("MOCK_SOURCE");
+
+        segment.setHearingRecording(recording);
+        return segment;
+    }
+
     @Bean
     public SegmentDownloadService segmentDownloadService() {
         return new SegmentDownloadService() {
@@ -23,15 +36,7 @@ public class MockSegmentDownloadConfig {
             @Override
             public HearingRecordingSegment fetchSegmentByRecordingIdAndSegmentNumber(
                 UUID recordingId, Integer segmentNo, String userToken, boolean isSharee) {
-
-                HearingRecordingSegment segment = new HearingRecordingSegment();
-                segment.setFilename("mocked-file.mp3");
-
-                HearingRecording recording = new HearingRecording();
-                recording.setHearingSource("MOCK_SOURCE");
-
-                segment.setHearingRecording(recording);
-                return segment;
+                return getSegment();
             }
 
             @Override
@@ -40,7 +45,7 @@ public class MockSegmentDownloadConfig {
                 String fileName,
                 String userToken
             ) {
-                return null;
+                return getSegment();
             }
 
             @Override
@@ -48,7 +53,7 @@ public class MockSegmentDownloadConfig {
                 UUID recordingId,
                 String fileName
             ) {
-                return null;
+                return getSegment();
             }
 
             public void download(HearingRecordingSegment segment,
