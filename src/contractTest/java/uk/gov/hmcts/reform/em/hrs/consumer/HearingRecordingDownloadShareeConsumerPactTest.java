@@ -35,31 +35,32 @@ public class HearingRecordingDownloadShareeConsumerPactTest extends BaseConsumer
     private static final UUID RECORDING_ID = UUID.fromString("3d0a6e15-1f16-4c9b-b087-52d84de469d0");
     private static final int SEGMENT_NUMBER = 1;
 
-    private static final String DOWNLOAD_PATH = "/hearing-recordings/"
+    private static final String SEGMENT_DOWNLOAD_PATH = "/hearing-recordings/"
         + RECORDING_ID + "/segments/"
         + SEGMENT_NUMBER + "/sharee";
+
+    private static byte[] CONTENT = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x00, 0x10, 0x20, 0x30, 0x40};
+
+    private static Map<String, String> headers = Map.of(
+        HttpHeaders.AUTHORIZATION, "Bearer some-user-token",
+        "serviceauthorization", "Bearer some-service-token"
+    );
 
     @Pact(provider = PROVIDER, consumer = CONSUMER)
     public V4Pact downloadSegmentPact(PactDslWithProvider builder) {
         return builder
             .given("A segment exists for recording ID and segment number for download")
             .uponReceiving("A request to download a segment for a hearing recording")
-            .path(DOWNLOAD_PATH)
+            .path(SEGMENT_DOWNLOAD_PATH)
             .method("GET")
-            .headers(
-                HttpHeaders.AUTHORIZATION, "Bearer some-user-token",
-                "serviceauthorization", "Bearer some-service-token"
-            )
+            .headers(headers)
             .willRespondWith()
             .status(HttpStatus.OK.value())
             .headers(
                 Map.of(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE,
                        HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=mocked-file.mp3")
             )
-            .withBinaryData(
-                new byte[] { (byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x00, 0x10, 0x20, 0x30, 0x40 },
-                "application/octet-stream"
-            )
+            .withBinaryData(CONTENT, "application/octet-stream")
             .toPact(V4Pact.class);
     }
 
@@ -68,9 +69,8 @@ public class HearingRecordingDownloadShareeConsumerPactTest extends BaseConsumer
     void testDownloadSegment(MockServer mockServer) {
         Response response = SerenityRest
             .given()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer some-user-token")
-            .header("serviceauthorization", "Bearer some-service-token")
-            .get(mockServer.getUrl() + DOWNLOAD_PATH);
+            .headers(headers)
+            .get(mockServer.getUrl() + SEGMENT_DOWNLOAD_PATH);
 
         response.then()
             .statusCode(HttpStatus.OK.value())
