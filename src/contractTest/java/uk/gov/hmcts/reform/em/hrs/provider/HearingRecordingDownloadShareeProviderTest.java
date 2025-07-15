@@ -77,6 +77,7 @@ public class HearingRecordingDownloadShareeProviderTest extends HearingControlle
                     response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
                     response.setContentLength(dummyData.length);
 
+                    System.out.println("Downloading segment------>" + filename);
                     try (ServletOutputStream os = response.getOutputStream()) {
                         os.write(dummyData);
                         os.flush();
