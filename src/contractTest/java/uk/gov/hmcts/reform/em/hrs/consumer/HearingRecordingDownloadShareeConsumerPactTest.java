@@ -115,4 +115,19 @@ public class HearingRecordingDownloadShareeConsumerPactTest extends BaseConsumer
     void testDownloadSegmentByFileNameNo(MockServer mockServer) {
         testDownload(mockServer, SEGMENT_DOWNLOAD_PATH_BY_FILE_NAME);
     }
+
+    @Pact(provider = PROVIDER, consumer = CONSUMER)
+    public V4Pact downloadSegmentByFolderAndFileNameNoPact(PactDslWithProvider builder) {
+        return buildPact(
+            builder,
+            "A segment exists for sharee to download by recording ID and folder and file name",
+            SEGMENT_DOWNLOAD_PATH_BY_FOLDER_AND_FILE_NAME
+        );
+    }
+
+    @Test
+    @PactTestFor(pactMethod = "downloadSegmentByFolderAndFileNameNoPact", providerName = PROVIDER)
+    void testDownloadSegmentByFolderAndFileNameNo(MockServer mockServer) {
+        testDownload(mockServer, SEGMENT_DOWNLOAD_PATH_BY_FOLDER_AND_FILE_NAME);
+    }
 }
