@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
@@ -23,9 +22,6 @@ import java.util.UUID;
 @Import(HearingRecordingDownloadShareeProviderTest.MockSegmentDownloadConfig.class)
 public class HearingRecordingDownloadShareeProviderTest extends HearingControllerBaseProviderTest {
 
-    @MockitoBean
-    private SegmentDownloadService segmentDownloadService;
-
     @State("A segment exists for recording ID and segment number for download")
     public void setupValidSegmentDownload() throws IOException {
 
@@ -34,7 +30,6 @@ public class HearingRecordingDownloadShareeProviderTest extends HearingControlle
 
     @TestConfiguration
     public static class MockSegmentDownloadConfig {
-
         @Bean
         public SegmentDownloadService segmentDownloadService() {
             return new SegmentDownloadService() {
