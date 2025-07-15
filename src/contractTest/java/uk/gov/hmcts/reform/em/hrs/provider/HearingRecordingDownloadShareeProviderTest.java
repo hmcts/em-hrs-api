@@ -9,7 +9,11 @@ import uk.gov.hmcts.reform.em.hrs.testconfig.MockSegmentDownloadConfig;
 @Import(MockSegmentDownloadConfig.class)
 public class HearingRecordingDownloadShareeProviderTest extends HearingControllerBaseProviderTest {
 
-    @State("A segment exists for recording ID and segment number for download")
+
+    @State({"A segment exists for sharee to download by recording ID and segment number",
+        "A segment exists for sharee to download by recording ID and file name",
+        "A segment exists for sharee to download by recording ID and folder and file name"
+    })
     public void setupValidSegmentDownload() {
 
     }
