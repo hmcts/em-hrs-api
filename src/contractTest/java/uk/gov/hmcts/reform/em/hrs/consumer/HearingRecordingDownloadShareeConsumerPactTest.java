@@ -46,17 +46,10 @@ public class HearingRecordingDownloadShareeConsumerPactTest extends BaseConsumer
     private static final String SEGMENT_DOWNLOAD_PATH_BY_FOLDER_AND_FILE_NAME = "/hearing-recordings/"
         + RECORDING_ID + "/file/" + FOLDER_NAME + FILE_NAME + "/sharee";
 
-    private static byte[] CONTENT = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x00, 0x10, 0x20, 0x30, 0x40};
-
-    private static Map<String, String> headers = Map.of(
-        HttpHeaders.AUTHORIZATION, "Bearer some-user-token",
-        "serviceauthorization", "Bearer some-service-token"
-    );
-
     private void testDownload(MockServer mockServer, String reqUrl) {
         Response response = SerenityRest
             .given()
-            .headers(headers)
+            .headers(HEADERS_WITHOUT_JSON)
             .get(mockServer.getUrl() + reqUrl);
 
         response.then()
@@ -74,7 +67,7 @@ public class HearingRecordingDownloadShareeConsumerPactTest extends BaseConsumer
             .uponReceiving("A request to download a segment for a hearing recording")
             .path(path)
             .method("GET")
-            .headers(headers)
+            .headers(HEADERS_WITHOUT_JSON)
             .willRespondWith()
             .status(HttpStatus.OK.value())
             .headers(
@@ -82,7 +75,7 @@ public class HearingRecordingDownloadShareeConsumerPactTest extends BaseConsumer
                        HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=mocked-file.mp3"
                 )
             )
-            .withBinaryData(CONTENT, "application/octet-stream")
+            .withBinaryData(DOWNLOAD_CONTENT, "application/octet-stream")
             .toPact(V4Pact.class);
     }
 
