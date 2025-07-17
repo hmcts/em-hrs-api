@@ -18,7 +18,6 @@ class TtlServiceImplTest {
 
     private TtlServiceImpl ttlServiceImpl =  new TtlServiceImpl(ttlMapperConfig);
 
-
     @Test
     void shouldReturnTtlForServiceCode() {
         // Given
@@ -112,4 +111,40 @@ class TtlServiceImplTest {
         assertEquals(now.plusDays(30), ttlDate);
         verify(ttlMapperConfig).getDefaultTTL();
     }
+
+    @Test
+    void testHasTtlConfigWithValidServiceCode() {
+        String serviceCode = "SERVICE1";
+        Period periodForService = Period.ofDays(10);
+        when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of(serviceCode, periodForService));
+
+        assertEquals(ttlServiceImpl.hasTtlConfig(serviceCode, null), "Yes");
+    }
+
+    @Test
+    void testHasTtlConfigWithValidJurisdictionCode() {
+        String jurisdictionCode = "JURISDICTION1";
+        when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of(jurisdictionCode, Period.ofDays(10)));
+
+        assertEquals(ttlServiceImpl.hasTtlConfig(null, jurisdictionCode), "Yes");
+    }
+
+    @Test
+    void testHasTtlConfigWithInvalidCodes() {
+        when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of());
+        when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of("JRS", Period.ofDays(10)));
+
+        assertEquals(ttlServiceImpl.hasTtlConfig("INVALID", "INVALID"),"No");
+    }
+
+    @Test
+    void testHasTtlConfigWithBothValidCodes() {
+        String serviceCode = "SERVICE1";
+        String jurisdictionCode = "JURISDICTION1";
+        when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of(serviceCode, Period.ofDays(10)));
+        when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of(jurisdictionCode, Period.ofDays(10)));
+
+        assertEquals(ttlServiceImpl.hasTtlConfig(serviceCode, jurisdictionCode),"Yes");
+    }
+
 }

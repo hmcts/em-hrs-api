@@ -60,8 +60,7 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
         var today = LocalDate.now();
         var storageReport = new StorageReport(
             today,
-            new StorageReport.HrsSourceVsDestinationCounts(1567, 1232, 332, 1000),
-            new StorageReport.HrsSourceVsDestinationCounts(567, 232, 32, 32)
+            new StorageReport.HrsSourceVsDestinationCounts(1567, 1232, 332, 1000)
         );
 
         stopTime();
@@ -75,11 +74,7 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
             .andExpect(jsonPath("$.cvp-item-count").value(1567))
             .andExpect(jsonPath("$.hrs-cvp-item-count").value(1232))
             .andExpect(jsonPath("$.cvp-item-count-today").value(332))
-            .andExpect(jsonPath("$.hrs-cvp-item-count-today").value(1000))
-            .andExpect(jsonPath("$.vh-item-count").value(567))
-            .andExpect(jsonPath("$.hrs-vh-item-count").value(232))
-            .andExpect(jsonPath("$.vh-item-count-today").value(32))
-            .andExpect(jsonPath("$.hrs-vh-item-count-today").value(32));
+            .andExpect(jsonPath("$.hrs-cvp-item-count-today").value(1000));
     }
 
     @Test
@@ -112,10 +107,10 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
         OffsetDateTime time = OffsetDateTime.now(EUROPE_LONDON_ZONE_ID).truncatedTo(ChronoUnit.SECONDS);
 
         String blobUrl = "http://cvp.blob/" + blobName;
-        when(hearingRecordingStorage.findBlob(HearingSource.VH, blobName)).thenReturn(
+        when(hearingRecordingStorage.findBlob(HearingSource.CVP, blobName)).thenReturn(
             new HearingRecordingStorageImpl.BlobDetail(blobUrl, 10, time)
         );
-        mockMvc.perform(get("/report/hrs/VH/" + blobName)
+        mockMvc.perform(get("/report/hrs/CVP/" + blobName)
                             .header(AUTHORIZATION, "Bearer " + testDummyKey))
             .andDo(print())
             .andExpect(status().isOk())
@@ -127,7 +122,7 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
     @Test
     public void findBlobEndpointReturns401ErrorIfApiKeyInvalid() throws Exception {
         String blobName = UUID.randomUUID() + ".txt";
-        mockMvc.perform(get("/report/hrs/VH/" + blobName)
+        mockMvc.perform(get("/report/hrs/CVP/" + blobName)
                             .header(AUTHORIZATION, "Bearer invalid"))
             .andDo(print())
             .andExpect(status().isUnauthorized());

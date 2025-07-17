@@ -70,38 +70,6 @@ class BlobstoreClientImplTest {
         }
     }
 
-    @Test
-    void testShouldDownloadHrsVhFile() throws Exception {
-        final String filePath = UUID.randomUUID() + ".txt";
-        azureIntegrationTestOperations.populateHrsVhContainer(filePath, TEST_DATA);
-
-        BlobRange blobRange;
-        try (final PipedInputStream pipedInput = new PipedInputStream();
-             final PipedOutputStream output = new PipedOutputStream(pipedInput)) {
-            underTest.downloadFile(filePath, null, output, HearingSource.VH.name());
-            assertThat(pipedInput).satisfies(this::assertStreamContent);
-        }
-
-        try (final PipedInputStream pipedInput = new PipedInputStream();
-             final PipedOutputStream output = new PipedOutputStream(pipedInput)) {
-            blobRange = new BlobRange(0, 3L);
-            underTest.downloadFile(filePath, blobRange, output, HearingSource.VH.name());
-            assertThat(pipedInput).satisfies(this::assertPartialStreamContent);
-        }
-    }
-
-    @Test
-    void testShouldFetchHrsVhBlobInfo() throws IOException {
-        final String filePath = UUID.randomUUID() + ".txt";
-        azureIntegrationTestOperations.populateHrsVhContainer(filePath, TEST_DATA);
-        try (final PipedInputStream pipedInput = new PipedInputStream();
-             final PipedOutputStream output = new PipedOutputStream(pipedInput)) {
-            underTest.downloadFile(filePath, null, output, HearingSource.VH.name());
-            underTest.fetchBlobInfo(filePath, HearingSource.VH.name());
-            assertThat(pipedInput).satisfies(this::assertStreamContent);
-        }
-    }
-
     private void assertStreamContent(final InputStream input) {
         final StringBuilder sb = new StringBuilder();
         try {

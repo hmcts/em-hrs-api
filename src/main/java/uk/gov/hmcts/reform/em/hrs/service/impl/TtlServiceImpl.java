@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.em.hrs.service.TtlService;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -33,7 +34,18 @@ public class TtlServiceImpl implements TtlService {
         return calculateTtl(ttlPeriod, createdDate);
     }
 
+    public String hasTtlConfig(String serviceCode, String jurisdictionCode) {
+        boolean result = (Objects.nonNull(serviceCode)
+            && ttlMapperConfig.getTtlServiceMap().containsKey(serviceCode.toUpperCase()))
+            ||
+            (Objects.nonNull(jurisdictionCode)
+                && ttlMapperConfig.getTtlJurisdictionMap().containsKey(jurisdictionCode.toUpperCase()));
+
+        return result ? "Yes" : "No";
+    }
+
     private LocalDate calculateTtl(Period ttl, LocalDate createdDate) {
         return createdDate.plusYears(ttl.getYears()).plusMonths(ttl.getMonths()).plusDays(ttl.getDays());
     }
+
 }

@@ -41,8 +41,6 @@ spring:
         jdbc:
           batch_size: 5
           batch_versioned_data: true
-  main:
-    allow-bean-definition-overriding: true
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:6432/emhrs}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
@@ -84,6 +82,8 @@ idam:
     redirect_uri: ${IDAM_REDIRECT_URI:http://localhost:8081/oauth2/callback}
     grant_type: password
     scope: openid roles profile
+    cache:
+      refresh-before-expire-in-sec: 300
   api:
     url: ${IDAM_API_BASE_URI:http://localhost:5062}
   system-user:
@@ -121,16 +121,10 @@ azure:
     cvp:
       connection-string: ${CVP_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
       blob-container-reference: ${CVP_STORAGE_CONTAINER_NAME:cvptestcontainer}
-    vh:
-      connection-string: ${VH_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
-      blob-container-name: ${VH_STORAGE_CONTAINER_NAME:vhtestcontainer}
     jurisdiction-codes:
       connection-string: ${STORAGEACCOUNT_PRIMARY_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1}
       blob-container-name: ${JURISDICTION_CODES_CONTAINER_NAME:jurisdictioncodes}
     use-ad-auth: ${USE_AD_AUTH_FOR_SOURCE_BLOB_CONNECTION:false}
-
-vh:
-  enable-report: ${VH_ENABLE_REPORT:false}
 
 app-insights:
   dev-mode: off
@@ -143,14 +137,12 @@ notify:
   email.template: 1e10b560-4a3f-49a7-81f7-c3c6eceab455
 
 hrs:
-  ingestion-queue-size: 1000
-  thread-pool:
-    core-size: 5
-    max-size: 10
-    queue-capacity: 100
+  ingestion-enabled: ${INGESTION_ENABLED:true}
   ingestion-interval-in-seconds: ${INGESTION_INTERVAL_IN_SECONDS:1} # how long between each fired job (per server: 4 servers at 1 seconds = 4 per second)
+  ccdupload-enabled: ${CCDUPLOAD_ENABLED:true}
   ccdupload-interval-in-seconds: ${CCDUPLOAD_INTERVAL_IN_SECONDS:30} # how long between each upload (per server: 4 servers at 30 seconds = 8 per minute)
   allowed-roles: ${ALLOWED_ROLES:caseworker-hrs-searcher,caseworker-hrs} #TODO remove caseworker-hrs after all PRS synced to master
+
 auth:
   provider:
     service:
@@ -168,6 +160,9 @@ scheduling:
     monthly-hearing-report:
       enabled: ${MONTHLY_HEARING_REPORT_ENABLED:false}
       cron: ${MONTHLY_HEARING_REPORT_CRON:0 0 6 ? * *}
+    weekly-hearing-report:
+      enabled: ${WEEKLY_HEARING_REPORT_ENABLED:false}
+      cron: ${WEEKLY_HEARING_REPORT_CRON:* 30 3 * * 1}
     monthly-audit-report:
       enabled: ${MONTHLY_AUDIT_REPORT_ENABLED:false}
       cron: ${MONTHLY_AUDIT_REPORT_CRON:0 0 6 ? * *}
@@ -176,12 +171,12 @@ scheduling:
       cron:  ${DELETE_INPROGRESS_CRON:0 0 */1 * * *}
       ttl-hours: 1
     update-ttl:
-      cron: ${UPDATE_TTL_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
       batch-size: ${UPDATE_TTL_BATCH_SIZE:10}
-      enabled: ${UPDATE_TTL_JOB_ENABLED:true}
+      no-of-iterations: ${UPDATE_TTL_NO_OF_ITERATIONS:1}
+      thread-limit: ${UPDATE_TTL_THREAD_LIMIT:1}
     jurisdiction-codes:
-      cron: ${JURISDICTION_CODES_UPDATE_CRONJOB_SCHEDULE:0 0/5 * * * *} # Every 5 minutes
-      enabled: ${JURISDICTION_CODES_UPDATE_ENABLED:true}
+      batch-size: ${JURISDICTION_CODES_BATCH_SIZE:10}
+      thread-limit: ${JURISDICTION_CODES_THREAD_LIMIT:2}
 report:
   recipients: ${SUMMARY_REPORT_RECIPIENTS:xxxx}
   from: ${SMTP_USERNAME:xxxx}
@@ -189,6 +184,10 @@ report:
   monthly-hearing:
     recipients: ${MONTHLY_HEARING_REPORT_RECIPIENTS:xxxx}
     reportStartDates: ${MONTHLY_HEARING_REPORT_REPORTSTART_DATES:}
+    from: ${SMTP_USERNAME:xxxx}
+  weekly-hearing:
+    recipients: ${WEEKLY_HEARING_REPORT_RECIPIENTS:xxxx}
+    reportStartDates: ${WEEKLY_HEARING_REPORT_REPORTSTART_DATES:}
     from: ${SMTP_USERNAME:xxxx}
   monthly-audit:
     recipients: ${MONTHLY_AUDIT_REPORT_RECIPIENTS:xxxx}

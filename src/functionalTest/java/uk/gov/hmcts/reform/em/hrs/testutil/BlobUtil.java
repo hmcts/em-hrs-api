@@ -27,24 +27,16 @@ public class BlobUtil {
     public static final int FIND_BLOB_TIMEOUT = 30;
     public final BlobContainerClient hrsCvpBlobContainerClient;
     public final BlobContainerClient cvpBlobContainerClient;
-    public final BlobContainerClient vhBlobContainerClient;
-    public final BlobContainerClient hrsVhBlobContainerClient;
-
-
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
 
     @Autowired
-    public BlobUtil(@Qualifier("hrsCvpBlobContainerClient") BlobContainerClient hrsCvpBlobContainerClient,
-                    @Qualifier("cvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient,
-                    @Qualifier("vhBlobContainerClient") BlobContainerClient vhBlobContainerClient,
-                    @Qualifier("hrsVhBlobContainerClient") BlobContainerClient hrsVhBlobContainerClient
-                    ) {
+    public BlobUtil(
+        @Qualifier("hrsCvpBlobContainerClient") BlobContainerClient hrsCvpBlobContainerClient,
+        @Qualifier("cvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient
+    ) {
         this.hrsCvpBlobContainerClient = hrsCvpBlobContainerClient;
         this.cvpBlobContainerClient = cvpBlobContainerClient;
-        this.vhBlobContainerClient = vhBlobContainerClient;
-        this.hrsVhBlobContainerClient = hrsVhBlobContainerClient;
     }
-
 
     public void checkIfUploadedToStore(Set<String> fileNames,
                                        BlobContainerClient containerClient) {
@@ -65,14 +57,12 @@ public class BlobUtil {
         }
     }
 
-
     private int getBlobCount(BlobContainerClient client, Set<String> fileNames) {
         return (int) client.listBlobs()
             .stream()
             .filter(c -> fileNames.contains(c.getName()))
             .collect(Collectors.toList()).stream().count();
     }
-
 
     public void uploadFileFromPathToCvpContainer(final String blobName, final String pathToFile) throws Exception {
         final FileInputStream fileInputStream = getFileFromPath(pathToFile);
@@ -81,16 +71,6 @@ public class BlobUtil {
 
         final BlobClient blobClient = cvpBlobContainerClient.getBlobClient(blobName);
         LOGGER.debug("cvpBlobContainerClient url {}", cvpBlobContainerClient.getBlobContainerUrl());
-        blobClient.upload(new BufferedInputStream(inStream), bytes.length);
-    }
-
-    public void uploadFileFromPathToVhContainer(final String blobName, final String pathToFile) throws Exception {
-        final FileInputStream fileInputStream = getFileFromPath(pathToFile);
-        final byte[] bytes = fileInputStream.readAllBytes();
-        final InputStream inStream = new ByteArrayInputStream(bytes);
-
-        final BlobClient blobClient = vhBlobContainerClient.getBlobClient(blobName);
-        LOGGER.info("vhBlobContainerClient url {}", vhBlobContainerClient.getBlobContainerUrl());
         blobClient.upload(new BufferedInputStream(inStream), bytes.length);
     }
 
@@ -103,7 +83,6 @@ public class BlobUtil {
         LOGGER.debug("hrsCvpBlobContainerClient url {}", hrsCvpBlobContainerClient.getBlobContainerUrl());
         blobClient.upload(new BufferedInputStream(inStream), bytes.length);
     }
-
 
     public FileInputStream getFileFromPath(final String pathToFile) throws Exception {
         final URL resource = ClassLoader.getSystemResource(pathToFile);

@@ -114,7 +114,7 @@ class CaseDataContentCreatorTest {
             actual.at("/recordingFiles/0/value/documentLink/document_url").asText()
         );
         assertEquals(
-            "{\"Suspended\":\"No\",\"SystemTTL\":\"" + ttl + "\",\"OverrideTTL\":\"" + ttl + "\"}",
+            "{\"Suspended\":\"No\",\"SystemTTL\":\"" + ttl + "\",\"OverrideTTL\":" + null + "}",
             actual.get("TTL").toString()
         );
     }

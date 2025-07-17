@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDeletionDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,5 +33,12 @@ public interface HearingRecordingSegmentRepository extends JpaRepository<Hearing
         @Param("endDate") LocalDateTime endDate
     );
 
+    @Query("""
+            SELECT new uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDeletionDto(
+            null, hrs.id, null, null, hrs.filename)
+            FROM HearingRecordingSegment hrs
+            WHERE hrs.hearingRecording.id = :hearingRecordingId
+            """)
+    List<HearingRecordingDeletionDto> findFilenamesByHearingRecordingId(UUID hearingRecordingId);
 
 }

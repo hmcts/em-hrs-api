@@ -61,7 +61,8 @@ public class CftLibConfig implements CFTLibConfigurer {
                            "caseworker",
                            "caseworker-hrs",
                            "caseworker-hrs-searcher",
-                           "cft-ttl-manager");
+                           "cft-ttl-manager",
+                           "caseworker-hrs-systemupdate");
 
         lib.createIdamUser("em-test-searcher@test.hmcts.net",
                            "citizen",

@@ -239,22 +239,6 @@ class SegmentDownloadServiceImplTest {
     }
 
     @Test
-    void testDownloadForVH() throws IOException {
-        segment.getHearingRecording().setHearingSource(HearingSource.VH.name());
-        doReturn(segment).when(segmentRepository).findByFilename(segment.getFilename());
-        when(blobstoreClient.fetchBlobInfo(any(), any())).thenReturn(new BlobInfo(1000L, null));
-        doReturn(hearingRecordingSegmentAuditEntry)
-            .when(auditEntryService).createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_OK);
-
-        doNothing().when(blobstoreClient).downloadFile(segment.getFilename(), null, null, "VH");
-        when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
-
-        segmentDownloadService.download(segment, request, response);
-
-        verify(blobstoreClient, times(1)).downloadFile(segment.getFilename(), null, null, "VH");
-    }
-
-    @Test
     void loadsRangedBlobInvalidRangeHeaderStart() {
         when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=A-Z");
         when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());

@@ -5,4 +5,6 @@ import java.util.Collection;
 public interface HearingRecordingService {
 
     void deleteCaseHearingRecordings(Collection<Long> ccdCaseIds);
+
+    Long findCcdCaseIdByFilename(String filename);
 }

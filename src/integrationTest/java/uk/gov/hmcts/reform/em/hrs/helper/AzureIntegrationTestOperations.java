@@ -25,22 +25,16 @@ public class AzureIntegrationTestOperations {
     private static final int BLOB_LIST_TIMEOUT = 5;
     private final BlobContainerClient hrsCvpBlobContainerClient;
 
-    private final BlobContainerClient hrsVhBlobContainerClient;
     private final BlobContainerClient cvpBlobContainerClient;
-    private final BlobContainerClient vhBlobContainerClient;
     private final Fairy fairy;
 
     @Autowired
     public AzureIntegrationTestOperations(
         final @Qualifier("hrsCvpBlobContainerClient") BlobContainerClient hrsCvpBlobContainerClient,
-        final @Qualifier("hrsVhBlobContainerClient") BlobContainerClient hrsVhBlobContainerClient,
-        final @Qualifier("CvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient,
-        final @Qualifier("vhBlobContainerClient") BlobContainerClient vhBlobContainerClient
+        final @Qualifier("CvpBlobContainerClient") BlobContainerClient cvpBlobContainerClient
     ) {
         this.hrsCvpBlobContainerClient = hrsCvpBlobContainerClient;
-        this.hrsVhBlobContainerClient = hrsVhBlobContainerClient;
         this.cvpBlobContainerClient = cvpBlobContainerClient;
-        this.vhBlobContainerClient = vhBlobContainerClient;
         fairy = Fairy.create();
     }
 
@@ -50,10 +44,6 @@ public class AzureIntegrationTestOperations {
 
     public String populateHrsCvpContainer(final String blobName, final String content) {
         return uploadToHrsCvpContainer(blobName, content.getBytes(StandardCharsets.UTF_8));
-    }
-
-    public void populateHrsVhContainer(final String blobName, final String content) {
-        uploadToHrsVhContainer(blobName, content.getBytes(StandardCharsets.UTF_8));
     }
 
     public void populateCvpContainer(final Set<String> filePaths) {
@@ -70,13 +60,6 @@ public class AzureIntegrationTestOperations {
         final BlobClient blobClient = hrsCvpBlobContainerClient.getBlobClient(blobName);
         blobClient.upload(new BufferedInputStream(inStream), data.length);
         return blobClient.getBlobUrl();
-    }
-
-    private void uploadToHrsVhContainer(final String blobName, final byte[] data) {
-        final InputStream inStream = new ByteArrayInputStream(data);
-
-        final BlobClient blobClient = hrsVhBlobContainerClient.getBlobClient(blobName);
-        blobClient.upload(new BufferedInputStream(inStream), data.length);
     }
 
 
