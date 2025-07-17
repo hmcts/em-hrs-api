@@ -145,7 +145,6 @@ public class CcdUploadServiceImpl implements CcdUploadService {
 
         LOGGER.info("About to create case in CCD");
 
-        recording.setTtlSet(true);
         var ttl = ttlService.createTtl(
             recordingDto.getServiceCode(),
             recordingDto.getJurisdictionCode(),
