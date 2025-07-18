@@ -52,7 +52,7 @@ public class HearingRecordingShareesConsumerPactTest extends BaseConsumerPactTes
             .uponReceiving("A valid POST request to create a sharees record")
             .path(SHAREES_API_PATH)
             .method(HttpMethod.POST.toString())
-            .headers(getHeaders())
+            .headers(HEADERS_WITH_JSON)
             .body(buildShareesRequestBody())
             .willRespondWith()
             .status(HttpStatus.OK.value())
@@ -67,7 +67,7 @@ public class HearingRecordingShareesConsumerPactTest extends BaseConsumerPactTes
     void testCreateSharees200(MockServer mockServer) {
         SerenityRest
             .given()
-            .headers(getHeaders())
+            .headers(HEADERS_WITH_JSON)
             .contentType(ContentType.JSON)
             .body(buildShareesRequestBody().getBody().toString())
             .post(mockServer.getUrl() + SHAREES_API_PATH)

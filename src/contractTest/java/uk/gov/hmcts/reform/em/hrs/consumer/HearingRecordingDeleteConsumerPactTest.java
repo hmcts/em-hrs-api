@@ -42,7 +42,7 @@ public class HearingRecordingDeleteConsumerPactTest extends BaseConsumerPactTest
             .uponReceiving("A valid delete request for hearing recordings")
             .path(DELETE_API_PATH)
             .method(HttpMethod.DELETE.toString())
-            .headers(getHeaders())
+            .headers(HEADERS_WITH_JSON)
             .body(requestBody)
             .willRespondWith()
             .status(HttpStatus.NO_CONTENT.value())
@@ -56,7 +56,7 @@ public class HearingRecordingDeleteConsumerPactTest extends BaseConsumerPactTest
 
         SerenityRest
             .given()
-            .headers(getHeaders())
+            .headers(HEADERS_WITH_JSON)
             .contentType(ContentType.JSON)
             .body(ccdCaseIds)
             .when()
