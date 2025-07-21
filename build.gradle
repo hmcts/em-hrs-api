@@ -236,8 +236,8 @@ def versions = [
   postgresql         : '42.7.7',
   pact_version       : '4.6.17',
   restAssured        : '5.3.0',
-  junit              : '5.13.3',
-  junitPlatform      : '1.13.3',
+  junit              : '5.13.4',
+  junitPlatform      : '1.13.4',
   springSecurity     : '6.5.1',
   shedlock           : '6.9.2',
   testcontainers     : '1.21.3'
@@ -362,12 +362,12 @@ dependencies {
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.3.0'
 
-  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.13.3'
-  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.13.3'
+  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.13.4'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.13.4'
   functionalTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: versions.junitPlatform
 
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.13.3'
-  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.13.3'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.13.4'
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.13.4'
 
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
@@ -409,8 +409,8 @@ dependencies {
   contractTestImplementation group: 'au.com.dius.pact.provider', name: 'spring6', version: versions.pact_version
 
 
-  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.13.3"
-  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.13.3"
+  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:5.13.4"
+  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.13.4"
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: versions.junitPlatform
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
