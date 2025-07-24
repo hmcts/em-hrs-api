@@ -209,7 +209,6 @@ logging:
 
 ttl:
   default-ttl: ${DEFAULT_TTL:P7Y}
-  enabled: ${TTL_ENABLED:true}
 
 endpoint:
   deleteCase:
