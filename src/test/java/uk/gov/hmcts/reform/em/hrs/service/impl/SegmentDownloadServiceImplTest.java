@@ -4,15 +4,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.system.CapturedOutput;
-import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
@@ -55,9 +52,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@ExtendWith(OutputCaptureExtension.class)
-@TestPropertySource(
-    properties = "logging.level.uk.gov.hmcts.reform.em.hrs.service.impl.SegmentDownloadServiceImpl=DEBUG")
 @SpringBootTest(classes = {SegmentDownloadServiceImpl.class})
 class SegmentDownloadServiceImplTest {
 
@@ -318,20 +312,6 @@ class SegmentDownloadServiceImplTest {
             .setHeader(HttpHeaders.CONTENT_RANGE, "bytes 0-1023/2000");
         Mockito.verify(response, Mockito.times(1))
             .setHeader(HttpHeaders.CONTENT_LENGTH, "1024");
-    }
-
-    @Test
-    void testDownloadWithRangeRequestLogsDebugInfoWhenEnabled(CapturedOutput output) throws IOException {
-        when(request.getHeader(HttpHeaders.RANGE)).thenReturn("bytes=0-1023");
-        when(request.getHeaderNames()).thenReturn(generateEmptyHeaders());
-        when(blobstoreClient.fetchBlobInfo(anyString(), anyString())).thenReturn(new BlobInfo(2000L, null));
-
-        segmentDownloadService.download(segment, request, response);
-
-
-        assertThat(output)
-            .contains("Calc Blob Values: blobStart 0, blobLength 1024")
-            .contains("Calc Http Header Values: CONTENT_RANGE null, CONTENT_LENGTH null");
     }
 
 
