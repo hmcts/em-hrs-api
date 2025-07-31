@@ -63,7 +63,7 @@ class CcdUploadServiceImplTest {
     @InjectMocks
     private CcdUploadServiceImpl underTest;
 
-    private static final Optional<LocalDate> optTtl = Optional.empty();
+    private static final LocalDate ttl = LocalDate.now();
 
     @Test
     void testShouldCreateNewCaseInCcdAndPersistRecordingAndSegmentToPostgresWhenHearingRecordingIsNotInDatabase() {
@@ -72,15 +72,19 @@ class CcdUploadServiceImplTest {
             .findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER_1.getName());
         doReturn(TEST_FOLDER_1).when(folderService).getFolderByName(TEST_FOLDER_1.getName());
 
-        doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).createCase(recording.getId(), HEARING_RECORDING_DTO, optTtl);
+        doReturn(ttl).when(ttlService)
+            .createTtl(HEARING_RECORDING_DTO.getServiceCode(),
+                       HEARING_RECORDING_DTO.getJurisdictionCode(),
+                       LocalDate.now());
+        doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).createCase(recording.getId(), HEARING_RECORDING_DTO, ttl);
         doReturn(recording).when(recordingRepository).saveAndFlush(any(HearingRecording.class));
         doReturn(SEGMENT_1).when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
-        doReturn(false).when(ttlService).isTtlEnabled();
+
 
         underTest.upload(HEARING_RECORDING_DTO);
 
         verify(recordingRepository).findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER_1.getName());
-        verify(ccdDataStoreApiClient).createCase(recording.getId(), HEARING_RECORDING_DTO, optTtl);
+        verify(ccdDataStoreApiClient).createCase(recording.getId(), HEARING_RECORDING_DTO, ttl);
 
         ArgumentCaptor<HearingRecording> hearingRecordingCaptor = ArgumentCaptor.forClass(HearingRecording.class);
         verify(recordingRepository, times(2)).saveAndFlush(hearingRecordingCaptor.capture());
@@ -89,7 +93,7 @@ class CcdUploadServiceImplTest {
         assertThat(firstSave.getTtl()).isNull();
         assertThat(firstSave.getCcdCaseId()).isNull();
         var secondSave = hearingRecordingList.get(1);
-        assertThat(secondSave.getTtl()).isNull();
+        assertThat(secondSave.getTtl()).isNotNull();
         assertThat(secondSave.getCcdCaseId()).isEqualTo(CCD_CASE_ID);
 
         verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
@@ -101,12 +105,11 @@ class CcdUploadServiceImplTest {
         doReturn(Optional.empty()).when(recordingRepository)
             .findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER_1.getName());
         doReturn(TEST_FOLDER_1).when(folderService).getFolderByName(TEST_FOLDER_1.getName());
-        LocalDate ttl = LocalDate.now();
+
         doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient)
-            .createCase(recording.getId(), HEARING_RECORDING_DTO, Optional.of(ttl));
+            .createCase(recording.getId(), HEARING_RECORDING_DTO, ttl);
         doReturn(recording).when(recordingRepository).saveAndFlush(any(HearingRecording.class));
         doReturn(SEGMENT_1).when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
-        doReturn(true).when(ttlService).isTtlEnabled();
         doReturn(ttl).when(ttlService)
             .createTtl(HEARING_RECORDING_DTO.getServiceCode(),
                        HEARING_RECORDING_DTO.getJurisdictionCode(),
@@ -115,7 +118,7 @@ class CcdUploadServiceImplTest {
         underTest.upload(HEARING_RECORDING_DTO);
 
         verify(recordingRepository).findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER_1.getName());
-        verify(ccdDataStoreApiClient).createCase(recording.getId(), HEARING_RECORDING_DTO, Optional.of(ttl));
+        verify(ccdDataStoreApiClient).createCase(recording.getId(), HEARING_RECORDING_DTO, ttl);
 
         ArgumentCaptor<HearingRecording> hearingRecordingCaptor = ArgumentCaptor.forClass(HearingRecording.class);
         verify(recordingRepository, times(2)).saveAndFlush(hearingRecordingCaptor.capture());
@@ -155,7 +158,7 @@ class CcdUploadServiceImplTest {
                 eq(HEARING_RECORDING_DTO)
             );
         verify(ccdDataStoreApiClient, never())
-            .createCase(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3.getId(), HEARING_RECORDING_DTO, optTtl);
+            .createCase(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3.getId(), HEARING_RECORDING_DTO, ttl);
         verify(recordingRepository, never()).saveAndFlush(any(HearingRecording.class));
         verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
     }

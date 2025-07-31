@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -45,7 +44,7 @@ class CcdDataStoreApiClientTest {
     private static final String SERVICE_TOKEN = "serviceToken";
     private static final String USER_ID = "123456";
     private static final UUID RECORDING_ID = UUID.randomUUID();
-    private static final Optional<LocalDate> optTtl = Optional.empty();
+    private static final LocalDate ttl = LocalDate.now();
     private static final HearingRecordingDto HEARING_RECORDING_DTO = HearingRecordingDto.builder()
         .recordingRef("recordingRef").build();
 
@@ -77,7 +76,7 @@ class CcdDataStoreApiClientTest {
 
         JsonNode data = JsonNodeFactory.instance.objectNode();
 
-        doReturn(data).when(caseDataContentCreator).createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID, optTtl);
+        doReturn(data).when(caseDataContentCreator).createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID, ttl);
 
         CaseDataContent caseData = CaseDataContent.builder().data(data)
             .event(Event.builder().build()).build();
@@ -86,7 +85,7 @@ class CcdDataStoreApiClientTest {
             USER_TOKEN, SERVICE_TOKEN, USER_ID, JURISDICTION, CASE_TYPE, false, caseData
         );
 
-        Long caseId = underTest.createCase(RECORDING_ID, HEARING_RECORDING_DTO, optTtl);
+        Long caseId = underTest.createCase(RECORDING_ID, HEARING_RECORDING_DTO, ttl);
 
         assertEquals(CASE_ID, caseId);
     }
@@ -98,7 +97,7 @@ class CcdDataStoreApiClientTest {
         assertThatExceptionOfType(CcdUploadException.class).isThrownBy(() -> underTest.createCase(
             RECORDING_ID,
             HEARING_RECORDING_DTO,
-            optTtl
+            ttl
         ));
     }
 
@@ -115,7 +114,7 @@ class CcdDataStoreApiClientTest {
         assertThatExceptionOfType(CcdUploadException.class).isThrownBy(() -> underTest.createCase(
             RECORDING_ID,
             HEARING_RECORDING_DTO,
-            optTtl
+            ttl
         ));
     }
 
@@ -133,12 +132,12 @@ class CcdDataStoreApiClientTest {
             .startCase(USER_TOKEN, SERVICE_TOKEN, CASE_TYPE, CREATE_CASE);
 
         doThrow(CcdUploadException.class).when(caseDataContentCreator)
-            .createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID, optTtl);
+            .createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID, ttl);
 
         assertThatExceptionOfType(CcdUploadException.class).isThrownBy(() -> underTest.createCase(
             RECORDING_ID,
             HEARING_RECORDING_DTO,
-            optTtl
+            ttl
         ));
     }
 
@@ -157,7 +156,7 @@ class CcdDataStoreApiClientTest {
 
         JsonNode data = JsonNodeFactory.instance.objectNode();
 
-        doReturn(data).when(caseDataContentCreator).createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID, optTtl);
+        doReturn(data).when(caseDataContentCreator).createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID, ttl);
 
         CaseDataContent caseData = CaseDataContent.builder().data(data)
             .event(Event.builder().build()).build();
@@ -170,7 +169,7 @@ class CcdDataStoreApiClientTest {
         assertThatExceptionOfType(CcdUploadException.class).isThrownBy(() -> underTest.createCase(
             RECORDING_ID,
             HEARING_RECORDING_DTO,
-            optTtl
+            ttl
         ));
 
 
@@ -299,7 +298,7 @@ class CcdDataStoreApiClientTest {
         doReturn(tokens).when(securityService).createTokens();
         doReturn(startEventResponse).when(coreCaseDataApi)
             .startEvent(USER_TOKEN, SERVICE_TOKEN, ccdCaseId.toString(), AMEND_CASE);
-        doReturn(ttlObject).when(caseDataContentCreator).createTTLObject(Optional.of(ttl));
+        doReturn(ttlObject).when(caseDataContentCreator).createTTLObject(ttl);
 
         underTest.updateCaseWithTtl(ccdCaseId, ttl);
 
@@ -311,7 +310,7 @@ class CcdDataStoreApiClientTest {
     @Test
     void shouldHandleExceptionDuringUpdateCaseWithTtl() {
         Long ccdCaseId = 123L;
-        LocalDate ttl = LocalDate.now().plusDays(30);
+        LocalDate ttlPlus30 = LocalDate.now().plusDays(30);
         Map<String, String> tokens = Map.of(
             "user", USER_TOKEN,
             "service", SERVICE_TOKEN,
@@ -330,7 +329,7 @@ class CcdDataStoreApiClientTest {
             .submitEventForCaseWorker(any(), any(), any(), any(), any(), any(), anyBoolean(), any());
 
         assertThatExceptionOfType(CcdUploadException.class)
-            .isThrownBy(() -> underTest.updateCaseWithTtl(ccdCaseId, ttl));
+            .isThrownBy(() -> underTest.updateCaseWithTtl(ccdCaseId, ttlPlus30));
     }
 
 

@@ -34,9 +34,6 @@ public class IngestScenarios extends BaseTest {
     //AAT averages at 8/second if evenly spread across servers - 30 seconds if they all were served by 1 server
     //chosing 15 seconds as with 2 segments + 35 second margin = 65 seconds in total 0 more than enough
 
-    @Value("${ttl.enabled}")
-    protected boolean ttlEnabled;
-
     @Value("${ttl.default-ttl}")
     private Period defaultTTL;
 
@@ -138,15 +135,11 @@ public class IngestScenarios extends BaseTest {
 
         Map ttlObject = (Map)data.get("TTL");
         LocalDate creationDate = LocalDate.parse(DATE);
-        if (ttlEnabled) {
-            assertNull(ttlObject.get("OverrideTTL"));
-            assertThat(ttlObject.get("Suspended")).isEqualTo("No");
-            String ttl = (String) ttlObject.get("SystemTTL");
-            assertThat(LocalDate.parse(ttl)).isGreaterThan(creationDate.plusYears(defaultTTL.getYears()).minusDays(2));
-            assertThat(LocalDate.parse(ttl)).isLessThan(creationDate.plusYears(defaultTTL.getYears()).plusDays(2));
-        } else {
-            assertThat(ttlObject == null);
-        }
-    }
 
+        assertNull(ttlObject.get("OverrideTTL"));
+        assertThat(ttlObject.get("Suspended")).isEqualTo("No");
+        String ttl = (String) ttlObject.get("SystemTTL");
+        assertThat(LocalDate.parse(ttl)).isGreaterThan(creationDate.plusYears(defaultTTL.getYears()).minusDays(2));
+        assertThat(LocalDate.parse(ttl)).isLessThan(creationDate.plusYears(defaultTTL.getYears()).plusDays(2));
+    }
 }
