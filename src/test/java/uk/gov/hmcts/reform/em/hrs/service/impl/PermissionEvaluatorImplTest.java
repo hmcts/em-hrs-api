@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,19 +58,23 @@ class PermissionEvaluatorImplTest {
         .uid(USER_ID)
         .roles(List.of("caseworker"))
         .build();
+    private static final UserInfo HRS_NO_ROLES_INFO = UserInfo.builder()
+        .uid(USER_ID)
+        .roles(Collections.emptyList())
+        .build();
     private static final UUID recordingId = UUID.randomUUID();
     private static final HearingRecordingSegment segment = HearingRecordingSegment.builder()
         .hearingRecording(HearingRecording.builder().id(recordingId).build())
         .build();
-    private String shareeEmail = "sharee@sharee.com";
+    private final String shareeEmail = "sharee@sharee.com";
     private List<HearingRecordingSharee> hearingRecordingWithSharee;
-    private List<HearingRecordingSharee> hearingRecordingWithNoSharees = new ArrayList<>();
+    private final List<HearingRecordingSharee> hearingRecordingWithNoSharees = new ArrayList<>();
 
     @Autowired
     PermissionEvaluatorImpl permissionEvaluator;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         Jwt jwt = Jwt.withTokenValue("token")
             .header("alg", "none")
             .claim("sub", "user")
@@ -108,6 +113,23 @@ class PermissionEvaluatorImplTest {
     }
 
     @Test
+    void testPermissionOnDownloadShareeButForDifferentRecordingFailure() {
+        HearingRecordingSharee otherShare = new HearingRecordingSharee();
+        otherShare.setHearingRecording(HearingRecording.builder().id(UUID.randomUUID()).build());
+        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_SHAREE_INFO);
+        when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
+        when(shareesRepository.findByShareeEmailIgnoreCase(Mockito.anyString())).thenReturn(List.of(otherShare));
+
+        boolean permissionResult = permissionEvaluator.hasPermission(authentication, segment, "READ");
+
+        assertFalse(permissionResult);
+        verify(auditEntryService, times(1)).createAndSaveEntry(
+            any(HearingRecordingSegment.class),
+            any(AuditActions.class)
+        );
+    }
+
+    @Test
     void testPermissionOnDownloadShareeFailure() {
         when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_SHAREE_INFO);
         when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
@@ -120,6 +142,23 @@ class PermissionEvaluatorImplTest {
             any(AuditActions.class)
         );
     }
+
+    @Test
+    void testPermissionOnDownloadWithNoRolesAndNoShareGrantFailure() {
+        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_NO_ROLES_INFO);
+        when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
+        when(shareesRepository.findByShareeEmailIgnoreCase(Mockito.anyString()))
+            .thenReturn(hearingRecordingWithNoSharees);
+
+        boolean permissionResult = permissionEvaluator.hasPermission(authentication, segment, "READ");
+
+        assertFalse(permissionResult);
+        verify(auditEntryService, times(1)).createAndSaveEntry(
+            any(HearingRecordingSegment.class),
+            any(AuditActions.class)
+        );
+    }
+
 
     @Test
     void testPermissionOnDownloadFailure() {

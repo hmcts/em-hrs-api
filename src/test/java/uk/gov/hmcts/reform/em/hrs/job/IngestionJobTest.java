@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.em.hrs.service.JobInProgressService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -41,11 +42,11 @@ class IngestionJobTest {
         .checkSum("erI2foA30B==")
         .build();
 
-    private LinkedBlockingQueue<HearingRecordingDto> ingestionQueue =
-        new LinkedBlockingQueue<HearingRecordingDto>(1000);
+    private final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue =
+        new LinkedBlockingQueue<>(1000);
 
     @SuppressWarnings("unchecked")
-    private LinkedBlockingQueue<HearingRecordingDto> ccdUploadQueue = mock(LinkedBlockingQueue.class);
+    private final LinkedBlockingQueue<HearingRecordingDto> ccdUploadQueue = mock(LinkedBlockingQueue.class);
 
     private final IngestionService ingestionService = mock(IngestionService.class);
     private final JobInProgressService jobInProgressService = mock(JobInProgressService.class);
@@ -57,24 +58,25 @@ class IngestionJobTest {
     @BeforeEach
     void prepare() {
         ingestionQueue.clear();
+        doNothing().when(ingestionService).ingest(any(HearingRecordingDto.class));
     }
 
     @Test
-    void testShouldInvokeIngestionServiceAndRegisterJobInProgressAndCreatCcdUploadJobWhenHearingRecordingIsPolled() {
+    void testShouldSuccessfullyProcessIngestionAndQueueForCcdUpload() {
         ingestionQueue.offer(HEARING_RECORDING_DTO);
-        doNothing().when(ingestionService).ingest(HEARING_RECORDING_DTO);
+        doReturn(true).when(ccdUploadQueue).offer(HEARING_RECORDING_DTO);
 
         underTest.executeInternal(jobExecutionContext);
+
         verify(jobInProgressService, times(1)).register(HEARING_RECORDING_DTO);
         verify(ingestionService, times(1)).ingest(HEARING_RECORDING_DTO);
-        verify(ccdUploadQueue).offer(HEARING_RECORDING_DTO);
+        verify(ccdUploadQueue, times(1)).offer(HEARING_RECORDING_DTO);
+        verify(jobInProgressService, never()).deRegister(any());
     }
 
 
     @Test
-    void testShouldNotInvokeIngestionServiceWhenNullIsPolled() {
-        doNothing().when(ingestionService).ingest(any(HearingRecordingDto.class));
-
+    void testShouldNotInvokeAnyServiceWhenIngestionQueueIsEmpty() {
         underTest.executeInternal(jobExecutionContext);
 
         verify(jobInProgressService, never()).register(any(HearingRecordingDto.class));
@@ -108,14 +110,18 @@ class IngestionJobTest {
     @Test
     void testShouldHandleCcdQueueFullGracefully() {
         ingestionQueue.offer(HEARING_RECORDING_DTO);
-        doNothing().when(ingestionService).ingest(any(HearingRecordingDto.class));
         doReturn(false).when(ccdUploadQueue).offer(HEARING_RECORDING_DTO);
         underTest.executeInternal(jobExecutionContext);
         verify(jobInProgressService, times(1)).register(HEARING_RECORDING_DTO);
         verify(ingestionService, times(1)).ingest(any(HearingRecordingDto.class));
+        verify(ccdUploadQueue, times(1)).offer(HEARING_RECORDING_DTO);
         verify(jobInProgressService, times(1)).deRegister(HEARING_RECORDING_DTO);
-        verify(ccdUploadQueue).offer(HEARING_RECORDING_DTO);
     }
 
+    @Test
+    void testNoArgsConstructorCanBeInstantiated() {
+        IngestionJob ingestionJob = new IngestionJob();
 
+        assertThat(ingestionJob).isNotNull();
+    }
 }

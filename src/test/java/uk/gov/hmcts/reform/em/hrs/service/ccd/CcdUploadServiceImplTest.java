@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.service.ccd;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -11,6 +12,7 @@ import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.exception.CcdUploadException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
@@ -22,10 +24,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -174,6 +179,80 @@ class CcdUploadServiceImplTest {
         verify(ccdDataStoreApiClient, never())
             .createCase(any(UUID.class), any(HearingRecordingDto.class), ArgumentMatchers.any());
         verify(recordingRepository, never()).saveAndFlush(any(HearingRecording.class));
+        verify(segmentRepository, never()).saveAndFlush(any(HearingRecordingSegment.class));
+    }
+
+    @Test
+    void testUpdateCaseShouldHandleConstraintViolationExceptionWhenSavingSegment() {
+
+        doReturn(Optional.of(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3)).when(recordingRepository)
+            .findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER_1.getName());
+
+        doReturn(CCD_CASE_ID)
+            .when(ccdDataStoreApiClient)
+            .updateCaseData(
+                anyLong(),
+                eq(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3.getId()),
+                eq(HEARING_RECORDING_DTO)
+            );
+        doThrow(ConstraintViolationException.class)
+            .when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
+
+        underTest.upload(HEARING_RECORDING_DTO);
+
+        verify(recordingRepository).findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER_1.getName());
+        verify(ccdDataStoreApiClient)
+            .updateCaseData(
+                anyLong(),
+                eq(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3.getId()),
+                eq(HEARING_RECORDING_DTO)
+            );
+        verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
+
+        verify(ccdDataStoreApiClient, never())
+            .createCase(any(UUID.class), any(HearingRecordingDto.class), any());
+        verify(recordingRepository, never()).saveAndFlush(any(HearingRecording.class));
+    }
+
+    @Test
+    void testCreateCaseShouldThrowCcdUploadExceptionOnHearingRecordingConstraintViolation() {
+
+        doReturn(Optional.empty()).when(recordingRepository)
+            .findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER_1.getName());
+        doReturn(TEST_FOLDER_1).when(folderService).getFolderByName(TEST_FOLDER_1.getName());
+        doThrow(ConstraintViolationException.class).when(recordingRepository).saveAndFlush(any(HearingRecording.class));
+
+        final CcdUploadException e = assertThrows(
+            CcdUploadException.class,
+            () -> underTest.upload(HEARING_RECORDING_DTO)
+        );
+
+        assertEquals("Hearing Recording already exists. Likely race condition from another server", e.getMessage());
+
+        verify(ccdDataStoreApiClient, never())
+            .createCase(any(UUID.class), any(HearingRecordingDto.class), any());
+        verify(segmentRepository, never()).saveAndFlush(any(HearingRecordingSegment.class));
+    }
+
+
+    @Test
+    void testCreateCaseShouldThrowCcdUploadExceptionOnGenericDatabaseException() {
+
+        doReturn(Optional.empty()).when(recordingRepository)
+            .findByRecordingRefAndFolderName(RECORDING_REFERENCE, TEST_FOLDER_1.getName());
+        doReturn(TEST_FOLDER_1).when(folderService).getFolderByName(TEST_FOLDER_1.getName());
+        doThrow(new RuntimeException("Generic DB Error")).when(recordingRepository)
+            .saveAndFlush(any(HearingRecording.class));
+
+        final CcdUploadException e = assertThrows(
+            CcdUploadException.class,
+            () -> underTest.upload(HEARING_RECORDING_DTO)
+        );
+
+        assertEquals("Unhandled Exception trying to persist case", e.getMessage());
+
+        verify(ccdDataStoreApiClient, never())
+            .createCase(any(UUID.class), any(HearingRecordingDto.class), any());
         verify(segmentRepository, never()).saveAndFlush(any(HearingRecordingSegment.class));
     }
 }

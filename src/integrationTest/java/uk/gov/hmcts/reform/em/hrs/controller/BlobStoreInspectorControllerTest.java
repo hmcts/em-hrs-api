@@ -7,17 +7,18 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.helper.TestClockProvider;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorageImpl;
 import uk.gov.hmcts.reform.em.hrs.storage.StorageReport;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.UUID;
 
 import static org.mockito.Mockito.when;
@@ -36,22 +37,31 @@ import static uk.gov.hmcts.reform.em.hrs.config.ClockConfig.EUROPE_LONDON_ZONE_I
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BlobStoreInspectorControllerTest extends BaseWebTest {
 
+    private static final String URI_TEMPLATE = "/report";
+    private static final String BEARER = "Bearer ";
+
     @MockitoBean
     private HearingRecordingStorage hearingRecordingStorage;
 
-    private String testDummyKey = "RkI2ejoxNjk1OTA2MjM0MDcx";
+    private final BlobStoreInspectorController blobStoreInspectorController;
+
+    private static final String TEST_DUMMY_KEY = "RkI2ejoxNjk1OTA2MjM0MDcx";
+
+    public BlobStoreInspectorControllerTest(BlobStoreInspectorController blobStoreInspectorController) {
+        this.blobStoreInspectorController = blobStoreInspectorController;
+    }
 
     @BeforeEach
+    @Override
     public void setup() {
         super.setup();
         TestClockProvider.stoppedInstant = ZonedDateTime.now().toInstant();
     }
 
     private void stopTime() {
-        Instant stopPastTime = ZonedDateTime
+        TestClockProvider.stoppedInstant = ZonedDateTime
             .of(2012, 1, 1, 1, 1, 1, 1, EUROPE_LONDON_ZONE_ID)
             .withHour(5).toInstant();
-        TestClockProvider.stoppedInstant = stopPastTime;
     }
 
     @Test
@@ -66,8 +76,8 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
         stopTime();
 
         when(hearingRecordingStorage.getStorageReport()).thenReturn(storageReport);
-        mockMvc.perform(get("/report")
-                            .header(AUTHORIZATION, "Bearer " + testDummyKey))
+        mockMvc.perform(get(URI_TEMPLATE)
+                            .header(AUTHORIZATION, BEARER + TEST_DUMMY_KEY))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.today").value(today.toString()))
@@ -79,26 +89,54 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
 
     @Test
     public void inspectEndpointReturns401ErrorIfApiKeyMissing() throws Exception {
-        mockMvc.perform(get("/report"))
+        mockMvc.perform(get(URI_TEMPLATE))
             .andDo(print())
             .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void inspectEndpointReturns401ErrorIfApiKeyExpired() throws Exception {
-        mockMvc.perform(get("/report")
-                            .header(AUTHORIZATION, "Bearer " + testDummyKey))
+        mockMvc.perform(get(URI_TEMPLATE)
+                            .header(AUTHORIZATION, BEARER + TEST_DUMMY_KEY))
             .andDo(print())
             .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void inspectEndpointReturns401ErrorIfApiKeyInvalid() throws Exception {
-        mockMvc.perform(get("/report")
+        mockMvc.perform(get(URI_TEMPLATE)
                             .header(AUTHORIZATION, "Bearer invalid"))
             .andDo(print())
             .andExpect(status().isUnauthorized());
     }
+
+
+    @Test
+    public void inspectEndpointReturns401ErrorIfConfiguredApiKeyIsPoorlyFormatted() throws Exception {
+        stopTime();
+        String malformedKey = Base64.getEncoder().encodeToString("malformed-key".getBytes());
+
+        ReflectionTestUtils.setField(blobStoreInspectorController, "apiKey", malformedKey);
+
+        mockMvc.perform(get(URI_TEMPLATE)
+                            .header(AUTHORIZATION, BEARER + malformedKey))
+            .andDo(print())
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void inspectEndpointReturns401ErrorIfConfiguredApiKeyCausesException() throws Exception {
+        stopTime();
+        String keyThatThrowsException = "this-is-not-base64";
+
+        ReflectionTestUtils.setField(blobStoreInspectorController, "apiKey", keyThatThrowsException);
+
+        mockMvc.perform(get(URI_TEMPLATE)
+                            .header(AUTHORIZATION, BEARER + keyThatThrowsException))
+            .andDo(print())
+            .andExpect(status().isUnauthorized());
+    }
+
 
     @Test
     public void findBlobEndpointReturnsResponse() throws Exception {
@@ -111,7 +149,7 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
             new HearingRecordingStorageImpl.BlobDetail(blobUrl, 10, time)
         );
         mockMvc.perform(get("/report/hrs/CVP/" + blobName)
-                            .header(AUTHORIZATION, "Bearer " + testDummyKey))
+                            .header(AUTHORIZATION, BEARER + TEST_DUMMY_KEY))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.blob-url").value(blobUrl))
