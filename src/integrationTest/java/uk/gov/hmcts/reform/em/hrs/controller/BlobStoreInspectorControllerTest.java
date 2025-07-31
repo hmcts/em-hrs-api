@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
@@ -43,13 +44,10 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
     @MockitoBean
     private HearingRecordingStorage hearingRecordingStorage;
 
-    private final BlobStoreInspectorController blobStoreInspectorController;
+    @Autowired
+    private BlobStoreInspectorController blobStoreInspectorController;
 
     private static final String TEST_DUMMY_KEY = "RkI2ejoxNjk1OTA2MjM0MDcx";
-
-    public BlobStoreInspectorControllerTest(BlobStoreInspectorController blobStoreInspectorController) {
-        this.blobStoreInspectorController = blobStoreInspectorController;
-    }
 
     @BeforeEach
     @Override
