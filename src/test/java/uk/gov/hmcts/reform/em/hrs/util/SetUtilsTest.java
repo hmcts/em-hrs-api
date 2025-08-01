@@ -22,6 +22,19 @@ class SetUtilsTest {
     }
 
     @Test
+    void testIntersectionWhenNoModificationIsNeeded() {
+        final Set<String> subset = Set.of("c", "d");
+        final Set<String> superset = Set.of("a", "b", "c", "d");
+
+        final Set<String> intersection = SetUtils.intersect(subset, superset);
+
+        assertThat(intersection)
+            .hasSize(2)
+            .hasSameElementsAs(subset)
+            .isSameAs(subset);
+    }
+
+    @Test
     void testIntersectionResultingSetSizeWithNull() {
 
         NullPointerException exception = assertThrows(

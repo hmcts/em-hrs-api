@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.componenttests.AbstractBaseTest;
@@ -43,6 +44,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -78,6 +80,9 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
 
     @MockitoBean
     private AuditEntryService auditEntryService;
+
+    @Autowired
+    private HearingRecordingController hearingRecordingController;
 
     @MockitoBean
     private HearingRecordingSegmentAuditEntry hearingRecordingSegmentAuditEntry;
@@ -167,7 +172,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
     }
 
     @Test
-    void testShouldDownloadSegmentByName() throws Exception {
+    void testShouldDownloadSegmentByNameWithFolder() throws Exception {
         UUID recordingId = UUID.randomUUID();
         String folderName = "stream2123";
         String fileName = "3221-3232_test_file-321321-1.mp4";
@@ -193,6 +198,31 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
         verify(segmentDownloadService, times(1))
             .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
+
+    @Test
+    void testShouldDownloadSegmentByNameWithoutFolder() throws Exception {
+        UUID recordingId = UUID.randomUUID();
+        String fileName = "3221-3232_test_file-321321-1.mp4";
+
+        HearingRecordingSegment segment = new HearingRecordingSegment();
+        segment.setFilename(fileName);
+
+        doReturn(segment).when(segmentDownloadService)
+            .fetchSegmentByRecordingIdAndFileName(recordingId, fileName);
+        doNothing().when(segmentDownloadService)
+            .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
+
+        mockMvc.perform(get(String.format(
+                "/hearing-recordings/%s/file/%s",
+                recordingId,
+                fileName
+            )).header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
+            .andExpect(status().isOk()).andReturn();
+
+        verify(segmentDownloadService, times(1))
+            .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
+    }
+
 
     @Test
     void testShouldHandleDownloadExceptionByName() throws Exception {
@@ -274,7 +304,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
     }
 
     @Test
-    void testShouldDownloadSegmentForShareeByFileName() throws Exception {
+    void testShouldDownloadSegmentForShareeByFileNameWithFolder() throws Exception {
         UUID recordingId = UUID.randomUUID();
         String folderName = "stream2123";
         String fileName = "3221-3232_test_file-321321-1.mp4";
@@ -303,7 +333,34 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
 
         verify(segmentDownloadService, times(1))
             .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
+    }
 
+    @Test
+    void testShouldDownloadSegmentForShareeByFileNameWithoutFolder() throws Exception {
+        UUID recordingId = UUID.randomUUID();
+        String fileName = "3221-3232_test_file-321321-1.mp4";
+        HearingRecordingSegment segment = new HearingRecordingSegment();
+        segment.setFilename(fileName);
+
+        doReturn(segment)
+            .when(segmentDownloadService)
+            .fetchSegmentByRecordingIdAndFileNameForSharee(
+                recordingId,
+                fileName,
+                TestUtil.AUTHORIZATION_TOKEN
+            );
+
+        doNothing().when(segmentDownloadService)
+            .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
+
+        mockMvc.perform(get(String.format(
+            "/hearing-recordings/%s/file/%s/sharee",
+            recordingId,
+            fileName
+        )).header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN)).andExpect(status().isOk()).andReturn();
+
+        verify(segmentDownloadService, times(1))
+            .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
 
@@ -339,7 +396,7 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
     }
 
     @Test
-    void testDeleteShouldCallService() throws Exception {
+    void testDeleteShouldCallServiceWhenEndpointIsEnabled() throws Exception {
         Assumptions.assumeTrue(deleteCaseEndpointEnabled);
         long ccdCaseId = random.nextLong();
 
@@ -352,6 +409,25 @@ class HearingRecordingControllerTest extends AbstractBaseTest {
             .andReturn();
         verify(hearingRecordingService, times(1)).deleteCaseHearingRecordings(caseIds);
     }
+
+    @Test
+    void testDeleteReturnsForbiddenWhenEndpointIsDisabled() throws Exception {
+        ReflectionTestUtils.setField(hearingRecordingController, "deleteCaseEndpointEnabled", false);
+        long ccdCaseId = random.nextLong();
+        List<Long> caseIds = List.of(ccdCaseId);
+
+        mockMvc.perform(delete("/delete")
+                            .content(convertObjectToJsonString(caseIds))
+                            .contentType(APPLICATION_JSON_VALUE)
+                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
+            .andExpect(status().isForbidden())
+            .andReturn();
+
+        verify(hearingRecordingService, never()).deleteCaseHearingRecordings(any());
+
+        ReflectionTestUtils.setField(hearingRecordingController, "deleteCaseEndpointEnabled", true);
+    }
+
 
     @Test
     void testDeleteShouldHandleUnauthorisedServiceException() throws Exception {

@@ -35,7 +35,7 @@ class CaseDataContentCreatorTest {
     private static ObjectMapper objectMapper;
     HearingRecordingDto hearingRecordingDto;
     CaseDataContentCreator underTest;
-    private String fileName = "audiostream123/recording-file-1";
+    private final String fileName = "audiostream123/recording-file-1";
 
     @BeforeEach
     void setup() {
@@ -127,7 +127,7 @@ class CaseDataContentCreatorTest {
                 .url("http://xui.com/hearing-recordings/12345/segments/0").filename("recording-file-2").build()
             ).build()
         );
-        List<Map> segmentList = new ArrayList<>();
+        List<Map<String, CaseRecordingFile>> segmentList = new ArrayList<>();
         segmentList.add(valueMap);
         Map<String, Object> caseData = new HashMap<>();
         caseData.put("recordingFiles", segmentList);
@@ -145,5 +145,74 @@ class CaseDataContentCreatorTest {
             "http://xui.com/hearing-recordings/" + RECORDING_ID + "/file/" + this.fileName,
             resultNode.at("/recordingFiles/1/value/documentLink/document_url").asText()
         );
+    }
+
+    @Test
+    void createCaseUpdateDataShouldNotAddSegmentIfAlreadyExists() {
+
+        final String existingUrl = "http://xui.com/hearing-recordings/12345/segments/0";
+
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("value", Map.of(
+            "documentLink", Map.of(
+                "document_url", existingUrl,
+                "document_filename", fileName
+            )
+        ));
+        List<Map<String, Object>> segmentList = new ArrayList<>();
+        segmentList.add(valueMap);
+        Map<String, Object> caseData = new HashMap<>();
+        caseData.put("recordingFiles", segmentList);
+
+        JsonNode actual = underTest.createCaseUpdateData(caseData, RECORDING_ID, hearingRecordingDto);
+
+        assertEquals(1, actual.get("recordingFiles").size());
+
+        assertEquals(
+            existingUrl,
+            actual.at("/recordingFiles/0/value/documentLink/document_url").asText()
+        );
+        assertEquals(
+            fileName,
+            actual.at("/recordingFiles/0/value/documentLink/document_filename").asText()
+        );
+    }
+
+    @Test
+    void createCaseStartDataShouldSetTimeOfDayToPmForAfternoonRecording() {
+        HearingRecordingDto pmHearingRecordingDto = HearingRecordingDto.builder()
+            .caseRef(RECORDING_REF)
+            .recordingSource(HearingSource.CVP)
+            .filename(fileName)
+            .recordingDateTime(LocalDateTime.of(2023, 1, 1, 14, 30))
+            .jurisdictionCode("FM")
+            .urlDomain("http://xui.com")
+            .fileSize(123456789L)
+            .segment(0)
+            .build();
+
+        JsonNode actual = underTest.createCaseStartData(pmHearingRecordingDto, RECORDING_ID, LocalDate.now());
+
+        assertEquals("PM", actual.get("recordingTimeOfDay").asText());
+    }
+
+    @Test
+    void createCaseStartDataShouldSetEmptyTimeOfDayWhenRecordingDateTimeIsNull() {
+        HearingRecordingDto hearingRecordingWithNullDateTime = HearingRecordingDto.builder()
+            .caseRef(RECORDING_REF)
+            .recordingSource(HearingSource.CVP)
+            .filename(fileName)
+            .recordingDateTime(null)
+            .jurisdictionCode("FM")
+            .urlDomain("http://xui.com")
+            .fileSize(123456789L)
+            .segment(0)
+            .build();
+
+        JsonNode actual = underTest.createCaseStartData(
+            hearingRecordingWithNullDateTime, RECORDING_ID, LocalDate.now()
+        );
+
+        assertEquals("", actual.get("recordingTimeOfDay").asText());
     }
 }

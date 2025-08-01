@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -37,8 +38,6 @@ class SecurityServiceImplTest {
 
     private static final String DUMMY_NAME = "dummyName";
     private static final String HRS_INGESTOR = "hrsIngestor";
-    private static final String SYSTEM_USER = "SystemUser";
-    private static final String SYSTEM_USER_PASSWORD = "SystemPassword";
     private static final String USER_ID = UUID.randomUUID().toString();
     private static final UserInfo USER_INFO = UserInfo.builder()
         .sub(SHARER_EMAIL_ADDRESS)
@@ -66,7 +65,7 @@ class SecurityServiceImplTest {
     private SecurityServiceImpl underTest;
 
     @BeforeEach
-    public void before() {
+    void before() {
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
     }
 
@@ -110,9 +109,21 @@ class SecurityServiceImplTest {
 
     @Test
     void testGetCurrentlyAuthenticatedServiceName() {
-        doReturn("Xxxxxxxxxxxxxxxxxx").when(request).getHeader(SecurityServiceImpl.SERVICE_AUTH);
+        doReturn("Bearer Xxxxxxxxxxxxxxxxxx").when(request).getHeader(SecurityServiceImpl.SERVICE_AUTH);
         doReturn(SERVICE_NAME).when(authTokenValidator).getServiceName(Mockito.anyString());
         assertEquals(SERVICE_NAME, underTest.getCurrentlyAuthenticatedServiceName());
+    }
+
+    @Test
+    void testGetCurrentlyAuthenticatedServiceNameWithoutBearerPrefix() {
+        String tokenWithoutPrefix = "Xxxxxxxxxxxxxxxxxx";
+        doReturn(tokenWithoutPrefix).when(request).getHeader(SecurityServiceImpl.SERVICE_AUTH);
+        doReturn(SERVICE_NAME).when(authTokenValidator).getServiceName(Mockito.anyString());
+
+        String serviceName = underTest.getCurrentlyAuthenticatedServiceName();
+
+        assertEquals(SERVICE_NAME, serviceName);
+        verify(authTokenValidator).getServiceName(startsWith("Bearer "));
     }
 
     @Test

@@ -29,7 +29,7 @@ class SummaryReportServiceTest {
 
     @Mock
     private EmailSender emailSender;
-    private String[] recipients = {"m@y.com", "q@z.com"};
+    private final String[] recipients = {"m@y.com", "q@z.com"};
     @Mock
     private HearingRecordingStorage hearingRecordingStorage;
     private SummaryReportService summaryReportService;
@@ -87,6 +87,14 @@ class SummaryReportServiceTest {
         assertThrows(
             EmailRecipientNotFoundException.class,
             () -> new SummaryReportService(null, new String[]{}, null, "from@g.com")
+        );
+    }
+
+    @Test
+    void should_throw_if_null_recipients() {
+        assertThrows(
+            EmailRecipientNotFoundException.class,
+            () -> new SummaryReportService(null, null, null, "from@g.com")
         );
     }
 }

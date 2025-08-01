@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.em.hrs.util;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static uk.gov.hmcts.reform.em.hrs.util.CvpConnectionResolver.extractAccountFromUrl;
 
 class CvpConnectionResolverTest {
@@ -23,5 +24,11 @@ class CvpConnectionResolverTest {
         assertEquals(expected, actual);
 
     }
-}
 
+    @Test
+    void testThatInvalidUrlReturnsNull() {
+        String input = "this is an invalid url";
+        String actual = extractAccountFromUrl(input);
+        assertNull(actual);
+    }
+}
