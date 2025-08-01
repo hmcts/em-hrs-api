@@ -121,11 +121,15 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
         String keyWithEmptyPart = Base64.getEncoder().encodeToString((":" + farFutureTimestamp).getBytes());
 
         return Stream.of(
-            Arguments.of(Named.of("when Authorization header is missing", "when Authorization header is missing"), null, noop),
-            Arguments.of(Named.of("when API key is invalid", "when API key is invalid"), BEARER_PREFIX + "invalid-key", noop),
-            Arguments.of(Named.of("when API key has expired", "when API key has expired"), BEARER_PREFIX + EXPIRED_DUMMY_KEY, noop),
+            Arguments.of(Named.of("when Authorization header is missing",
+                                  "when Authorization header is missing"), null, noop),
+            Arguments.of(Named.of("when API key is invalid",
+                                  "when API key is invalid"), BEARER_PREFIX + "invalid-key", noop),
+            Arguments.of(Named.of("when API key has expired",
+                                  "when API key has expired"), BEARER_PREFIX + EXPIRED_DUMMY_KEY, noop),
             Arguments.of(
-                Named.of("when configured API key is poorly formatted", "when configured API key is poorly formatted"),
+                Named.of("when configured API key is poorly formatted",
+                         "when configured API key is poorly formatted"),
                 BEARER_PREFIX + malformedKey,
                 (Consumer<BlobStoreInspectorController>) controller ->
                     ReflectionTestUtils.setField(controller, API_KEY_FIELD, malformedKey)
