@@ -123,13 +123,13 @@ class BlobstoreClientImplTest {
 
     @Test
     void fetchBlobInfoShouldUseCvpClientAsDefault() {
-        String hearingSource = "some-other-source";
         when(hrsCvpBlobContainerClient.getBlobClient(FILENAME)).thenReturn(blobClient);
         when(blobClient.getBlockBlobClient()).thenReturn(blockBlobClient);
         when(blockBlobClient.getProperties()).thenReturn(blobProperties);
         when(blobProperties.getBlobSize()).thenReturn(FILE_SIZE);
         when(blobProperties.getContentType()).thenReturn(CONTENT_TYPE);
 
+        String hearingSource = "some-other-source";
         blobstoreClient.fetchBlobInfo(FILENAME, hearingSource);
 
         verify(blockBlobClient, times(2)).getProperties();

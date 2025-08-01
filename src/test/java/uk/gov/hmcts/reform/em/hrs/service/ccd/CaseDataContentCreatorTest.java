@@ -155,8 +155,8 @@ class CaseDataContentCreatorTest {
         Map<String, Object> valueMap = new HashMap<>();
         valueMap.put("value", Map.of(
             "documentLink", Map.of(
-                                    "document_url", existingUrl,
-                                    "document_filename", fileName
+                "document_url", existingUrl,
+                "document_filename", fileName
             )
         ));
         List<Map<String, Object>> segmentList = new ArrayList<>();
@@ -176,5 +176,43 @@ class CaseDataContentCreatorTest {
             fileName,
             actual.at("/recordingFiles/0/value/documentLink/document_filename").asText()
         );
+    }
+
+    @Test
+    void createCaseStartDataShouldSetTimeOfDayToPmForAfternoonRecording() {
+        HearingRecordingDto pmHearingRecordingDto = HearingRecordingDto.builder()
+            .caseRef(RECORDING_REF)
+            .recordingSource(HearingSource.CVP)
+            .filename(fileName)
+            .recordingDateTime(LocalDateTime.of(2023, 1, 1, 14, 30))
+            .jurisdictionCode("FM")
+            .urlDomain("http://xui.com")
+            .fileSize(123456789L)
+            .segment(0)
+            .build();
+
+        JsonNode actual = underTest.createCaseStartData(pmHearingRecordingDto, RECORDING_ID, LocalDate.now());
+
+        assertEquals("PM", actual.get("recordingTimeOfDay").asText());
+    }
+
+    @Test
+    void createCaseStartDataShouldSetEmptyTimeOfDayWhenRecordingDateTimeIsNull() {
+        HearingRecordingDto hearingRecordingWithNullDateTime = HearingRecordingDto.builder()
+            .caseRef(RECORDING_REF)
+            .recordingSource(HearingSource.CVP)
+            .filename(fileName)
+            .recordingDateTime(null)
+            .jurisdictionCode("FM")
+            .urlDomain("http://xui.com")
+            .fileSize(123456789L)
+            .segment(0)
+            .build();
+
+        JsonNode actual = underTest.createCaseStartData(
+            hearingRecordingWithNullDateTime, RECORDING_ID, LocalDate.now()
+        );
+
+        assertEquals("", actual.get("recordingTimeOfDay").asText());
     }
 }
