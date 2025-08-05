@@ -90,7 +90,7 @@ variable "email_address_key" {
 variable "storage_account_allow_public_network_access" {
   description = "Controls whether public network access is allowed for the storage account."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "businessArea" {
