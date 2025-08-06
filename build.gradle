@@ -280,7 +280,7 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.3.3'
 
 //hmcts ccd
-  implementation group: 'com.github.hmcts', name: 'core-case-data-store-client', version: '5.1.1'
+  implementation group: 'com.github.hmcts', name: 'core-case-data-store-client', version: '5.2.0'
 
 //hmcts logging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
