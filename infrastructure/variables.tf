@@ -87,6 +87,12 @@ variable "email_address_key" {
   default     = "db-alert-monitoring-email-address"
 }
 
+variable "storage_account_allow_public_network_access" {
+  description = "Controls whether public network access is allowed for the storage account."
+  type        = bool
+  default     = false
+}
+
 variable "businessArea" {
   default = "cft"
 }
