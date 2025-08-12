@@ -1,3 +1,8 @@
+import org.flywaydb.gradle.task.FlywayMigrateTask
+import uk.gov.hmcts.rse.AuthMode
+
+import javax.inject.Inject
+import java.nio.charset.StandardCharsets
 
 buildscript {
   dependencies {
@@ -31,7 +36,10 @@ java {
 
 group = 'uk.gov.hmcts.reform.em.hrs'
 version = '0.0.1'
-mainClassName = 'uk.gov.hmcts.reform.em.hrs.Application'
+
+application {
+  mainClass = 'uk.gov.hmcts.reform.em.hrs.Application'
+}
 
 /***********************************************************************************************************************
  * Source Sets
@@ -83,7 +91,7 @@ sourceSets {
  * Build Tasks
  **********************************************************************************************************************/
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
   options.compilerArgs << "-Xlint:unchecked" << "-Werror"
 }
 
@@ -92,7 +100,7 @@ tasks.withType(JavaExec).configureEach {
   javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
 }
 
-tasks.withType(Test) {
+tasks.withType(Test).configureEach {
   useJUnitPlatform()
 
   testLogging {
@@ -100,7 +108,7 @@ tasks.withType(Test) {
   }
 }
 
-task functional(type: Test) {
+tasks.register('functional', Test) {
   testLogging {
     events = ["passed", "failed", "skipped"]
     showStandardStreams = true
@@ -116,8 +124,7 @@ task functional(type: Test) {
 }
 
 
-
-task integration(type: Test) {
+tasks.register('integration', Test) {
   failFast = true
   description = "Runs integration tests"
   group = "Verification"
@@ -125,7 +132,7 @@ task integration(type: Test) {
   classpath = sourceSets.integrationTest.runtimeClasspath
 }
 
-task smoke(type: Test) {
+tasks.register('smoke', Test) {
   failFast = true
   group = 'Delivery pipeline'
   description = "Runs Smoke Tests"
@@ -169,7 +176,7 @@ jacocoTestReport {
   reports {
     xml.required = true
     csv.required = false
-    xml.outputLocation = file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+    xml.outputLocation = layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml")
   }
 
   afterEvaluate {
@@ -221,7 +228,7 @@ dependencyCheck {
   }
 }
 
-configurations.all {
+configurations.configureEach {
   exclude group: 'org.springframework.security', module: 'spring-security-rsa'
   exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
   exclude group: 'com.vaadin.external.google',   module: 'android-json'
@@ -462,7 +469,7 @@ static def getCheckedOutGitCommitHash() {
   'git rev-parse --verify --short HEAD'.execute().text.trim()
 }
 
-task contract(type: Test) {
+tasks.register('contract', Test) {
   group = 'Delivery pipeline'
   description = 'Runs the consumer Pact tests'
   useJUnitPlatform()
@@ -473,22 +480,29 @@ task contract(type: Test) {
   environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
 }
 
+interface ExecOperationsProvider {
+  @Inject
+  ExecOperations getExecOperations()
+}
 
-task loadEnvSecrets() {
+tasks.register('loadEnvSecrets') {
   doLast {
     if (!project.file('./.aat-env').exists()) {
+      def execOps = project.objects.newInstance(ExecOperationsProvider).getExecOperations()
+
       new ByteArrayOutputStream().withStream { os ->
-        exec {
+        execOps.exec {
           commandLine 'az', 'keyvault', 'secret', 'show', '--vault-name', 'em-hrs-api-aat', '-o', 'tsv', '--query', 'value', '--name', 'em-hrs-api-dot-env'
           standardOutput = os
         }
-        project.file('./.aat-env').write(new String(os.toString().replace('\n', '').decodeBase64(), java.nio.charset.StandardCharsets.UTF_8))
+        project.file('./.aat-env').write(new String(os.toString().replace('\n', '').decodeBase64(), StandardCharsets.UTF_8))
       }
     }
   }
 }
 
-task reloadEnvSecrets(group: 'ccd tasks', dependsOn: [loadEnvSecrets]) {
+tasks.register('reloadEnvSecrets') {
+  dependsOn(loadEnvSecrets)
   doFirst {
     if (project.file('./.aat-env').exists()) {
       project.file('./.aat-env').delete()
@@ -542,7 +556,7 @@ bootWithCCD {
   environment 'RSE_LIB_ADDITIONAL_DATABASES', 'emhrs'
   environment 'CCD_DOCUMENT_URL_PATTERN', 'https?://((dm-store:8080/documents/[A-Za-z0-9-]+(?:/binary)?)|(localhost:8081/hearing-recordings/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/((segments\\/[0-9]+)|(file/\\S+))))'
   environment 'DATA_STORE_S2S_AUTHORISED_SERVICES', 'ccd_gw,ccd_data,ccd_ps,aac_manage_case_assignment,ccd_case_document_am_api,am_role_assignment_service,hmc_cft_hearing_service,prl_citizen_frontend,em_gw,em_hrs_api'
-  authMode = uk.gov.hmcts.rse.AuthMode.Local
+  authMode = AuthMode.Local
 }
 
 serenity {
@@ -585,15 +599,15 @@ flyway {
   baselineVersion = '1'
 }
 
-task migratePostgresDatabase(type: org.flywaydb.gradle.task.FlywayMigrateTask) {
+tasks.register('migratePostgresDatabase', FlywayMigrateTask) {
   baselineOnMigrate = true
   if (project.hasProperty("dburl")) {
     url = "jdbc:postgresql://${dburl}"
   }
 }
 
-task fortifyScan(type: JavaExec)  {
-  main = "uk.gov.hmcts.fortifyclient.FortifyClientMainApp"
+tasks.register('fortifyScan', JavaExec) {
+  mainClass = "uk.gov.hmcts.fortifyclient.FortifyClientMainApp"
   classpath += sourceSets.test.runtimeClasspath
   jvmArgs = ['--add-opens=java.base/java.lang.reflect=ALL-UNNAMED']
 }
@@ -615,7 +629,7 @@ pactPublish {
   pactPublish = project.pact.publish
 }
 
-task runAndPublishConsumerPactTests(type: Test) {
+tasks.register('runAndPublishConsumerPactTests', Test) {
   logger.lifecycle("Runs pact Tests")
   testClassesDirs = sourceSets.contractTest.output.classesDirs
   classpath = sourceSets.contractTest.runtimeClasspath
