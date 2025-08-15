@@ -5,6 +5,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
+import uk.gov.hmcts.reform.em.hrs.domain.AuditEntry;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingAuditEntry;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
@@ -13,7 +14,6 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingShareeAuditEntry;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -26,6 +26,9 @@ class AuditReportCsvWriterTest {
 
     private final AuditReportCsvWriter auditReportCsvWriter = new AuditReportCsvWriter();
     private static final AuditActions ACTION = AuditActions.USER_DOWNLOAD_OK;
+
+    private static class UnhandledAuditEntry extends AuditEntry {
+    }
 
     @Test
     void shouldWriteCsvWithHearingRecordingSegmentAuditEntry() throws IOException {
@@ -109,16 +112,28 @@ class AuditReportCsvWriterTest {
         assertCsvContent(resultFile, 0);
     }
 
+    @Test
+    void shouldHandleNullListGracefully() throws IOException {
+        File resultFile = auditReportCsvWriter.writeHearingRecordingSummaryToCsv(null);
+
+        assertCsvContent(resultFile, 0);
+    }
+
+    @Test
+    void shouldSkipAndNotWriteUnhandledAuditEntryTypes() throws IOException {
+        UnhandledAuditEntry unhandledEntry = new UnhandledAuditEntry();
+
+        File resultFile = auditReportCsvWriter.writeHearingRecordingSummaryToCsv(List.of(unhandledEntry));
+
+        assertCsvContent(resultFile, 0);
+    }
+
     private void assertCsvContent(File resultFile, int expectedRows) throws IOException {
         assertNotNull(resultFile);
         assertEquals(".csv", resultFile.getName().substring(resultFile.getName().length() - 4));
 
-        try (FileReader reader = new FileReader(resultFile);
-             CSVParser parser = new CSVParser(
-                 reader,
-                 CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build()
-             )) {
-
+        try (CSVParser parser = CSVParser.builder().setFile(resultFile).setFormat(
+                 CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).get()).get()) {
             List<CSVRecord> records = parser.getRecords();
             assertEquals(expectedRows, records.size());
         }

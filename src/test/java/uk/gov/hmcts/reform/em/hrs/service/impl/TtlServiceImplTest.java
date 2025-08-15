@@ -9,12 +9,13 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class TtlServiceImplTest {
 
-    private TTLMapperConfig ttlMapperConfig = mock(TTLMapperConfig.class);
+    private final TTLMapperConfig ttlMapperConfig = mock(TTLMapperConfig.class);
 
     private TtlServiceImpl ttlServiceImpl =  new TtlServiceImpl(ttlMapperConfig);
 
@@ -88,7 +89,7 @@ class TtlServiceImplTest {
         assertEquals(now.plusDays(30), ttlDate);
         verify(ttlMapperConfig).getDefaultTTL();
     }
-  
+
     @Test
     void shouldReturnDefaultTtlWhenServiceAndJurisdictionCodeNull() {
         // Given
@@ -118,7 +119,7 @@ class TtlServiceImplTest {
         Period periodForService = Period.ofDays(10);
         when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of(serviceCode, periodForService));
 
-        assertEquals(ttlServiceImpl.hasTtlConfig(serviceCode, null), "Yes");
+        assertEquals("Yes", ttlServiceImpl.hasTtlConfig(serviceCode, null));
     }
 
     @Test
@@ -126,7 +127,19 @@ class TtlServiceImplTest {
         String jurisdictionCode = "JURISDICTION1";
         when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of(jurisdictionCode, Period.ofDays(10)));
 
-        assertEquals(ttlServiceImpl.hasTtlConfig(null, jurisdictionCode), "Yes");
+        assertEquals("Yes", ttlServiceImpl.hasTtlConfig(null, jurisdictionCode));
+    }
+
+    @Test
+    void testHasTtlConfigWithInvalidServiceCodeAndNullJurisdictionCode() {
+        String serviceCode = "INVALID_SERVICE";
+        when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of()); // Ensure service code is not found
+
+        String result = ttlServiceImpl.hasTtlConfig(serviceCode, null);
+
+        assertEquals("No", result);
+        verify(ttlMapperConfig).getTtlServiceMap();
+        verify(ttlMapperConfig, never()).getTtlJurisdictionMap();
     }
 
     @Test
@@ -134,7 +147,7 @@ class TtlServiceImplTest {
         when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of());
         when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of("JRS", Period.ofDays(10)));
 
-        assertEquals(ttlServiceImpl.hasTtlConfig("INVALID", "INVALID"),"No");
+        assertEquals("No", ttlServiceImpl.hasTtlConfig("INVALID", "INVALID"));
     }
 
     @Test
@@ -144,7 +157,7 @@ class TtlServiceImplTest {
         when(ttlMapperConfig.getTtlServiceMap()).thenReturn(Map.of(serviceCode, Period.ofDays(10)));
         when(ttlMapperConfig.getTtlJurisdictionMap()).thenReturn(Map.of(jurisdictionCode, Period.ofDays(10)));
 
-        assertEquals(ttlServiceImpl.hasTtlConfig(serviceCode, jurisdictionCode),"Yes");
+        assertEquals("Yes", ttlServiceImpl.hasTtlConfig(serviceCode, jurisdictionCode));
     }
 
 }
