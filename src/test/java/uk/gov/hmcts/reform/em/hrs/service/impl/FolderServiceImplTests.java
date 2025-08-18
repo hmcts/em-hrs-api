@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.em.hrs.exception.DatabaseStorageException;
 import uk.gov.hmcts.reform.em.hrs.repository.FolderRepository;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
+import uk.gov.hmcts.reform.em.hrs.service.impl.FolderServiceImpl.FilesInDatabase;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -139,5 +140,19 @@ class FolderServiceImplTests {
     void testShouldThrowExceptionWhenNoFolderInDB() {
         assertThatExceptionOfType(DatabaseStorageException.class).isThrownBy(() -> folderServiceImpl
             .getFolderByName("nopath"));
+    }
+
+    @Test
+    @DisplayName("Should return the intersection of two sets when calling intersect")
+    void testShouldReturnIntersectionOfSets() {
+        final Set<String> filesetInDb = Set.of("file1.mp4", "file2.mp4", "file3.mp4");
+        final Set<String> filesetInBlobstore = Set.of("file2.mp4", "file3.mp4", "file4.mp4");
+        final Set<String> expectedIntersection = Set.of("file2.mp4", "file3.mp4");
+
+        final FilesInDatabase filesInDatabase = new FilesInDatabase(filesetInDb);
+
+        final Set<String> actualIntersection = filesInDatabase.intersect(filesetInBlobstore);
+
+        assertThat(actualIntersection).hasSameElementsAs(expectedIntersection);
     }
 }

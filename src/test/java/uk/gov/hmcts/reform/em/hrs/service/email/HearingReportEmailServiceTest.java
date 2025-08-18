@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -27,7 +28,7 @@ class HearingReportEmailServiceTest {
 
     private HearingReportEmailService hearingReportEmailService;
 
-    private Function<LocalDate, String> func
+    private final Function<LocalDate, String> func
         = HearingReportEmailServiceConfig.monthlyReportAttachmentName("Monthly-hearing-report-");
 
     @BeforeEach
@@ -43,28 +44,24 @@ class HearingReportEmailServiceTest {
 
     @Test
     void should_throw_exception_when_recipients_are_null() {
-        assertThrows(EmailRecipientNotFoundException.class, () -> {
-            new HearingReportEmailService(
-                emailSender,
-                null,
-                "sender@example.com",
-                "Monthly hearing report for ",
-                func
-            );
-        });
+        assertThrows(EmailRecipientNotFoundException.class, () -> new HearingReportEmailService(
+            emailSender,
+            null,
+            "sender@example.com",
+            "Monthly hearing report for ",
+            func
+        ));
     }
 
     @Test
     void should_throw_exception_when_recipients_are_empty() {
-        assertThrows(EmailRecipientNotFoundException.class, () -> {
-            new HearingReportEmailService(
-                emailSender,
-                new String[]{},
-                "sender@example.com",
-                "Monthly hearing report for ",
-                func
-            );
-        });
+        assertThrows(EmailRecipientNotFoundException.class, () -> new HearingReportEmailService(
+            emailSender,
+            new String[]{},
+            "sender@example.com",
+            "Monthly hearing report for ",
+            func
+        ));
     }
 
     @Test
@@ -86,6 +83,31 @@ class HearingReportEmailServiceTest {
                    reportFile
                )
             )
+        );
+    }
+
+    @Test
+    void should_catch_and_handle_exception_during_email_sending() throws Exception {
+        LocalDate reportDate = LocalDate.now().minusMonths(1);
+        File reportFile = new File("report.csv");
+        RuntimeException testException = new RuntimeException("Email service is down");
+
+        doThrow(testException).when(emailSender).sendMessageWithAttachments(
+            any(String.class),
+            any(String.class),
+            any(String.class),
+            any(String[].class),
+            any()
+        );
+
+        hearingReportEmailService.sendReport(reportDate, reportFile);
+
+        verify(emailSender, times(1)).sendMessageWithAttachments(
+            contains("Monthly hearing report "),
+            any(String.class),
+            eq("sender@example.com"),
+            eq(new String[]{"recipient@example.com"}),
+            any()
         );
     }
 }

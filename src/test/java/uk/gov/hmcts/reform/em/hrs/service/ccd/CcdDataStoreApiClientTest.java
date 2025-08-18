@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -245,6 +246,36 @@ class CcdDataStoreApiClientTest {
             HEARING_RECORDING_DTO
         ));
 
+    }
+
+    @Test
+    void willHandleExceptionGracefullyWhenCaseDataIsNullInUpdateCase() {
+        doReturn(Map.of("user", USER_TOKEN,
+                        "userId", USER_ID,
+                        "service", SERVICE_TOKEN
+        )).when(securityService).createTokens();
+
+        doThrow(new RuntimeException("Failed to start event"))
+            .when(coreCaseDataApi).startEvent(
+                USER_TOKEN,
+                SERVICE_TOKEN,
+                String.valueOf(CASE_ID),
+                ADD_RECORDING_FILE
+            );
+
+        assertThatExceptionOfType(CcdUploadException.class)
+            .isThrownBy(() -> underTest.updateCaseData(
+                CASE_ID,
+                RECORDING_ID,
+                HEARING_RECORDING_DTO
+            ))
+            .withMessage("Error Uploading Segment")
+            .withCauseInstanceOf(RuntimeException.class);
+
+        verify(caseDataContentCreator, never())
+            .createCaseUpdateData(any(), any(), any());
+        verify(coreCaseDataApi, never())
+            .submitEventForCaseWorker(any(), any(), any(), any(), any(), any(), anyBoolean(), any());
     }
 
     @Test

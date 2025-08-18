@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.em.hrs.service.ccd.CcdUploadService;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -37,7 +38,7 @@ class CcdUploadJobTest {
         .checkSum("erI2foA30B==")
         .build();
 
-    private LinkedBlockingQueue<HearingRecordingDto> ccdUploadQueue = new LinkedBlockingQueue<>(1000);
+    private final LinkedBlockingQueue<HearingRecordingDto> ccdUploadQueue = new LinkedBlockingQueue<>(1000);
 
     private final JobInProgressService jobInProgressService = mock(JobInProgressService.class);
     private final CcdUploadService ccdUploadService = mock(CcdUploadService.class);
@@ -69,5 +70,12 @@ class CcdUploadJobTest {
         verify(jobInProgressService, times(1)).deRegister(HEARING_RECORDING_DTO);
     }
 
+    @Test
+    void testNoArgsConstructorCanBeInstantiated() {
+
+        CcdUploadJob ccdUploadJob = new CcdUploadJob();
+
+        assertNotNull(ccdUploadJob);
+    }
 
 }
