@@ -281,7 +281,7 @@ class CcdDataStoreApiClientTest {
     @Test
     void shouldUpdateCaseWithTtlSuccessfully() {
         Long ccdCaseId = 123L;
-        LocalDate ttl = LocalDate.now().plusDays(30);
+        LocalDate ttlPlus30Day = LocalDate.now().plusDays(30);
         Map<String, String> tokens = Map.of(
             "user", USER_TOKEN,
             "service", SERVICE_TOKEN,
@@ -298,9 +298,9 @@ class CcdDataStoreApiClientTest {
         doReturn(tokens).when(securityService).createTokens();
         doReturn(startEventResponse).when(coreCaseDataApi)
             .startEvent(USER_TOKEN, SERVICE_TOKEN, ccdCaseId.toString(), AMEND_CASE);
-        doReturn(ttlObject).when(caseDataContentCreator).createTTLObject(ttl);
+        doReturn(ttlObject).when(caseDataContentCreator).createTTLObject(ttlPlus30Day);
 
-        underTest.updateCaseWithTtl(ccdCaseId, ttl);
+        underTest.updateCaseWithTtl(ccdCaseId, ttlPlus30Day);
 
         verify(coreCaseDataApi).submitEventForCaseWorker(eq(USER_TOKEN), eq(SERVICE_TOKEN), eq(USER_ID),
                                                          eq(JURISDICTION), eq(CASE_TYPE), eq(ccdCaseId.toString()),

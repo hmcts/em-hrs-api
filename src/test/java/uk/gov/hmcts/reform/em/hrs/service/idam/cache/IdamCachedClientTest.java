@@ -9,10 +9,13 @@ import uk.gov.hmcts.reform.idam.client.IdamClient;
 import uk.gov.hmcts.reform.idam.client.models.TokenResponse;
 import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -93,38 +96,37 @@ class IdamCachedClientTest {
         verify(idamApi).getUserInfo(JWT_WITH_BEARER_1);
     }
 
-    @Test
-    void should_create_token_when_cache_is_expired() throws InterruptedException {
 
-        IdamCachedClient idamCachedClientQuickExpiry = new IdamCachedClient(
+    @Test
+    void should_create_token_when_cache_is_expired() {
+        IdamCachedClient idamCachedClient = new IdamCachedClient(
             idamApi,
             USERNAME,
             PASSWORD,
-            new IdamCacheExpiry(28798)
+            new IdamCacheExpiry(29999) // Sets expiry to 1 second
         );
 
-        given(idamApi.getAccessTokenResponse(USERNAME, PASSWORD)).willReturn(TOKEN_RESPONSE_1, TOKEN_RESPONSE_2);
+        given(idamApi.getAccessTokenResponse(USERNAME, PASSWORD))
+            .willReturn(TOKEN_RESPONSE_1, TOKEN_RESPONSE_2);
 
-        UserInfo expectedUserDetails1 = USER_INFO;
-        given(idamApi.getUserInfo(JWT_WITH_BEARER_1)).willReturn(expectedUserDetails1);
-        UserInfo expectedUserDetails2 = new UserInfo("12", "a8da9s8", "q@a.com", "", "", null);
-        given(idamApi.getUserInfo(JWT_WITH_BEARER_2)).willReturn(expectedUserDetails2);
+        UserInfo userDetails1 = USER_INFO;
+        UserInfo userDetails2 = new UserInfo("12", "a8da9s8", "q@a.com", "", "", null);
+        given(idamApi.getUserInfo(JWT_WITH_BEARER_1)).willReturn(userDetails1);
+        given(idamApi.getUserInfo(JWT_WITH_BEARER_2)).willReturn(userDetails2);
 
-        CachedIdamCredential cachedIdamCredential1 =
-            idamCachedClientQuickExpiry.getIdamCredentials();
+        CachedIdamCredential initialCredentials = idamCachedClient.getIdamCredentials();
+        assertThat(initialCredentials.accessToken).isEqualTo(JWT_WITH_BEARER_1);
 
-        //2 seconds expiry, wait expiry
-        TimeUnit.SECONDS.sleep(3);
+        await()
+            .atMost(4, SECONDS)
+            .pollInterval(Duration.ofSeconds(2))
+            .untilAsserted(() -> {
+                CachedIdamCredential credentialsAfterExpiry = idamCachedClient.getIdamCredentials();
+                assertThat(credentialsAfterExpiry.accessToken).isNotEqualTo(initialCredentials.accessToken);
+                assertThat(credentialsAfterExpiry.accessToken).isEqualTo(JWT_WITH_BEARER_2);
+                assertThat(credentialsAfterExpiry.userId).isEqualTo(userDetails2.getUid());
+            });
 
-        CachedIdamCredential cachedIdamCredential2 =
-            idamCachedClientQuickExpiry.getIdamCredentials();
-
-        assertThat(cachedIdamCredential1.accessToken).isEqualTo(JWT_WITH_BEARER_1);
-        assertThat(cachedIdamCredential1.userId).isEqualTo(expectedUserDetails1.getUid());
-        assertThat(cachedIdamCredential2.accessToken).isEqualTo(JWT_WITH_BEARER_2);
-        assertThat(cachedIdamCredential2.userId).isEqualTo(expectedUserDetails2.getUid());
-
-        assertThat(cachedIdamCredential1).isNotEqualTo(cachedIdamCredential2);
         verify(idamApi, times(2)).getAccessTokenResponse(any(), any());
         verify(idamApi, times(2)).getUserInfo(any());
     }
