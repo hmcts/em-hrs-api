@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -99,11 +98,11 @@ class IdamCachedClientTest {
 
     @Test
     void should_create_token_when_cache_is_expired() {
-        IdamCachedClient idamCachedClient = new IdamCachedClient(
+        IdamCachedClient idamCachedClientQuickExpiry = new IdamCachedClient(
             idamApi,
             USERNAME,
             PASSWORD,
-            new IdamCacheExpiry(29999) // Sets expiry to 1 second
+            new IdamCacheExpiry(28798)
         );
 
         given(idamApi.getAccessTokenResponse(USERNAME, PASSWORD))
@@ -114,14 +113,14 @@ class IdamCachedClientTest {
         given(idamApi.getUserInfo(JWT_WITH_BEARER_1)).willReturn(userDetails1);
         given(idamApi.getUserInfo(JWT_WITH_BEARER_2)).willReturn(userDetails2);
 
-        CachedIdamCredential initialCredentials = idamCachedClient.getIdamCredentials();
+        CachedIdamCredential initialCredentials = idamCachedClientQuickExpiry.getIdamCredentials();
         assertThat(initialCredentials.accessToken).isEqualTo(JWT_WITH_BEARER_1);
 
         await()
             .atMost(4, SECONDS)
             .pollInterval(Duration.ofSeconds(2))
             .untilAsserted(() -> {
-                CachedIdamCredential credentialsAfterExpiry = idamCachedClient.getIdamCredentials();
+                CachedIdamCredential credentialsAfterExpiry = idamCachedClientQuickExpiry.getIdamCredentials();
                 assertThat(credentialsAfterExpiry.accessToken).isNotEqualTo(initialCredentials.accessToken);
                 assertThat(credentialsAfterExpiry.accessToken).isEqualTo(JWT_WITH_BEARER_2);
                 assertThat(credentialsAfterExpiry.userId).isEqualTo(userDetails2.getUid());
