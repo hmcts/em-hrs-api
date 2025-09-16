@@ -18,6 +18,23 @@ import java.util.List;
 @Component
 public class CftLibConfig implements CFTLibConfigurer {
 
+    private static final String ROLE_CITIZEN = "citizen";
+    private static final String ROLE_CASEWORKER = "caseworker";
+    private static final String ROLE_CASEWORKER_HRS = "caseworker-hrs";
+    private static final String ROLE_CASEWORKER_HRS_SEARCHER = "caseworker-hrs-searcher";
+    private static final String ROLE_CFT_TTL_MANAGER = "cft-ttl-manager";
+    private static final String ROLE_CASEWORKER_HRS_SYSTEMUPDATE = "caseworker-hrs-systemupdate";
+    private static final String TEST_SEARCHER_EMAIL = "em-test-searcher@test.hmcts.net";
+    private static final String TEST_REQUESTOR_EMAIL = "em-test-requestor@test.hmcts.net";
+    private static final String TEST_CITIZEN_EMAIL = "em-test-citizen@test.hmcts.net";
+    private static final String HRS_TESTER_EMAIL = "hrs.tester@hmcts.net";
+    private static final String HRS_FUNC_SYS_USER_EMAIL = "hrs.functional.system.user@hmcts.net";
+    private static final String DATA_STORE_IDAM_USER_EMAIL = "data.store.idam.system.user@gmail.com";
+    private static final String HRS = "HRS";
+    private static final String HEARING_RECORDINGS = "HearingRecordings";
+    private static final String PROFILE_STATUS = "1_OPENED";
+    private static final String PASSWORD = "password";
+
     private final IdamClient idamClient;
 
     public CftLibConfig(IdamClient idamClient) {
@@ -37,45 +54,45 @@ public class CftLibConfig implements CFTLibConfigurer {
 
     private void setupUsers(CFTLib lib) {
         for (String p : List.of(
-            "em-test-searcher@test.hmcts.net",
-            "em-test-requestor@test.hmcts.net",
-            "em-test-citizen@test.hmcts.net",
-            "hrs.tester@hmcts.net",
-            "hrs.functional.system.user@hmcts.net")) {
-            lib.createProfile(p, "HRS", "HearingRecordings", "1_OPENED");
+            TEST_SEARCHER_EMAIL,
+            TEST_REQUESTOR_EMAIL,
+            TEST_CITIZEN_EMAIL,
+            HRS_TESTER_EMAIL,
+            HRS_FUNC_SYS_USER_EMAIL)) {
+            lib.createProfile(p, HRS, HEARING_RECORDINGS, PROFILE_STATUS);
         }
 
         lib.createRoles(
-            "citizen",
-            "caseworker",
-            "caseworker-hrs",
-            "caseworker-hrs-searcher",
-            "cft-ttl-manager",
-            "caseworker-hrs-systemupdate"
+            ROLE_CITIZEN,
+            ROLE_CASEWORKER,
+            ROLE_CASEWORKER_HRS,
+            ROLE_CASEWORKER_HRS_SEARCHER,
+            ROLE_CFT_TTL_MANAGER,
+            ROLE_CASEWORKER_HRS_SYSTEMUPDATE
         );
 
-        lib.createIdamUser("data.store.idam.system.user@gmail.com", "caseworker");
+        lib.createIdamUser(DATA_STORE_IDAM_USER_EMAIL, ROLE_CASEWORKER);
 
-        lib.createIdamUser("hrs.tester@hmcts.net",
-                           "citizen",
-                           "caseworker",
-                           "caseworker-hrs",
-                           "caseworker-hrs-searcher",
-                           "cft-ttl-manager",
-                           "caseworker-hrs-systemupdate");
+        lib.createIdamUser(HRS_TESTER_EMAIL,
+                           ROLE_CITIZEN,
+                           ROLE_CASEWORKER,
+                           ROLE_CASEWORKER_HRS,
+                           ROLE_CASEWORKER_HRS_SEARCHER,
+                           ROLE_CFT_TTL_MANAGER,
+                           ROLE_CASEWORKER_HRS_SYSTEMUPDATE);
 
-        lib.createIdamUser("em-test-searcher@test.hmcts.net",
-                           "citizen",
-                           "caseworker",
-                           "caseworker-hrs",
-                           "caseworker-hrs-searcher");
+        lib.createIdamUser(TEST_SEARCHER_EMAIL,
+                           ROLE_CITIZEN,
+                           ROLE_CASEWORKER,
+                           ROLE_CASEWORKER_HRS,
+                           ROLE_CASEWORKER_HRS_SEARCHER);
 
-        lib.createIdamUser("em-test-requestor@test.hmcts.net",
-                           "citizen",
-                           "caseworker");
+        lib.createIdamUser(TEST_REQUESTOR_EMAIL,
+                           ROLE_CITIZEN,
+                           ROLE_CASEWORKER);
 
-        lib.createIdamUser("em-test-citizen@test.hmcts.net",
-                           "citizen");
+        lib.createIdamUser(TEST_CITIZEN_EMAIL,
+                           ROLE_CITIZEN);
     }
 
     private void setupRoleAssignments(CFTLib lib) throws IOException {
@@ -83,7 +100,7 @@ public class CftLibConfig implements CFTLibConfigurer {
         String assignments = IOUtils.toString(resourceLoader.getResource("classpath:cftlib-am-role-assignments.json")
                                                   .getInputStream(), Charset.defaultCharset());
 
-        String token = idamClient.getAccessToken("em-test-searcher@test.hmcts.net", "password");
+        String token = idamClient.getAccessToken(TEST_SEARCHER_EMAIL, PASSWORD);
         UserInfo userInfo = idamClient.getUserInfo(token);
         String updated = assignments.replace("Searcher IDAM ID", userInfo.getUid());
 
