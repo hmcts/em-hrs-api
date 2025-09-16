@@ -331,6 +331,7 @@ dependencies {
   testImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
   testImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenity
   testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.10', classifier: 'all'
+  testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.3.0'
 
 /***********************************************************************************************************************
  * TEST DEPENDENCIES
