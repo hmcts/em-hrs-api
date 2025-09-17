@@ -10,6 +10,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -77,6 +78,7 @@ public class SmokeTest {
     protected ExtendedCcdHelper extendedCcdHelper;
     protected IdamHelper idamHelper;
 
+    @Autowired
     public SmokeTest(ExtendedCcdHelper extendedCcdHelper, IdamHelper idamHelper) {
         this.extendedCcdHelper = extendedCcdHelper;
         this.idamHelper = idamHelper;
