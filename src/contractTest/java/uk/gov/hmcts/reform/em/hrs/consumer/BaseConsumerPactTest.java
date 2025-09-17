@@ -21,18 +21,18 @@ public class BaseConsumerPactTest {
     private static final String AUTH_TOKEN = "Bearer someAuthorizationToken";
     private static final String SERVICE_AUTH_TOKEN = "Bearer someServiceAuthorizationToken";
 
-    public static Map<String, String> HEADERS_WITHOUT_JSON = Map.of(
+    public static final Map<String, String> HEADERS_WITHOUT_JSON = Map.of(
         HttpHeaders.AUTHORIZATION, AUTH_TOKEN,
         "serviceauthorization", SERVICE_AUTH_TOKEN
     );
 
-    public static Map<String, String> HEADERS_WITH_JSON = Map.of(
+    public static final Map<String, String> HEADERS_WITH_JSON = Map.of(
         AUTHORIZATION, AUTH_TOKEN,
         "ServiceAuthorization", SERVICE_AUTH_TOKEN,
         "Content-Type", "application/json"
     );
 
-    public static byte[] DOWNLOAD_CONTENT = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x00, 0x10, 0x20, 0x30, 0x40};
+    protected static final byte[] DOWNLOAD_CONTENT = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x00, 0x10, 0x20, 0x30, 0x40};
 
     protected BaseConsumerPactTest() {
     }

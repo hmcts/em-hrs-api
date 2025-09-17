@@ -44,9 +44,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 )
 @AutoConfigureMockMvc(addFilters = false)
 public abstract class HearingControllerBaseProviderTest {
-    @Autowired
     protected MockMvc mockMvc;
-
     @MockitoBean
     protected ScheduledTaskRunner scheduledTaskRunner;
     @MockitoBean
@@ -56,6 +54,10 @@ public abstract class HearingControllerBaseProviderTest {
 
     @MockitoBean(name = "ingestionQueue")
     protected LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
+
+    public HearingControllerBaseProviderTest(MockMvc mockMvc) {
+        this.mockMvc = mockMvc;
+    }
 
     @PactBrokerConsumerVersionSelectors
     public static SelectorBuilder consumerVersionSelectors() {

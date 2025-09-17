@@ -32,9 +32,9 @@ public class HearingRecordingDeleteConsumerPactTest extends BaseConsumerPactTest
 
     @Pact(provider = PROVIDER, consumer = CONSUMER)
     public V4Pact deleteHearingRecordings204(PactDslWithProvider builder) {
-        DslPart requestBody = LambdaDsl.newJsonArrayMinLike(2, array -> {
-            array.numberType(162342324234L).numberType(3423432322333L);
-        }).build();
+        DslPart requestBody = LambdaDsl.newJsonArrayMinLike(2, array ->
+            array.numberType(162342324234L).numberType(3423432322333L)
+        ).build();
 
 
         return builder

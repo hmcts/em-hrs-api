@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.em.hrs.provider;
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 
 import java.util.List;
@@ -14,6 +15,10 @@ public class HearingRecordingDeleteProviderTest extends HearingControllerBasePro
 
     @MockitoBean
     private SegmentDownloadService segmentDownloadService;
+
+    public HearingRecordingDeleteProviderTest(MockMvc mockMvc) {
+        super(mockMvc);
+    }
 
     @State("Hearing recordings exist for given CCD case IDs to delete")
     public void setupHearingRecordingsExist() {
