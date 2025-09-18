@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.provider;
 
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.em.hrs.testconfig.MockSegmentDownloadConfig;
@@ -11,6 +12,7 @@ import uk.gov.hmcts.reform.em.hrs.testconfig.MockSegmentDownloadConfig;
 public class HearingRecordingSegmentDownloadProviderTest extends HearingControllerBaseProviderTest {
 
 
+    @Autowired
     public HearingRecordingSegmentDownloadProviderTest(MockMvc mockMvc) {
         super(mockMvc);
     }

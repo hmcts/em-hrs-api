@@ -11,6 +11,7 @@ import au.com.dius.pact.provider.spring.junit5.MockMvcTestTarget;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -54,6 +55,7 @@ public abstract class HearingControllerBaseProviderTest {
     @MockitoBean(name = "ingestionQueue")
     protected LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
 
+    @Autowired
     public HearingControllerBaseProviderTest(MockMvc mockMvc) {
         this.mockMvc = mockMvc;
     }

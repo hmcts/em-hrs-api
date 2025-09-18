@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.provider;
 
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
@@ -16,6 +17,7 @@ public class HearingRecordingDeleteProviderTest extends HearingControllerBasePro
     @MockitoBean
     private SegmentDownloadService segmentDownloadService;
 
+    @Autowired
     public HearingRecordingDeleteProviderTest(MockMvc mockMvc) {
         super(mockMvc);
     }
