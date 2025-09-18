@@ -32,7 +32,8 @@ public class BaseConsumerPactTest {
         "Content-Type", "application/json"
     );
 
-    protected static final byte[] DOWNLOAD_CONTENT = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x00, 0x10, 0x20, 0x30, 0x40};
+    protected static final byte[] DOWNLOAD_CONTENT
+        = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x00, 0x10, 0x20, 0x30, 0x40};
 
     protected BaseConsumerPactTest() {
     }
