@@ -28,6 +28,7 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.Event;
 import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
 import uk.gov.hmcts.reform.em.EmTestConfig;
+import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseRecordingFile;
 import uk.gov.hmcts.reform.em.hrs.testutil.AuthTokenGeneratorConfiguration;
 import uk.gov.hmcts.reform.em.hrs.testutil.AzureStorageContainerClientBeans;
@@ -81,18 +82,21 @@ public abstract class BaseTest {
     protected static final String CASE_TYPE = "HearingRecordings";
     protected static final String BEARER = "Bearer ";
     protected static final String FILE_EXT = "mp4";
+    public static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
+    public static final String DELETE_PATH = "/delete";
 
-    public static String SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION =
+    public static final String SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION =
         "hrs.functional.system.user@hmcts.net";
 
-    protected static final String USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS = "em-test-searcher@test.hmcts.net";
-    protected static final String USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY = "em-test-requestor@test.hmcts.net";
-    protected static final String USER_WITH_NONACCESS_ROLE__CITIZEN = "em-test-citizen@test.hmcts.net";
-    protected static final String USER_DEFAULT_PASSWORD = "4590fgvhbfgbDdffm3lk4j";//USED ONLY FOR TESTS in IDAM HELPER
+    protected static final String USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS = "em-test-searcher@test.hmcts.net";
+    protected static final String USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY = "em-test-requestor@test.hmcts.net";
+    protected static final String USER_WITH_NONACCESS_ROLE_CITIZEN = "em-test-citizen@test.hmcts.net";
+    protected static final String DUMMY_USER_DEFAULT_PASS =
+        "4590fgvhbfgbDdffm3lk4j";//USED ONLY FOR TESTS in IDAM HELPER
     protected static final String EMAIL_ADDRESS_INVALID_FORMAT = "invalid@emailaddress";
 
     protected static final String FOLDER =
-        "audiostream" + LocalDate.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"));
+        "audiostream" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
     protected static final String DATE = "2020-11-04";
     protected static final String TIME = DATE + "-14.56.32.819";
@@ -100,7 +104,7 @@ public abstract class BaseTest {
 
     protected static final String CLOSE_CASE = "closeCase";
 
-    protected static int FIND_CASE_TIMEOUT = 30;
+    protected static final int FIND_CASE_TIMEOUT = 30;
 
     protected String hrsS2sAuth;
 
@@ -108,8 +112,8 @@ public abstract class BaseTest {
     protected boolean closeCcdCase;
 
     //The format "yyyy-MM-dd---HH-MM-ss---SSS" will render "07-30-2021---16-07-35---485"
-    DateTimeFormatter datePartFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    DateTimeFormatter timePartFormatter = DateTimeFormatter.ofPattern("HH-MM-ss---SSS");
+    private DateTimeFormatter datePartFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private DateTimeFormatter timePartFormatter = DateTimeFormatter.ofPattern("HH-MM-ss---SSS");
 
     @Value("${test.url}")
     protected String testUrl;
@@ -123,23 +127,34 @@ public abstract class BaseTest {
     @Value("${idam.hrs-ingestor.password}")
     private String idamHrsIngestorPassword;
 
-    @Autowired
     protected IdamClient idamClient;
 
-    @Autowired
     protected IdamHelper idamHelper;
 
-    @Autowired
     protected S2sHelper s2sHelper;
 
-    @Autowired
     protected CoreCaseDataApi coreCaseDataApi;
 
-    @Autowired
     protected ExtendedCcdHelper extendedCcdHelper;
 
     @RegisterExtension
     RetryExtension retryExtension = new RetryExtension(3);
+
+    @Autowired
+    BaseTest(
+        IdamClient idamClient,
+        IdamHelper idamHelper,
+        S2sHelper s2sHelper,
+        CoreCaseDataApi coreCaseDataApi,
+        ExtendedCcdHelper extendedCcdHelper
+    ) {
+
+        this.idamClient = idamClient;
+        this.idamHelper = idamHelper;
+        this.s2sHelper = s2sHelper;
+        this.coreCaseDataApi = coreCaseDataApi;
+        this.extendedCcdHelper = extendedCcdHelper;
+    }
 
     @PostConstruct
     public void init() {
@@ -147,45 +162,8 @@ public abstract class BaseTest {
         hrsS2sAuth = BEARER + s2sHelper.getS2sToken();
     }
 
-    private void createIdamUserIfNotExists(String email, List<String> roles) {
-        /*
-
-        if multiple PR branches are triggered, then it means the user token cache used by em-test-helper
-        will become stale
-
-        potential for conflict with hrs-api using the hrs.tester@hmcts.net system user
-        probably these tests should not use that user, however many issues arose when
-        trying to refactor this logic and there was not enough time to see it through.
-
-        good to have set to true for local environments, when testing role changes etc
-
-        TODO make recreateUsers an environment value so that it is true for local dev, and false for AAT
-         */
-        boolean recreateUsers = true;
-
-        if (recreateUsers) {
-            LOGGER.info("CREATING USER {} with roles {}", email, roles);
-            idamHelper.createUser(email, roles);
-        } else {
-            try {
-                String userId = idamHelper.getUserId(email);
-                LOGGER.info("User {} already exists: id={}", email, userId);
-            } catch (Exception e) {
-                //if user does not exist
-                LOGGER.info(
-                    "Exception thrown, likely user does not exist so will create. Ignore the above Exception:{}",
-                    e.getMessage()
-                );
-                LOGGER.info("CREATING USER {} with roles {}", email, roles);
-                idamHelper.createUser(email, roles);
-            }
-        }
-
-    }
-
-
     public RequestSpecification authRequestForSearcherRole() {
-        return authRequest(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS);
+        return authRequest(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS);
     }
 
 
@@ -197,13 +175,13 @@ public abstract class BaseTest {
 
     private RequestSpecification authRequest(String username, String password) {
         return setJwtTokenHeader(idamHelper.authenticateUser(username, password))
-            .header("ServiceAuthorization", hrsS2sAuth);
+            .header(SERVICE_AUTHORIZATION, hrsS2sAuth);
     }
 
     private RequestSpecification authRequest(String username) {
         LOGGER.info("authRequestForUsername username {}", username);
         return setJwtTokenHeader(idamHelper.authenticateUser(username))
-            .header("ServiceAuthorization", hrsS2sAuth);
+            .header(SERVICE_AUTHORIZATION, hrsS2sAuth);
     }
 
     private RequestSpecification userAuthRequest(String username) {
@@ -221,7 +199,7 @@ public abstract class BaseTest {
     public RequestSpecification s2sAuthRequest() {
         return SerenityRest
             .given()
-            .header("ServiceAuthorization", hrsS2sAuth);
+            .header(SERVICE_AUTHORIZATION, hrsS2sAuth);
     }
 
     protected ValidatableResponse getFilenamesCompletedOrInProgress(String folder) {
@@ -263,47 +241,50 @@ public abstract class BaseTest {
 
     protected Response deleteRecordings(List<Long> ccdCaseIds) {
         JsonNode reqBody = new ObjectMapper().convertValue(ccdCaseIds, JsonNode.class);
-        return authRequest(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS)
+        return authRequest(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS)
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .body(reqBody)
             .when().log().all()
-            .delete("/delete");
+            .delete(DELETE_PATH);
     }
 
     protected Response deleteRecordingsWithInvalidS2S(List<Long> ccdCaseIds) {
         JsonNode reqBody = new ObjectMapper().convertValue(ccdCaseIds, JsonNode.class);
-        return userAuthRequest(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS)
-            .header("ServiceAuthorization", "invalid")
+        return userAuthRequest(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS)
+            .header(SERVICE_AUTHORIZATION, "invalid")
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .body(reqBody)
             .when().log().all()
-            .delete("/delete");
+            .delete(DELETE_PATH);
     }
 
     protected Response deleteRecordingsWithUnauthorisedS2S(List<Long> ccdCaseIds) {
         JsonNode reqBody = new ObjectMapper().convertValue(ccdCaseIds, JsonNode.class);
-        return userAuthRequest(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS)
-            .header("ServiceAuthorization", extendedCcdHelper.getCcdS2sToken())
+        return userAuthRequest(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS)
+            .header(SERVICE_AUTHORIZATION, extendedCcdHelper.getCcdS2sToken())
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .contentType(APPLICATION_JSON_VALUE)
             .body(reqBody)
             .when().log().all()
-            .delete("/delete");
+            .delete(DELETE_PATH);
     }
 
     protected Response downloadRecording(String userName, Map<String, Object> caseData) {
         @SuppressWarnings("unchecked")
-        List<Map> segmentNodes = (ArrayList) caseData.getOrDefault("recordingFiles", new ArrayList());
+        List<Map<String, Object>> segmentNodes = (ArrayList) caseData.getOrDefault(
+            "recordingFiles",
+            new ArrayList<String>()
+        );
 
         String recordingUrl = segmentNodes.stream()
             .map(segmentNode -> new ObjectMapper().convertValue(segmentNode.get("value"), CaseRecordingFile.class))
-            .map(caseRecordingFile -> caseRecordingFile.getCaseDocument())
-            .map(caseDocument -> caseDocument.getBinaryUrl())
+            .map(CaseRecordingFile::getCaseDocument)
+            .map(CaseDocument::getBinaryUrl)
             .findFirst()
             .orElseThrow();
 
@@ -317,12 +298,13 @@ public abstract class BaseTest {
 
     protected Response downloadShareeRecording(String userName, Map<String, Object> caseData) {
         @SuppressWarnings("unchecked")
-        List<Map> segmentNodes = (ArrayList) caseData.getOrDefault("recordingFiles", new ArrayList());
+        List<Map<String, Object>> segmentNodes
+            = (ArrayList) caseData.getOrDefault("recordingFiles", new ArrayList<String>());
 
         String recordingUrl = segmentNodes.stream()
             .map(segmentNode -> new ObjectMapper().convertValue(segmentNode.get("value"), CaseRecordingFile.class))
-            .map(caseRecordingFile -> caseRecordingFile.getCaseDocument())
-            .map(caseDocument -> caseDocument.getBinaryUrl())
+            .map(CaseRecordingFile::getCaseDocument)
+            .map(CaseDocument::getBinaryUrl)
             .findFirst()
             .orElseThrow();
 
@@ -402,7 +384,7 @@ public abstract class BaseTest {
         Map<String, String> searchCriteria = Map.of("case.recordingReference", caseRef);
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
         String userToken = idamClient.getAccessToken(
-            USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, USER_DEFAULT_PASSWORD);
+            USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, DUMMY_USER_DEFAULT_PASS);
         String uid = idamClient.getUserInfo(userToken).getUid();
 
         LOGGER.info("with Jurisdiction {} and casetype {}", JURISDICTION, CASE_TYPE);
@@ -441,7 +423,7 @@ public abstract class BaseTest {
 
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
         String userToken = idamClient.getAccessToken(
-            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, USER_DEFAULT_PASSWORD);
+            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, DUMMY_USER_DEFAULT_PASS);
         String uid = idamClient.getUserInfo(userToken).getUid();
 
         StartEventResponse startEventResponse =
@@ -474,7 +456,7 @@ public abstract class BaseTest {
 
     /**
      * below three methods denerate a random valid UID.
-     * ripped from uk.gov.hmcts.ccd.domain.service.common TODO consider importing this as a library if it exists
+     * ripped from uk.gov.hmcts.ccd.domain.service.common
      *
      * @return A randomly generated, valid, UID.
      */
