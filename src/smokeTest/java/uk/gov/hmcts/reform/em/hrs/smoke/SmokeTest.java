@@ -48,90 +48,71 @@ public class SmokeTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SmokeTest.class);
 
-    public static String SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION =
+    public static final String SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION =
         "hrs.functional.system.user@hmcts.net";
 
-    public static List<String>
+    private static final String ROLE_CASE_WORKER = "caseworker";
+    public static final List<String>
         SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION_ROLES =
-        List.of("caseworker", "caseworker-hrs", "caseworker-hrs-searcher", "ccd-import", "caseworker-hrs-systemupdate");
+        List.of(
+            ROLE_CASE_WORKER,
+            "caseworker-hrs",
+            "caseworker-hrs-searcher",
+            "ccd-import",
+            "caseworker-hrs-systemupdate"
+        );
 
-    protected static final String USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS = "em-test-searcher@test.hmcts.net";
-    protected static final String USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY = "em-test-requestor@test.hmcts.net";
-    protected static final String USER_WITH_NONACCESS_ROLE__CITIZEN = "em-test-citizen@test.hmcts.net";
-    protected static List<String> CASE_WORKER_ROLE = List.of("caseworker");
-    protected static List<String> CASE_WORKER_HRS_SEARCHER_ROLE =
-        List.of("caseworker", "caseworker-hrs", "caseworker-hrs-searcher");
-    protected static List<String> CITIZEN_ROLE = List.of("citizen");
-    static int createUsersBaseTestRunCount = 0;
+    protected static final String USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS = "em-test-searcher@test.hmcts.net";
+    protected static final String USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY = "em-test-requestor@test.hmcts.net";
+    protected static final String USER_WITH_NONACCESS_ROLE_CITIZEN = "em-test-citizen@test.hmcts.net";
+    protected static final List<String> CASE_WORKER_ROLE = List.of(ROLE_CASE_WORKER);
+    protected static final List<String> CASE_WORKER_HRS_SEARCHER_ROLE =
+        List.of(ROLE_CASE_WORKER, "caseworker-hrs", "caseworker-hrs-searcher");
+    protected static final List<String> CITIZEN_ROLE = List.of("citizen");
 
     @Value("${test.url}")
     private String testUrl;
 
     @Value("${upload-ccd-definition}")
     protected boolean uploadCcdDefinition;
-    @Autowired
     protected ExtendedCcdHelper extendedCcdHelper;
-    @Autowired
     protected IdamHelper idamHelper;
 
-    @PostConstruct
-    public void init() {
-        int maxRuns = 1;
-
-        LOGGER.info("INITIALISING SMOKE TESTS....", uploadCcdDefinition, createUsersBaseTestRunCount);
-        if (uploadCcdDefinition && createUsersBaseTestRunCount < maxRuns) {
-
-            LOGGER.info("BASE TEST POST CONSTRUCT INITIALISATIONS....");
-            SerenityRest.useRelaxedHTTPSValidation();
-
-
-            LOGGER.info("CREATING HRS FUNCTIONAL TEST SYSTEM USER");
-            createIdamUserIfNotExists(
-                SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION,
-                SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION_ROLES
-            );
-
-            LOGGER.info("CREATING REGULAR TEST USERS");
-
-            createIdamUserIfNotExists(USER_WITH_SEARCHER_ROLE__CASEWORKER_HRS, CASE_WORKER_HRS_SEARCHER_ROLE);
-            createIdamUserIfNotExists(USER_WITH_REQUESTOR_ROLE__CASEWORKER_ONLY, CASE_WORKER_ROLE);
-            createIdamUserIfNotExists(USER_WITH_NONACCESS_ROLE__CITIZEN, CITIZEN_ROLE);
-
-            LOGGER.info("IMPORTING CCD DEFINITION");
-
-            try {
-                extendedCcdHelper.importDefinitionFile();
-            } catch (IOException e) {
-                LOGGER.error("IMPORTING CCD DEFINITION failed", e);
-            }
-
-            createUsersBaseTestRunCount++;
-
-        }
-        LOGGER.info("AUTHENTICATING TEST USER FOR CCD CALLS");
+    @Autowired
+    public SmokeTest(ExtendedCcdHelper extendedCcdHelper, IdamHelper idamHelper) {
+        this.extendedCcdHelper = extendedCcdHelper;
+        this.idamHelper = idamHelper;
     }
 
-    private void createIdamUserIfNotExists(String email, List<String> roles) {
-        boolean recreateUsers = true;
+    @PostConstruct
+    public void init() throws IOException, InterruptedException {
 
-        if (recreateUsers) {
-            LOGGER.info("CREATING USER {} with roles {}", email, roles);
-            idamHelper.createUser(email, roles);
-        } else {
-            try {
-                String userId = idamHelper.getUserId(email);
-                LOGGER.info("User {} already exists: id={}", email, userId);
-            } catch (Exception e) {
-                //if user does not exist
-                LOGGER.info(
-                    "Exception thrown, likely user does not exist so will create. Ignore the above Exception:{}",
-                    e.getMessage()
-                );
-                LOGGER.info("CREATING USER {} with roles {}", email, roles);
-                idamHelper.createUser(email, roles);
-            }
-        }
+        LOGGER.info("INITIALISING SMOKE TESTS, uploda Ccd Definition: {} ", uploadCcdDefinition);
 
+        LOGGER.info("BASE TEST POST CONSTRUCT INITIALISATIONS....");
+        SerenityRest.useRelaxedHTTPSValidation();
+
+
+        LOGGER.info("CREATING HRS FUNCTIONAL TEST SYSTEM USER");
+        createIdamUser(
+            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION,
+            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION_ROLES
+        );
+
+        LOGGER.info("CREATING REGULAR TEST USERS");
+
+        createIdamUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, CASE_WORKER_HRS_SEARCHER_ROLE);
+        createIdamUser(USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY, CASE_WORKER_ROLE);
+        createIdamUser(USER_WITH_NONACCESS_ROLE_CITIZEN, CITIZEN_ROLE);
+
+        LOGGER.info("IMPORTING CCD DEFINITION");
+        extendedCcdHelper.importDefinitionFile();
+
+    }
+
+    private void createIdamUser(String email, List<String> roles) {
+        LOGGER.info("CREATING USER {} with roles {}", email, roles);
+        idamHelper.createUser(email, roles);
     }
 
     @Test
