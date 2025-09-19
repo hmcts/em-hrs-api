@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.em.hrs.exception.BlobNotFoundException;
 import uk.gov.hmcts.reform.em.hrs.helper.AzureIntegrationTestOperations;
 
 import java.io.File;
+import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -43,14 +44,21 @@ class DefaultHearingRecordingStorageIntegrationTest {
     private static final String ONE_ITEM_FOLDER = "folder-1";
     private static final String MANY_ITEMS_FOLDER = "folder-2";
 
-    private static final Random random = new Random();
-
-    @Autowired
-    private AzureIntegrationTestOperations azureIntegrationTestOperations;
-    @Autowired
-    private HearingRecordingStorageImpl underTest;
+    private static final Random random = new SecureRandom();
     @Captor
     private ArgumentCaptor<String> snoopCaptor;
+
+    private AzureIntegrationTestOperations azureIntegrationTestOperations;
+
+    private HearingRecordingStorageImpl underTest;
+
+    @Autowired
+    public DefaultHearingRecordingStorageIntegrationTest(
+        AzureIntegrationTestOperations azureIntegrationTestOperations,
+        HearingRecordingStorageImpl underTest) {
+        this.azureIntegrationTestOperations = azureIntegrationTestOperations;
+        this.underTest = underTest;
+    }
 
     @BeforeEach
     void setup() {
