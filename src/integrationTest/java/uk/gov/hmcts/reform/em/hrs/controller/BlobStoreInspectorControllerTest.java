@@ -14,6 +14,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.helper.TestClockProvider;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
@@ -54,8 +55,16 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
     @MockitoBean
     private HearingRecordingStorage hearingRecordingStorage;
 
-    @Autowired
     private BlobStoreInspectorController blobStoreInspectorController;
+
+    @Autowired
+    public BlobStoreInspectorControllerTest(
+        WebApplicationContext context,
+        BlobStoreInspectorController blobStoreInspectorController
+    ) {
+        super(context);
+        this.blobStoreInspectorController = blobStoreInspectorController;
+    }
 
     @BeforeEach
     @Override

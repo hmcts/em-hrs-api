@@ -25,13 +25,20 @@ import static org.awaitility.Awaitility.await;
     AzureIntegrationTestOperations.class
 })
 class BlobstoreClientImplTest {
-    private static final String ONE_ITEM_FOLDER = "one-item-folder";
+    private static final String ONE_ITEM_FOLDER = "one-item-folder/";
     private static final String TEST_DATA = "Hello World!";
     private static final String PARTIAL_TEST_DATA = TEST_DATA.substring(0, 3);
-    @Autowired
     private AzureIntegrationTestOperations azureIntegrationTestOperations;
-    @Autowired
     private BlobstoreClientImpl underTest;
+
+    @Autowired
+    public BlobstoreClientImplTest(
+        AzureIntegrationTestOperations azureIntegrationTestOperations,
+        BlobstoreClientImpl underTest
+    ) {
+        this.azureIntegrationTestOperations = azureIntegrationTestOperations;
+        this.underTest = underTest;
+    }
 
     @BeforeEach
     void setup() {
@@ -40,7 +47,7 @@ class BlobstoreClientImplTest {
 
     @Test
     void testShouldDownloadHrsCvpFile() throws IOException {
-        final String filePath = ONE_ITEM_FOLDER + "/" + UUID.randomUUID() + ".txt";
+        final String filePath = ONE_ITEM_FOLDER + UUID.randomUUID() + ".txt";
         azureIntegrationTestOperations.populateHrsCvpContainer(filePath, TEST_DATA);
 
         BlobRange blobRange = null;
@@ -60,7 +67,7 @@ class BlobstoreClientImplTest {
 
     @Test
     void testShouldFetchHrsCvpBlobInfo() throws IOException {
-        final String filePath = ONE_ITEM_FOLDER + "/" + UUID.randomUUID() + ".txt";
+        final String filePath = ONE_ITEM_FOLDER + UUID.randomUUID() + ".txt";
         azureIntegrationTestOperations.populateHrsCvpContainer(filePath, TEST_DATA);
         try (final PipedInputStream pipedInput = new PipedInputStream();
              final PipedOutputStream output = new PipedOutputStream(pipedInput)) {

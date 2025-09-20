@@ -15,9 +15,12 @@ class FolderRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest 
 
     private static final String EMPTY_FOLDER = "folder-0";
     private static final String TEST_FOLDER = "folder-1";
+    private FolderRepository underTest;
 
     @Autowired
-    private FolderRepository underTest;
+    public FolderRepositoryIntegrationTest(FolderRepository underTest) {
+        this.underTest = underTest;
+    }
 
     @Test
     void testShouldReturnEmptySetWhenDatabaseIsEmpty() {

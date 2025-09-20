@@ -23,8 +23,13 @@ public class BaseWebTest {
     @MockitoBean
     public ScheduledTaskRunner taskRunner;
 
-    @Autowired
+
     private WebApplicationContext context;
+
+    @Autowired
+    public BaseWebTest(WebApplicationContext context) {
+        this.context = context;
+    }
 
     @BeforeEach
     public void setup() {

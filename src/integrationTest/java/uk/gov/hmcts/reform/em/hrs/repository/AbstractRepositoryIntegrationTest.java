@@ -32,7 +32,7 @@ public abstract class AbstractRepositoryIntegrationTest {
 
     private static final String DATABASE_NAME = "emhrs";
     private static final String USER_NAME = "emhrs";
-    private static final String PASSWORD = "emhrs";
+    private static final String PASS = "emhrs";
     private static final int MAPPED_PORT = 5432;
 
     private static final DockerImageName postgresImage
@@ -41,7 +41,7 @@ public abstract class AbstractRepositoryIntegrationTest {
     private static final PostgreSQLContainer<?> POSTGRES_CONTAINER = new PostgreSQLContainer<>(postgresImage)
         .withDatabaseName(DATABASE_NAME)
         .withUsername(USER_NAME)
-        .withPassword(PASSWORD)
+        .withPassword(PASS)
         .withExposedPorts(MAPPED_PORT)
         .withLogConsumer(new Slf4jLogConsumer(LOGGER))
         .waitingFor(Wait.forListeningPort());
