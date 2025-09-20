@@ -7,9 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.em.hrs.testutil.BlobUtil;
+import uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper;
 import uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper;
+import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
+import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
+import uk.gov.hmcts.reform.idam.client.IdamClient;
 
 import java.time.Period;
 import java.util.ArrayList;
@@ -28,17 +33,28 @@ public class IngestScenarios extends BaseTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestScenarios.class);
 
-    public static final int SEGMENT_COUNT = 1;//TODO set this 10 11 to test CCD validation changes
+    public static final int SEGMENT_COUNT = 1;
     public static final int CCD_UPLOAD_WAIT_PER_SEGMENT_IN_SECONDS = 15;
     public static final int CCD_UPLOAD_WAIT_MARGIN_IN_SECONDS = 35;
     //AAT averages at 8/second if evenly spread across servers - 30 seconds if they all were served by 1 server
-    //chosing 15 seconds as with 2 segments + 35 second margin = 65 seconds in total 0 more than enough
+    //choosing 15 seconds as with 2 segments + 35 second margin = 65 seconds in total 0 more than enough
 
     @Value("${ttl.default-ttl}")
     private Period defaultTTL;
 
-    @Autowired
     private BlobUtil testUtil;
+
+    @Autowired
+    IngestScenarios(
+        IdamClient idamClient,
+        IdamHelper idamHelper,
+        S2sHelper s2sHelper,
+        CoreCaseDataApi coreCaseDataApi,
+        ExtendedCcdHelper extendedCcdHelper,
+        BlobUtil blobUtil) {
+        super(idamClient, idamHelper, s2sHelper, coreCaseDataApi, extendedCcdHelper);
+        this.testUtil = blobUtil;
+    }
 
     @BeforeEach
     public void setup() {
@@ -73,7 +89,6 @@ public class IngestScenarios extends BaseTest {
     @Test
     public void shouldIngestPartiallyCopiedHearingRecordingSegments() throws Exception {
         //Partially copied *should* result in a file size of 0 bytes
-        //TODO put link to MS doco describing this
         String caseRef = timebasedCaseRef();
 
         String filename = filename(caseRef, 0);
@@ -126,14 +141,15 @@ public class IngestScenarios extends BaseTest {
 
 
         Map<String, Object> data = caseDetails.getData();
-        LOGGER.info("data size: " + data.size());
-        List recordingFiles = (ArrayList) data.get("recordingFiles");
+        LOGGER.info("data size: {}", data.size());
+        @SuppressWarnings("unchecked")
+        List<String> recordingFiles = (ArrayList) data.get("recordingFiles");
         assertThat(recordingFiles.size()).isEqualTo(segmentCount);
         String hearingSource = (String)data.get("hearingSource");
         assertThat(hearingSource).isEqualTo("VH".equalsIgnoreCase(folder) ? "VH" : "CVP");
-        LOGGER.info("num recordings: " + recordingFiles.size());
-
-        Map ttlObject = (Map)data.get("TTL");
+        LOGGER.info("num recordings: {}", recordingFiles.size());
+        @SuppressWarnings("unchecked")
+        Map<String, Object> ttlObject = (Map) data.get("TTL");
         LocalDate creationDate = LocalDate.parse(DATE);
 
         assertNull(ttlObject.get("OverrideTTL"));

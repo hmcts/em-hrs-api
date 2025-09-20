@@ -7,17 +7,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.em.hrs.BaseTest;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static uk.gov.hmcts.reform.em.hrs.testutil.SleepHelper.sleepForSeconds;
 
@@ -27,7 +28,7 @@ public class BlobUtil {
     public static final int FIND_BLOB_TIMEOUT = 30;
     public final BlobContainerClient hrsCvpBlobContainerClient;
     public final BlobContainerClient cvpBlobContainerClient;
-    private static final Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlobUtil.class);
 
     @Autowired
     public BlobUtil(
@@ -61,10 +62,11 @@ public class BlobUtil {
         return (int) client.listBlobs()
             .stream()
             .filter(c -> fileNames.contains(c.getName()))
-            .collect(Collectors.toList()).stream().count();
+            .toList().stream().count();
     }
 
-    public void uploadFileFromPathToCvpContainer(final String blobName, final String pathToFile) throws Exception {
+    public void uploadFileFromPathToCvpContainer(final String blobName, final String pathToFile)
+        throws IOException, URISyntaxException {
         final FileInputStream fileInputStream = getFileFromPath(pathToFile);
         final byte[] bytes = fileInputStream.readAllBytes();
         final InputStream inStream = new ByteArrayInputStream(bytes);
@@ -74,7 +76,8 @@ public class BlobUtil {
         blobClient.upload(new BufferedInputStream(inStream), bytes.length);
     }
 
-    public void uploadFileFromPathToHrsContainer(final String blobName, final String pathToFile) throws Exception {
+    public void uploadFileFromPathToHrsContainer(final String blobName, final String pathToFile)
+        throws IOException, URISyntaxException {
         final FileInputStream fileInputStream =  getFileFromPath(pathToFile);
         final byte[] bytes = fileInputStream.readAllBytes();
         final InputStream inStream = new ByteArrayInputStream(bytes);
@@ -84,7 +87,7 @@ public class BlobUtil {
         blobClient.upload(new BufferedInputStream(inStream), bytes.length);
     }
 
-    public FileInputStream getFileFromPath(final String pathToFile) throws Exception {
+    public FileInputStream getFileFromPath(final String pathToFile) throws URISyntaxException, FileNotFoundException {
         final URL resource = ClassLoader.getSystemResource(pathToFile);
         final File file = new File(Objects.requireNonNull(resource).toURI());
         return new FileInputStream(file);
