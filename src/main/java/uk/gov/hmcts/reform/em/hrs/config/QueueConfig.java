@@ -13,13 +13,13 @@ public class QueueConfig {
 
     @Bean
     public LinkedBlockingQueue<HearingRecordingDto> ingestionQueue() {
-        return new LinkedBlockingQueue<HearingRecordingDto>(DEFAULT_CAPACITY);
+        return new LinkedBlockingQueue<>(DEFAULT_CAPACITY);
     }
 
 
     @Bean
     public LinkedBlockingQueue<HearingRecordingDto> ccdUploadQueue() {
-        return new LinkedBlockingQueue<HearingRecordingDto>(DEFAULT_CAPACITY);
+        return new LinkedBlockingQueue<>(DEFAULT_CAPACITY);
     }
 
 }

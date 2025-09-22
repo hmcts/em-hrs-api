@@ -34,7 +34,7 @@ public class AuditReportCsvWriter {
             .Builder
             .create()
             .setHeader(HEARING_AUDIT_SUMMARY_CSV_HEADERS)
-            .build();
+            .get();
         try (
             FileWriter fileWriter = new FileWriter(csvFile);
             CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)

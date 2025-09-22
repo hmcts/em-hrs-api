@@ -10,8 +10,13 @@ import java.util.Optional;
 
 public class AuditorAwareImpl implements AuditorAware<String> {
 
-    @Autowired
+
     private SecurityService securityService;
+
+    @Autowired
+    public AuditorAwareImpl(SecurityService securityService) {
+        this.securityService = securityService;
+    }
 
     @Override
     public Optional<String> getCurrentAuditor() {

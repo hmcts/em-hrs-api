@@ -14,7 +14,7 @@ public class RequestLoggingFilterConfig {
         filter.setIncludeQueryString(true);
         filter.setIncludePayload(true);
         filter.setMaxPayloadLength(10000);
-        filter.setIncludeHeaders(false);//TODO must be false on prod but can be shown elsewhere
+        filter.setIncludeHeaders(false);
         filter.setAfterMessagePrefix("REQUEST DATA : ");
         return filter;
     }

@@ -9,8 +9,13 @@ import uk.gov.hmcts.reform.em.hrs.interceptors.DeleteRequestInterceptor;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+
+    private final DeleteRequestInterceptor deleteRequestInterceptor;
+
     @Autowired
-    private DeleteRequestInterceptor deleteRequestInterceptor;
+    public WebConfig(DeleteRequestInterceptor deleteRequestInterceptor) {
+        this.deleteRequestInterceptor = deleteRequestInterceptor;
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

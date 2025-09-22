@@ -11,10 +11,9 @@ import java.io.IOException;
 import java.time.Period;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class TTLPropertySourceFactory implements PropertySourceFactory {
-
-    private static int COUNT = 0;
 
     @Override
     public PropertySource<?> createPropertySource(String name, EncodedResource resource)
@@ -24,6 +23,6 @@ public class TTLPropertySourceFactory implements PropertySourceFactory {
         objectMapper.findAndRegisterModules();
         Map<String, Map<String, Period>> jsonContent = objectMapper
             .readValue(resource.getInputStream(), typeRef);
-        return new MapPropertySource("json-property" + ++COUNT, new HashMap<>(jsonContent));
+        return new MapPropertySource("json-property" + UUID.randomUUID(), new HashMap<>(jsonContent));
     }
 }

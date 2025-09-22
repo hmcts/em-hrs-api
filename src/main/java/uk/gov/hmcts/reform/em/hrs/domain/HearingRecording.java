@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ import java.util.UUID;
 
 @Entity
 @Builder
+@AllArgsConstructor
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
@@ -83,46 +85,8 @@ public class HearingRecording {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "hearingRecording")
     private Set<HearingRecordingSharee> sharees;
 
-    public HearingRecording(UUID id, String createdBy, String createdByService, String lastModifiedBy,
-                            String lastModifiedByService,
-                            LocalDateTime modifiedOn, LocalDateTime createdOn,
-                            boolean deleted, Folder folder,
-                            Set<HearingRecordingAuditEntry> auditEntries,
-                            LocalDate ttl,
-                            String recordingRef, String caseRef, String hearingLocationCode,
-                            String hearingRoomRef, String hearingSource,
-                            String jurisdictionCode, String serviceCode, Long ccdCaseId,
-                            Set<HearingRecordingSegment> segments,
-                            Set<HearingRecordingSharee> sharees) {
-        setId(id);
-        setCreatedBy(createdBy);
-        setCreatedByService(createdByService);
-        this.lastModifiedBy = lastModifiedBy;
-        this.setLastModifiedByService(lastModifiedByService);
-        setModifiedOn(modifiedOn);
-        setCreatedOn(createdOn);
-        setDeleted(deleted);
-        setFolder(folder);
-
-        setAuditEntries(auditEntries);
-        setTtl(ttl);
-
-        setRecordingRef(recordingRef);
-        setCaseRef(caseRef);
-        setHearingLocationCode(hearingLocationCode);
-        setHearingRoomRef(hearingRoomRef);
-        setHearingSource(hearingSource);
-        setJurisdictionCode(jurisdictionCode);
-
-        setServiceCode(serviceCode);
-        setCcdCaseId(ccdCaseId);
-
-        setSegments(segments);
-        setSharees(sharees);
-    }
-
     public HearingRecording() {
-
+        // jpa/Hibernate need this
     }
 
     public static class HearingRecordingBuilder {

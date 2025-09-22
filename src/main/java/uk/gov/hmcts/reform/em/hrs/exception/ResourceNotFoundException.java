@@ -9,7 +9,7 @@ public abstract class ResourceNotFoundException extends RuntimeException {
     private final String field;
     private final String value;
 
-    public ResourceNotFoundException(@NonNull final String field, @NonNull final String value) {
+    protected ResourceNotFoundException(@NonNull final String field, @NonNull final String value) {
         this.field = field;
         this.value = value;
     }

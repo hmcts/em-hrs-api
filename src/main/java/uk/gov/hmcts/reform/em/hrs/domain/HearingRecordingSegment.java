@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,7 @@ import java.util.UUID;
 
 @Entity
 @Builder
+@AllArgsConstructor
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
@@ -74,48 +76,8 @@ public class HearingRecordingSegment {
     private String interpreter;
 
 
-    public HearingRecordingSegment(HearingRecording hearingRecording, UUID id, String createdBy,
-                                   String createdByService, String lastModifiedBy,
-                                   String lastModifiedByService,
-                                   LocalDateTime modifiedOn,
-                                   LocalDateTime createdOn,
-                                   boolean deleted,
-                                   Set<HearingRecordingSegmentAuditEntry> auditEntries,
-                                   String blobUuid, String filename,
-                                   String fileExtension, String fileMd5Checksum, Long fileSizeMb,
-                                   String ingestionFileSourceUri,
-                                   Integer recordingLengthMins,
-                                   Integer recordingSegment,
-                                   String interpreter) {
-        setHearingRecording(hearingRecording);
-        setId(id);
-        setCreatedBy(createdBy);
-        setCreatedByService(createdByService);
-        this.lastModifiedBy = lastModifiedBy;
-        this.setLastModifiedByService(lastModifiedByService);
-        setModifiedOn(modifiedOn);
-        setCreatedOn(createdOn);
-        setDeleted(deleted);
-
-
-        setAuditEntries(auditEntries);
-
-        setBlobUuid(blobUuid);
-        setFilename(filename);
-
-        setFileExtension(fileExtension);
-        setFileMd5Checksum(fileMd5Checksum);
-        setFileSizeMb(fileSizeMb);
-
-        setIngestionFileSourceUri(ingestionFileSourceUri);
-
-
-        setRecordingLengthMins(recordingLengthMins);
-        setRecordingSegment(recordingSegment);
-        setInterpreter(interpreter);
-    }
-
     public HearingRecordingSegment() {
+        // for Jpa/hibernate
     }
 
     public static class HearingRecordingSegmentBuilder {
