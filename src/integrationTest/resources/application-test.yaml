@@ -20,6 +20,7 @@ report:
   monthly-hearing:
     reportStartDates: 2024-07-01,2024-08-31,2024-09-15
     recipients: xxxx
+  api-key: RkI2ejoxNjk1OTA2MjM0MDcx
 
 shareelink:
   ttl: ${SHAREE_LINK_TTL:72}
@@ -29,6 +30,3 @@ scheduling:
     monthly-hearing-report:
       enabled: true
       cron: 0 0 6 ? * *
-
-report:
-  api-key: RkI2ejoxNjk1OTA2MjM0MDcx
