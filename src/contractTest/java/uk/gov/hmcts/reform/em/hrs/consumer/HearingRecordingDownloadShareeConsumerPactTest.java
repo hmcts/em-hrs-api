@@ -36,15 +36,16 @@ public class HearingRecordingDownloadShareeConsumerPactTest extends BaseConsumer
     private static final int SEGMENT_NUMBER = 1;
     private static final String FILE_NAME = "mocked-file.mp3";
     private static final String FOLDER_NAME = "folderA";
+    public static final String SHAREE = "/sharee";
+    public static final String HEARING_RECORDINGS = "/hearing-recordings/";
+    private static final String SEGMENT_DOWNLOAD_PATH_BY_SEGMENT_NO = HEARING_RECORDINGS
+        + RECORDING_ID + "/segments/" + SEGMENT_NUMBER + SHAREE;
 
-    private static final String SEGMENT_DOWNLOAD_PATH_BY_SEGMENT_NO = "/hearing-recordings/"
-        + RECORDING_ID + "/segments/" + SEGMENT_NUMBER + "/sharee";
+    private static final String SEGMENT_DOWNLOAD_PATH_BY_FILE_NAME = HEARING_RECORDINGS
+        + RECORDING_ID + "/file/" + FILE_NAME + SHAREE;
 
-    private static final String SEGMENT_DOWNLOAD_PATH_BY_FILE_NAME = "/hearing-recordings/"
-        + RECORDING_ID + "/file/" + FILE_NAME + "/sharee";
-
-    private static final String SEGMENT_DOWNLOAD_PATH_BY_FOLDER_AND_FILE_NAME = "/hearing-recordings/"
-        + RECORDING_ID + "/file/" + FOLDER_NAME + FILE_NAME + "/sharee";
+    private static final String SEGMENT_DOWNLOAD_PATH_BY_FOLDER_AND_FILE_NAME = HEARING_RECORDINGS
+        + RECORDING_ID + "/file/" + FOLDER_NAME + FILE_NAME + SHAREE;
 
     private void testDownload(MockServer mockServer, String reqUrl) {
         Response response = SerenityRest
