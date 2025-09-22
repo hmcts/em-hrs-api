@@ -21,16 +21,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
     AzureIntegrationTestOperations.class
 })
 @EnableConfigurationProperties(value = TTLMapperConfig.class)
-@TestPropertySources({
-    @TestPropertySource(value = "classpath:ttl_jurisdiction_map.json",
-        factory  = TTLPropertySourceFactory.class),
-    @TestPropertySource(value = "classpath:ttl_service_map.json",
-        factory  = TTLPropertySourceFactory.class),
-})
+@TestPropertySource(
+    value = "classpath:ttl_jurisdiction_map.json",
+    factory = TTLPropertySourceFactory.class
+)
+@TestPropertySource(
+    value = "classpath:ttl_service_map.json",
+    factory = TTLPropertySourceFactory.class
+)
 class TTLMapperConfigTest {
 
-    @Autowired
     private TTLMapperConfig ttlMapperConfig;
+
+    @Autowired
+    public TTLMapperConfigTest(TTLMapperConfig ttlMapperConfig) {
+        this.ttlMapperConfig = ttlMapperConfig;
+    }
 
     @Test
     void serviceMapIsSet() {

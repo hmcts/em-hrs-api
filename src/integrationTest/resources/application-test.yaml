@@ -29,3 +29,6 @@ scheduling:
     monthly-hearing-report:
       enabled: true
       cron: 0 0 6 ? * *
+
+report:
+  api-key: RkI2ejoxNjk1OTA2MjM0MDcx

@@ -14,8 +14,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Sql({"/data/create-folder.sql"})
 class HearingRecordingSegmentRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest {
 
-    @Autowired
     private HearingRecordingSegmentRepository hearingRecordingSegmentRepository;
+
+    @Autowired
+    public HearingRecordingSegmentRepositoryIntegrationTest(
+        HearingRecordingSegmentRepository hearingRecordingSegmentRepository
+    ) {
+        this.hearingRecordingSegmentRepository = hearingRecordingSegmentRepository;
+    }
 
     @Test
     void testShouldFindSegmentByRecordingId() {

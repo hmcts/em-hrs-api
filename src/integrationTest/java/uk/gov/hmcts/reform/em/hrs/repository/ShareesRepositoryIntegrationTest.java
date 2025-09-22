@@ -13,8 +13,13 @@ import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.hearingRecordin
 
 class ShareesRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest {
 
-    @Autowired
+
     private ShareesRepository underTest;
+
+    @Autowired
+    public ShareesRepositoryIntegrationTest(ShareesRepository underTest) {
+        this.underTest = underTest;
+    }
 
     @Test
     void testShouldSaveSharee() {

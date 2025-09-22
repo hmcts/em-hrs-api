@@ -16,6 +16,7 @@ import static uk.gov.hmcts.reform.em.hrs.config.ClockConfig.EUROPE_LONDON_ZONE_I
 @TestConfiguration
 public class TestClockProvider {
 
+    @SuppressWarnings({"java:S1170", "java:S1444"}) // Field needs to be mutable for test clock control
     public static Instant stoppedInstant = Instant.now();
 
     @Bean

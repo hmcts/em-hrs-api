@@ -13,8 +13,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class JobInProgressRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest {
 
-    @Autowired
     private JobInProgressRepository underTest;
+
+    @Autowired
+    public JobInProgressRepositoryIntegrationTest(JobInProgressRepository underTest) {
+        this.underTest = underTest;
+    }
 
     @BeforeEach
     void prepare() {
