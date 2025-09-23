@@ -31,7 +31,7 @@ public class FolderControllerTest extends BaseWebTest {
     }
 
     @Test
-    public void shouldReturnFullListOfFiles() throws Exception {
+    void shouldReturnFullListOfFiles() throws Exception {
         var folderName = "audioStream123";
         var fileName1 = "32123-32-23-332.mpeg";
         var fileName2 = "dcfds9923-ss-FB.mpeg";
@@ -46,7 +46,7 @@ public class FolderControllerTest extends BaseWebTest {
     }
 
     @Test
-    public void shouldReturnEmptyListOfFiles() throws Exception {
+    void shouldReturnEmptyListOfFiles() throws Exception {
         var folderName = "audioStream9084";
         Set<String> folderSet = Set.of();
         when(folderService.getStoredFiles(folderName)).thenReturn(folderSet);
