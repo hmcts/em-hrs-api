@@ -35,25 +35,27 @@ public class ExtendedCcdHelper {
     private static final String CLOSE_EVENT_TYPE_ID = "closeCase";
     private static final String CLOSE_EVENT_SUMMARY = "Create by HRS api Functional Tests,Closed by HRS api";
 
-    @Autowired
     private IdamHelper idamHelper;
-
-    @Qualifier("ccdAuthTokenGenerator")
-    @Autowired
     private AuthTokenGenerator ccdAuthTokenGenerator;
-
-    @Autowired
     private CcdDefImportApi ccdDefImportApi;
-
-    @Autowired
     private CcdDefUserRoleApi ccdDefUserRoleApi;
-
     @Value("${ccd-def.file}")
     protected String ccdDefinitionFile;
-
-
     @Value("${core_case_data.api.url}")
     protected String ccdApiUrl;
+
+    @Autowired
+    public ExtendedCcdHelper(
+        IdamHelper idamHelper,
+        @Qualifier("ccdAuthTokenGenerator") AuthTokenGenerator ccdAuthTokenGenerator,
+        CcdDefImportApi ccdDefImportApi,
+        CcdDefUserRoleApi ccdDefUserRoleApi
+    ) {
+        this.idamHelper = idamHelper;
+        this.ccdAuthTokenGenerator = ccdAuthTokenGenerator;
+        this.ccdDefImportApi = ccdDefImportApi;
+        this.ccdDefUserRoleApi = ccdDefUserRoleApi;
+    }
 
 
     public String getCcdS2sToken() {
