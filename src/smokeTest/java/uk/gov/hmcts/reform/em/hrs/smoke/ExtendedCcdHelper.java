@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.smoke;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockMultipartFile;
@@ -19,36 +20,34 @@ import static uk.gov.hmcts.reform.em.hrs.smoke.SmokeTest.SYSTEM_USER_FOR_FUNCTIO
 @Service
 public class ExtendedCcdHelper {
 
-    private static final String BEARER_TOKEN_PREFIX = "Bearer ";
-    private static final String CLOSE_EVENT_TYPE_ID = "closeCase";
-    private static final String CLOSE_EVENT_SUMMARY = "Create by HRS api Functional Tests,Closed by HRS api";
-
-    @Autowired
     private IdamHelper idamHelper;
-
-    @Qualifier("ccdAuthTokenGenerator")
-    @Autowired
     private AuthTokenGenerator ccdAuthTokenGenerator;
-
-    @Autowired
     private CcdDefImportApi ccdDefImportApi;
-
-    @Autowired
     private CcdDefUserRoleApi ccdDefUserRoleApi;
 
     @Value("${ccd-def.file}")
     protected String ccdDefinitionFile;
-
-
     @Value("${core_case_data.api.url}")
     protected String ccdApiUrl;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedCcdHelper.class);
+
+    public ExtendedCcdHelper(IdamHelper idamHelper,
+                             @Qualifier("ccdAuthTokenGenerator")AuthTokenGenerator ccdAuthTokenGenerator,
+                             CcdDefImportApi ccdDefImportApi,
+                             CcdDefUserRoleApi ccdDefUserRoleApi
+    ) {
+        this.idamHelper = idamHelper;
+        this.ccdAuthTokenGenerator = ccdAuthTokenGenerator;
+        this.ccdDefImportApi = ccdDefImportApi;
+        this.ccdDefUserRoleApi = ccdDefUserRoleApi;
+    }
 
     public String getCcdS2sToken() {
         return ccdAuthTokenGenerator.generate();
     }
 
-    public void importDefinitionFile() throws IOException {
+    public void importDefinitionFile() throws IOException, InterruptedException {
         var serviceToken = ccdAuthTokenGenerator.generate();
         var idamToken = idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
         //These roles need to exist in both IDAM and CCD
@@ -82,7 +81,8 @@ public class ExtendedCcdHelper {
         return ClassLoader.getSystemResourceAsStream(ccdDefinitionFile);
     }
 
-    private void createCcdUserRole(String userRole, String serviceToken, String idamToken) {
+    private void createCcdUserRole(String userRole, String serviceToken, String idamToken)
+        throws InterruptedException {
         int maxAttempts = 3;
         int attempt = 0;
         while (attempt < maxAttempts) {
@@ -92,21 +92,15 @@ public class ExtendedCcdHelper {
                     idamToken,
                     serviceToken
                 );
-                System.out.println("userRole created===> " + userRole);
                 break; // Success, exit loop
             } catch (Exception e) {
                 attempt++;
                 if (attempt >= maxAttempts) {
-                    System.err.println("Failed to create userRole after " + maxAttempts + " attempts");
+                    LOGGER.error("Failed to create userRole after {} attempts", maxAttempts);
                     throw e; // Rethrow after final attempt
                 }
-                System.err.println("Attempt " + attempt + " failed, retrying in 2 seconds...");
-                try {
-                    Thread.sleep(2000); // Wait 2 seconds before retrying
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    throw new RuntimeException("Retry interrupted", ie);
-                }
+                LOGGER.error("Attempt {} failed, retrying in 2 seconds...", attempt);
+                Thread.sleep(2000); // Wait 2 seconds before retrying
             }
         }
     }
