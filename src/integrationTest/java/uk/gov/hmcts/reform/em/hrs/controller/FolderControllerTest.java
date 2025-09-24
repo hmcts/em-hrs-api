@@ -1,8 +1,10 @@
 package uk.gov.hmcts.reform.em.hrs.controller;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
 
 import java.util.Set;
@@ -21,10 +23,15 @@ public class FolderControllerTest extends BaseWebTest {
     @MockitoBean
     FolderService folderService;
 
-    private static final String FILENAMES_$ = "$.filenames";
+    private static final String FILENAMES = "$.filenames";
+
+    @Autowired
+    public FolderControllerTest(WebApplicationContext context) {
+        super(context);
+    }
 
     @Test
-    public void should_return_full_list_of_files() throws Exception {
+    void shouldReturnFullListOfFiles() throws Exception {
         var folderName = "audioStream123";
         var fileName1 = "32123-32-23-332.mpeg";
         var fileName2 = "dcfds9923-ss-FB.mpeg";
@@ -34,12 +41,12 @@ public class FolderControllerTest extends BaseWebTest {
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.folder-name").value(folderName))
-            .andExpect(jsonPath(FILENAMES_$, hasSize(2)))
-            .andExpect(jsonPath(FILENAMES_$, containsInAnyOrder(fileName1, fileName2)));
+            .andExpect(jsonPath(FILENAMES, hasSize(2)))
+            .andExpect(jsonPath(FILENAMES, containsInAnyOrder(fileName1, fileName2)));
     }
 
     @Test
-    public void should_return_empty_list_of_files() throws Exception {
+    void shouldReturnEmptyListOfFiles() throws Exception {
         var folderName = "audioStream9084";
         Set<String> folderSet = Set.of();
         when(folderService.getStoredFiles(folderName)).thenReturn(folderSet);
@@ -47,6 +54,6 @@ public class FolderControllerTest extends BaseWebTest {
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.folder-name").value(folderName))
-            .andExpect(jsonPath(FILENAMES_$, hasSize(0)));
+            .andExpect(jsonPath(FILENAMES, hasSize(0)));
     }
 }

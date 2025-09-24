@@ -40,8 +40,13 @@ public class MonthlyHearingReportTaskTest {
     @MockitoBean
     private HearingReportService hearingReportService;
 
-    @Autowired
+
     private MonthlyHearingReportTask monthlyHearingReportTask;
+
+    @Autowired
+    public MonthlyHearingReportTaskTest(MonthlyHearingReportTask monthlyHearingReportTask) {
+        this.monthlyHearingReportTask = monthlyHearingReportTask;
+    }
 
 
     @Test

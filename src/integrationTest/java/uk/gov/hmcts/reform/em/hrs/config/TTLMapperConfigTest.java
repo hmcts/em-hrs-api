@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.TestPropertySources;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestAzureStorageConfig;
 import uk.gov.hmcts.reform.em.hrs.helper.AzureIntegrationTestOperations;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobstoreClientImpl;
@@ -21,16 +20,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
     AzureIntegrationTestOperations.class
 })
 @EnableConfigurationProperties(value = TTLMapperConfig.class)
-@TestPropertySources({
-    @TestPropertySource(value = "classpath:ttl_jurisdiction_map.json",
-        factory  = TTLPropertySourceFactory.class),
-    @TestPropertySource(value = "classpath:ttl_service_map.json",
-        factory  = TTLPropertySourceFactory.class),
-})
+@TestPropertySource(
+    value = "classpath:ttl_jurisdiction_map.json",
+    factory = TTLPropertySourceFactory.class
+)
+@TestPropertySource(
+    value = "classpath:ttl_service_map.json",
+    factory = TTLPropertySourceFactory.class
+)
 class TTLMapperConfigTest {
 
-    @Autowired
     private TTLMapperConfig ttlMapperConfig;
+
+    @Autowired
+    public TTLMapperConfigTest(TTLMapperConfig ttlMapperConfig) {
+        this.ttlMapperConfig = ttlMapperConfig;
+    }
 
     @Test
     void serviceMapIsSet() {

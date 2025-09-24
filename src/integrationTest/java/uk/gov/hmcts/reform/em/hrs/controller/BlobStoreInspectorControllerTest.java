@@ -11,9 +11,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.lang.Nullable;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.helper.TestClockProvider;
 import uk.gov.hmcts.reform.em.hrs.storage.HearingRecordingStorage;
@@ -39,9 +39,6 @@ import static uk.gov.hmcts.reform.em.hrs.config.ClockConfig.EUROPE_LONDON_ZONE_I
 
 @WebMvcTest(BlobStoreInspectorController.class)
 @Import(TestClockProvider.class)
-@TestPropertySource(properties = {
-    "report.api-key=RkI2ejoxNjk1OTA2MjM0MDcx",
-})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BlobStoreInspectorControllerTest extends BaseWebTest {
 
@@ -54,11 +51,20 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
     @MockitoBean
     private HearingRecordingStorage hearingRecordingStorage;
 
-    @Autowired
     private BlobStoreInspectorController blobStoreInspectorController;
+
+    @Autowired
+    public BlobStoreInspectorControllerTest(
+        WebApplicationContext context,
+        BlobStoreInspectorController blobStoreInspectorController
+    ) {
+        super(context);
+        this.blobStoreInspectorController = blobStoreInspectorController;
+    }
 
     @BeforeEach
     @Override
+    @SuppressWarnings("java:S2696") // Need to set static field from instance method for test setup
     public void setup() {
         super.setup();
         TestClockProvider.stoppedInstant = Instant.now();
