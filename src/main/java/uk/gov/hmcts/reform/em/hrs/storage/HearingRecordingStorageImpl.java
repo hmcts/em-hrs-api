@@ -110,7 +110,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             throw new BlobNotFoundException("hearingSource", "" + hearingSource);
         }
 
-        if (!Boolean.TRUE.equals(blobClient.exists())) {
+        if (Boolean.FALSE.equals(blobClient.exists())) {
             throw new BlobNotFoundException("blobName", blobName);
         }
         var prop = blobClient.getProperties();
