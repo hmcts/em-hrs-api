@@ -55,8 +55,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private static final Logger LOGGER = LoggerFactory.getLogger(HearingRecordingStorageImpl.class);
     private static final int BLOB_LIST_TIMEOUT = 5;
     private static final Duration POLLING_INTERVAL = Duration.ofSeconds(3);
-    private static final String PATH_SEPARATOR = File.separator;
-
     private static final int COUNT_LAST_89_DAYS = 89;
     private final BlobContainerClient hrsCvpBlobContainerClient;
     private final BlobContainerClient hrsVhBlobContainerClient;
@@ -81,9 +79,9 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
     @Override
     public Set<String> findByFolderName(final String folderName) {
-        boolean folderNameIncludesTrailingSlash = StringUtils.endsWith(folderName, PATH_SEPARATOR);
+        boolean folderNameIncludesTrailingSlash = StringUtils.endsWith(folderName, File.separator);
 
-        var folderPath = folderNameIncludesTrailingSlash ? folderName : folderName + PATH_SEPARATOR;
+        var folderPath = folderNameIncludesTrailingSlash ? folderName : folderName +File.separator;
 
         var blobListDetails = new BlobListDetails()
             .setRetrieveDeletedBlobs(false)
@@ -112,7 +110,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             throw new BlobNotFoundException("hearingSource", "" + hearingSource);
         }
 
-        if (blobClient.exists() != Boolean.TRUE) {
+        if (!Boolean.TRUE.equals(blobClient.exists())) {
             throw new BlobNotFoundException("blobName", blobName);
         }
         var prop = blobClient.getProperties();
@@ -299,7 +297,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             duration,
             today,
             cutoffDateTime,
-            blobItem -> blobItem.getName().contains(PATH_SEPARATOR) && blobItem.getName().contains(".mp")
+            blobItem -> blobItem.getName().contains(File.separator) && blobItem.getName().contains(".mp")
         );
 
         return new StorageReport(today, cvpCounts);
