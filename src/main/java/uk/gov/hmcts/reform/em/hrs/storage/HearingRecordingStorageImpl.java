@@ -81,7 +81,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     public Set<String> findByFolderName(final String folderName) {
         boolean folderNameIncludesTrailingSlash = StringUtils.endsWith(folderName, File.separator);
 
-        var folderPath = folderNameIncludesTrailingSlash ? folderName : folderName +File.separator;
+        var folderPath = folderNameIncludesTrailingSlash ? folderName : folderName + File.separator;
 
         var blobListDetails = new BlobListDetails()
             .setRetrieveDeletedBlobs(false)
