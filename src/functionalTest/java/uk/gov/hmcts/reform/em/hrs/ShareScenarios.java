@@ -20,6 +20,8 @@ import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,7 +56,7 @@ public class ShareScenarios extends BaseTest {
     }
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() throws IOException, URISyntaxException {
         LOGGER.info("SETTING UP SHARE RECORDING SCENARIOS....");
 
         createFolderIfDoesNotExistInHrsDB(FOLDER);

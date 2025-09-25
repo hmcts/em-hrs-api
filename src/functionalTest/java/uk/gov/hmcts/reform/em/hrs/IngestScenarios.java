@@ -16,6 +16,8 @@ import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -63,7 +65,7 @@ public class IngestScenarios extends BaseTest {
 
 
     @Test
-    public void shouldCreateHearingRecordingSegments() throws Exception {
+    public void shouldCreateHearingRecordingSegments() throws IOException, URISyntaxException {
         String caseRef = timebasedCaseRef();
         Set<String> filenames = new HashSet<>();
 
@@ -87,7 +89,7 @@ public class IngestScenarios extends BaseTest {
     }
 
     @Test
-    public void shouldIngestPartiallyCopiedHearingRecordingSegments() throws Exception {
+    public void shouldIngestPartiallyCopiedHearingRecordingSegments() throws IOException, URISyntaxException {
         //Partially copied *should* result in a file size of 0 bytes
         String caseRef = timebasedCaseRef();
 

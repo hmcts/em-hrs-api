@@ -13,6 +13,8 @@ import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -43,7 +45,7 @@ public class DownloadNonSharedScenarios extends BaseTest {
     }
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() throws IOException, URISyntaxException {
         if (Objects.nonNull(caseDetails) && Objects.nonNull(caseDetails.getData())) {
             LOGGER.info("CaseDetails is not null, setup done already");
             return;

@@ -135,24 +135,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             LOGGER.info("########## Trying copy from URL for sourceUri {}", sourceUri);
             if (Boolean.FALSE.equals(destinationBlobClient.exists())
                 || destinationBlobClient.getProperties().getBlobSize() == 0) {
-                if (useAdAuth) {
-                    LOGGER.info("Generating and appending SAS token for copy for filename{}", filename);
-                    String sasToken = generateReadSas(filename);
-                    sourceUri = sourceUri + "?" + sasToken;
-                    LOGGER.info("Generated SasToken {}", sasToken);
-                } else {
-
-                    String sasToken = sourceBlob
-                        .generateSas(
-                            new BlobServiceSasSignatureValues(
-                                OffsetDateTime.of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC),
-                                new BlobContainerSasPermission().setReadPermission(true)
-                            )
-                        );
-
-                    sourceUri = sourceUri + "?" + sasToken;
-                    LOGGER.info("Generated sourceUri {}", sourceUri);
-                }
+                sourceUri = generateSasTokenForCopy(sourceUri, filename, sourceBlob);
 
                 LOGGER.info("SAS token created for filename{}", filename);
                 PollResponse<BlobCopyInfo> poll = null;
@@ -213,6 +196,28 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 filename
             );
             throw new BlobCopyException(e.getMessage(), e);
+        }
+    }
+
+    private String generateSasTokenForCopy(String sourceUri, String filename, BlockBlobClient sourceBlob) {
+        if (useAdAuth) {
+            LOGGER.info("Generating and appending SAS token for copy for filename{}", filename);
+            String sasToken = generateReadSas(filename);
+            String updatedUri = sourceUri + "?" + sasToken;
+            LOGGER.info("Generated SasToken {}", sasToken);
+            return updatedUri;
+        } else {
+            String sasToken = sourceBlob
+                .generateSas(
+                    new BlobServiceSasSignatureValues(
+                        OffsetDateTime.of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC),
+                        new BlobContainerSasPermission().setReadPermission(true)
+                    )
+                );
+
+            String updatedUri = sourceUri + "?" + sasToken;
+            LOGGER.info("Generated sourceUri {}", updatedUri);
+            return updatedUri;
         }
     }
 
@@ -362,6 +367,9 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     }
 
     private class Counter {
+
+        // to use in streams
+        @SuppressWarnings("java:S1104")
         public long count = 0;
     }
 

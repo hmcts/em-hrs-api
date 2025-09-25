@@ -56,7 +56,7 @@ public abstract class HearingControllerBaseProviderTest {
     protected LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
 
     @Autowired
-    public HearingControllerBaseProviderTest(MockMvc mockMvc) {
+    protected HearingControllerBaseProviderTest(MockMvc mockMvc) {
         this.mockMvc = mockMvc;
     }
 

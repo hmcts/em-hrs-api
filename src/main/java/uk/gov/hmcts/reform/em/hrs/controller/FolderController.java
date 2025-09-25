@@ -52,13 +52,12 @@ public class FolderController {
         }
     )
     public ResponseEntity<RecordingFilenameDto> getFilenames(@PathVariable("name") final String folderName) {
-        LOGGER.info("GET getFilenames by folder Name {} ", folderName);
         var recordingFilenameDto = new RecordingFilenameDto(
             folderName,
             folderService.getStoredFiles(folderName)
         );
 
-        LOGGER.debug("Under folder {} Completed Filenames: {} ", folderName, recordingFilenameDto.getFilenames());
+        LOGGER.debug("Under folder {} Completed Filenames: {} ", recordingFilenameDto.getFolderName(), recordingFilenameDto.getFilenames());
         return ResponseEntity
             .ok()
             .contentType(APPLICATION_JSON)

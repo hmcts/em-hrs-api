@@ -214,7 +214,7 @@ public class HearingRecordingController {
         @PathVariable("fileName") String fileName,
         HttpServletRequest request,
         HttpServletResponse response) {
-        LOGGER.info("recordingId:{}, fileName:{}", recordingId, fileName);
+        LOGGER.info("getSegmentBinaryByFileName recordingId:{}", recordingId);
         var fileNameDecoded = folderName == null ? fileName : folderName + File.separator + fileName;
         return this.downloadWrapper(
             recordingId,
