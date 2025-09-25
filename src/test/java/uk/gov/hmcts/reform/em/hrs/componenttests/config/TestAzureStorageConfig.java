@@ -98,7 +98,7 @@ public class TestAzureStorageConfig {
     }
 
     @Primary
-    @Bean("CvpBlobContainerClient")
+    @Bean("cvpBlobContainerClient")
     public BlobContainerClient cvpBlobContainerClient() {
         return createBlobClient(connectionString, CVP_CONTAINER);
     }
