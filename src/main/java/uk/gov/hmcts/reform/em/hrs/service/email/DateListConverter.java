@@ -8,7 +8,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class DateListConverter {
@@ -21,6 +20,6 @@ public class DateListConverter {
         }
         return Arrays.stream(source.split(","))
             .map(date -> LocalDate.parse(date.trim(), formatter))
-            .collect(Collectors.toList());
+            .toList();
     }
 }

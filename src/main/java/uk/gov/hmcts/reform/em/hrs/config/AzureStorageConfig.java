@@ -4,7 +4,6 @@ import com.azure.identity.DefaultAzureCredential;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -99,11 +98,10 @@ public class AzureStorageConfig {
         BlobContainerClientBuilder b = new BlobContainerClientBuilder();
 
         if (useAdAuth) {
-            LOGGER.info("****************************");
+            LOGGER.info("********useAdAuth********************");
             LOGGER.info("Using Managed Identity For Blob Container Client (For SAS Token Generation)");
             LOGGER.info("end point: {}", connectionString);
             LOGGER.info("container: {}", containerName);
-            LOGGER.info("****************************");
 
             DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
             b.endpoint(connectionString);
@@ -112,14 +110,12 @@ public class AzureStorageConfig {
         } else {
             b.connectionString(connectionString);
             b.containerName(containerName);
-            LOGGER.info("****************************");
             LOGGER.info(
                 "This is not a real endpoint - connectionString(60): {} ",
-                StringUtils.left(connectionString, 60)
+                connectionString
             );
-            LOGGER.info("****************************");
-
         }
+        LOGGER.info("*********BlobContainerClient*******************");
         return b.buildClient();
     }
 }

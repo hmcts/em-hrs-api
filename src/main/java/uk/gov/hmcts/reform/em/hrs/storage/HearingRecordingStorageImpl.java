@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.storage;
 
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.util.Configuration;
+import com.azure.core.util.ConfigurationBuilder;
 import com.azure.core.util.Context;
 import com.azure.core.util.polling.PollResponse;
 import com.azure.core.util.polling.SyncPoller;
@@ -33,6 +34,7 @@ import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.exception.BlobCopyException;
 import uk.gov.hmcts.reform.em.hrs.exception.BlobNotFoundException;
 
+import java.io.File;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,7 +55,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private static final Logger LOGGER = LoggerFactory.getLogger(HearingRecordingStorageImpl.class);
     private static final int BLOB_LIST_TIMEOUT = 5;
     private static final Duration POLLING_INTERVAL = Duration.ofSeconds(3);
-
     private static final int COUNT_LAST_89_DAYS = 89;
     private final BlobContainerClient hrsCvpBlobContainerClient;
     private final BlobContainerClient hrsVhBlobContainerClient;
@@ -78,9 +79,9 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
     @Override
     public Set<String> findByFolderName(final String folderName) {
-        boolean folderNameIncludesTrailingSlash = StringUtils.endsWith(folderName, "/");
+        boolean folderNameIncludesTrailingSlash = StringUtils.endsWith(folderName, File.separator);
 
-        var folderPath = folderNameIncludesTrailingSlash ? folderName : folderName + "/";
+        var folderPath = folderNameIncludesTrailingSlash ? folderName : folderName + File.separator;
 
         var blobListDetails = new BlobListDetails()
             .setRetrieveDeletedBlobs(false)
@@ -109,7 +110,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             throw new BlobNotFoundException("hearingSource", "" + hearingSource);
         }
 
-        if (!blobClient.exists()) {
+        if (Boolean.FALSE.equals(blobClient.exists())) {
             throw new BlobNotFoundException("blobName", blobName);
         }
         var prop = blobClient.getProperties();
@@ -125,10 +126,9 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
         String sourceUri = hrDto.getSourceBlobUrl();
         String filename = hrDto.getFilename();
-        HearingSource recordingSource = hrDto.getRecordingSource();
 
         try {
-            var containersToCopy = getCopyContainers(filename, recordingSource);
+            var containersToCopy = getCopyContainers(filename);
             BlockBlobClient destinationBlobClient = containersToCopy.destination;
             BlockBlobClient sourceBlob = containersToCopy.source;
 
@@ -137,7 +137,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 || destinationBlobClient.getProperties().getBlobSize() == 0) {
                 if (useAdAuth) {
                     LOGGER.info("Generating and appending SAS token for copy for filename{}", filename);
-                    String sasToken = generateReadSas(filename, recordingSource);
+                    String sasToken = generateReadSas(filename);
                     sourceUri = sourceUri + "?" + sasToken;
                     LOGGER.info("Generated SasToken {}", sasToken);
                 } else {
@@ -199,7 +199,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                     throw new BlobCopyException(be.getMessage(), be);
                 }
 
-                if (poll != null && !SUCCESSFULLY_COMPLETED.equals(poll.getStatus())) {
+                if (!SUCCESSFULLY_COMPLETED.equals(poll.getStatus())) {
                     destinationBlobClient.deleteIfExists();
                     throw new BlobCopyException("Copy not completed successfully");
                 }
@@ -219,20 +219,15 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
     private record BlobClientsForCopy(BlockBlobClient source, BlockBlobClient destination) {
     }
 
-    private BlobClientsForCopy getCopyContainers(String fileName, HearingSource recordingSource) {
-        switch (recordingSource) {
-            case CVP:
-                BlockBlobClient sourceBlobClient =
-                    cvpBlobContainerClient.getBlobClient(fileName).getBlockBlobClient();
-                BlockBlobClient destinationBlobClient =
-                    hrsCvpBlobContainerClient.getBlobClient(fileName).getBlockBlobClient();
-                return new BlobClientsForCopy(sourceBlobClient, destinationBlobClient);
-            default:
-                throw new RuntimeException("Source Container" + recordingSource + "not Found");
-        }
+    private BlobClientsForCopy getCopyContainers(String fileName) {
+        BlockBlobClient sourceBlobClient =
+            cvpBlobContainerClient.getBlobClient(fileName).getBlockBlobClient();
+        BlockBlobClient destinationBlobClient =
+            hrsCvpBlobContainerClient.getBlobClient(fileName).getBlockBlobClient();
+        return new BlobClientsForCopy(sourceBlobClient, destinationBlobClient);
     }
 
-    private String generateReadSas(String fileName, HearingSource recordingSource) {
+    private String generateReadSas(String fileName) {
         return generateReadSas(fileName, this.cvpBlobContainerClient, this.cvpConnectionString);
     }
 
@@ -247,7 +242,8 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             BlobServiceClientBuilder builder = new BlobServiceClientBuilder();
 
             DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
-            Configuration configuration = Configuration.getGlobalConfiguration().clone();
+            Configuration configuration = new ConfigurationBuilder()
+                .build();
             var tenantId = configuration.get(Configuration.PROPERTY_AZURE_TENANT_ID);
             var managedIdentityClientId = configuration.get(Configuration.PROPERTY_AZURE_CLIENT_ID);
             LOGGER.info("Configuration tenantId {}, managedIdentityClientId {}", tenantId, managedIdentityClientId);
@@ -256,8 +252,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             blobServiceClient = builder.buildClient();
         }
 
-        // get User Delegation Key - TODO consider optimising user key delegation usage to be hourly or daily with a
-        //  lazy cache
         LOGGER.info("Getting User Delegation Key using BlobServiceClient with long offset times");
         OffsetDateTime delegationKeyStartTime = OffsetDateTime.now().minusMinutes(95);
         OffsetDateTime delegationKeyExpiryTime = OffsetDateTime.now().plusMinutes(95);
@@ -275,7 +269,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         BlobServiceSasSignatureValues signatureValues = new BlobServiceSasSignatureValues(expiryTime, permission)
             .setStartTime(OffsetDateTime.now().minusMinutes(95));
         String accountName =
-            extractAccountFromUrl(connectionString);//TODO this is hardcoded for perftest enviro
+            extractAccountFromUrl(connectionString);
         LOGGER.info("GenerateUserDelegationSas for blobfile: {}", fileName);
         return sourceBlob.generateUserDelegationSas(signatureValues, userDelegationKey, accountName, Context.NONE);
     }
@@ -303,7 +297,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
             duration,
             today,
             cutoffDateTime,
-            blobItem -> blobItem.getName().contains("/") && blobItem.getName().contains(".mp")
+            blobItem -> blobItem.getName().contains(File.separator) && blobItem.getName().contains(".mp")
         );
 
         return new StorageReport(today, cvpCounts);

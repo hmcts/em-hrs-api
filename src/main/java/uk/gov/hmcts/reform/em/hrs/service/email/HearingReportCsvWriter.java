@@ -43,7 +43,7 @@ public class HearingReportCsvWriter {
             .Builder
             .create()
             .setHeader(HEARING_SUMMARY_CSV_HEADERS)
-            .build();
+            .get();
         try (
             FileWriter fileWriter = new FileWriter(csvFile);
             CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)
