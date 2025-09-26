@@ -201,11 +201,8 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
     private String generateSasTokenForCopy(String sourceUri, String filename, BlockBlobClient sourceBlob) {
         if (useAdAuth) {
-            LOGGER.info("Generating and appending SAS token for copy for filename{}", filename);
             String sasToken = generateReadSas(filename);
-            String updatedUri = sourceUri + "?" + sasToken;
-            LOGGER.info("Generated SasToken {}", sasToken);
-            return updatedUri;
+            return sourceUri + "?" + sasToken;
         } else {
             String sasToken = sourceBlob
                 .generateSas(
