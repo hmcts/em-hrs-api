@@ -57,7 +57,11 @@ public class FolderController {
             folderService.getStoredFiles(folderName)
         );
 
-        LOGGER.debug("Under folder {} Completed Filenames: {} ", recordingFilenameDto.getFolderName(), recordingFilenameDto.getFilenames());
+        LOGGER.debug(
+            "Under folder {} Completed Filenames: {} ",
+            recordingFilenameDto.getFolderName(),
+            recordingFilenameDto.getFilenames()
+        );
         return ResponseEntity
             .ok()
             .contentType(APPLICATION_JSON)
