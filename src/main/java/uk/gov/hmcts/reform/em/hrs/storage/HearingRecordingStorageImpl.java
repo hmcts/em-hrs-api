@@ -139,48 +139,7 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
 
                 LOGGER.info("SAS token created for filename{}", filename);
                 PollResponse<BlobCopyInfo> poll = null;
-                try {
-                    LOGGER.info("get cvpBlobContainerClient for filename {}", filename);
-
-                    LOGGER.info(
-                        "file name {}, exists {}",
-                        filename,
-                        sourceBlob.exists()
-                    );
-                    SyncPoller<BlobCopyInfo, Void> poller = destinationBlobClient.beginCopy(
-                        sourceUri,
-                        POLLING_INTERVAL
-                    );
-                    LOGGER.info("Wait For Completion filename {}", filename);
-
-                    poll = poller.waitForCompletion();
-                    LOGGER.info(
-                        "File copy completed for {} with status {}",
-                        filename,
-                        poll.getStatus()
-                    );
-                } catch (BlobStorageException be) {
-                    LOGGER.error(
-                        "Blob Copy BlobStorageException code {}, message{}, file {}",
-                        be.getErrorCode(),
-                        be.getMessage(),
-                        filename
-                    );
-                    if (poll != null) {
-                        try {
-                            destinationBlobClient.abortCopyFromUrl(poll.getValue().getCopyId());
-                        } catch (Exception exc) {
-                            LOGGER.error(
-                                "Abort Copy From Url got Error,  for {}  to rejected container",
-                                filename,
-                                exc
-                            );
-                        }
-                    }
-                    LOGGER.info("Delete if exist {} ", filename);
-                    destinationBlobClient.deleteIfExists();
-                    throw new BlobCopyException(be.getMessage(), be);
-                }
+                poll = startBlobCopyPoll(sourceUri, filename, destinationBlobClient, sourceBlob, poll);
 
                 if (!SUCCESSFULLY_COMPLETED.equals(poll.getStatus())) {
                     destinationBlobClient.deleteIfExists();
@@ -199,13 +158,65 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         }
     }
 
+    private static PollResponse<BlobCopyInfo> startBlobCopyPoll(String sourceUri, String filename, BlockBlobClient destinationBlobClient, BlockBlobClient sourceBlob, PollResponse<BlobCopyInfo> poll) {
+        try {
+            LOGGER.info("get cvpBlobContainerClient for filename {}", filename);
+
+            LOGGER.info(
+                "file name {}, exists {}",
+                filename,
+                sourceBlob.exists()
+            );
+            SyncPoller<BlobCopyInfo, Void> poller = destinationBlobClient.beginCopy(
+                sourceUri,
+                POLLING_INTERVAL
+            );
+            LOGGER.info("Wait For Completion filename {}", filename);
+
+            poll = poller.waitForCompletion();
+            LOGGER.info(
+                "File copy completed for {} with status {}",
+                filename,
+                poll.getStatus()
+            );
+        } catch (BlobStorageException be) {
+            LOGGER.error(
+                "Blob Copy BlobStorageException code {}, message{}, file {}",
+                be.getErrorCode(),
+                be.getMessage(),
+                filename
+            );
+            abortCopyAndClearUp(filename, destinationBlobClient, poll);
+            throw new BlobCopyException(be.getMessage(), be);
+        }
+        return poll;
+    }
+
+    private static void abortCopyAndClearUp(
+        String filename,
+        BlockBlobClient destinationBlobClient,
+        PollResponse<BlobCopyInfo> poll
+    ) {
+        if (poll != null) {
+            try {
+                destinationBlobClient.abortCopyFromUrl(poll.getValue().getCopyId());
+            } catch (Exception exc) {
+                LOGGER.error(
+                    "Abort Copy From Url got Error,  for {}  to rejected container",
+                    filename,
+                    exc
+                );
+            }
+        }
+        LOGGER.info("Delete if exist {} ", filename);
+        destinationBlobClient.deleteIfExists();
+
+    }
+
     private String generateSasTokenForCopy(String sourceUri, String filename, BlockBlobClient sourceBlob) {
         if (useAdAuth) {
-            LOGGER.info("Generating and appending SAS token for copy for filename{}", filename);
             String sasToken = generateReadSas(filename);
-            String updatedUri = sourceUri + "?" + sasToken;
-            LOGGER.info("Generated SasToken {}", sasToken);
-            return updatedUri;
+            return sourceUri + "?" + sasToken;
         } else {
             String sasToken = sourceBlob
                 .generateSas(
