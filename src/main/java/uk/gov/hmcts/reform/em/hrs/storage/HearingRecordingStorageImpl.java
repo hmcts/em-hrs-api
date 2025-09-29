@@ -158,7 +158,13 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         }
     }
 
-    private static PollResponse<BlobCopyInfo> startBlobCopyPoll(String sourceUri, String filename, BlockBlobClient destinationBlobClient, BlockBlobClient sourceBlob, PollResponse<BlobCopyInfo> poll) {
+    private static PollResponse<BlobCopyInfo> startBlobCopyPoll(
+        String sourceUri,
+        String filename,
+        BlockBlobClient destinationBlobClient,
+        BlockBlobClient sourceBlob,
+        PollResponse<BlobCopyInfo> poll
+    ) {
         try {
             LOGGER.info("get cvpBlobContainerClient for filename {}", filename);
 
