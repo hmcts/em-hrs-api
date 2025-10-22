@@ -74,6 +74,7 @@ public class HearingRecordingSegment {
     private Integer recordingLengthMins;
     private Integer recordingSegment;
     private String interpreter;
+    private String mimeType;
 
 
     public HearingRecordingSegment() {
