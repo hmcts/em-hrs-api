@@ -83,6 +83,13 @@ class SegmentServiceImplTest {
 
         HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
         assertThat(capturedSegment.getFilename()).isEqualTo(dto.getFilename());
+        assertThat(capturedSegment.getFileExtension()).isEqualTo(dto.getFilenameExtension());
+        assertThat(capturedSegment.getFileSizeMb()).isEqualTo(dto.getFileSize());
+        assertThat(capturedSegment.getFileMd5Checksum()).isEqualTo(dto.getCheckSum());
+        assertThat(capturedSegment.getIngestionFileSourceUri()).isEqualTo(dto.getSourceBlobUrl());
+        assertThat(capturedSegment.getRecordingSegment()).isEqualTo(dto.getSegment());
+        assertThat(capturedSegment.getInterpreter()).isEqualTo(dto.getInterpreter());
+        assertThat(capturedSegment.getHearingRecording()).isSameAs(recording);
         assertThat(capturedSegment.getMimeType()).isEqualTo(expectedMimeType);
     }
 
