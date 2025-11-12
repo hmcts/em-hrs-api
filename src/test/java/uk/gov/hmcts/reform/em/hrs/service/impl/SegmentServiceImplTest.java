@@ -72,7 +72,6 @@ class SegmentServiceImplTest {
     void testCreateAndSaveSegmentShouldMapAndSaveSuccessfully() throws IOException {
         HearingRecordingDto dto = HEARING_RECORDING_DTO;
         HearingRecording recording = HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3;
-        String expectedMimeType = "application/octet-stream";
 
         when(blobInputStream.read(any(byte[].class), anyInt(), anyInt())).thenReturn(-1);
 
@@ -82,6 +81,9 @@ class SegmentServiceImplTest {
         verify(segmentRepository).saveAndFlush(segmentCaptor.capture());
 
         HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
+        String expectedMimeType = "application/octet-stream";
+        
+        assertThat(capturedSegment.getMimeType()).isEqualTo(expectedMimeType);
         assertThat(capturedSegment.getFilename()).isEqualTo(dto.getFilename());
         assertThat(capturedSegment.getFileExtension()).isEqualTo(dto.getFilenameExtension());
         assertThat(capturedSegment.getFileSizeMb()).isEqualTo(dto.getFileSize());
@@ -90,7 +92,6 @@ class SegmentServiceImplTest {
         assertThat(capturedSegment.getRecordingSegment()).isEqualTo(dto.getSegment());
         assertThat(capturedSegment.getInterpreter()).isEqualTo(dto.getInterpreter());
         assertThat(capturedSegment.getHearingRecording()).isSameAs(recording);
-        assertThat(capturedSegment.getMimeType()).isEqualTo(expectedMimeType);
     }
 
     @Test
