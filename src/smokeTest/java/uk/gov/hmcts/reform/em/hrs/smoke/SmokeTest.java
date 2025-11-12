@@ -87,7 +87,7 @@ public class SmokeTest {
     @PostConstruct
     public void init() throws IOException, InterruptedException {
 
-        LOGGER.info("INITIALISING SMOKE TESTS, uploda Ccd Definition: {} ", uploadCcdDefinition);
+        LOGGER.info("INITIALISING SMOKE TESTS, upload Ccd Definition: {} ", uploadCcdDefinition);
 
         LOGGER.info("BASE TEST POST CONSTRUCT INITIALISATIONS....");
         SerenityRest.useRelaxedHTTPSValidation();
