@@ -16,6 +16,7 @@ properties([
 ])
 
 @Library("Infrastructure")
+import uk.gov.hmcts.contino.GradleBuilder
 
 def type = "java"
 def product = "em"
@@ -77,6 +78,7 @@ def vaultOverrides = [
 ]
 
 
+GradleBuilder builder = new GradleBuilder(this, product)
 
 withNightlyPipeline(type, product, component) {
 
@@ -85,6 +87,10 @@ withNightlyPipeline(type, product, component) {
   enableMutationTest()
   enableSecurityScan()
   enableFortifyScan('em-hrs-api-aat')
+  before('fullFunctionalTest') {
+    echo 'Running idam user creation by smoke tests'
+    builder.gradle('smoke')
+  }
   enableFullFunctionalTest(60)
   enableSlackNotifications('#em-dev-chat')
 
