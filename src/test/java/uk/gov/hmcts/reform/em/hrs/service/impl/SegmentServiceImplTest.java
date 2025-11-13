@@ -4,6 +4,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.options.BlobInputStreamOptions;
 import com.azure.storage.blob.specialized.BlobInputStream;
+import org.apache.tika.Tika;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
@@ -18,6 +20,7 @@ import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +33,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -82,7 +86,7 @@ class SegmentServiceImplTest {
 
         HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
         String expectedMimeType = "application/octet-stream";
-        
+
         assertThat(capturedSegment.getMimeType()).isEqualTo(expectedMimeType);
         assertThat(capturedSegment.getFilename()).isEqualTo(dto.getFilename());
         assertThat(capturedSegment.getFileExtension()).isEqualTo(dto.getFilenameExtension());
@@ -166,9 +170,53 @@ class SegmentServiceImplTest {
         doThrow(new ConstraintViolationException("test violation", null, null))
             .when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
 
-        assertThrows(ConstraintViolationException.class, () -> underTest.createAndSaveSegment(
-            HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO));
+        assertThrows(
+            ConstraintViolationException.class, () -> underTest.createAndSaveSegment(
+                HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO)
+        );
 
         verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
+    }
+
+    @Test
+    void testCreateAndSaveSegmentShouldHandleAudioMp4MimeType() {
+        final String expectedMimeType = "audio/mp4";
+
+        try (MockedConstruction<Tika> mockedTika = mockConstruction(
+            Tika.class,
+            (mock, context) -> when(mock.detect(any(InputStream.class))).thenReturn(expectedMimeType))
+        ) {
+
+            underTest.createAndSaveSegment(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO);
+
+            ArgumentCaptor<HearingRecordingSegment> segmentCaptor =
+                ArgumentCaptor.forClass(HearingRecordingSegment.class);
+            verify(segmentRepository).saveAndFlush(segmentCaptor.capture());
+
+            HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
+            assertThat(capturedSegment.getMimeType()).isEqualTo(expectedMimeType);
+            assertThat(mockedTika.constructed()).hasSize(1);
+        }
+    }
+
+    @Test
+    void testCreateAndSaveSegmentShouldHandleVideoMp4MimeType() {
+        final String expectedMimeType = "video/mp4";
+
+        try (MockedConstruction<Tika> mockedTika = mockConstruction(
+            Tika.class,
+            (mock, context) -> when(mock.detect(any(InputStream.class))).thenReturn(expectedMimeType)
+        )) {
+
+            underTest.createAndSaveSegment(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO);
+
+            ArgumentCaptor<HearingRecordingSegment> segmentCaptor =
+                ArgumentCaptor.forClass(HearingRecordingSegment.class);
+            verify(segmentRepository).saveAndFlush(segmentCaptor.capture());
+
+            HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
+            assertThat(capturedSegment.getMimeType()).isEqualTo(expectedMimeType);
+            assertThat(mockedTika.constructed()).hasSize(1);
+        }
     }
 }
