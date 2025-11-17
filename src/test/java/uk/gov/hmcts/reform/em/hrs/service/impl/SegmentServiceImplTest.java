@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedConstruction;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
@@ -28,12 +27,10 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -52,6 +49,8 @@ class SegmentServiceImplTest {
     private BlobClient blobClient;
     @Mock
     private BlobInputStream blobInputStream;
+    @Mock
+    private Tika tika;
 
     @InjectMocks
     private SegmentServiceImpl underTest;
@@ -76,8 +75,8 @@ class SegmentServiceImplTest {
     void testCreateAndSaveSegmentShouldMapAndSaveSuccessfully() throws IOException {
         HearingRecordingDto dto = HEARING_RECORDING_DTO;
         HearingRecording recording = HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3;
-
-        when(blobInputStream.read(any(byte[].class), anyInt(), anyInt())).thenReturn(-1);
+        String expectedMimeType = "audio/mpeg";
+        when(tika.detect(any(InputStream.class))).thenReturn(expectedMimeType);
 
         underTest.createAndSaveSegment(recording, dto);
 
@@ -85,7 +84,6 @@ class SegmentServiceImplTest {
         verify(segmentRepository).saveAndFlush(segmentCaptor.capture());
 
         HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
-        String expectedMimeType = "application/octet-stream";
 
         assertThat(capturedSegment.getMimeType()).isEqualTo(expectedMimeType);
         assertThat(capturedSegment.getFilename()).isEqualTo(dto.getFilename());
@@ -116,7 +114,7 @@ class SegmentServiceImplTest {
     @Test
     void testCreateAndSaveSegmentShouldWrapAndPropagateExceptionWhenTikaFails() throws IOException {
         IOException cause = new IOException("Tika failed to read stream");
-        when(blobInputStream.read(any(byte[].class), anyInt(), anyInt())).thenThrow(cause);
+        when(tika.detect(any(InputStream.class))).thenThrow(cause);
 
         UncheckedIOException thrown = assertThrows(
             UncheckedIOException.class,
@@ -124,13 +122,15 @@ class SegmentServiceImplTest {
                 HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO)
         );
 
-        assertThat(thrown).hasCause(cause);
+        assertThat(thrown)
+            .hasMessage("Failed to detect MIME type from blob")
+            .hasCause(cause);
     }
 
     @Test
     void testCreateAndSaveSegmentShouldWrapAndPropagateExceptionWhenStreamCloseFails() throws IOException {
         IOException cause = new IOException("Failed to close stream");
-        when(blobInputStream.read(any(byte[].class), anyInt(), anyInt())).thenReturn(-1);
+        when(tika.detect(any(InputStream.class))).thenReturn("any-mime-type");
         doThrow(cause).when(blobInputStream).close();
 
         UncheckedIOException thrown = assertThrows(
@@ -147,7 +147,7 @@ class SegmentServiceImplTest {
         IOException tikaException = new IOException("Tika failed to read stream");
         IOException closeException = new IOException("Failed to close stream");
 
-        when(blobInputStream.read(any(byte[].class), anyInt(), anyInt())).thenThrow(tikaException);
+        when(tika.detect(any(InputStream.class))).thenThrow(tikaException);
         doThrow(closeException).when(blobInputStream).close();
 
         UncheckedIOException thrown = assertThrows(
@@ -157,16 +157,17 @@ class SegmentServiceImplTest {
         );
 
         Throwable cause = thrown.getCause();
-        assertThat(cause).isSameAs(tikaException);
+        assertThat(cause)
+            .isInstanceOf(IOException.class)
+            .hasMessage("Tika failed to read stream");
         assertThat(cause.getSuppressed()).hasSize(1);
         assertThat(cause.getSuppressed()[0]).isSameAs(closeException);
         verify(segmentRepository, never()).saveAndFlush(any());
     }
 
-
     @Test
     void testCreateAndSaveSegmentShouldPropagateConstraintViolationException() throws IOException {
-        when(blobInputStream.read(any(byte[].class), anyInt(), anyInt())).thenReturn(-1);
+        when(tika.detect(any(InputStream.class))).thenReturn("any-mime-type");
         doThrow(new ConstraintViolationException("test violation", null, null))
             .when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
 
@@ -179,44 +180,32 @@ class SegmentServiceImplTest {
     }
 
     @Test
-    void testCreateAndSaveSegmentShouldHandleAudioMp4MimeType() {
+    void testCreateAndSaveSegmentShouldHandleAudioMp4MimeType() throws IOException {
         final String expectedMimeType = "audio/mp4";
+        when(tika.detect(any(InputStream.class))).thenReturn(expectedMimeType);
 
-        try (MockedConstruction<Tika> mockedTika = mockConstruction(
-            Tika.class,
-            (mock, context) -> when(mock.detect(any(InputStream.class))).thenReturn(expectedMimeType))
-        ) {
+        underTest.createAndSaveSegment(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO);
 
-            underTest.createAndSaveSegment(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO);
+        ArgumentCaptor<HearingRecordingSegment> segmentCaptor =
+            ArgumentCaptor.forClass(HearingRecordingSegment.class);
+        verify(segmentRepository).saveAndFlush(segmentCaptor.capture());
 
-            ArgumentCaptor<HearingRecordingSegment> segmentCaptor =
-                ArgumentCaptor.forClass(HearingRecordingSegment.class);
-            verify(segmentRepository).saveAndFlush(segmentCaptor.capture());
-
-            HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
-            assertThat(capturedSegment.getMimeType()).isEqualTo(expectedMimeType);
-            assertThat(mockedTika.constructed()).hasSize(1);
-        }
+        HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
+        assertThat(capturedSegment.getMimeType()).isEqualTo(expectedMimeType);
     }
 
     @Test
-    void testCreateAndSaveSegmentShouldHandleVideoMp4MimeType() {
+    void testCreateAndSaveSegmentShouldHandleVideoMp4MimeType() throws IOException {
         final String expectedMimeType = "video/mp4";
+        when(tika.detect(any(InputStream.class))).thenReturn(expectedMimeType);
 
-        try (MockedConstruction<Tika> mockedTika = mockConstruction(
-            Tika.class,
-            (mock, context) -> when(mock.detect(any(InputStream.class))).thenReturn(expectedMimeType)
-        )) {
+        underTest.createAndSaveSegment(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO);
 
-            underTest.createAndSaveSegment(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO);
+        ArgumentCaptor<HearingRecordingSegment> segmentCaptor =
+            ArgumentCaptor.forClass(HearingRecordingSegment.class);
+        verify(segmentRepository).saveAndFlush(segmentCaptor.capture());
 
-            ArgumentCaptor<HearingRecordingSegment> segmentCaptor =
-                ArgumentCaptor.forClass(HearingRecordingSegment.class);
-            verify(segmentRepository).saveAndFlush(segmentCaptor.capture());
-
-            HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
-            assertThat(capturedSegment.getMimeType()).isEqualTo(expectedMimeType);
-            assertThat(mockedTika.constructed()).hasSize(1);
-        }
+        HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
+        assertThat(capturedSegment.getMimeType()).isEqualTo(expectedMimeType);
     }
 }

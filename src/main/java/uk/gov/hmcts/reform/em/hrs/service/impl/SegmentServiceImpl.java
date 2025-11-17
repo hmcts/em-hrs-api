@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.em.hrs.service.impl;
 
-import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobRange;
 import com.azure.storage.blob.options.BlobInputStreamOptions;
@@ -27,12 +26,15 @@ public class SegmentServiceImpl implements SegmentService {
 
     private final HearingRecordingSegmentRepository segmentRepository;
     private final BlobContainerClient blobContainerClient;
+    private final Tika tika;
 
     @Autowired
     public SegmentServiceImpl(final HearingRecordingSegmentRepository segmentRepository,
-                              @Qualifier("hrsCvpBlobContainerClient") BlobContainerClient blobContainerClient) {
+                              @Qualifier("hrsCvpBlobContainerClient") final BlobContainerClient blobContainerClient,
+                              final Tika tika) {
         this.segmentRepository = segmentRepository;
         this.blobContainerClient = blobContainerClient;
+        this.tika = tika;
     }
 
     @Override
@@ -43,7 +45,6 @@ public class SegmentServiceImpl implements SegmentService {
     @Override
     public void createAndSaveSegment(final HearingRecording hearingRecording, final HearingRecordingDto recordingDto) {
         HearingRecordingSegment segment = createSegment(hearingRecording, recordingDto);
-
         segmentRepository.saveAndFlush(segment);
     }
 
@@ -65,18 +66,9 @@ public class SegmentServiceImpl implements SegmentService {
     }
 
     private String detectMimeType(String blobName) {
-        final int TWO_MB = 2 * 1024 * 1024;
-
-        try {
-            BlobClient blobClient = blobContainerClient.getBlobClient(blobName);
-
-            BlobInputStreamOptions options = new BlobInputStreamOptions()
-                .setRange(new BlobRange(0, (long) TWO_MB));
-
-            try (InputStream inputStream = blobClient.openInputStream(options)) {
-                return new Tika().detect(inputStream);
-            }
-
+        try (InputStream inputStream = blobContainerClient.getBlobClient(blobName)
+            .openInputStream(new BlobInputStreamOptions().setRange(new BlobRange(0, 2L * 1024 * 1024)))) {
+            return tika.detect(inputStream);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to detect MIME type from blob", e);
         }
