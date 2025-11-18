@@ -3,11 +3,20 @@ package uk.gov.hmcts.reform.em.hrs.config;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.context.WebApplicationContext;
-import uk.gov.hmcts.reform.em.hrs.Application;
-import uk.gov.hmcts.reform.em.hrs.controller.BaseWebTest;
+import uk.gov.hmcts.reform.idam.client.IdamClient;
 
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -20,22 +29,55 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Built-in feature which saves service's swagger specs in temporary directory.
  * Each travis run on master should automatically save and upload (if updated) documentation.
  */
-@WebMvcTest(Application.class)
-class OpenAPIPublisherTest extends BaseWebTest {
+@SpringBootTest
+@AutoConfigureMockMvc
+@EnableAutoConfiguration(exclude = {
+    FlywayAutoConfiguration.class
+})
+@ActiveProfiles("integration-web-test-2")
+class OpenAPIPublisherTest {
 
     @Autowired
-    private MockMvc mvc;
+    private MockMvc mockMvc;
 
-    public OpenAPIPublisherTest(WebApplicationContext context) {
-        super(context);
+    @MockitoBean
+    private IdamClient idamClient;
+
+    @MockitoBean
+    private ClientRegistrationRepository clientRegistrationRepository;
+
+    @TestConfiguration
+    static class TestSecurityConfig {
+
+        @Bean
+        public WebSecurityCustomizer webSecurityCustomizer() {
+            return web -> web.ignoring().requestMatchers(
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/swagger-resources/**",
+                "/v3/api-docs/**", // This is the crucial line
+                "/health",
+                "/health/liveness",
+                "/health/readiness",
+                "/status/health",
+                "/loggers/**",
+                "/report/**",
+                "/"
+            );
+        }
+
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+            http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+            return http.build();
+        }
     }
 
 
     @DisplayName("Generate swagger documentation")
     @Test
-    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     void generateDocs() throws Exception {
-        byte[] specs = mvc.perform(get("/v2/api-docs"))
+        byte[] specs = mockMvc.perform(get("/v3/api-docs"))
             .andExpect(status().isOk())
             .andReturn()
             .getResponse()
@@ -44,6 +86,5 @@ class OpenAPIPublisherTest extends BaseWebTest {
         try (OutputStream outputStream = Files.newOutputStream(Paths.get("/tmp/swagger-specs.json"))) {
             outputStream.write(specs);
         }
-
     }
 }
