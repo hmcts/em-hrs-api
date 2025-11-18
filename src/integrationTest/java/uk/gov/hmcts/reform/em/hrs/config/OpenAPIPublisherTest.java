@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -16,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestAzureStorageConfig;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 
 import java.io.OutputStream;
@@ -35,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     FlywayAutoConfiguration.class
 })
 @ActiveProfiles("integration-web-test-2")
+@Import(TestAzureStorageConfig.class)
 class OpenAPIPublisherTest {
 
     @Autowired
