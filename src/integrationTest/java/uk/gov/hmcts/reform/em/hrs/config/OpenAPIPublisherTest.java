@@ -3,9 +3,11 @@ package uk.gov.hmcts.reform.em.hrs.config;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.context.WebApplicationContext;
+import uk.gov.hmcts.reform.em.hrs.Application;
+import uk.gov.hmcts.reform.em.hrs.controller.BaseWebTest;
 
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -18,12 +20,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Built-in feature which saves service's swagger specs in temporary directory.
  * Each travis run on master should automatically save and upload (if updated) documentation.
  */
-@WebMvcTest
-@AutoConfigureMockMvc
-class OpenAPIPublisherTest {
+@WebMvcTest(Application.class)
+class OpenAPIPublisherTest extends BaseWebTest {
 
     @Autowired
     private MockMvc mvc;
+
+    public OpenAPIPublisherTest(WebApplicationContext context) {
+        super(context);
+    }
 
 
     @DisplayName("Generate swagger documentation")
