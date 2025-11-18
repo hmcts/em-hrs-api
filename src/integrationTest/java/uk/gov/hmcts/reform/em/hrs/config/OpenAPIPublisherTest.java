@@ -86,7 +86,7 @@ class OpenAPIPublisherTest {
             .getResponse()
             .getContentAsByteArray();
 
-        try (OutputStream outputStream = Files.newOutputStream(Paths.get("/tmp/swagger-specs.json"))) {
+        try (OutputStream outputStream = Files.newOutputStream(Paths.get("/tmp/openapi-specs.json"))) {
             outputStream.write(specs);
         }
     }
