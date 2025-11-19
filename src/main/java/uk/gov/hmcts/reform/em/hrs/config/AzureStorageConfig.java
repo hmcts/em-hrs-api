@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Profile;
 
 import java.util.Optional;
 
-@Profile({"!integration-web-test-2"})
+@Profile({"!openapi"})
 @Configuration
 public class AzureStorageConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageConfig.class);
