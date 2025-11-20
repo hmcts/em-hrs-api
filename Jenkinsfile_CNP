@@ -184,14 +184,6 @@ withPipeline(type, product, component) {
     }
   }
 
-  onMaster {
-    afterSuccess('test') {
-      sh '''
-            curl https://raw.githubusercontent.com/hmcts/cnp-api-docs/master/bin/publish-swagger-docs.sh > publish-swagger-docs.sh
-            sh ./publish-swagger-docs.sh
-             '''
-    }
-  }
 
   onMaster()
     {
