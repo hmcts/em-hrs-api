@@ -40,7 +40,7 @@ toggle:
   enable_metadata_endpoint: ${ENABLE_METADATA_ENDPOINT:false}
 
 ccd-def:
-  file: ${CCD_DEFINITION_FILE:CCD_HRS_v1.7-AAT.xslx}
+  file: ${CCD_DEFINITION_FILE:CCD_HRS_v1.8-AAT.xslx}
   api:
     url: ${CCD_DEF_API:http://localhost:4451}
 

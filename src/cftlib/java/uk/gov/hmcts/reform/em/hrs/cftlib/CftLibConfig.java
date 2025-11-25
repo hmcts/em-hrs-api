@@ -48,7 +48,7 @@ public class CftLibConfig implements CFTLibConfigurer {
         setupRoleAssignments(lib);
 
         lib.importDefinition(Files.readAllBytes(
-            Path.of("src/functionalTest/resources/CCD_HRS_v1.7-AAT.xlsx")));
+            Path.of("src/functionalTest/resources/CCD_HRS_v1.8-AAT.xlsx")));
 
     }
 
