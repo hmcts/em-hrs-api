@@ -2,11 +2,9 @@ package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.options.BlobInputStreamOptions;
-import com.azure.storage.blob.specialized.BlobInputStream;
-import org.apache.tika.Tika;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -17,10 +15,8 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
+import uk.gov.hmcts.reform.em.hrs.service.Mp4MimeTypeService;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,17 +36,20 @@ import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDI
 import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.RANDOM_UUID;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("SegmentServiceImpl")
 class SegmentServiceImplTest {
+
     @Mock
     private HearingRecordingSegmentRepository segmentRepository;
+
     @Mock
     private BlobContainerClient blobContainerClient;
+
     @Mock
     private BlobClient blobClient;
+
     @Mock
-    private BlobInputStream blobInputStream;
-    @Mock
-    private Tika tika;
+    private Mp4MimeTypeService mp4MimeTypeService;
 
     @InjectMocks
     private SegmentServiceImpl underTest;
@@ -58,25 +57,27 @@ class SegmentServiceImplTest {
     @BeforeEach
     void setUp() {
         lenient().when(blobContainerClient.getBlobClient(anyString())).thenReturn(blobClient);
-        lenient().when(blobClient.openInputStream(any(BlobInputStreamOptions.class))).thenReturn(blobInputStream);
     }
 
     @Test
+    @DisplayName("findByRecordingId should delegate to repository and return result")
     void testFindByRecordingId() {
         doReturn(Collections.emptyList()).when(segmentRepository).findByHearingRecordingId(RANDOM_UUID);
 
-        final List<HearingRecordingSegment> segments = underTest.findByRecordingId(RANDOM_UUID);
+        List<HearingRecordingSegment> segments = underTest.findByRecordingId(RANDOM_UUID);
 
         assertThat(segments).isEmpty();
         verify(segmentRepository, times(1)).findByHearingRecordingId(RANDOM_UUID);
     }
 
     @Test
-    void testCreateAndSaveSegmentShouldMapAndSaveSuccessfully() throws IOException {
+    @DisplayName("createAndSaveSegment should map DTO to entity and persist with detected MIME type")
+    void testCreateAndSaveSegmentShouldMapAndSaveSuccessfully() {
         HearingRecordingDto dto = HEARING_RECORDING_DTO;
         HearingRecording recording = HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3;
         String expectedMimeType = "audio/mpeg";
-        when(tika.detect(any(InputStream.class))).thenReturn(expectedMimeType);
+
+        when(mp4MimeTypeService.getMimeType(blobClient)).thenReturn(expectedMimeType);
 
         underTest.createAndSaveSegment(recording, dto);
 
@@ -94,100 +95,37 @@ class SegmentServiceImplTest {
         assertThat(capturedSegment.getRecordingSegment()).isEqualTo(dto.getSegment());
         assertThat(capturedSegment.getInterpreter()).isEqualTo(dto.getInterpreter());
         assertThat(capturedSegment.getHearingRecording()).isSameAs(recording);
+
+        verify(blobContainerClient).getBlobClient(dto.getFilename());
+        verify(mp4MimeTypeService).getMimeType(blobClient);
     }
 
     @Test
-    void testCreateAndSaveSegmentShouldPropagateExceptionWhenAzureSdkFails() {
-        UncheckedIOException cause = new UncheckedIOException("Blob access error", new IOException());
-        when(blobClient.openInputStream(any(BlobInputStreamOptions.class))).thenThrow(cause);
-
-        UncheckedIOException thrown = assertThrows(
-            UncheckedIOException.class,
-            () -> underTest.createAndSaveSegment(
-                HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO)
-        );
-
-        assertThat(thrown).isSameAs(cause);
-        verify(segmentRepository, never()).saveAndFlush(any());
-    }
-
-    @Test
-    void testCreateAndSaveSegmentShouldWrapAndPropagateExceptionWhenTikaFails() throws IOException {
-        IOException cause = new IOException("Tika failed to read stream");
-        when(tika.detect(any(InputStream.class))).thenThrow(cause);
-
-        UncheckedIOException thrown = assertThrows(
-            UncheckedIOException.class,
-            () -> underTest.createAndSaveSegment(
-                HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO)
-        );
-
-        assertThat(thrown)
-            .hasMessage("Failed to detect MIME type from blob")
-            .hasCause(cause);
-    }
-
-    @Test
-    void testCreateAndSaveSegmentShouldWrapAndPropagateExceptionWhenStreamCloseFails() throws IOException {
-        IOException cause = new IOException("Failed to close stream");
-        when(tika.detect(any(InputStream.class))).thenReturn("any-mime-type");
-        doThrow(cause).when(blobInputStream).close();
-
-        UncheckedIOException thrown = assertThrows(
-            UncheckedIOException.class,
-            () -> underTest.createAndSaveSegment(
-                HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO)
-        );
-
-        assertThat(thrown).hasCause(cause);
-    }
-
-    @Test
-    void testCreateAndSaveSegmentShouldHandleSuppressedExceptionWhenTikaAndCloseFail() throws IOException {
-        IOException tikaException = new IOException("Tika failed to read stream");
-        IOException closeException = new IOException("Failed to close stream");
-
-        when(tika.detect(any(InputStream.class))).thenThrow(tikaException);
-        doThrow(closeException).when(blobInputStream).close();
-
-        UncheckedIOException thrown = assertThrows(
-            UncheckedIOException.class,
-            () -> underTest.createAndSaveSegment(
-                HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO)
-        );
-
-        Throwable cause = thrown.getCause();
-        assertThat(cause)
-            .isInstanceOf(IOException.class)
-            .hasMessage("Tika failed to read stream");
-        assertThat(cause.getSuppressed()).hasSize(1);
-        assertThat(cause.getSuppressed()[0]).isSameAs(closeException);
-        verify(segmentRepository, never()).saveAndFlush(any());
-    }
-
-    @Test
-    void testCreateAndSaveSegmentShouldPropagateConstraintViolationException() throws IOException {
-        when(tika.detect(any(InputStream.class))).thenReturn("any-mime-type");
+    @DisplayName("createAndSaveSegment should propagate repository ConstraintViolationException")
+    void testCreateAndSaveSegmentShouldPropagateConstraintViolationException() {
+        when(mp4MimeTypeService.getMimeType(blobClient)).thenReturn("any-mime-type");
         doThrow(new ConstraintViolationException("test violation", null, null))
             .when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
 
         assertThrows(
-            ConstraintViolationException.class, () -> underTest.createAndSaveSegment(
-                HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO)
+            ConstraintViolationException.class,
+            () -> underTest.createAndSaveSegment(
+                HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO
+            )
         );
 
         verify(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
     }
 
     @Test
-    void testCreateAndSaveSegmentShouldHandleAudioMp4MimeType() throws IOException {
-        final String expectedMimeType = "audio/mp4";
-        when(tika.detect(any(InputStream.class))).thenReturn(expectedMimeType);
+    @DisplayName("createAndSaveSegment should handle audio/mp4 MIME type")
+    void testCreateAndSaveSegmentShouldHandleAudioMp4MimeType() {
+        String expectedMimeType = "audio/mp4";
+        when(mp4MimeTypeService.getMimeType(blobClient)).thenReturn(expectedMimeType);
 
         underTest.createAndSaveSegment(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO);
 
-        ArgumentCaptor<HearingRecordingSegment> segmentCaptor =
-            ArgumentCaptor.forClass(HearingRecordingSegment.class);
+        ArgumentCaptor<HearingRecordingSegment> segmentCaptor = ArgumentCaptor.forClass(HearingRecordingSegment.class);
         verify(segmentRepository).saveAndFlush(segmentCaptor.capture());
 
         HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
@@ -195,17 +133,34 @@ class SegmentServiceImplTest {
     }
 
     @Test
-    void testCreateAndSaveSegmentShouldHandleVideoMp4MimeType() throws IOException {
-        final String expectedMimeType = "video/mp4";
-        when(tika.detect(any(InputStream.class))).thenReturn(expectedMimeType);
+    @DisplayName("createAndSaveSegment should handle video/mp4 MIME type")
+    void testCreateAndSaveSegmentShouldHandleVideoMp4MimeType() {
+        String expectedMimeType = "video/mp4";
+        when(mp4MimeTypeService.getMimeType(blobClient)).thenReturn(expectedMimeType);
 
         underTest.createAndSaveSegment(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO);
 
-        ArgumentCaptor<HearingRecordingSegment> segmentCaptor =
-            ArgumentCaptor.forClass(HearingRecordingSegment.class);
+        ArgumentCaptor<HearingRecordingSegment> segmentCaptor = ArgumentCaptor.forClass(HearingRecordingSegment.class);
         verify(segmentRepository).saveAndFlush(segmentCaptor.capture());
 
         HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
         assertThat(capturedSegment.getMimeType()).isEqualTo(expectedMimeType);
+    }
+
+    @Test
+    @DisplayName("createAndSaveSegment should not save when MIME detection throws at infrastructure level")
+    void testCreateAndSaveSegmentShouldNotSaveWhenMimeDetectionFails() {
+        RuntimeException cause = new RuntimeException("MIME detection failed");
+        when(mp4MimeTypeService.getMimeType(blobClient)).thenThrow(cause);
+
+        RuntimeException thrown = assertThrows(
+            RuntimeException.class,
+            () -> underTest.createAndSaveSegment(
+                HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO
+            )
+        );
+
+        assertThat(thrown).isSameAs(cause);
+        verify(segmentRepository, never()).saveAndFlush(any());
     }
 }
