@@ -5,6 +5,11 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.options.BlobInputStreamOptions;
 import com.azure.storage.blob.specialized.BlobInputStream;
 import org.apache.tika.Tika;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.sax.BodyContentHandler;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +18,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.xml.sax.SAXException;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
@@ -28,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
@@ -51,6 +58,8 @@ class SegmentServiceImplTest {
     private BlobInputStream blobInputStream;
     @Mock
     private Tika tika;
+    @Mock
+    private AutoDetectParser parser;
 
     @InjectMocks
     private SegmentServiceImpl underTest;
@@ -72,11 +81,15 @@ class SegmentServiceImplTest {
     }
 
     @Test
-    void testCreateAndSaveSegmentShouldMapAndSaveSuccessfully() throws IOException {
+    void testCreateAndSaveSegmentShouldMapAndSaveSuccessfully() throws IOException, TikaException, SAXException {
         HearingRecordingDto dto = HEARING_RECORDING_DTO;
         HearingRecording recording = HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3;
-        String expectedMimeType = "audio/mpeg";
-        when(tika.detect(any(InputStream.class))).thenReturn(expectedMimeType);
+        String expectedMimeType = "audio/mp4";
+        IOException cause = new IOException("Tika failed to read stream");
+        doThrow(cause).when(parser).parse(any(InputStream.class), any(BodyContentHandler.class), any(Metadata.class),
+                any(ParseContext.class));
+
+        when(tika.detect(any(InputStream.class), any(Metadata.class))).thenReturn(expectedMimeType);
 
         underTest.createAndSaveSegment(recording, dto);
 
@@ -114,7 +127,7 @@ class SegmentServiceImplTest {
     @Test
     void testCreateAndSaveSegmentShouldWrapAndPropagateExceptionWhenTikaFails() throws IOException {
         IOException cause = new IOException("Tika failed to read stream");
-        when(tika.detect(any(InputStream.class))).thenThrow(cause);
+        when(tika.detect(any(InputStream.class), any(Metadata.class))).thenThrow(cause);
 
         UncheckedIOException thrown = assertThrows(
             UncheckedIOException.class,
@@ -130,7 +143,7 @@ class SegmentServiceImplTest {
     @Test
     void testCreateAndSaveSegmentShouldWrapAndPropagateExceptionWhenStreamCloseFails() throws IOException {
         IOException cause = new IOException("Failed to close stream");
-        when(tika.detect(any(InputStream.class))).thenReturn("any-mime-type");
+        when(tika.detect(any(InputStream.class), any(Metadata.class))).thenReturn("any-mime-type");
         doThrow(cause).when(blobInputStream).close();
 
         UncheckedIOException thrown = assertThrows(
@@ -147,7 +160,7 @@ class SegmentServiceImplTest {
         IOException tikaException = new IOException("Tika failed to read stream");
         IOException closeException = new IOException("Failed to close stream");
 
-        when(tika.detect(any(InputStream.class))).thenThrow(tikaException);
+        when(tika.detect(any(InputStream.class), any(Metadata.class))).thenThrow(tikaException);
         doThrow(closeException).when(blobInputStream).close();
 
         UncheckedIOException thrown = assertThrows(
@@ -167,7 +180,7 @@ class SegmentServiceImplTest {
 
     @Test
     void testCreateAndSaveSegmentShouldPropagateConstraintViolationException() throws IOException {
-        when(tika.detect(any(InputStream.class))).thenReturn("any-mime-type");
+        when(tika.detect(any(InputStream.class), any(Metadata.class))).thenReturn("any-mime-type");
         doThrow(new ConstraintViolationException("test violation", null, null))
             .when(segmentRepository).saveAndFlush(any(HearingRecordingSegment.class));
 
@@ -182,7 +195,7 @@ class SegmentServiceImplTest {
     @Test
     void testCreateAndSaveSegmentShouldHandleAudioMp4MimeType() throws IOException {
         final String expectedMimeType = "audio/mp4";
-        when(tika.detect(any(InputStream.class))).thenReturn(expectedMimeType);
+        when(tika.detect(any(InputStream.class), any(Metadata.class))).thenReturn(expectedMimeType);
 
         underTest.createAndSaveSegment(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO);
 
@@ -197,7 +210,7 @@ class SegmentServiceImplTest {
     @Test
     void testCreateAndSaveSegmentShouldHandleVideoMp4MimeType() throws IOException {
         final String expectedMimeType = "video/mp4";
-        when(tika.detect(any(InputStream.class))).thenReturn(expectedMimeType);
+        when(tika.detect(any(InputStream.class), any(Metadata.class))).thenReturn(expectedMimeType);
 
         underTest.createAndSaveSegment(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO);
 
@@ -208,4 +221,57 @@ class SegmentServiceImplTest {
         HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
         assertThat(capturedSegment.getMimeType()).isEqualTo(expectedMimeType);
     }
+
+    @Test
+    void detectMimeTypeShouldReturnVideoMimeWhenVideoMetadataIsPresent() throws Exception {
+        // Make the mocked parser populate Metadata with a video width
+        doAnswer(invocation -> {
+            Metadata metadata = invocation.getArgument(2);
+            metadata.add("width", "1920");
+            return null;
+        }).when(parser).parse(
+                any(InputStream.class),
+                any(BodyContentHandler.class),
+                any(Metadata.class),
+                any(ParseContext.class)
+        );
+
+        when(blobClient.openInputStream(any(BlobInputStreamOptions.class))).thenReturn(blobInputStream);
+
+        // Call public method that uses the private detectMimeType internally
+        underTest.createAndSaveSegment(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO);
+
+        ArgumentCaptor<HearingRecordingSegment> segmentCaptor = ArgumentCaptor.forClass(HearingRecordingSegment.class);
+        verify(segmentRepository).saveAndFlush(segmentCaptor.capture());
+
+        HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
+        assertThat(capturedSegment.getMimeType()).isEqualTo("video/mp4");
+    }
+
+    @Test
+    void detectMimeTypeShouldReturnAudioMimeWhenAudioMetadataIsPresent() throws Exception {
+        // Make the mocked parser populate Metadata with a video width
+        doAnswer(invocation -> {
+            Metadata metadata = invocation.getArgument(2);
+            metadata.add("xmpDM:audioSampleRate", "100");
+            return null;
+        }).when(parser).parse(
+                any(InputStream.class),
+                any(BodyContentHandler.class),
+                any(Metadata.class),
+                any(ParseContext.class)
+        );
+
+        when(blobClient.openInputStream(any(BlobInputStreamOptions.class))).thenReturn(blobInputStream);
+
+        // Call public method that uses the private detectMimeType internally
+        underTest.createAndSaveSegment(HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3, HEARING_RECORDING_DTO);
+
+        ArgumentCaptor<HearingRecordingSegment> segmentCaptor = ArgumentCaptor.forClass(HearingRecordingSegment.class);
+        verify(segmentRepository).saveAndFlush(segmentCaptor.capture());
+
+        HearingRecordingSegment capturedSegment = segmentCaptor.getValue();
+        assertThat(capturedSegment.getMimeType()).isEqualTo("audio/mp4");
+    }
+
 }
