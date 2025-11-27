@@ -400,7 +400,7 @@ class Mp4MimeTypeServiceTest {
      * - ftyp at 0
      * - moov container
      * - a single hdlr atom whose size is too small for the handler_type field.
-     *
+     * <p>
      * Used to exercise processHandlerAtom's out-of-bounds early return.
      */
     private byte[] buildMoovWithTooSmallHdlr() {
