@@ -24,19 +24,29 @@ public class Mp4MimeTypeService {
     private static final String AUDIO_MIME = "audio/mp4";
     private static final String UNKNOWN_MIME = "application/octet-stream";
 
+    // Standard MP4 box (atom) types
     private static final String ATOM_FTYP = "ftyp";
     private static final String ATOM_MOOV = "moov";
     private static final String ATOM_TRAK = "trak";
     private static final String ATOM_MDIA = "mdia";
     private static final String ATOM_HDLR = "hdlr";
 
+    // Base box header
     private static final int MIN_ATOM_SIZE = 8;
+
+    // Large-size box header (size == 1)
     private static final int EXTENDED_HEADER_SIZE = 16;
+
+    // 4-character type fields, e.g. "ftyp", "moov", "vide", "soun"
     private static final int TYPE_FIELD_LENGTH = 4;
 
+    // In 'hdlr' box payload (after header)
     private static final int HANDLER_PAYLOAD_SKIP = 8;
+
+    // 'handler_type' is also a 4-character code: "vide", "soun", etc.
     private static final int HANDLER_TYPE_LENGTH = 4;
 
+    // 4KB size of cached reads from Blob Storage; tuned for header-level inspection.
     private static final int READ_BUFFER_SIZE = 4096;
 
     public String getMimeType(BlobClient blobClient) {
@@ -74,11 +84,12 @@ public class Mp4MimeTypeService {
             return false;
         }
 
+        // Strict: first box must be 'ftyp'
         return ATOM_FTYP.equals(header.type());
     }
 
     /**
-     * Recursively walks atoms in [startPos, endPos), updating track flags.
+     * Recursively walks atoms in [startPos, endPos), updating track flags based on 'hdlr' boxes.
      */
     private TrackFlags inspectTracks(
         CachedBlobReader reader,
@@ -119,7 +130,7 @@ public class Mp4MimeTypeService {
                 case ATOM_HDLR -> flags = processHandlerAtom(reader, cursor, atom, flags);
                 case ATOM_MOOV, ATOM_TRAK, ATOM_MDIA -> flags = inspectTracks(reader, childStart, atomEnd, flags);
                 default -> {
-                    // ignore
+                    // non-container, non-handler atoms are ignored
                 }
             }
 
@@ -130,6 +141,7 @@ public class Mp4MimeTypeService {
     }
 
     private AtomHeader parseAtomHeader(CachedBlobReader reader, long cursor) throws IOException {
+        // Always read up to extended header size so we can handle both normal and large-size boxes
         byte[] headerBytes = reader.read(cursor, EXTENDED_HEADER_SIZE);
 
         if (headerBytes.length < MIN_ATOM_SIZE) {
@@ -142,6 +154,7 @@ public class Mp4MimeTypeService {
             int headerLen = MIN_ATOM_SIZE;
 
             if (size == 1) {
+                // Large-size box: 64-bit length follows type
                 if (headerBytes.length < EXTENDED_HEADER_SIZE) {
                     return null;
                 }
@@ -149,6 +162,7 @@ public class Mp4MimeTypeService {
                 size = dis.readLong();
                 headerLen = EXTENDED_HEADER_SIZE;
             } else if (size == 0) {
+                // Size 0: box extends to end of file (or parent range)
                 size = reader.fileSize() - cursor;
             }
 
@@ -166,6 +180,7 @@ public class Mp4MimeTypeService {
         long payloadOffset = cursor + atom.headerLen() + HANDLER_PAYLOAD_SKIP;
         long atomEnd = cursor + atom.size();
 
+        // Ensure handler_type field is fully inside this atom
         if (payloadOffset + HANDLER_TYPE_LENGTH > atomEnd) {
             return flags;
         }
@@ -192,7 +207,7 @@ public class Mp4MimeTypeService {
     private record AtomHeader(long size, String type, int headerLen) { }
 
     /**
-     * Simple immutable value object for track presence flags.
+     * Immutable value object for track presence flags.
      */
     private record TrackFlags(boolean hasVideo, boolean hasAudio) {
 
@@ -209,6 +224,9 @@ public class Mp4MimeTypeService {
         }
     }
 
+    /**
+     * Buffered reader over Azure Blob, to minimise range requests.
+     */
     static final class CachedBlobReader {
 
         private final BlobClient client;
