@@ -56,7 +56,7 @@ public class DownloadNonSharedScenarios extends BaseTest {
         filenames.add(filename);
 
         LOGGER.info("Priming CVP Container");
-        blobUtil.uploadFileFromPathToCvpContainer(filename,"data/test_data.mp4");
+        blobUtil.uploadFileFromPathToCvpContainer(filename,"data/video_test.avi");
         blobUtil.checkIfUploadedToStore(filenames, blobUtil.cvpBlobContainerClient);
 
         LOGGER.info("Priming HRS API With Posted Segments");
