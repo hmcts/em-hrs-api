@@ -313,6 +313,7 @@ dependencies {
 
   implementation group: 'org.apache.tika', name: 'tika-core', version: '3.2.3'
   implementation group: 'org.apache.tika', name: 'tika-parsers-standard-package', version: '3.2.3'
+  implementation 'org.mp4parser:isoparser:1.9.41'
 
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.3'
 
@@ -529,6 +530,9 @@ bootRun {
 }
 
 functional {
+
+    jvmArgs = ['-Xms1G', '-Xmx3G']
+
   doFirst() {
     if (project.file('./.aat-env').exists()) {
       project.file('./.aat-env').readLines().each() {
@@ -550,10 +554,6 @@ bootWithCCD {
       def key = it.substring(0, index)
       def value = it.substring(index + 1)
       environment key, value
-    }
-
-    exec {
-      commandLine 'docker', 'compose', '-f', 'src/cftlib/resources/docker-compose-local.yml', '-p', 'cftlib', 'up', '-d'
     }
 
   }
