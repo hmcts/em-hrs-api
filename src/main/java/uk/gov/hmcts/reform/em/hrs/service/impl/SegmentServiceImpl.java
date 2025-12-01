@@ -1,9 +1,8 @@
 package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.models.BlobRange;
-import com.azure.storage.blob.options.BlobInputStreamOptions;
-import org.apache.tika.Tika;
+import org.apache.commons.lang3.time.StopWatch;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -12,13 +11,13 @@ import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
+import uk.gov.hmcts.reform.em.hrs.service.Mp4MimeTypeService;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentService;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.UUID;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
 @Transactional
@@ -26,15 +25,19 @@ public class SegmentServiceImpl implements SegmentService {
 
     private final HearingRecordingSegmentRepository segmentRepository;
     private final BlobContainerClient blobContainerClient;
-    private final Tika tika;
+    private final Mp4MimeTypeService mp4Inspector;
+    private static final Logger LOGGER = getLogger(SegmentServiceImpl.class);
+
 
     @Autowired
-    public SegmentServiceImpl(final HearingRecordingSegmentRepository segmentRepository,
-                              @Qualifier("hrsCvpBlobContainerClient") final BlobContainerClient blobContainerClient,
-                              final Tika tika) {
+    public SegmentServiceImpl(
+        final HearingRecordingSegmentRepository segmentRepository,
+        @Qualifier("hrsCvpBlobContainerClient") final BlobContainerClient blobContainerClient,
+        final Mp4MimeTypeService mp4MimeTypeService
+    ) {
         this.segmentRepository = segmentRepository;
         this.blobContainerClient = blobContainerClient;
-        this.tika = tika;
+        this.mp4Inspector = mp4MimeTypeService;
     }
 
     @Override
@@ -50,7 +53,16 @@ public class SegmentServiceImpl implements SegmentService {
 
     private HearingRecordingSegment createSegment(final HearingRecording hearingRecording,
                                                   final HearingRecordingDto recordingDto) {
-        String mimeType = detectMimeType(recordingDto.getFilename());
+
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        String mimeType = mp4Inspector.getMimeType(
+            blobContainerClient.getBlobClient(recordingDto.getFilename())
+        );
+        stopWatch.stop();
+
+        LOGGER.info("Mime type detection took {} ms for {}",
+                    stopWatch.getDuration().toMillis(), recordingDto.getFilename());
 
         return HearingRecordingSegment.builder()
             .filename(recordingDto.getFilename())
@@ -63,14 +75,5 @@ public class SegmentServiceImpl implements SegmentService {
             .interpreter(recordingDto.getInterpreter())
             .mimeType(mimeType)
             .build();
-    }
-
-    private String detectMimeType(String blobName) {
-        try (InputStream inputStream = blobContainerClient.getBlobClient(blobName)
-            .openInputStream(new BlobInputStreamOptions().setRange(new BlobRange(0, 2L * 1024 * 1024)))) {
-            return tika.detect(inputStream);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to detect MIME type from blob", e);
-        }
     }
 }
