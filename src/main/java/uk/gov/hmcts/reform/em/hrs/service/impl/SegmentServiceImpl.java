@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import com.azure.storage.blob.BlobContainerClient;
+import org.apache.commons.lang3.time.StopWatch;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ import uk.gov.hmcts.reform.em.hrs.service.SegmentService;
 import java.util.List;
 import java.util.UUID;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 @Service
 @Transactional
 public class SegmentServiceImpl implements SegmentService {
@@ -22,6 +26,8 @@ public class SegmentServiceImpl implements SegmentService {
     private final HearingRecordingSegmentRepository segmentRepository;
     private final BlobContainerClient blobContainerClient;
     private final Mp4MimeTypeService mp4Inspector;
+    private static final Logger LOGGER = getLogger(SegmentServiceImpl.class);
+
 
     @Autowired
     public SegmentServiceImpl(
@@ -48,10 +54,15 @@ public class SegmentServiceImpl implements SegmentService {
     private HearingRecordingSegment createSegment(final HearingRecording hearingRecording,
                                                   final HearingRecordingDto recordingDto) {
 
-        // Logic delegated to the new component
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         String mimeType = mp4Inspector.getMimeType(
             blobContainerClient.getBlobClient(recordingDto.getFilename())
         );
+        stopWatch.stop();
+
+        LOGGER.info("Mime type detection took {} ms for {}",
+                    stopWatch.getDuration().toMillis(), recordingDto.getFilename());
 
         return HearingRecordingSegment.builder()
             .filename(recordingDto.getFilename())
