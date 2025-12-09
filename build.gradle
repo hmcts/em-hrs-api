@@ -309,7 +309,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: versions.shedlock
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.14.1'
-  implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '5.5.0'
+  implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '5.5.1'
 
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.3'
 
