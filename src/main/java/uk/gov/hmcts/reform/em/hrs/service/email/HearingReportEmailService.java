@@ -61,7 +61,11 @@ public class HearingReportEmailService {
     public void sendReport(LocalDate reportDate, File reportFile) {
         try {
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Report recipients: {}", Arrays.toString(this.recipients));
+                LOGGER.info(
+                    "Report recipients: {}, subject: {}",
+                    Arrays.toString(this.recipients),
+                    (this.subjectPrefix + reportDate)
+                );
             }
 
             emailSender.sendMessageWithAttachments(
