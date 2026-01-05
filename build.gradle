@@ -166,7 +166,7 @@ def coverageExclusionList = [
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '12.3.1'
+  toolVersion = '13.0.0'
   getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
 }
 
