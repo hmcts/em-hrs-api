@@ -47,8 +47,13 @@ public class SummaryReportService {
     public void sendReport() {
         try {
             var report = hearingRecordingStorage.getStorageReport();
-            LOGGER.info("Report recipients: {}", this.recipients[0]);
-
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(
+                    "Summary Report recipients: {}, subject: {}",
+                    Arrays.toString(this.recipients),
+                    SUBJECT_PREFIX
+                );
+            }
             emailSender.sendMessageWithAttachments(
                 SUBJECT_PREFIX + now(),
                 createBody(report),
