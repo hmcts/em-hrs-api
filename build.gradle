@@ -243,8 +243,8 @@ def versions = [
   postgresql         : '42.7.8',
   pact_version       : '4.6.19',
   restAssured        : '5.3.0',
-  junit              : '6.0.1',
-  junitPlatform      : '6.0.1',
+  junit              : '6.0.2',
+  junitPlatform      : '6.0.2',
   springSecurity     : '6.5.7',
   shedlock           : '7.5.0',
   testcontainers     : '1.21.4'
@@ -374,12 +374,12 @@ dependencies {
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.3.0'
 
-  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:6.0.1'
-  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:6.0.1'
+  functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:6.0.2'
+  functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:6.0.2'
   functionalTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: versions.junitPlatform
 
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:6.0.1'
-  testImplementation 'org.junit.jupiter:junit-jupiter-engine:6.0.1'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:6.0.2'
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:6.0.2'
 
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity, withoutStuff
@@ -421,8 +421,8 @@ dependencies {
   contractTestImplementation group: 'au.com.dius.pact.provider', name: 'spring6', version: versions.pact_version
 
 
-  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:6.0.1"
-  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:6.0.1"
+  contractTestImplementation "org.junit.jupiter:junit-jupiter-api:6.0.2"
+  contractTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:6.0.2"
   contractTestImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: versions.junitPlatform
 
   contractTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
