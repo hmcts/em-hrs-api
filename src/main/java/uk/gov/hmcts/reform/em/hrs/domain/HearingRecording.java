@@ -61,6 +61,8 @@ public class HearingRecording {
 
     private boolean deleted;
 
+    private boolean ttlUpdated;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Folder folder;
 
