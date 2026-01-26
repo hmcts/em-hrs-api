@@ -208,7 +208,7 @@ logging:
     uk.gov.hmcts.reform.authorisation.filters: DEBUG
 
 ttl:
-  default-ttl: ${DEFAULT_TTL:P7Y}
+  default-ttl: ${DEFAULT_TTL:P20Y}
 
 endpoint:
   deleteCase:
