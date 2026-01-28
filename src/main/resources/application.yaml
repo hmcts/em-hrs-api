@@ -171,9 +171,10 @@ scheduling:
       cron:  ${DELETE_INPROGRESS_CRON:0 0 */1 * * *}
       ttl-hours: 1
     update-ttl:
+      enabled: ${UPDATE_TTL_ENABLED:true}
       batch-size: ${UPDATE_TTL_BATCH_SIZE:10}
-      no-of-iterations: ${UPDATE_TTL_NO_OF_ITERATIONS:1}
       thread-limit: ${UPDATE_TTL_THREAD_LIMIT:1}
+      max-records: ${UPDATE_TTL_MAX_RECORDS:100}
     jurisdiction-codes:
       batch-size: ${JURISDICTION_CODES_BATCH_SIZE:10}
       thread-limit: ${JURISDICTION_CODES_THREAD_LIMIT:2}
