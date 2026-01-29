@@ -32,13 +32,13 @@ public class UpdateTtlTask implements Runnable {
     private final CcdDataStoreApiClient ccdDataStoreApiClient;
     private final TtlService ttlService;
 
-    @Value("${scheduling.task.update-ttl.batch-size:50}")
+    @Value("${scheduling.task.update-ttl.batch-size}")
     private int batchSize;
 
-    @Value("${scheduling.task.update-ttl.thread-limit:10}")
+    @Value("${scheduling.task.update-ttl.thread-limit}")
     private int defaultThreadLimit;
 
-    @Value("${scheduling.task.update-ttl.max-records:10000}")
+    @Value("${scheduling.task.update-ttl.max-records}")
     private int maxRecordsToProcess;
 
     public UpdateTtlTask(HearingRecordingService hearingRecordingService,
