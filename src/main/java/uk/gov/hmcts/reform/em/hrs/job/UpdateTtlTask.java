@@ -4,7 +4,6 @@ import com.microsoft.applicationinsights.core.dependencies.google.common.collect
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingTtlMigrationDTO;
 import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
@@ -22,7 +21,6 @@ import java.util.concurrent.Executors;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
-@ConditionalOnProperty(value = "scheduling.task.update-ttl.enabled", havingValue = "true")
 public class UpdateTtlTask implements Runnable {
 
     private static final String TASK_NAME = "update-ttl";
