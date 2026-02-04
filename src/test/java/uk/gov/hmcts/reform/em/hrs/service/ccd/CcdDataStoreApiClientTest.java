@@ -288,9 +288,9 @@ class CcdDataStoreApiClientTest {
     void shouldUpdateCaseWithTtlSuccessfully() {
         Long ccdCaseId = 123L;
         LocalDate recordingDate = LocalDate.now().minusDays(10);
-        LocalDate calculatedTtl = LocalDate.now().plusYears(7);
+        final LocalDate calculatedTtl = LocalDate.now().plusYears(7);
 
-        Map<String, String> tokens = Map.of(
+        final Map<String, String> tokens = Map.of(
             "user", USER_TOKEN,
             "service", SERVICE_TOKEN,
             "userId", USER_ID);
@@ -375,9 +375,9 @@ class CcdDataStoreApiClientTest {
     void shouldHandleExceptionDuringUpdateCaseWithTtl() {
         Long ccdCaseId = 123L;
         LocalDate recordingDate = LocalDate.now().minusDays(10);
-        LocalDate calculatedTtl = LocalDate.now().plusYears(7);
+        final LocalDate calculatedTtl = LocalDate.now().plusYears(7);
 
-        Map<String, String> tokens = Map.of(
+        final Map<String, String> tokens = Map.of(
             "user", USER_TOKEN,
             "service", SERVICE_TOKEN,
             "userId", USER_ID);
