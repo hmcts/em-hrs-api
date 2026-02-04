@@ -9,7 +9,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingTtlMigrationDTO;
 import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
-import uk.gov.hmcts.reform.em.hrs.service.TtlService;
 import uk.gov.hmcts.reform.em.hrs.service.ccd.CcdDataStoreApiClient;
 
 import java.time.LocalDate;
@@ -22,7 +21,6 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -37,9 +35,6 @@ class UpdateTtlTaskTest {
 
     @Mock
     private CcdDataStoreApiClient ccdDataStoreApiClient;
-
-    @Mock
-    private TtlService ttlService;
 
     @InjectMocks
     private UpdateTtlTask updateTtlTask;
@@ -66,13 +61,12 @@ class UpdateTtlTaskTest {
     void shouldProcessRecordsSuccessfully() {
         when(hearingRecordingService.getRecordingsForTtlUpdate(anyInt()))
             .thenReturn(List.of(record1));
-        when(ttlService.createTtl(anyString(), anyString(), any(LocalDate.class)))
+        when(ccdDataStoreApiClient.updateCaseWithTtl(anyLong()))
             .thenReturn(mockTtlDate);
 
         updateTtlTask.run();
 
-        verify(ttlService).createTtl("SVC", "JUR", record1.createdOn().toLocalDate());
-        verify(ccdDataStoreApiClient).updateCaseWithTtl(record1.ccdCaseId(), mockTtlDate);
+        verify(ccdDataStoreApiClient).updateCaseWithTtl(record1.ccdCaseId());
         verify(hearingRecordingService).updateTtl(record1.id(), mockTtlDate);
     }
 
@@ -84,22 +78,20 @@ class UpdateTtlTaskTest {
         updateTtlTask.run();
 
         verify(hearingRecordingService, never()).updateTtl(any(), any());
-        verify(ccdDataStoreApiClient, never()).updateCaseWithTtl(any(), any());
+        verify(ccdDataStoreApiClient, never()).updateCaseWithTtl(anyLong());
     }
 
     @Test
     void shouldSkipDbUpdateIfCcdFails() {
         when(hearingRecordingService.getRecordingsForTtlUpdate(anyInt()))
             .thenReturn(List.of(record1));
-        when(ttlService.createTtl(any(), any(), any()))
-            .thenReturn(mockTtlDate);
 
         doThrow(new RuntimeException("CCD Unavailable"))
-            .when(ccdDataStoreApiClient).updateCaseWithTtl(anyLong(), any());
+            .when(ccdDataStoreApiClient).updateCaseWithTtl(anyLong());
 
         updateTtlTask.run();
 
-        verify(ccdDataStoreApiClient).updateCaseWithTtl(record1.ccdCaseId(), mockTtlDate);
+        verify(ccdDataStoreApiClient).updateCaseWithTtl(record1.ccdCaseId());
         verify(hearingRecordingService, never()).updateTtl(any(), any());
     }
 
@@ -114,28 +106,31 @@ class UpdateTtlTaskTest {
 
         when(hearingRecordingService.getRecordingsForTtlUpdate(anyInt()))
             .thenReturn(Arrays.asList(recA, recB));
-        when(ttlService.createTtl(any(), any(), any())).thenReturn(mockTtlDate);
+        when(ccdDataStoreApiClient.updateCaseWithTtl(999L))
+            .thenReturn(mockTtlDate);
 
         updateTtlTask.run();
 
-        verify(ccdDataStoreApiClient, times(1)).updateCaseWithTtl(999L, mockTtlDate);
+        // CCD should only be called once
+        verify(ccdDataStoreApiClient, times(1)).updateCaseWithTtl(999L);
+        // But both HRS records should be updated
         verify(hearingRecordingService).updateTtl(recA.id(), mockTtlDate);
         verify(hearingRecordingService).updateTtl(recB.id(), mockTtlDate);
     }
 
     @Test
-    void shouldHandleNullCcdCaseId() {
+    void shouldThrowExceptionForNullCcdCaseId() {
         HearingRecordingTtlMigrationDTO recNullCcd = new HearingRecordingTtlMigrationDTO(
             UUID.randomUUID(), LocalDateTime.now(), "S", "J", null
         );
 
         when(hearingRecordingService.getRecordingsForTtlUpdate(anyInt()))
             .thenReturn(List.of(recNullCcd));
-        when(ttlService.createTtl(any(), any(), any())).thenReturn(mockTtlDate);
 
         updateTtlTask.run();
 
-        verify(ccdDataStoreApiClient, never()).updateCaseWithTtl(any(), any());
-        verify(hearingRecordingService).updateTtl(recNullCcd.id(), mockTtlDate);
+        // Should not call CCD or HRS update due to null check throwing exception
+        verify(ccdDataStoreApiClient, never()).updateCaseWithTtl(anyLong());
+        verify(hearingRecordingService, never()).updateTtl(any(), any());
     }
 }

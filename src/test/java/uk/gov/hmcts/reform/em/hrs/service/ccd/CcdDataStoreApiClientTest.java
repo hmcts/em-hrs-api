@@ -14,8 +14,10 @@ import uk.gov.hmcts.reform.ccd.client.model.Event;
 import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.exception.CcdUploadException;
+import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
 import uk.gov.hmcts.reform.em.hrs.model.TtlCcdObject;
 import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
+import uk.gov.hmcts.reform.em.hrs.service.TtlService;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -30,6 +32,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CcdDataStoreApiClientTest {
@@ -56,6 +59,9 @@ class CcdDataStoreApiClientTest {
 
     @Mock
     CoreCaseDataApi coreCaseDataApi;
+
+    @Mock
+    TtlService ttlService;
 
     @InjectMocks
     CcdDataStoreApiClient underTest;
@@ -281,14 +287,28 @@ class CcdDataStoreApiClientTest {
     @Test
     void shouldUpdateCaseWithTtlSuccessfully() {
         Long ccdCaseId = 123L;
-        LocalDate ttlPlus30Day = LocalDate.now().plusDays(30);
+        LocalDate recordingDate = LocalDate.now().minusDays(10);
+        LocalDate calculatedTtl = LocalDate.now().plusYears(7);
+
         Map<String, String> tokens = Map.of(
             "user", USER_TOKEN,
             "service", SERVICE_TOKEN,
             "userId", USER_ID);
 
+        CaseHearingRecording caseHearingRecording = new CaseHearingRecording();
+        caseHearingRecording.setRecordingDate(recordingDate);
+        caseHearingRecording.setServiceCode("AAA7");
+        caseHearingRecording.setJurisdictionCode("EMPLOYMENT");
+
         StartEventResponse startEventResponse = StartEventResponse.builder()
-            .caseDetails(CaseDetails.builder().id(ccdCaseId).data(Map.of()).build())
+            .caseDetails(CaseDetails.builder()
+                             .id(ccdCaseId)
+                             .data(Map.of(
+                                 "recordingDate", recordingDate.toString(),
+                                 "serviceCode", "AAA7",
+                                 "jurisdictionCode", "EMPLOYMENT"
+                             ))
+                             .build())
             .eventId("eventId")
             .token("eventToken")
             .build();
@@ -298,26 +318,40 @@ class CcdDataStoreApiClientTest {
         doReturn(tokens).when(securityService).createTokens();
         doReturn(startEventResponse).when(coreCaseDataApi)
             .startEvent(USER_TOKEN, SERVICE_TOKEN, ccdCaseId.toString(), AMEND_CASE);
-        doReturn(ttlObject).when(caseDataContentCreator).createTTLObject(ttlPlus30Day);
+        when(ttlService.createTtl("AAA7", "EMPLOYMENT", recordingDate))
+            .thenReturn(calculatedTtl);
+        doReturn(ttlObject).when(caseDataContentCreator).createTTLObject(calculatedTtl);
 
-        underTest.updateCaseWithTtl(ccdCaseId, ttlPlus30Day);
+        LocalDate result = underTest.updateCaseWithTtl(ccdCaseId);
 
-        verify(coreCaseDataApi).submitEventForCaseWorker(eq(USER_TOKEN), eq(SERVICE_TOKEN), eq(USER_ID),
-                                                         eq(JURISDICTION), eq(CASE_TYPE), eq(ccdCaseId.toString()),
-                                                         eq(false), any(CaseDataContent.class));
+        assertEquals(calculatedTtl, result);
+        verify(ttlService).createTtl("AAA7", "EMPLOYMENT", recordingDate);
+        verify(caseDataContentCreator).createTTLObject(calculatedTtl);
+        verify(coreCaseDataApi).submitEventForCaseWorker(
+            eq(USER_TOKEN), eq(SERVICE_TOKEN), eq(USER_ID),
+            eq(JURISDICTION), eq(CASE_TYPE), eq(ccdCaseId.toString()),
+            eq(false), any(CaseDataContent.class)
+        );
     }
 
     @Test
-    void shouldHandleExceptionDuringUpdateCaseWithTtl() {
+    void shouldThrowExceptionWhenRecordingDateIsNull() {
         Long ccdCaseId = 123L;
-        LocalDate ttlPlus30 = LocalDate.now().plusDays(30);
+
         Map<String, String> tokens = Map.of(
             "user", USER_TOKEN,
             "service", SERVICE_TOKEN,
             "userId", USER_ID);
 
         StartEventResponse startEventResponse = StartEventResponse.builder()
-            .caseDetails(CaseDetails.builder().id(ccdCaseId).data(Map.of()).build())
+            .caseDetails(CaseDetails.builder()
+                             .id(ccdCaseId)
+                             .data(Map.of(
+                                 "serviceCode", "AAA7",
+                                 "jurisdictionCode", "EMPLOYMENT"
+                                 // recordingDate is missing/null
+                             ))
+                             .build())
             .eventId("eventId")
             .token("eventToken")
             .build();
@@ -325,11 +359,57 @@ class CcdDataStoreApiClientTest {
         doReturn(tokens).when(securityService).createTokens();
         doReturn(startEventResponse).when(coreCaseDataApi)
             .startEvent(USER_TOKEN, SERVICE_TOKEN, ccdCaseId.toString(), AMEND_CASE);
+
+        assertThatExceptionOfType(CcdUploadException.class)
+            .isThrownBy(() -> underTest.updateCaseWithTtl(ccdCaseId))
+            .withMessage("Error Updating TTL")
+            .withCauseInstanceOf(IllegalStateException.class);
+
+        verify(ttlService, never()).createTtl(any(), any(), any());
+        verify(coreCaseDataApi, never()).submitEventForCaseWorker(
+            any(), any(), any(), any(), any(), any(), anyBoolean(), any()
+        );
+    }
+
+    @Test
+    void shouldHandleExceptionDuringUpdateCaseWithTtl() {
+        Long ccdCaseId = 123L;
+        LocalDate recordingDate = LocalDate.now().minusDays(10);
+        LocalDate calculatedTtl = LocalDate.now().plusYears(7);
+
+        Map<String, String> tokens = Map.of(
+            "user", USER_TOKEN,
+            "service", SERVICE_TOKEN,
+            "userId", USER_ID);
+
+        CaseHearingRecording caseHearingRecording = new CaseHearingRecording();
+        caseHearingRecording.setRecordingDate(recordingDate);
+        caseHearingRecording.setServiceCode("AAA7");
+        caseHearingRecording.setJurisdictionCode("EMPLOYMENT");
+
+        StartEventResponse startEventResponse = StartEventResponse.builder()
+            .caseDetails(CaseDetails.builder()
+                             .id(ccdCaseId)
+                             .data(Map.of(
+                                 "recordingDate", recordingDate.toString(),
+                                 "serviceCode", "AAA7",
+                                 "jurisdictionCode", "EMPLOYMENT"
+                             ))
+                             .build())
+            .eventId("eventId")
+            .token("eventToken")
+            .build();
+
+        doReturn(tokens).when(securityService).createTokens();
+        doReturn(startEventResponse).when(coreCaseDataApi)
+            .startEvent(USER_TOKEN, SERVICE_TOKEN, ccdCaseId.toString(), AMEND_CASE);
+        when(ttlService.createTtl("AAA7", "EMPLOYMENT", recordingDate))
+            .thenReturn(calculatedTtl);
         doThrow(new RuntimeException("CCD update failed")).when(coreCaseDataApi)
             .submitEventForCaseWorker(any(), any(), any(), any(), any(), any(), anyBoolean(), any());
 
         assertThatExceptionOfType(CcdUploadException.class)
-            .isThrownBy(() -> underTest.updateCaseWithTtl(ccdCaseId, ttlPlus30));
+            .isThrownBy(() -> underTest.updateCaseWithTtl(ccdCaseId));
     }
 
 
