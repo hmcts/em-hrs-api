@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.quartz.JobExecutionContext;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
-import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.service.IngestionService;
 import uk.gov.hmcts.reform.em.hrs.service.JobInProgressService;
 
@@ -20,27 +19,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.CASE_REFERENCE;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.RECORDING_DATETIME;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.RECORDING_REFERENCE;
-
 
 class IngestionJobTest {
-    private static final HearingRecordingDto HEARING_RECORDING_DTO = HearingRecordingDto.builder()
-        .caseRef(CASE_REFERENCE)
-        .recordingSource(HearingSource.CVP)
-        .courtLocationCode("LC")
-        .jurisdictionCode("JC")
-        .hearingRoomRef("123")
-        .recordingRef(RECORDING_REFERENCE)
-        .filename("hearing-recording-file-name")
-        .recordingDateTime(RECORDING_DATETIME)
-        .filenameExtension("mp4")
-        .fileSize(123456789L)
-        .segment(0)
-        .sourceBlobUrl("recording-cvp-uri")
-        .checkSum("erI2foA30B==")
-        .build();
+
+    private final HearingRecordingDto recordingDto = mock(HearingRecordingDto.class);
 
     private final LinkedBlockingQueue<HearingRecordingDto> ingestionQueue =
         new LinkedBlockingQueue<>(1000);
@@ -63,17 +45,16 @@ class IngestionJobTest {
 
     @Test
     void testShouldSuccessfullyProcessIngestionAndQueueForCcdUpload() {
-        ingestionQueue.offer(HEARING_RECORDING_DTO);
-        doReturn(true).when(ccdUploadQueue).offer(HEARING_RECORDING_DTO);
+        ingestionQueue.offer(recordingDto);
+        doReturn(true).when(ccdUploadQueue).offer(recordingDto);
 
         underTest.executeInternal(jobExecutionContext);
 
-        verify(jobInProgressService, times(1)).register(HEARING_RECORDING_DTO);
-        verify(ingestionService, times(1)).ingest(HEARING_RECORDING_DTO);
-        verify(ccdUploadQueue, times(1)).offer(HEARING_RECORDING_DTO);
+        verify(jobInProgressService, times(1)).register(recordingDto);
+        verify(ingestionService, times(1)).ingest(recordingDto);
+        verify(ccdUploadQueue, times(1)).offer(recordingDto);
         verify(jobInProgressService, never()).deRegister(any());
     }
-
 
     @Test
     void testShouldNotInvokeAnyServiceWhenIngestionQueueIsEmpty() {
@@ -84,44 +65,48 @@ class IngestionJobTest {
         verify(ccdUploadQueue, never()).offer(any(HearingRecordingDto.class));
     }
 
-
     @Test
     void testShouldHandleGracefullyWhenAysncQueueIsFull() {
-        ingestionQueue.offer(HEARING_RECORDING_DTO);
+        ingestionQueue.offer(recordingDto);
         doThrow(RejectedExecutionException.class).when(ingestionService).ingest(any(HearingRecordingDto.class));
+
         underTest.executeInternal(jobExecutionContext);
-        verify(jobInProgressService, times(1)).register(HEARING_RECORDING_DTO);
+
+        verify(jobInProgressService, times(1)).register(recordingDto);
         verify(ingestionService, times(1)).ingest(any(HearingRecordingDto.class));
-        verify(jobInProgressService, times(1)).deRegister(HEARING_RECORDING_DTO);
+        verify(jobInProgressService, times(1)).deRegister(recordingDto);
         verify(ccdUploadQueue, never()).offer(any(HearingRecordingDto.class));
     }
 
     @Test
     void testShouldHandleGracefullyWhenUnhandledError() {
-        ingestionQueue.offer(HEARING_RECORDING_DTO);
+        ingestionQueue.offer(recordingDto);
         doThrow(RuntimeException.class).when(ingestionService).ingest(any(HearingRecordingDto.class));
+
         underTest.executeInternal(jobExecutionContext);
-        verify(jobInProgressService, times(1)).register(HEARING_RECORDING_DTO);
+
+        verify(jobInProgressService, times(1)).register(recordingDto);
         verify(ingestionService, times(1)).ingest(any(HearingRecordingDto.class));
-        verify(jobInProgressService, times(1)).deRegister(HEARING_RECORDING_DTO);
+        verify(jobInProgressService, times(1)).deRegister(recordingDto);
         verify(ccdUploadQueue, never()).offer(any(HearingRecordingDto.class));
     }
 
     @Test
     void testShouldHandleCcdQueueFullGracefully() {
-        ingestionQueue.offer(HEARING_RECORDING_DTO);
-        doReturn(false).when(ccdUploadQueue).offer(HEARING_RECORDING_DTO);
+        ingestionQueue.offer(recordingDto);
+        doReturn(false).when(ccdUploadQueue).offer(recordingDto);
+
         underTest.executeInternal(jobExecutionContext);
-        verify(jobInProgressService, times(1)).register(HEARING_RECORDING_DTO);
+
+        verify(jobInProgressService, times(1)).register(recordingDto);
         verify(ingestionService, times(1)).ingest(any(HearingRecordingDto.class));
-        verify(ccdUploadQueue, times(1)).offer(HEARING_RECORDING_DTO);
-        verify(jobInProgressService, times(1)).deRegister(HEARING_RECORDING_DTO);
+        verify(ccdUploadQueue, times(1)).offer(recordingDto);
+        verify(jobInProgressService, times(1)).deRegister(recordingDto);
     }
 
     @Test
     void testNoArgsConstructorCanBeInstantiated() {
         IngestionJob ingestionJob = new IngestionJob();
-
         assertThat(ingestionJob).isNotNull();
     }
 }

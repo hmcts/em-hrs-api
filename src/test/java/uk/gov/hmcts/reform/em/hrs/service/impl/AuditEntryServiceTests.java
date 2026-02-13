@@ -7,7 +7,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.em.hrs.auditlog.AuditLogFormatter;
-import uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditEntry;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
@@ -31,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,16 +57,15 @@ class AuditEntryServiceTests {
     @Mock
     private ShareesAuditEntryRepository shareesAuditEntryRepository;
 
-    private HearingRecording hearingRecording;
-    private HearingRecordingSegment hearingRecordingSegment;
-    private HearingRecordingSharee hearingRecordingSharee;
-
     @Mock
     private AuditLogFormatter auditLogFormatter;
 
     @Mock
     private AuditEntryRepository auditEntryRepository;
 
+    private HearingRecording hearingRecording;
+    private HearingRecordingSegment hearingRecordingSegment;
+    private HearingRecordingSharee hearingRecordingSharee;
 
     @BeforeEach
     void prepare() {
@@ -81,7 +80,7 @@ class AuditEntryServiceTests {
 
     @Test
     void testFindHearingRecordingAudits() {
-        HearingRecording testHearingRecording = TestUtil.hearingRecordingWithNoDataBuilder();
+        HearingRecording testHearingRecording = mock(HearingRecording.class);
 
         when(hearingRecordingAuditEntryRepository
                  .findByHearingRecordingOrderByEventDateTimeAsc(testHearingRecording))

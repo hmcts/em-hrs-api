@@ -7,17 +7,17 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHAREE_EMAIL_ADDRESS;
 
 class CaseDetailsParserTest {
 
     @Test
     void testShouldReturnShareeEmail() {
-        final Map<String, Object> data = Map.of("recipientEmailAddress", SHAREE_EMAIL_ADDRESS);
+        String shareeMail = "sharee.tester@test.com";
+        final Map<String, Object> data = Map.of("recipientEmailAddress", shareeMail);
 
         final String shareeEmail = CaseDetailsParser.getShareeEmail(data);
 
-        assertThat(shareeEmail).isNotNull().isEqualTo(SHAREE_EMAIL_ADDRESS);
+        assertThat(shareeEmail).isNotNull().isEqualTo(shareeMail);
     }
 
     @Test

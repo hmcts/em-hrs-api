@@ -5,14 +5,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSharee;
 import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHAREE_EMAIL_ADDRESS;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.hearingRecordingWithNoDataBuilder;
 
 @ExtendWith(MockitoExtension.class)
 class ShareeServiceImplTest {
@@ -24,7 +23,10 @@ class ShareeServiceImplTest {
 
     @Test
     void testShouldSaveEntity() {
-        underTest.createAndSaveEntry(SHAREE_EMAIL_ADDRESS, hearingRecordingWithNoDataBuilder());
+        String shareeEmailAddress = "sharee@example.com";
+        HearingRecording hearingRecording = new HearingRecording();
+
+        underTest.createAndSaveEntry(shareeEmailAddress, hearingRecording);
 
         verify(shareesRepository, times(1)).save(any(HearingRecordingSharee.class));
     }

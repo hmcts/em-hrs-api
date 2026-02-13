@@ -1,13 +1,13 @@
 package uk.gov.hmcts.reform.em.hrs.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
@@ -17,146 +17,174 @@ import uk.gov.hmcts.reform.em.hrs.service.idam.cache.IdamCachedClient;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.startsWith;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.AUTHORIZATION_TOKEN;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SERVICE_AUTHORIZATION_TOKEN;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHARER_EMAIL_ADDRESS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.em.hrs.service.impl.SecurityServiceImpl.CLIENTIP;
+import static uk.gov.hmcts.reform.em.hrs.service.impl.SecurityServiceImpl.DUMMY_NAME;
+import static uk.gov.hmcts.reform.em.hrs.service.impl.SecurityServiceImpl.SERVICE_AUTH;
+import static uk.gov.hmcts.reform.em.hrs.service.impl.SecurityServiceImpl.USER_AUTH;
 
-@SpringBootTest(classes = {SecurityServiceImpl.class},
-    properties = {"idam.system-user.username=SystemUser", "idam.system-user.password=SystemPassword"})
+@ExtendWith(MockitoExtension.class)
 class SecurityServiceImplTest {
 
-    private static final String DUMMY_NAME = "dummyName";
-    private static final String HRS_INGESTOR = "hrsIngestor";
-    private static final String USER_ID = UUID.randomUUID().toString();
-    private static final UserInfo USER_INFO = UserInfo.builder()
-        .sub(SHARER_EMAIL_ADDRESS)
-        .uid(USER_ID)
-        .roles(List.of("caseworker-hrs-searcher"))
-        .build();
-    private static final String SERVICE_NAME = "TestService";
+    private static final String MOCK_USER_TOKEN = "user-token-long-enough-for-test";
+    private static final String MOCK_USER_ID = "user-id";
+    private static final String MOCK_S2S_TOKEN = "s2s-token-long-enough-for-test";
+    private static final String MOCK_EMAIL = "test@example.com";
+    private static final String MOCK_SERVICE_NAME = "hrs_service";
+    private static final String BEARER_TOKEN = "Bearer " + MOCK_S2S_TOKEN;
 
     @Mock
-    private MockHttpServletRequest request;
+    private IdamClient idmClient;
 
-    @MockitoBean
-    private IdamClient idamClient;
-
-    @MockitoBean
-    private IdamCachedClient idamCachedClient;
-
-    @MockitoBean
+    @Mock
     private AuthTokenGenerator authTokenGenerator;
 
-    @MockitoBean
+    @Mock
     private AuthTokenValidator authTokenValidator;
 
-    @Autowired
-    private SecurityServiceImpl underTest;
+    @Mock
+    private IdamCachedClient idmCachedClient;
+
+    @Mock
+    private HttpServletRequest httpServletRequest;
+
+    @InjectMocks
+    private SecurityServiceImpl securityService;
 
     @BeforeEach
-    void before() {
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    void setUp() {
+        RequestContextHolder.resetRequestAttributes();
     }
 
-
-    @Test
-    void testShouldGetUserEmail() {
-        doReturn(USER_INFO).when(idamClient).getUserInfo(AUTHORIZATION_TOKEN);
-
-        final String userEmail = underTest.getUserEmail(AUTHORIZATION_TOKEN);
-
-        assertThat(userEmail).isEqualTo(SHARER_EMAIL_ADDRESS);
-        verify(idamClient, times(1)).getUserInfo(AUTHORIZATION_TOKEN);
+    @AfterEach
+    void tearDown() {
+        RequestContextHolder.resetRequestAttributes();
     }
 
     @Test
-    void testShouldGetTokensMap() {
-        CachedIdamCredential cachedIdamCredential = new CachedIdamCredential(AUTHORIZATION_TOKEN, USER_ID, 3600);
-        doReturn(cachedIdamCredential).when(idamCachedClient).getIdamCredentials();
-        doReturn(SERVICE_AUTHORIZATION_TOKEN).when(authTokenGenerator).generate();
+    void createTokensShouldReturnMapWithTokens() {
+        CachedIdamCredential credential = new CachedIdamCredential(MOCK_USER_TOKEN, MOCK_USER_ID, 1000L);
+        when(idmCachedClient.getIdamCredentials()).thenReturn(credential);
+        when(authTokenGenerator.generate()).thenReturn(MOCK_S2S_TOKEN);
 
-        final Map<String, String> tokens = underTest.createTokens();
+        Map<String, String> tokens = securityService.createTokens();
 
-        assertThat(tokens).isNotNull().isNotEmpty();
-        verify(idamCachedClient, times(1)).getIdamCredentials();
-        verify(authTokenGenerator, times(1)).generate();
+        assertThat(tokens)
+            .containsEntry("user", MOCK_USER_TOKEN)
+            .containsEntry("userId", MOCK_USER_ID)
+            .containsEntry("service", MOCK_S2S_TOKEN);
     }
 
     @Test
-    void testShouldDefaultGetUserInfo() {
-        doReturn(USER_INFO).when(idamClient).getUserInfo(AUTHORIZATION_TOKEN);
+    void getUserEmailShouldReturnSubFromUserInfo() {
+        UserInfo userInfo = mock(UserInfo.class);
+        when(userInfo.getSub()).thenReturn(MOCK_EMAIL);
+        when(idmClient.getUserInfo(MOCK_USER_TOKEN)).thenReturn(userInfo);
 
-        final UserInfo userInfo = underTest.getUserInfo(AUTHORIZATION_TOKEN);
-        assertEquals(1, userInfo.getRoles().size());
-        verify(idamClient, times(1)).getUserInfo(AUTHORIZATION_TOKEN);
+        String email = securityService.getUserEmail(MOCK_USER_TOKEN);
+
+        assertThat(email).isEqualTo(MOCK_EMAIL);
     }
 
     @Test
-    void testGetCurrentlyAuthenticatedServiceNameDummyName() {
-        assertEquals(SecurityServiceImpl.DUMMY_NAME, underTest.getCurrentlyAuthenticatedServiceName());
+    void getUserInfoShouldReturnUserInfoObject() {
+        UserInfo expectedUserInfo = mock(UserInfo.class);
+        when(idmClient.getUserInfo(MOCK_USER_TOKEN)).thenReturn(expectedUserInfo);
+
+        UserInfo actualUserInfo = securityService.getUserInfo(MOCK_USER_TOKEN);
+
+        assertThat(actualUserInfo).isEqualTo(expectedUserInfo);
     }
 
     @Test
-    void testGetCurrentlyAuthenticatedServiceName() {
-        doReturn("Bearer Xxxxxxxxxxxxxxxxxx").when(request).getHeader(SecurityServiceImpl.SERVICE_AUTH);
-        doReturn(SERVICE_NAME).when(authTokenValidator).getServiceName(Mockito.anyString());
-        assertEquals(SERVICE_NAME, underTest.getCurrentlyAuthenticatedServiceName());
+    void getCurrentlyAuthenticatedServiceNameShouldReturnDummyNameWhenRequestIsNull() {
+        RequestContextHolder.resetRequestAttributes();
+
+        String serviceName = securityService.getCurrentlyAuthenticatedServiceName();
+
+        assertThat(serviceName).isEqualTo(DUMMY_NAME);
     }
 
     @Test
-    void testGetCurrentlyAuthenticatedServiceNameWithoutBearerPrefix() {
-        String tokenWithoutPrefix = "Xxxxxxxxxxxxxxxxxx";
-        doReturn(tokenWithoutPrefix).when(request).getHeader(SecurityServiceImpl.SERVICE_AUTH);
-        doReturn(SERVICE_NAME).when(authTokenValidator).getServiceName(Mockito.anyString());
+    void getCurrentlyAuthenticatedServiceNameShouldReturnDummyNameWhenTokenIsBlank() {
+        mockRequestContext();
+        when(httpServletRequest.getHeader(SERVICE_AUTH)).thenReturn("");
 
-        String serviceName = underTest.getCurrentlyAuthenticatedServiceName();
+        String serviceName = securityService.getCurrentlyAuthenticatedServiceName();
 
-        assertEquals(SERVICE_NAME, serviceName);
-        verify(authTokenValidator).getServiceName(startsWith("Bearer "));
+        assertThat(serviceName).isEqualTo(DUMMY_NAME);
     }
 
     @Test
-    void testGetCurrentlyAuthenticatedServiceNameNullRequest() {
-        RequestContextHolder.setRequestAttributes(null);
-        assertEquals(DUMMY_NAME, underTest.getCurrentlyAuthenticatedServiceName());
+    void getCurrentlyAuthenticatedServiceNameShouldReturnServiceNameWhenTokenHasBearerPrefix() {
+        mockRequestContext();
+        when(httpServletRequest.getHeader(SERVICE_AUTH)).thenReturn(BEARER_TOKEN);
+        when(authTokenValidator.getServiceName(BEARER_TOKEN)).thenReturn(MOCK_SERVICE_NAME);
 
+        String serviceName = securityService.getCurrentlyAuthenticatedServiceName();
+
+        assertThat(serviceName).isEqualTo(MOCK_SERVICE_NAME);
     }
 
     @Test
-    void testGetAuditUserEmail() {
-        doReturn(AUTHORIZATION_TOKEN).when(request).getHeader(SecurityServiceImpl.USER_AUTH);
-        doReturn(USER_INFO).when(idamClient).getUserInfo(AUTHORIZATION_TOKEN);
-        assertEquals(SHARER_EMAIL_ADDRESS, underTest.getAuditUserEmail());
+    void getCurrentlyAuthenticatedServiceNameShouldReturnServiceNameWhenTokenMissingBearerPrefix() {
+        mockRequestContext();
+        when(httpServletRequest.getHeader(SERVICE_AUTH)).thenReturn(MOCK_S2S_TOKEN);
+        when(authTokenValidator.getServiceName(BEARER_TOKEN)).thenReturn(MOCK_SERVICE_NAME);
+
+        String serviceName = securityService.getCurrentlyAuthenticatedServiceName();
+
+        assertThat(serviceName).isEqualTo(MOCK_SERVICE_NAME);
     }
 
     @Test
-    void testGetAuditUserEmailNullRequest() {
-        RequestContextHolder.setRequestAttributes(null);
-        assertEquals(HRS_INGESTOR, underTest.getAuditUserEmail());
+    void getAuditUserEmailShouldReturnHrsIngestorWhenRequestIsNull() {
+        RequestContextHolder.resetRequestAttributes();
+
+        String auditUser = securityService.getAuditUserEmail();
+
+        assertThat(auditUser).isEqualTo("hrsIngestor");
     }
 
     @Test
-    void testGetClientIpNullRequest() {
-        RequestContextHolder.setRequestAttributes(null);
-        assertEquals(null, underTest.getClientIp());
+    void getAuditUserEmailShouldReturnEmailFromTokenWhenRequestIsPresent() {
+        mockRequestContext();
+        when(httpServletRequest.getHeader(USER_AUTH)).thenReturn(MOCK_USER_TOKEN);
+
+        UserInfo userInfo = mock(UserInfo.class);
+        when(userInfo.getSub()).thenReturn(MOCK_EMAIL);
+        when(idmClient.getUserInfo(MOCK_USER_TOKEN)).thenReturn(userInfo);
+
+        String auditUser = securityService.getAuditUserEmail();
+
+        assertThat(auditUser).isEqualTo(MOCK_EMAIL);
     }
 
     @Test
-    void testGetClientIp() {
-        doReturn("127.0.0.1").when(request).getHeader(CLIENTIP);
-        assertEquals("127.0.0.1", underTest.getClientIp());
+    void getClientIpShouldReturnNullWhenRequestIsNull() {
+        RequestContextHolder.resetRequestAttributes();
+
+        String clientIp = securityService.getClientIp();
+
+        assertThat(clientIp).isNull();
     }
 
+    @Test
+    void getClientIpShouldReturnIpFromHeaderWhenRequestIsPresent() {
+        mockRequestContext();
+        String expectedIp = "127.0.0.1";
+        when(httpServletRequest.getHeader(CLIENTIP)).thenReturn(expectedIp);
 
+        String clientIp = securityService.getClientIp();
+
+        assertThat(clientIp).isEqualTo(expectedIp);
+    }
+
+    private void mockRequestContext() {
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(httpServletRequest));
+    }
 }
