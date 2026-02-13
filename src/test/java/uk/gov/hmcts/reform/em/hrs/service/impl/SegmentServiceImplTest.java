@@ -171,6 +171,10 @@ class SegmentServiceImplTest {
 
         assertThatThrownBy(() -> segmentService.createAndSaveSegment(hearingRecording, recordingDto))
             .isInstanceOf(UncheckedIOException.class)
-            .hasCause(tikaException);
+            .satisfies(exception -> {
+                Throwable cause = exception.getCause();
+                assertThat(cause).isEqualTo(tikaException);
+                assertThat(cause.getSuppressed()).contains(closeException);
+            });
     }
 }

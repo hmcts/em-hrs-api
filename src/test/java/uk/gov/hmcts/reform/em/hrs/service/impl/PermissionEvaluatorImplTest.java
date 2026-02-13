@@ -58,9 +58,6 @@ class PermissionEvaluatorImplTest {
 
     @BeforeEach
     void setUp() {
-        // Inject allowed roles list (mimicking @Value injection)
-        // Since the field is package-private in the source, we can assign it directly in the test
-        // if the test is in the same package.
         permissionEvaluator.allowedRoles = List.of(ALLOWED_ROLE);
     }
 
@@ -71,7 +68,7 @@ class PermissionEvaluatorImplTest {
         when(userInfo.getRoles()).thenReturn(List.of(ALLOWED_ROLE, FORBIDDEN_ROLE));
         when(securityService.getUserInfo("Bearer " + TOKEN_VALUE)).thenReturn(userInfo);
 
-        Object target = new Object(); // Target irrelevant when role is present
+        Object target = new Object();
 
         boolean result = permissionEvaluator.hasPermission(authentication, target, "READ");
 
@@ -86,7 +83,6 @@ class PermissionEvaluatorImplTest {
         when(userInfo.getRoles()).thenReturn(List.of(FORBIDDEN_ROLE));
         when(securityService.getUserInfo("Bearer " + TOKEN_VALUE)).thenReturn(userInfo);
 
-        // Not a segment, so should fail fast after role check
         boolean result = permissionEvaluator.hasPermission(authentication, "NotASegment", "READ");
 
         assertThat(result).isFalse();
@@ -139,7 +135,6 @@ class PermissionEvaluatorImplTest {
             .build();
 
         when(securityService.getUserEmail("Bearer " + TOKEN_VALUE)).thenReturn(USER_EMAIL);
-        // Repository returns empty list (user has no shared files)
         when(shareesRepository.findByShareeEmailIgnoreCase(USER_EMAIL)).thenReturn(Collections.emptyList());
 
         boolean result = permissionEvaluator.hasPermission(authentication, segment, "READ");
@@ -158,7 +153,6 @@ class PermissionEvaluatorImplTest {
             .hearingRecording(requestedRecording)
             .build();
 
-        // User is shared on a DIFFERENT recording
         HearingRecording differentRecording = HearingRecording.builder().id(UUID.randomUUID()).build();
         HearingRecordingSharee sharee = HearingRecordingSharee.builder()
             .hearingRecording(differentRecording)
@@ -176,7 +170,6 @@ class PermissionEvaluatorImplTest {
 
     @Test
     void hasPermissionSerializableOverloadShouldReturnFalse() {
-        // This covers the second overridden method which simply returns false/logs error
         Authentication auth = mock(Authentication.class);
         Serializable id = UUID.randomUUID();
 

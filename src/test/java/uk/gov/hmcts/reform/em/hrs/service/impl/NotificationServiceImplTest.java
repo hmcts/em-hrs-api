@@ -47,7 +47,6 @@ class NotificationServiceImplTest {
 
     @Test
     void sendEmailNotificationShouldSendEmailSuccessfullyWithCorrectPersonalisation() throws Exception {
-        // Given
         String caseReference = "case-ref-123";
         LocalDate recordingDate = LocalDate.of(2024, 3, 15);
         String timeOfDay = "AM";
@@ -55,7 +54,6 @@ class NotificationServiceImplTest {
         String shareeEmail = "test@example.com";
         List<String> downloadUrls = List.of("http://url1.com", "http://url2.com");
 
-        // When
         notificationService.sendEmailNotification(
             caseReference,
             downloadUrls,
@@ -65,7 +63,6 @@ class NotificationServiceImplTest {
             shareeEmail
         );
 
-        // Then
         verify(notificationClient).sendEmail(
             eq(TEMPLATE_ID),
             eq(shareeEmail),
@@ -84,9 +81,6 @@ class NotificationServiceImplTest {
 
     @Test
     void sendEmailNotificationShouldHandleEmptyListsAndDifferentTimes() throws Exception {
-        // This test covers the "Edge cases" you had in separate tests (Empty list, PM time)
-        // combining them saves code while maintaining the same logical coverage.
-
         List<String> emptyUrls = Collections.emptyList();
         LocalDate recordingDate = LocalDate.of(2024, 3, 15);
 
