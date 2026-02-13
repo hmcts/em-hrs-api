@@ -107,10 +107,12 @@ class HearingRecordingControllerTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
 
-        when(segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(RECORDING_ID, 1, AUTH_TOKEN, false))
+        when(segmentDownloadService
+                 .fetchSegmentByRecordingIdAndSegmentNumber(RECORDING_ID, 1, AUTH_TOKEN, false))
             .thenReturn(segment);
 
-        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinary(RECORDING_ID, 1, AUTH_TOKEN, request, response);
+        ResponseEntity<Void> result = hearingRecordingController
+            .getSegmentBinary(RECORDING_ID, 1, AUTH_TOKEN, request, response);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         verify(segmentDownloadService).download(segment, request, response);
@@ -118,10 +120,12 @@ class HearingRecordingControllerTest {
 
     @Test
     void getSegmentBinaryShouldReturnForbiddenOnAccessDenied() {
-        when(segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(any(), anyInt(), anyString(), anyBoolean()))
+        when(segmentDownloadService
+                 .fetchSegmentByRecordingIdAndSegmentNumber(any(), anyInt(), anyString(), anyBoolean()))
             .thenThrow(new AccessDeniedException("Denied"));
 
-        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinary(RECORDING_ID, 1, AUTH_TOKEN, null, null);
+        ResponseEntity<Void> result = hearingRecordingController
+            .getSegmentBinary(RECORDING_ID, 1, AUTH_TOKEN, null, null);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
@@ -132,11 +136,13 @@ class HearingRecordingControllerTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
 
-        when(segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(any(), anyInt(), anyString(), anyBoolean()))
+        when(segmentDownloadService
+                 .fetchSegmentByRecordingIdAndSegmentNumber(any(), anyInt(), anyString(), anyBoolean()))
             .thenReturn(segment);
         doThrow(new IOException("Stream error")).when(segmentDownloadService).download(segment, request, response);
 
-        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinary(RECORDING_ID, 1, AUTH_TOKEN, request, response);
+        ResponseEntity<Void> result = hearingRecordingController
+            .getSegmentBinary(RECORDING_ID, 1, AUTH_TOKEN, request, response);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
@@ -144,11 +150,13 @@ class HearingRecordingControllerTest {
     @Test
     void getSegmentBinaryShouldReturnOkWhenUncheckedIOExceptionOccurs() throws IOException {
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        when(segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(any(), anyInt(), anyString(), anyBoolean()))
+        when(segmentDownloadService
+                 .fetchSegmentByRecordingIdAndSegmentNumber(any(), anyInt(), anyString(), anyBoolean()))
             .thenReturn(segment);
         doThrow(new UncheckedIOException(new IOException())).when(segmentDownloadService).download(any(), any(), any());
 
-        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinary(RECORDING_ID, 1, AUTH_TOKEN, null, null);
+        ResponseEntity<Void> result = hearingRecordingController
+            .getSegmentBinary(RECORDING_ID, 1, AUTH_TOKEN, null, null);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
@@ -159,7 +167,8 @@ class HearingRecordingControllerTest {
         HearingRecordingSegment segment = new HearingRecordingSegment();
         when(segmentDownloadService.fetchSegmentByRecordingIdAndFileName(RECORDING_ID, fileName)).thenReturn(segment);
 
-        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinaryByFileName(RECORDING_ID, null, fileName, null, null);
+        ResponseEntity<Void> result = hearingRecordingController
+            .getSegmentBinaryByFileName(RECORDING_ID, null, fileName, null, null);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         verify(segmentDownloadService).fetchSegmentByRecordingIdAndFileName(RECORDING_ID, fileName);
@@ -171,9 +180,11 @@ class HearingRecordingControllerTest {
         String folderName = "folder";
         String expectedPath = folderName + File.separator + fileName;
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        when(segmentDownloadService.fetchSegmentByRecordingIdAndFileName(RECORDING_ID, expectedPath)).thenReturn(segment);
+        when(segmentDownloadService
+                 .fetchSegmentByRecordingIdAndFileName(RECORDING_ID, expectedPath)).thenReturn(segment);
 
-        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinaryByFileName(RECORDING_ID, folderName, fileName, null, null);
+        ResponseEntity<Void> result = hearingRecordingController
+            .getSegmentBinaryByFileName(RECORDING_ID, folderName, fileName, null, null);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         verify(segmentDownloadService).fetchSegmentByRecordingIdAndFileName(RECORDING_ID, expectedPath);
@@ -185,10 +196,12 @@ class HearingRecordingControllerTest {
         String folderName = "folder";
         String expectedPath = folderName + File.separator + fileName;
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        when(segmentDownloadService.fetchSegmentByRecordingIdAndFileNameForSharee(RECORDING_ID, expectedPath, AUTH_TOKEN))
+        when(segmentDownloadService
+                 .fetchSegmentByRecordingIdAndFileNameForSharee(RECORDING_ID, expectedPath, AUTH_TOKEN))
             .thenReturn(segment);
 
-        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinaryForShareeByFileName(RECORDING_ID, folderName, fileName, AUTH_TOKEN, null, null);
+        ResponseEntity<Void> result = hearingRecordingController
+            .getSegmentBinaryForShareeByFileName(RECORDING_ID, folderName, fileName, AUTH_TOKEN, null, null);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
@@ -197,10 +210,12 @@ class HearingRecordingControllerTest {
     void getSegmentBinaryForShareeByFileNameWithoutFolderShouldReturnOk() {
         String fileName = "file.mp4";
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        when(segmentDownloadService.fetchSegmentByRecordingIdAndFileNameForSharee(RECORDING_ID, fileName, AUTH_TOKEN))
+        when(segmentDownloadService
+                 .fetchSegmentByRecordingIdAndFileNameForSharee(RECORDING_ID, fileName, AUTH_TOKEN))
             .thenReturn(segment);
 
-        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinaryForShareeByFileName(RECORDING_ID, null, fileName, AUTH_TOKEN, null, null);
+        ResponseEntity<Void> result = hearingRecordingController
+            .getSegmentBinaryForShareeByFileName(RECORDING_ID, null, fileName, AUTH_TOKEN, null, null);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
@@ -208,10 +223,12 @@ class HearingRecordingControllerTest {
     @Test
     void getSegmentBinaryForShareeShouldReturnOk() {
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        when(segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(RECORDING_ID, 1, AUTH_TOKEN, true))
+        when(segmentDownloadService
+                 .fetchSegmentByRecordingIdAndSegmentNumber(RECORDING_ID, 1, AUTH_TOKEN, true))
             .thenReturn(segment);
 
-        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinaryForSharee(RECORDING_ID, 1, AUTH_TOKEN, null, null);
+        ResponseEntity<Void> result = hearingRecordingController
+            .getSegmentBinaryForSharee(RECORDING_ID, 1, AUTH_TOKEN, null, null);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
