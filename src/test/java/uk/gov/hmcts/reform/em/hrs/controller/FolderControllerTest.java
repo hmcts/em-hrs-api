@@ -1,74 +1,63 @@
 package uk.gov.hmcts.reform.em.hrs.controller;
 
-import net.javacrumbs.jsonunit.core.Option;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MvcResult;
-import uk.gov.hmcts.reform.em.hrs.componenttests.AbstractBaseTest;
-import uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import uk.gov.hmcts.reform.em.hrs.dto.RecordingFilenameDto;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
 
+import java.util.Collections;
 import java.util.Set;
 
-import static java.util.Collections.emptySet;
-import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
-import static net.javacrumbs.jsonunit.assertj.JsonAssertions.json;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.when;
 
-class FolderControllerTest extends AbstractBaseTest {
+@ExtendWith(MockitoExtension.class)
+class FolderControllerTest {
 
-    private static final String TEST_FOLDER = "folder-1";
-
-    @MockitoBean
+    @Mock
     private FolderService folderService;
 
+    @InjectMocks
+    private FolderController folderController;
 
     @Test
-    void testWhenRequestedFolderDoesNotExistOrIsEmpty() throws Exception {
-        final String path = "/folders/" + TEST_FOLDER;
-        doReturn(emptySet()).when(folderService).getStoredFiles(TEST_FOLDER);
+    void getFilenamesShouldReturnFilenamesWhenFolderExists() {
+        String folderName = "folder-1";
+        Set<String> files = Set.of("file1.mp4", "file2.mp4");
 
-        final MvcResult mvcResult = mockMvc.perform(get(path).accept(APPLICATION_JSON_VALUE))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-            .andReturn();
+        when(folderService.getStoredFiles(folderName)).thenReturn(files);
 
-        final String content = mvcResult.getResponse().getContentAsString();
+        ResponseEntity<RecordingFilenameDto> response = folderController.getFilenames(folderName);
 
-        assertThatJson(content)
-            .when(Option.IGNORING_ARRAY_ORDER)
-            .and(
-                x -> x.node("folder-name").isPresent().isEqualTo(TEST_FOLDER),
-                x -> x.node("filenames").isArray().isEmpty()
-            );
-        verify(folderService, times(1)).getStoredFiles(TEST_FOLDER);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getFolderName()).isEqualTo(folderName);
+        assertThat(response.getBody().getFilenames()).containsExactlyInAnyOrder("file1.mp4", "file2.mp4");
+
+        verify(folderService).getStoredFiles(folderName);
     }
 
     @Test
-    void testWhenRequestedFolderHasStoredFiles() throws Exception {
-        final String path = "/folders/" + TEST_FOLDER;
-        doReturn(Set.of(TestUtil.FILENAME_1, TestUtil.FILENAME_2)).when(folderService).getStoredFiles(TEST_FOLDER);
+    void getFilenamesShouldReturnEmptySetWhenNoFilesExist() {
+        String folderName = "folder-empty";
 
-        final MvcResult mvcResult = mockMvc.perform(get(path).accept(APPLICATION_JSON_VALUE))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-            .andReturn();
+        when(folderService.getStoredFiles(folderName)).thenReturn(Collections.emptySet());
 
-        final String content = mvcResult.getResponse().getContentAsString();
+        ResponseEntity<RecordingFilenameDto> response = folderController.getFilenames(folderName);
 
-        assertThatJson(content)
-            .when(Option.IGNORING_ARRAY_ORDER)
-            .and(
-                x -> x.node("folder-name").isEqualTo(TEST_FOLDER),
-                x -> x.node("filenames").isArray().isEqualTo(json("[\"file-1.mp4\",\"file-2.mp4\"]"))
-            );
-        verify(folderService, times(1)).getStoredFiles(TEST_FOLDER);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getFolderName()).isEqualTo(folderName);
+        assertThat(response.getBody().getFilenames()).isEmpty();
+
+        verify(folderService).getStoredFiles(folderName);
     }
-
 }

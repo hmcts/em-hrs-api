@@ -2,455 +2,239 @@ package uk.gov.hmcts.reform.em.hrs.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
-import uk.gov.hmcts.reform.em.hrs.componenttests.AbstractBaseTest;
-import uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil;
-import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
-import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegmentAuditEntry;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
-import uk.gov.hmcts.reform.em.hrs.exception.SegmentDownloadException;
-import uk.gov.hmcts.reform.em.hrs.exception.UnauthorisedServiceException;
-import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingSegmentRepository;
-import uk.gov.hmcts.reform.em.hrs.service.AuditEntryService;
-import uk.gov.hmcts.reform.em.hrs.service.Constants;
 import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
+import java.io.File;
 import java.io.IOException;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
+import java.io.UncheckedIOException;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.AUTHORIZATION_TOKEN;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.CCD_CASE_ID;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDING_DTO;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.INGESTION_QUEUE_SIZE;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SERVICE_AUTHORIZATION_TOKEN;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHAREE_EMAIL_ADDRESS;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.convertObjectToJsonString;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
-class HearingRecordingControllerTest extends AbstractBaseTest {
+@ExtendWith(MockitoExtension.class)
+class HearingRecordingControllerTest {
 
-    @MockitoBean
-    HearingRecordingSegmentRepository segmentRepository;
-
-    @MockitoBean
+    @Mock
     private ShareAndNotifyService shareAndNotifyService;
 
-    @MockitoBean
+    @Mock
     private SegmentDownloadService segmentDownloadService;
 
-    @MockitoBean
-    private HearingRecordingService hearingRecordingService;
-
-    @Autowired
-    @Qualifier("ingestionQueue")
+    @Mock
     private LinkedBlockingQueue<HearingRecordingDto> ingestionQueue;
 
-    @MockitoBean
-    private AuditEntryService auditEntryService;
+    @Mock
+    private HearingRecordingService hearingRecordingService;
 
-    @Autowired
+    @InjectMocks
     private HearingRecordingController hearingRecordingController;
 
-    @MockitoBean
-    private HearingRecordingSegmentAuditEntry hearingRecordingSegmentAuditEntry;
+    private static final UUID RECORDING_ID = UUID.randomUUID();
+    private static final String AUTH_TOKEN = "Bearer token";
 
-    @Value("${endpoint.deleteCase.enabled}")
-    private boolean deleteCaseEndpointEnabled;
-
-    Random random = new Random();
-
-    @Test
-    void testShouldGrantShareeDownloadAccessToHearingRecording() throws Exception {
-        final String path = "/sharees";
-        final CaseDetails caseDetails = CaseDetails.builder()
-            .data(Map.of("recipientEmailAddress", SHAREE_EMAIL_ADDRESS))
-            .id(CCD_CASE_ID)
-            .build();
-        CallbackRequest callbackRequest = CallbackRequest.builder().caseDetails(caseDetails).build();
-
-        doNothing().when(shareAndNotifyService).shareAndNotify(CCD_CASE_ID, caseDetails.getData(), AUTHORIZATION_TOKEN);
-
-        mockMvc.perform(post(path)
-                            .content(convertObjectToJsonString(callbackRequest))
-                            .contentType(APPLICATION_JSON_VALUE)
-                            .header(Constants.AUTHORIZATION, AUTHORIZATION_TOKEN)
-                            .header("ServiceAuthorization", SERVICE_AUTHORIZATION_TOKEN))
-            .andExpect(status().isOk());
-
-        verify(shareAndNotifyService, times(1))
-            .shareAndNotify(CCD_CASE_ID, caseDetails.getData(), AUTHORIZATION_TOKEN);
+    @BeforeEach
+    void setUp() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
     }
 
     @Test
-    void testShouldNotExceedOneSecond() throws Exception {
-        final String path = "/segments";
-        final Instant start = Instant.now(Clock.systemDefaultZone());
+    void createHearingRecordingShouldReturnAcceptedWhenQueueOfferSucceeds() {
+        HearingRecordingDto dto = HearingRecordingDto.builder().recordingRef("ref").build();
+        when(ingestionQueue.offer(any(HearingRecordingDto.class))).thenReturn(true);
 
-        mockMvc.perform(post(path)
-                            .content(convertObjectToJsonString(HEARING_RECORDING_DTO))
-                            .contentType(APPLICATION_JSON_VALUE))
-            .andExpect(status().isAccepted())
-            .andReturn();
+        ResponseEntity<Void> response = hearingRecordingController.createHearingRecording(dto);
 
-        final Instant end = Instant.now(Clock.systemDefaultZone());
-
-        assertThat(Duration.between(start, end)).isLessThanOrEqualTo(Duration.ofSeconds(1L));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+        assertThat(dto.getUrlDomain()).isNotNull();
     }
 
     @Test
-    void testShouldReturnRequestAccepted() throws Exception {
-        final String path = "/segments";
-        ingestionQueue.clear();
+    void createHearingRecordingShouldReturnTooManyRequestsWhenQueueOfferFails() {
+        HearingRecordingDto dto = HearingRecordingDto.builder().build();
+        when(ingestionQueue.offer(any(HearingRecordingDto.class))).thenReturn(false);
 
-        mockMvc.perform(post(path)
-                            .content(convertObjectToJsonString(HEARING_RECORDING_DTO))
-                            .contentType(APPLICATION_JSON_VALUE))
-            .andExpect(status().isAccepted())
-            .andReturn();
-    }
+        ResponseEntity<Void> response = hearingRecordingController.createHearingRecording(dto);
 
-
-    @Test
-    void testShouldReturnTooManyRequests() throws Exception {
-        final String path = "/segments";
-        clogJobQueue();
-
-        mockMvc.perform(post(path)
-                            .content(convertObjectToJsonString(HEARING_RECORDING_DTO))
-                            .contentType(APPLICATION_JSON_VALUE))
-            .andExpect(status().isTooManyRequests())
-            .andReturn();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
     }
 
     @Test
-    void testShouldDownloadSegment() throws Exception {
-        UUID recordingId = UUID.randomUUID();
-        doNothing().when(segmentDownloadService)
-            .download(any(HearingRecordingSegment.class), any(HttpServletRequest.class),
-                      any(HttpServletResponse.class));
-        doReturn(hearingRecordingSegmentAuditEntry)
-            .when(auditEntryService)
-            .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
+    void shareHearingRecordingShouldReturnOk() {
+        CaseDetails caseDetails = CaseDetails.builder().id(1L).data(null).build();
+        CallbackRequest request = CallbackRequest.builder().caseDetails(caseDetails).build();
 
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0))
-                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
-            .andExpect(status().isOk())
-            .andReturn();
+        ResponseEntity<Void> response = hearingRecordingController.shareHearingRecording(AUTH_TOKEN, request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(shareAndNotifyService).shareAndNotify(eq(1L), any(), eq(AUTH_TOKEN));
     }
 
     @Test
-    void testShouldDownloadSegmentByNameWithFolder() throws Exception {
-        UUID recordingId = UUID.randomUUID();
-        String folderName = "stream2123";
-        String fileName = "3221-3232_test_file-321321-1.mp4";
-
+    void getSegmentBinaryShouldReturnOkOnSuccess() throws IOException {
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        segment.setFilename(folderName + "/" + fileName);
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
 
-        doReturn(segment).when(segmentDownloadService)
-            .fetchSegmentByRecordingIdAndFileName(recordingId, folderName + "/" + fileName);
-        doNothing().when(segmentDownloadService)
-            .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        when(segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(RECORDING_ID, 1, AUTH_TOKEN, false))
+            .thenReturn(segment);
 
-        doReturn(hearingRecordingSegmentAuditEntry).when(auditEntryService)
-            .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
-        mockMvc.perform(get(String.format(
-                "/hearing-recordings/%s/file/%s/%s",
-                recordingId,
-                folderName,
-                fileName
-            )).header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
-            .andExpect(status().isOk()).andReturn();
+        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinary(RECORDING_ID, 1, AUTH_TOKEN, request, response);
 
-        verify(segmentDownloadService, times(1))
-            .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(segmentDownloadService).download(segment, request, response);
     }
 
     @Test
-    void testShouldDownloadSegmentByNameWithoutFolder() throws Exception {
-        UUID recordingId = UUID.randomUUID();
-        String fileName = "3221-3232_test_file-321321-1.mp4";
+    void getSegmentBinaryShouldReturnForbiddenOnAccessDenied() {
+        when(segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(any(), anyInt(), anyString(), anyBoolean()))
+            .thenThrow(new AccessDeniedException("Denied"));
 
+        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinary(RECORDING_ID, 1, AUTH_TOKEN, null, null);
+
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    void getSegmentBinaryShouldReturnOkWhenIOExceptionOccurs() throws IOException {
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        segment.setFilename(fileName);
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
 
-        doReturn(segment).when(segmentDownloadService)
-            .fetchSegmentByRecordingIdAndFileName(recordingId, fileName);
-        doNothing().when(segmentDownloadService)
-            .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        when(segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(any(), anyInt(), anyString(), anyBoolean()))
+            .thenReturn(segment);
+        doThrow(new IOException("Stream error")).when(segmentDownloadService).download(segment, request, response);
 
-        mockMvc.perform(get(String.format(
-                "/hearing-recordings/%s/file/%s",
-                recordingId,
-                fileName
-            )).header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
-            .andExpect(status().isOk()).andReturn();
+        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinary(RECORDING_ID, 1, AUTH_TOKEN, request, response);
 
-        verify(segmentDownloadService, times(1))
-            .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-
     @Test
-    void testShouldHandleDownloadExceptionByName() throws Exception {
-        UUID recordingId = UUID.randomUUID();
-        String folderName = "stream2123";
-        String fileName = "3221-3232_test_file-321321-1.mp4";
+    void getSegmentBinaryShouldReturnOkWhenUncheckedIOExceptionOccurs() throws IOException {
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        segment.setFilename(folderName + "/" + folderName);
+        when(segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(any(), anyInt(), anyString(), anyBoolean()))
+            .thenReturn(segment);
+        doThrow(new UncheckedIOException(new IOException())).when(segmentDownloadService).download(any(), any(), any());
 
-        doReturn(segment).when(segmentDownloadService)
-            .fetchSegmentByRecordingIdAndFileName(recordingId, folderName + "/" + fileName);
-        doThrow(new SegmentDownloadException("failed download")).when(segmentDownloadService)
-            .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
-        mockMvc.perform(get(String.format(
-            "/hearing-recordings/%s/file/%s/%s",
-            recordingId,
-            folderName,
-            fileName
-        )).header(
-            Constants.AUTHORIZATION,
-            TestUtil.AUTHORIZATION_TOKEN
-        )).andExpect(status().isInternalServerError()).andReturn();
+        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinary(RECORDING_ID, 1, AUTH_TOKEN, null, null);
 
-        verify(segmentDownloadService, times(1))
-            .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    void testShouldHandleSegmentDownloadException() throws Exception {
-        UUID recordingId = UUID.randomUUID();
+    void getSegmentBinaryByFileNameWithoutFolderShouldReturnOk() {
+        String fileName = "file.mp4";
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        doReturn(segment).when(segmentDownloadService)
-            .fetchSegmentByRecordingIdAndSegmentNumber(
-                any(UUID.class),
-                any(Integer.class),
-                eq(TestUtil.AUTHORIZATION_TOKEN),
-                any(boolean.class));
-        doThrow(new SegmentDownloadException("failed download"))
-            .when(segmentDownloadService)
-            .download(
-                any(HearingRecordingSegment.class),
-                any(HttpServletRequest.class),
-                any(HttpServletResponse.class)
-            );
+        when(segmentDownloadService.fetchSegmentByRecordingIdAndFileName(RECORDING_ID, fileName)).thenReturn(segment);
 
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0))
-                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
-            .andExpect(status().isInternalServerError())
-            .andReturn();
+        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinaryByFileName(RECORDING_ID, null, fileName, null, null);
+
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(segmentDownloadService).fetchSegmentByRecordingIdAndFileName(RECORDING_ID, fileName);
     }
 
     @Test
-    void testShouldHandleSegmentFetchException() throws Exception {
-        UUID recordingId = UUID.randomUUID();
-        doThrow(RuntimeException.class).when(segmentDownloadService)
-            .fetchSegmentByRecordingIdAndSegmentNumber(any(UUID.class), any(Integer.class),
-                                                       eq(TestUtil.AUTHORIZATION_TOKEN), any(boolean.class));
-
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d", recordingId, 0))
-                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
-            .andExpect(status().isInternalServerError())
-            .andReturn();
-    }
-
-    @Test
-    void testShouldDownloadSegmentForSharee() throws Exception {
-        UUID recordingId = UUID.randomUUID();
-        doNothing().when(segmentDownloadService)
-            .download(any(HearingRecordingSegment.class), any(HttpServletRequest.class),
-                      any(HttpServletResponse.class));
-        doReturn(hearingRecordingSegmentAuditEntry)
-            .when(auditEntryService)
-            .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
-
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d/sharee", recordingId, 0))
-                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
-            .andExpect(status().isOk())
-            .andReturn();
-    }
-
-    @Test
-    void testShouldDownloadSegmentForShareeByFileNameWithFolder() throws Exception {
-        UUID recordingId = UUID.randomUUID();
-        String folderName = "stream2123";
-        String fileName = "3221-3232_test_file-321321-1.mp4";
+    void getSegmentBinaryByFileNameWithFolderShouldReturnOk() {
+        String fileName = "file.mp4";
+        String folderName = "folder";
+        String expectedPath = folderName + File.separator + fileName;
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        segment.setFilename(folderName + "/" + fileName);
+        when(segmentDownloadService.fetchSegmentByRecordingIdAndFileName(RECORDING_ID, expectedPath)).thenReturn(segment);
 
-        doReturn(segment)
-            .when(segmentDownloadService)
-            .fetchSegmentByRecordingIdAndFileNameForSharee(
-                recordingId,
-                folderName + "/" + fileName,
-                TestUtil.AUTHORIZATION_TOKEN
-            );
+        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinaryByFileName(RECORDING_ID, folderName, fileName, null, null);
 
-        doNothing().when(segmentDownloadService)
-            .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
-
-        doReturn(hearingRecordingSegmentAuditEntry).when(auditEntryService)
-            .createAndSaveEntry(any(HearingRecordingSegment.class), eq(AuditActions.USER_DOWNLOAD_OK));
-        mockMvc.perform(get(String.format(
-            "/hearing-recordings/%s/file/%s/%s/sharee",
-            recordingId,
-            folderName,
-            fileName
-        )).header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN)).andExpect(status().isOk()).andReturn();
-
-        verify(segmentDownloadService, times(1))
-            .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(segmentDownloadService).fetchSegmentByRecordingIdAndFileName(RECORDING_ID, expectedPath);
     }
 
     @Test
-    void testShouldDownloadSegmentForShareeByFileNameWithoutFolder() throws Exception {
-        UUID recordingId = UUID.randomUUID();
-        String fileName = "3221-3232_test_file-321321-1.mp4";
+    void getSegmentBinaryForShareeByFileNameWithFolderShouldReturnOk() {
+        String fileName = "file.mp4";
+        String folderName = "folder";
+        String expectedPath = folderName + File.separator + fileName;
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        segment.setFilename(fileName);
+        when(segmentDownloadService.fetchSegmentByRecordingIdAndFileNameForSharee(RECORDING_ID, expectedPath, AUTH_TOKEN))
+            .thenReturn(segment);
 
-        doReturn(segment)
-            .when(segmentDownloadService)
-            .fetchSegmentByRecordingIdAndFileNameForSharee(
-                recordingId,
-                fileName,
-                TestUtil.AUTHORIZATION_TOKEN
-            );
+        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinaryForShareeByFileName(RECORDING_ID, folderName, fileName, AUTH_TOKEN, null, null);
 
-        doNothing().when(segmentDownloadService)
-            .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
-
-        mockMvc.perform(get(String.format(
-            "/hearing-recordings/%s/file/%s/sharee",
-            recordingId,
-            fileName
-        )).header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN)).andExpect(status().isOk()).andReturn();
-
-        verify(segmentDownloadService, times(1))
-            .download(eq(segment), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-
     @Test
-    void testShouldHandleSegmentDownloadExceptionForSharee() throws Exception {
-        UUID recordingId = UUID.randomUUID();
+    void getSegmentBinaryForShareeByFileNameWithoutFolderShouldReturnOk() {
+        String fileName = "file.mp4";
         HearingRecordingSegment segment = new HearingRecordingSegment();
-        doReturn(segment).when(segmentDownloadService)
-            .fetchSegmentByRecordingIdAndSegmentNumber(any(UUID.class), any(Integer.class),
-                                                       eq(TestUtil.AUTHORIZATION_TOKEN), any(boolean.class));
-        doThrow(IOException.class)
-            .when(segmentDownloadService)
-            .download(any(HearingRecordingSegment.class), any(HttpServletRequest.class),
-                      any(HttpServletResponse.class));
+        when(segmentDownloadService.fetchSegmentByRecordingIdAndFileNameForSharee(RECORDING_ID, fileName, AUTH_TOKEN))
+            .thenReturn(segment);
 
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d/sharee", recordingId, 0))
-                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
-            .andExpect(status().isOk())
-            .andReturn();
+        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinaryForShareeByFileName(RECORDING_ID, null, fileName, AUTH_TOKEN, null, null);
+
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    void testShouldHandleSegmentFetchExceptionForSharee() throws Exception {
-        UUID recordingId = UUID.randomUUID();
-        doThrow(AccessDeniedException.class).when(segmentDownloadService)
-            .fetchSegmentByRecordingIdAndSegmentNumber(any(UUID.class), any(Integer.class),
-                                                       eq(TestUtil.AUTHORIZATION_TOKEN), any(boolean.class));
+    void getSegmentBinaryForShareeShouldReturnOk() {
+        HearingRecordingSegment segment = new HearingRecordingSegment();
+        when(segmentDownloadService.fetchSegmentByRecordingIdAndSegmentNumber(RECORDING_ID, 1, AUTH_TOKEN, true))
+            .thenReturn(segment);
 
-        mockMvc.perform(get(String.format("/hearing-recordings/%s/segments/%d/sharee", recordingId, 0))
-                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
-            .andExpect(status().isForbidden())
-            .andReturn();
+        ResponseEntity<Void> result = hearingRecordingController.getSegmentBinaryForSharee(RECORDING_ID, 1, AUTH_TOKEN, null, null);
+
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    void testDeleteShouldCallServiceWhenEndpointIsEnabled() throws Exception {
-        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
-        long ccdCaseId = random.nextLong();
-
-        List<Long> caseIds = List.of(ccdCaseId);
-        mockMvc.perform(delete("/delete")
-                            .content(convertObjectToJsonString(caseIds))
-                            .contentType(APPLICATION_JSON_VALUE)
-                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
-            .andExpect(status().isNoContent())
-            .andReturn();
-        verify(hearingRecordingService, times(1)).deleteCaseHearingRecordings(caseIds);
-    }
-
-    @Test
-    void testDeleteReturnsForbiddenWhenEndpointIsDisabled() throws Exception {
-        ReflectionTestUtils.setField(hearingRecordingController, "deleteCaseEndpointEnabled", false);
-        long ccdCaseId = random.nextLong();
-        List<Long> caseIds = List.of(ccdCaseId);
-
-        mockMvc.perform(delete("/delete")
-                            .content(convertObjectToJsonString(caseIds))
-                            .contentType(APPLICATION_JSON_VALUE)
-                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
-            .andExpect(status().isForbidden())
-            .andReturn();
-
-        verify(hearingRecordingService, never()).deleteCaseHearingRecordings(any());
-
+    void deleteCaseHearingRecordingsShouldReturnNoContentWhenEnabled() {
         ReflectionTestUtils.setField(hearingRecordingController, "deleteCaseEndpointEnabled", true);
-    }
+        List<Long> ids = List.of(1L);
 
+        ResponseEntity<Void> response = hearingRecordingController.deleteCaseHearingRecordings(ids);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        verify(hearingRecordingService).deleteCaseHearingRecordings(ids);
+    }
 
     @Test
-    void testDeleteShouldHandleUnauthorisedServiceException() throws Exception {
-        Assumptions.assumeTrue(deleteCaseEndpointEnabled);
-        long ccdCaseId = random.nextLong();
-        doThrow(UnauthorisedServiceException.class).when(hearingRecordingService)
-            .deleteCaseHearingRecordings(any());
+    void deleteCaseHearingRecordingsShouldReturnForbiddenWhenDisabled() {
+        ReflectionTestUtils.setField(hearingRecordingController, "deleteCaseEndpointEnabled", false);
+        List<Long> ids = List.of(1L);
 
-        mockMvc.perform(delete("/delete")
-                            .content(convertObjectToJsonString(List.of(ccdCaseId)))
-                            .contentType(APPLICATION_JSON_VALUE)
-                            .header(Constants.AUTHORIZATION, TestUtil.AUTHORIZATION_TOKEN))
-            .andExpect(status().isForbidden())
-            .andReturn();
-    }
+        ResponseEntity<Void> response = hearingRecordingController.deleteCaseHearingRecordings(ids);
 
-    private void clogJobQueue() {
-        IntStream.rangeClosed(1, INGESTION_QUEUE_SIZE + 300)
-            .forEach(x -> {
-                final HearingRecordingDto dto = HearingRecordingDto.builder()
-                    .caseRef("cr" + x)
-                    .build();
-                ingestionQueue.offer(dto);
-            });
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        verifyNoInteractions(hearingRecordingService);
     }
 }

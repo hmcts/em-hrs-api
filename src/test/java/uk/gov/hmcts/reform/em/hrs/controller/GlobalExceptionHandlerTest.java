@@ -1,159 +1,83 @@
 package uk.gov.hmcts.reform.em.hrs.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
-import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
-import uk.gov.hmcts.reform.em.hrs.componenttests.AbstractBaseTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.em.hrs.exception.EmailNotificationException;
 import uk.gov.hmcts.reform.em.hrs.exception.HearingRecordingNotFoundException;
 import uk.gov.hmcts.reform.em.hrs.exception.InvalidApiKeyException;
 import uk.gov.hmcts.reform.em.hrs.exception.UnauthorisedServiceException;
 import uk.gov.hmcts.reform.em.hrs.exception.ValidationErrorException;
-import uk.gov.hmcts.reform.em.hrs.service.FolderService;
-import uk.gov.hmcts.reform.em.hrs.service.ShareAndNotifyService;
 
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doThrow;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.AUTHORIZATION_TOKEN;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.CCD_CASE_ID;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SERVER_ERROR_MESSAGE;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SERVICE_AUTHORIZATION_TOKEN;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.SHAREE_EMAIL_ADDRESS;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.convertObjectToJsonString;
 
-class GlobalExceptionHandlerTest extends AbstractBaseTest {
-    @MockitoBean
-    private FolderService folderService;
+class GlobalExceptionHandlerTest {
 
-    @MockitoBean
-    private ShareAndNotifyService shareService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
     @Test
-    void testShouldReturnNotFoundWithMessageWhenHearingRecordingNotFoundExceptionIsRaised() throws Exception {
-        final String path = "/sharees";
-        final String expectedMessage = String.format(
-            "Hearing Recording with CcdCaseId: %s is not be found",
-            CCD_CASE_ID
-        );
-        final CaseDetails caseDetails = CaseDetails.builder()
-            .data(Map.of("recipientEmailAddress", SHAREE_EMAIL_ADDRESS))
-            .id(CCD_CASE_ID)
-            .build();
-        final CallbackRequest callbackRequest = CallbackRequest.builder().caseDetails(caseDetails).build();
+    void handleNotFoundExceptionsShouldReturnNotFoundStatus() {
+        long hearingId = 123L;
+        HearingRecordingNotFoundException exception = new HearingRecordingNotFoundException(hearingId);
 
-        doThrow(new HearingRecordingNotFoundException(CCD_CASE_ID)).when(shareService)
-            .shareAndNotify(CCD_CASE_ID, caseDetails.getData(), AUTHORIZATION_TOKEN);
+        ResponseEntity<String> response = handler.handleNotFoundExceptions(exception);
 
-        final MvcResult mvcResult = mockMvc.perform(post(path)
-                                                        .content(convertObjectToJsonString(callbackRequest))
-                                                        .contentType(APPLICATION_JSON_VALUE)
-                                                        .header("Authorization", AUTHORIZATION_TOKEN)
-                                                        .header("ServiceAuthorization", SERVICE_AUTHORIZATION_TOKEN))
-            .andExpect(status().isNotFound())
-            .andExpect(MockMvcResultMatchers.content().string(expectedMessage))
-            .andReturn();
-
-        assertThat(mvcResult).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
-    void testShouldReturnBadRequestWithValidationErrorsWhenValidationErrorExceptionIsRaised() throws Exception {
-        final String path = "/sharees";
-        final Map<String, Object> expectedErrors = Map.of("email", "must be a valid email address");
-        final CaseDetails caseDetails = CaseDetails.builder()
-            .data(Map.of("recipientEmailAddress", "invalid-email"))
-            .id(CCD_CASE_ID)
-            .build();
-        final CallbackRequest callbackRequest = CallbackRequest.builder().caseDetails(caseDetails).build();
+    void handleValidationExceptionsShouldReturnBadRequestAndData() {
+        Map<String, Object> validationErrors = Map.of("field1", "error1");
+        ValidationErrorException exception = new ValidationErrorException(validationErrors);
 
-        doThrow(new ValidationErrorException(expectedErrors)).when(shareService)
-            .shareAndNotify(CCD_CASE_ID, caseDetails.getData(), AUTHORIZATION_TOKEN);
+        ResponseEntity<Map<String, Object>> response = handler.handleValidationExceptions(exception);
 
-        mockMvc.perform(post(path)
-                            .content(objectMapper.writeValueAsString(callbackRequest))
-                            .contentType(APPLICATION_JSON_VALUE)
-                            .header("Authorization", AUTHORIZATION_TOKEN)
-                            .header("ServiceAuthorization", SERVICE_AUTHORIZATION_TOKEN))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.email").value("must be a valid email address"));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isEqualTo(validationErrors);
     }
 
     @Test
-    void testShouldReturnInternalServerErrorWithMessageWhenNotificationClientExceptionIsRaised() throws Exception {
-        final String path = "/sharees";
-        final CaseDetails caseDetails = CaseDetails.builder()
-            .data(Map.of("recipientEmailAddress", SHAREE_EMAIL_ADDRESS))
-            .id(CCD_CASE_ID)
-            .build();
-        CallbackRequest callbackRequest = CallbackRequest.builder().caseDetails(caseDetails).build();
+    void handleEmailNotificationExceptionShouldReturnInternalServerError() {
+        Exception cause = new Exception("Connection failed");
+        EmailNotificationException exception = new EmailNotificationException(cause);
 
-        doThrow(EmailNotificationException.class).when(shareService)
-            .shareAndNotify(CCD_CASE_ID, caseDetails.getData(), AUTHORIZATION_TOKEN);
+        ResponseEntity<String> response = handler.handleEmailNotificationException(exception);
 
-        final MvcResult mvcResult = mockMvc.perform(post(path)
-                                                        .content(convertObjectToJsonString(callbackRequest))
-                                                        .contentType(APPLICATION_JSON_VALUE)
-                                                        .header("Authorization", AUTHORIZATION_TOKEN)
-                                                        .header("ServiceAuthorization", SERVICE_AUTHORIZATION_TOKEN))
-            .andExpect(status().isInternalServerError())
-            .andExpect(MockMvcResultMatchers.content().string(SERVER_ERROR_MESSAGE))
-            .andReturn();
-
-        assertThat(mvcResult).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(response.getBody())
+            .contains("We have detected a problem and our engineers are working on it");
     }
 
     @Test
-    void testShouldReturnInternalServerErrorWithMessageToCatchAllOtherExceptions() throws Exception {
-        final String testFolder = "folder-1";
-        final String path = "/folders/" + testFolder;
-        doThrow(RuntimeException.class).when(folderService).getStoredFiles(testFolder);
+    void handleCatchAllExceptionsShouldReturnInternalServerError() {
+        RuntimeException exception = new RuntimeException("Unexpected error");
 
-        final MvcResult mvcResult = mockMvc.perform(get(path).accept(APPLICATION_JSON_VALUE))
-            .andExpect(status().isInternalServerError())
-            .andExpect(MockMvcResultMatchers.content().string(SERVER_ERROR_MESSAGE))
-            .andReturn();
+        ResponseEntity<String> response = handler.handleCatchAllExceptions(exception);
 
-        assertThat(mvcResult).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(response.getBody())
+            .contains("We have detected a problem and our engineers are working on it");
     }
 
     @Test
-    void testShouldReturnUnauthorizedWhenInvalidApiKeyExceptionIsRaised() throws Exception {
-        final String testFolder = "folder-2";
-        final String path = "/folders/" + testFolder;
-        final String expectedMessage = "Invalid API Key provided";
+    void handleInvalidApiKeyExceptionShouldReturnUnauthorized() {
+        InvalidApiKeyException exception = new InvalidApiKeyException("Invalid API Key");
 
-        doThrow(new InvalidApiKeyException(expectedMessage)).when(folderService).getStoredFiles(testFolder);
+        ResponseEntity<String> response = handler.handleInvalidApiKeyException(exception);
 
-        mockMvc.perform(get(path).accept(APPLICATION_JSON_VALUE))
-            .andExpect(status().isUnauthorized())
-            .andExpect(MockMvcResultMatchers.content().string(expectedMessage));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getBody()).isEqualTo("Invalid API Key");
     }
 
     @Test
-    void testShouldReturnForbiddenWhenUnauthorisedServiceExceptionIsRaised() throws Exception {
-        final String testFolder = "folder-3";
-        final String path = "/folders/" + testFolder;
-        final String expectedMessage = "Service not authorised to make this request";
+    void handleUnauthorisedServiceExceptionShouldReturnForbidden() {
+        UnauthorisedServiceException exception = new UnauthorisedServiceException("Service not allowed");
 
-        doThrow(new UnauthorisedServiceException(expectedMessage)).when(folderService).getStoredFiles(testFolder);
+        ResponseEntity<String> response = handler.handleUnauthorisedServiceException(exception);
 
-        mockMvc.perform(get(path).accept(APPLICATION_JSON_VALUE))
-            .andExpect(status().isForbidden())
-            .andExpect(MockMvcResultMatchers.content().string(expectedMessage));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody()).isEqualTo("Service not allowed");
     }
 }

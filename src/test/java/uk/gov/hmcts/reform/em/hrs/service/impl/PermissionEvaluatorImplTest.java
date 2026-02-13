@@ -2,16 +2,13 @@ package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
@@ -21,159 +18,183 @@ import uk.gov.hmcts.reform.em.hrs.service.AuditEntryService;
 import uk.gov.hmcts.reform.em.hrs.service.SecurityService;
 import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-@TestPropertySource(properties = "hrs.allowed-roles.value=[caseworker-hrs-searcher]")
-@SpringBootTest(classes = {PermissionEvaluatorImpl.class})
+@ExtendWith(MockitoExtension.class)
 class PermissionEvaluatorImplTest {
 
-    @MockitoBean
+    private static final String ALLOWED_ROLE = "caseworker-hrs";
+    private static final String FORBIDDEN_ROLE = "citizen";
+    private static final String TOKEN_VALUE = "token-value";
+    private static final String USER_EMAIL = "user@example.com";
+    private static final UUID RECORDING_ID = UUID.randomUUID();
+
+    @Mock
     private SecurityService securityService;
 
-    @MockitoBean
+    @Mock
     private ShareesRepository shareesRepository;
 
-    @MockitoBean
+    @Mock
     private AuditEntryService auditEntryService;
 
+    @Mock
     private JwtAuthenticationToken authentication;
 
-    private static final String USER_ID = UUID.randomUUID().toString();
-    private static final UserInfo HRS_SEARCHER_INFO = UserInfo.builder()
-        .uid(USER_ID)
-        .roles(List.of("caseworker-hrs-searcher"))
-        .build();
-    private static final UserInfo HRS_SHAREE_INFO = UserInfo.builder()
-        .uid(USER_ID)
-        .roles(List.of("caseworker"))
-        .build();
-    private static final UserInfo HRS_NO_ROLES_INFO = UserInfo.builder()
-        .uid(USER_ID)
-        .roles(Collections.emptyList())
-        .build();
-    private static final UUID recordingId = UUID.randomUUID();
-    private static final HearingRecordingSegment segment = HearingRecordingSegment.builder()
-        .hearingRecording(HearingRecording.builder().id(recordingId).build())
-        .build();
-    private final String shareeEmail = "sharee@sharee.com";
-    private List<HearingRecordingSharee> hearingRecordingWithSharee;
-    private final List<HearingRecordingSharee> hearingRecordingWithNoSharees = new ArrayList<>();
+    @Mock
+    private Jwt jwt;
 
-    @Autowired
-    PermissionEvaluatorImpl permissionEvaluator;
+    @InjectMocks
+    private PermissionEvaluatorImpl permissionEvaluator;
 
     @BeforeEach
-    void setup() {
-        Jwt jwt = Jwt.withTokenValue("token")
-            .header("alg", "none")
-            .claim("sub", "user")
+    void setUp() {
+        // Inject allowed roles list (mimicking @Value injection)
+        // Since the field is package-private in the source, we can assign it directly in the test
+        // if the test is in the same package.
+        permissionEvaluator.allowedRoles = List.of(ALLOWED_ROLE);
+    }
+
+    @Test
+    void hasPermissionWhenUserHasAllowedRoleShouldReturnTrue() {
+        setupToken();
+        UserInfo userInfo = mock(UserInfo.class);
+        when(userInfo.getRoles()).thenReturn(List.of(ALLOWED_ROLE, FORBIDDEN_ROLE));
+        when(securityService.getUserInfo("Bearer " + TOKEN_VALUE)).thenReturn(userInfo);
+
+        Object target = new Object(); // Target irrelevant when role is present
+
+        boolean result = permissionEvaluator.hasPermission(authentication, target, "READ");
+
+        assertThat(result).isTrue();
+        verifyNoInteractions(shareesRepository, auditEntryService);
+    }
+
+    @Test
+    void hasPermissionWhenUserHasRolesButNoneAllowedShouldCheckSharees() {
+        setupToken();
+        UserInfo userInfo = mock(UserInfo.class);
+        when(userInfo.getRoles()).thenReturn(List.of(FORBIDDEN_ROLE));
+        when(securityService.getUserInfo("Bearer " + TOKEN_VALUE)).thenReturn(userInfo);
+
+        // Not a segment, so should fail fast after role check
+        boolean result = permissionEvaluator.hasPermission(authentication, "NotASegment", "READ");
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void hasPermissionWhenUserHasNoRolesAndTargetIsNotSegmentShouldReturnFalse() {
+        setupToken();
+        UserInfo userInfo = mock(UserInfo.class);
+        when(userInfo.getRoles()).thenReturn(Collections.emptyList());
+        when(securityService.getUserInfo("Bearer " + TOKEN_VALUE)).thenReturn(userInfo);
+
+        boolean result = permissionEvaluator.hasPermission(authentication, "NotASegment", "READ");
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void hasPermissionWhenTargetIsSegmentAndUserIsShareeShouldReturnTrue() {
+        setupToken();
+        setupUserInfoWithNoAllowedRoles();
+
+        HearingRecording recording = HearingRecording.builder().id(RECORDING_ID).build();
+        HearingRecordingSegment segment = HearingRecordingSegment.builder()
+            .hearingRecording(recording)
             .build();
-        Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("SCOPE_read");
-        authentication = new JwtAuthenticationToken(jwt, authorities);
 
-        HearingRecordingSharee hearingRecordingSharee = new HearingRecordingSharee();
-        HearingRecording hearingRecording = new HearingRecording();
-        hearingRecording.setId(recordingId);
-        hearingRecordingSharee.setHearingRecording(hearingRecording);
-        hearingRecordingWithSharee = List.of(hearingRecordingSharee);
-        setRolesAllowedToDownloadByDefaultToBeCaseworkerHrsSearcher();
+        HearingRecordingSharee sharee = HearingRecordingSharee.builder()
+            .hearingRecording(recording)
+            .shareeEmail(USER_EMAIL)
+            .build();
 
+        when(securityService.getUserEmail("Bearer " + TOKEN_VALUE)).thenReturn(USER_EMAIL);
+        when(shareesRepository.findByShareeEmailIgnoreCase(USER_EMAIL)).thenReturn(List.of(sharee));
+
+        boolean result = permissionEvaluator.hasPermission(authentication, segment, "READ");
+
+        assertThat(result).isTrue();
+        verifyNoInteractions(auditEntryService);
     }
 
     @Test
-    void testPermissionOnDownloadWithSearcherRoleSuccess() {
-        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_SEARCHER_INFO);
-        assertTrue(permissionEvaluator.hasPermission(authentication, null, "READ"));
-    }
+    void hasPermissionWhenTargetIsSegmentButUserIsNotShareeShouldReturnFalseAndAudit() {
+        setupToken();
+        setupUserInfoWithNoAllowedRoles();
 
+        HearingRecording recording = HearingRecording.builder().id(RECORDING_ID).build();
+        HearingRecordingSegment segment = HearingRecordingSegment.builder()
+            .hearingRecording(recording)
+            .build();
 
-    @Test
-    void testPermissionOnDownloadWithCaseWorkerRoleAndNoEmailShareGrantFailure() {
-        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_SHAREE_INFO);
-        assertFalse(permissionEvaluator.hasPermission(authentication, null, "READ"));
-    }
+        when(securityService.getUserEmail("Bearer " + TOKEN_VALUE)).thenReturn(USER_EMAIL);
+        // Repository returns empty list (user has no shared files)
+        when(shareesRepository.findByShareeEmailIgnoreCase(USER_EMAIL)).thenReturn(Collections.emptyList());
 
-    @Test
-    void testPermissionOnDownloadShareeSuccess() {
-        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_SHAREE_INFO);
-        when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
-        when(shareesRepository.findByShareeEmailIgnoreCase(Mockito.anyString())).thenReturn(hearingRecordingWithSharee);
-        assertTrue(permissionEvaluator.hasPermission(authentication, segment, "READ"));
-    }
+        boolean result = permissionEvaluator.hasPermission(authentication, segment, "READ");
 
-    @Test
-    void testPermissionOnDownloadShareeButForDifferentRecordingFailure() {
-        HearingRecordingSharee otherShare = new HearingRecordingSharee();
-        otherShare.setHearingRecording(HearingRecording.builder().id(UUID.randomUUID()).build());
-        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_SHAREE_INFO);
-        when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
-        when(shareesRepository.findByShareeEmailIgnoreCase(Mockito.anyString())).thenReturn(List.of(otherShare));
-
-        boolean permissionResult = permissionEvaluator.hasPermission(authentication, segment, "READ");
-
-        assertFalse(permissionResult);
-        verify(auditEntryService, times(1)).createAndSaveEntry(
-            any(HearingRecordingSegment.class),
-            any(AuditActions.class)
-        );
+        assertThat(result).isFalse();
+        verify(auditEntryService).createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_UNAUTHORIZED);
     }
 
     @Test
-    void testPermissionOnDownloadShareeFailure() {
-        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_SHAREE_INFO);
-        when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
-        when(shareesRepository.findByShareeEmailIgnoreCase(Mockito.anyString()))
-            .thenReturn(hearingRecordingWithNoSharees);
-        boolean permissionResult = permissionEvaluator.hasPermission(authentication, segment, "READ");
-        assertFalse(permissionResult);
-        verify(auditEntryService, times(1)).createAndSaveEntry(
-            any(HearingRecordingSegment.class),
-            any(AuditActions.class)
-        );
+    void hasPermissionWhenTargetIsSegmentButUserIsSharedOnDifferentRecordingShouldReturnFalseAndAudit() {
+        setupToken();
+        setupUserInfoWithNoAllowedRoles();
+
+        HearingRecording requestedRecording = HearingRecording.builder().id(RECORDING_ID).build();
+        HearingRecordingSegment segment = HearingRecordingSegment.builder()
+            .hearingRecording(requestedRecording)
+            .build();
+
+        // User is shared on a DIFFERENT recording
+        HearingRecording differentRecording = HearingRecording.builder().id(UUID.randomUUID()).build();
+        HearingRecordingSharee sharee = HearingRecordingSharee.builder()
+            .hearingRecording(differentRecording)
+            .shareeEmail(USER_EMAIL)
+            .build();
+
+        when(securityService.getUserEmail("Bearer " + TOKEN_VALUE)).thenReturn(USER_EMAIL);
+        when(shareesRepository.findByShareeEmailIgnoreCase(USER_EMAIL)).thenReturn(List.of(sharee));
+
+        boolean result = permissionEvaluator.hasPermission(authentication, segment, "READ");
+
+        assertThat(result).isFalse();
+        verify(auditEntryService).createAndSaveEntry(segment, AuditActions.USER_DOWNLOAD_UNAUTHORIZED);
     }
 
     @Test
-    void testPermissionOnDownloadWithNoRolesAndNoShareGrantFailure() {
-        when(securityService.getUserInfo(Mockito.anyString())).thenReturn(HRS_NO_ROLES_INFO);
-        when(securityService.getUserEmail(Mockito.anyString())).thenReturn(shareeEmail);
-        when(shareesRepository.findByShareeEmailIgnoreCase(Mockito.anyString()))
-            .thenReturn(hearingRecordingWithNoSharees);
+    void hasPermissionSerializableOverloadShouldReturnFalse() {
+        // This covers the second overridden method which simply returns false/logs error
+        Authentication auth = mock(Authentication.class);
+        Serializable id = UUID.randomUUID();
 
-        boolean permissionResult = permissionEvaluator.hasPermission(authentication, segment, "READ");
+        boolean result = permissionEvaluator.hasPermission(auth, id, "ClassName", "READ");
 
-        assertFalse(permissionResult);
-        verify(auditEntryService, times(1)).createAndSaveEntry(
-            any(HearingRecordingSegment.class),
-            any(AuditActions.class)
-        );
+        assertThat(result).isFalse();
     }
 
-
-    @Test
-    void testPermissionOnDownloadFailure() {
-        assertFalse(permissionEvaluator.hasPermission(
-            authentication,
-            null,
-            "uk.gov.hmcts.reform.em.hrs.service"
-                + ".SegmentDownloadServiceImpl",
-            "READ"
-        ));
+    private void setupToken() {
+        when(authentication.getToken()).thenReturn(jwt);
+        when(jwt.getTokenValue()).thenReturn(TOKEN_VALUE);
     }
 
-
-    private void setRolesAllowedToDownloadByDefaultToBeCaseworkerHrsSearcher() {
-        ReflectionTestUtils.setField(permissionEvaluator, "allowedRoles", List.of("caseworker-hrs-searcher"));
+    private void setupUserInfoWithNoAllowedRoles() {
+        UserInfo userInfo = mock(UserInfo.class);
+        when(userInfo.getUid()).thenReturn("user-uid");
+        when(userInfo.getName()).thenReturn("User Name");
+        when(userInfo.getRoles()).thenReturn(List.of(FORBIDDEN_ROLE));
+        when(securityService.getUserInfo("Bearer " + TOKEN_VALUE)).thenReturn(userInfo);
     }
-
 }

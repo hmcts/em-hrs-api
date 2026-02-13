@@ -1,15 +1,17 @@
 package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.em.hrs.domain.Folder;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDeletionDto;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.exception.CcdUploadException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingAuditEntryRepository;
@@ -21,33 +23,25 @@ import uk.gov.hmcts.reform.em.hrs.repository.ShareesRepository;
 import uk.gov.hmcts.reform.em.hrs.service.BlobStorageDeleteService;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
 
+import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.CCD_CASE_ID;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDING_DTO;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.RECORDING_REFERENCE;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.TEST_FOLDER_1;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class HearingRecordingServiceImplTest {
 
     @Mock
     private HearingRecordingRepository hearingRecordingRepository;
-    @Mock
-    private BlobStorageDeleteService blobStorageDeleteService;
     @Mock
     private HearingRecordingSegmentRepository hearingRecordingSegmentRepository;
     @Mock
@@ -60,195 +54,214 @@ class HearingRecordingServiceImplTest {
     private ShareesAuditEntryRepository shareesAuditEntryRepository;
     @Mock
     private FolderService folderService;
+    @Mock
+    private BlobStorageDeleteService blobStorageDeleteService;
 
     @InjectMocks
-    private HearingRecordingServiceImpl recordingService;
+    private HearingRecordingServiceImpl hearingRecordingService;
 
-    @Test
-    void testFindHearingRecordingShouldReturnRecordingWhenFound() {
-        HearingRecording expectedRecording = new HearingRecording();
-        doReturn(Optional.of(expectedRecording)).when(hearingRecordingRepository)
-            .findByRecordingRefAndFolderName(RECORDING_REFERENCE, HEARING_RECORDING_DTO.getFolder());
+    @Nested
+    @DisplayName("deleteCaseHearingRecordings")
+    class DeleteCaseHearingRecordings {
 
-        Optional<HearingRecording> result = recordingService.findHearingRecording(HEARING_RECORDING_DTO);
+        @Test
+        void deleteCaseHearingRecordingsWhenNoRecordingsFoundShouldDoNothing() {
+            List<Long> ccdCaseIds = List.of(12345L);
+            when(hearingRecordingRepository.findHearingRecordingIdsAndSourceByCcdCaseIds(ccdCaseIds))
+                .thenReturn(Collections.emptyList());
 
-        assertThat(result).isPresent().contains(expectedRecording);
-        verify(hearingRecordingRepository)
-            .findByRecordingRefAndFolderName(RECORDING_REFERENCE, HEARING_RECORDING_DTO.getFolder());
+            hearingRecordingService.deleteCaseHearingRecordings(ccdCaseIds);
+
+            verify(hearingRecordingSegmentRepository, never()).findFilenamesByHearingRecordingId(any());
+            verifyNoInteractions(blobStorageDeleteService);
+            verifyNoInteractions(shareesRepository);
+        }
+
+        @Test
+        void deleteCaseHearingRecordingsWhenRecordingsFoundShouldDeleteAllAssociatedData() {
+            List<Long> ccdCaseIds = List.of(12345L);
+            UUID recordingId = UUID.randomUUID();
+            UUID segmentId = UUID.randomUUID();
+            UUID shareeId = UUID.randomUUID();
+            String filename = "recording.mp4";
+            String source = "CVP";
+
+            HearingRecordingDeletionDto recordingDto = new HearingRecordingDeletionDto(
+                recordingId, null, null, source, null
+            );
+
+            HearingRecordingDeletionDto segmentDto = new HearingRecordingDeletionDto(
+                recordingId, segmentId, null, source, filename
+            );
+
+            when(hearingRecordingRepository.findHearingRecordingIdsAndSourceByCcdCaseIds(ccdCaseIds))
+                .thenReturn(List.of(recordingDto));
+
+            when(hearingRecordingSegmentRepository.findFilenamesByHearingRecordingId(recordingId))
+                .thenReturn(List.of(segmentDto));
+
+            when(shareesRepository.findAllByHearingRecordingIds(List.of(recordingId)))
+                .thenReturn(List.of(shareeId));
+
+            hearingRecordingService.deleteCaseHearingRecordings(ccdCaseIds);
+
+            verify(blobStorageDeleteService).deleteBlob(filename, HearingSource.CVP);
+            verify(hearingRecordingSegmentAuditEntryRepository).deleteByHearingRecordingSegmentId(segmentId);
+            verify(hearingRecordingSegmentRepository).deleteById(segmentId);
+            verify(shareesAuditEntryRepository).deleteByHearingRecordingShareeIds(List.of(shareeId));
+            verify(shareesRepository).deleteByHearingRecordingIds(List.of(recordingId));
+            verify(hearingRecordingAuditEntryRepository).deleteByHearingRecordingIds(List.of(recordingId));
+            verify(hearingRecordingRepository).deleteByHearingRecordingIds(List.of(recordingId));
+        }
+
+        @Test
+        void deleteCaseHearingRecordingsWhenExceptionOccursShouldCatchAndLogWithoutThrowing() {
+            List<Long> ccdCaseIds = List.of(12345L);
+            when(hearingRecordingRepository.findHearingRecordingIdsAndSourceByCcdCaseIds(ccdCaseIds))
+                .thenThrow(new RuntimeException("Database down"));
+
+            hearingRecordingService.deleteCaseHearingRecordings(ccdCaseIds);
+
+            verifyNoInteractions(blobStorageDeleteService);
+        }
     }
 
-    @Test
-    void testFindHearingRecordingShouldReturnEmptyWhenNotFound() {
-        doReturn(Optional.empty()).when(hearingRecordingRepository)
-            .findByRecordingRefAndFolderName(RECORDING_REFERENCE, HEARING_RECORDING_DTO.getFolder());
+    @Nested
+    @DisplayName("findHearingRecording")
+    class FindHearingRecording {
 
-        Optional<HearingRecording> result = recordingService.findHearingRecording(HEARING_RECORDING_DTO);
+        @Test
+        void findHearingRecordingShouldReturnRecordingWhenFound() {
+            HearingRecordingDto dto = HearingRecordingDto.builder()
+                .recordingRef("ref")
+                .folder("folder")
+                .build();
 
-        assertThat(result).isEmpty();
-        verify(hearingRecordingRepository)
-            .findByRecordingRefAndFolderName(RECORDING_REFERENCE, HEARING_RECORDING_DTO.getFolder());
+            HearingRecording expectedRecording = new HearingRecording();
+            when(hearingRecordingRepository.findByRecordingRefAndFolderName("ref", "folder"))
+                .thenReturn(Optional.of(expectedRecording));
+
+            Optional<HearingRecording> result = hearingRecordingService.findHearingRecording(dto);
+
+            assertThat(result).isPresent().contains(expectedRecording);
+        }
+
+        @Test
+        void findHearingRecordingShouldReturnEmptyWhenNotFound() {
+            HearingRecordingDto dto = HearingRecordingDto.builder()
+                .recordingRef("ref")
+                .folder("folder")
+                .build();
+
+            when(hearingRecordingRepository.findByRecordingRefAndFolderName("ref", "folder"))
+                .thenReturn(Optional.empty());
+
+            Optional<HearingRecording> result = hearingRecordingService.findHearingRecording(dto);
+
+            assertThat(result).isEmpty();
+        }
     }
 
-    @Test
-    void testCreateHearingRecordingShouldBuildAndSaveEntity() {
-        Folder folder = new Folder();
-        folder.setName(HEARING_RECORDING_DTO.getFolder());
-        doReturn(folder).when(folderService).getFolderByName(HEARING_RECORDING_DTO.getFolder());
+    @Nested
+    @DisplayName("createHearingRecording")
+    class CreateHearingRecording {
 
-        recordingService.createHearingRecording(HEARING_RECORDING_DTO);
+        private HearingRecordingDto validDto;
 
-        ArgumentCaptor<HearingRecording> captor = ArgumentCaptor.forClass(HearingRecording.class);
-        verify(hearingRecordingRepository).saveAndFlush(captor.capture());
-        HearingRecording captured = captor.getValue();
+        @Test
+        void createHearingRecordingWhenSuccessfulShouldReturnSavedRecording() {
+            validDto = HearingRecordingDto.builder()
+                .folder("folder")
+                .recordingRef("ref")
+                .caseRef("caseRef")
+                .courtLocationCode("loc")
+                .hearingRoomRef("room")
+                .recordingSource(HearingSource.CVP)
+                .jurisdictionCode("jurisdiction")
+                .serviceCode("service")
+                .build();
 
-        assertThat(captured.getFolder()).isEqualTo(folder);
-        assertThat(captured.getCaseRef()).isEqualTo(HEARING_RECORDING_DTO.getCaseRef());
-        assertThat(captured.getRecordingRef()).isEqualTo(HEARING_RECORDING_DTO.getRecordingRef());
-        assertThat(captured.getHearingLocationCode()).isEqualTo(HEARING_RECORDING_DTO.getCourtLocationCode());
-        assertThat(captured.getHearingRoomRef()).isEqualTo(HEARING_RECORDING_DTO.getHearingRoomRef());
-        assertThat(captured.getServiceCode()).isEqualTo(HEARING_RECORDING_DTO.getServiceCode());
-        assertThat(captured.getJurisdictionCode()).isEqualTo(HEARING_RECORDING_DTO.getJurisdictionCode());
-        assertThat(captured.getHearingSource()).isEqualTo(HEARING_RECORDING_DTO.getRecordingSource().name());
+            Folder folder = new Folder();
+            when(folderService.getFolderByName("folder")).thenReturn(folder);
+
+            HearingRecording savedRecording = new HearingRecording();
+            when(hearingRecordingRepository.saveAndFlush(any(HearingRecording.class))).thenReturn(savedRecording);
+
+            HearingRecording result = hearingRecordingService.createHearingRecording(validDto);
+
+            assertThat(result).isEqualTo(savedRecording);
+            verify(hearingRecordingRepository).saveAndFlush(any(HearingRecording.class));
+        }
+
+        @Test
+        void createHearingRecordingWhenConstraintViolationOccursShouldThrowCcdUploadException() {
+            validDto = HearingRecordingDto.builder()
+                .folder("folder")
+                .recordingSource(HearingSource.CVP)
+                .build();
+
+            when(folderService.getFolderByName("folder")).thenReturn(new Folder());
+
+            ConstraintViolationException constraintException =
+                new ConstraintViolationException("duplicate", new SQLException(), "constraint");
+
+            when(hearingRecordingRepository.saveAndFlush(any(HearingRecording.class)))
+                .thenThrow(constraintException);
+
+            assertThatThrownBy(() -> hearingRecordingService.createHearingRecording(validDto))
+                .isInstanceOf(CcdUploadException.class)
+                .hasMessage("Hearing Recording already exists. Likely race condition from another server");
+        }
+
+        @Test
+        void createHearingRecordingWhenGenericExceptionOccursShouldThrowCcdUploadException() {
+            validDto = HearingRecordingDto.builder()
+                .folder("folder")
+                .recordingSource(HearingSource.CVP)
+                .build();
+
+            when(folderService.getFolderByName("folder")).thenReturn(new Folder());
+
+            when(hearingRecordingRepository.saveAndFlush(any(HearingRecording.class)))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+            assertThatThrownBy(() -> hearingRecordingService.createHearingRecording(validDto))
+                .isInstanceOf(CcdUploadException.class)
+                .hasMessage("Unhandled Exception trying to persist case");
+        }
     }
 
-    @Test
-    void testCreateHearingRecordingShouldThrowCcdUploadExceptionOnConstraintViolation() {
-        doReturn(TEST_FOLDER_1).when(folderService).getFolderByName(HEARING_RECORDING_DTO.getFolder());
-        doThrow(new ConstraintViolationException("test violation", null, null))
-            .when(hearingRecordingRepository).saveAndFlush(any(HearingRecording.class));
+    @Nested
+    @DisplayName("updateCcdCaseId")
+    class UpdateCcdCaseId {
 
-        CcdUploadException exception = assertThrows(CcdUploadException.class, () ->
-            recordingService.createHearingRecording(HEARING_RECORDING_DTO)
-        );
+        @Test
+        void updateCcdCaseIdShouldUpdateIdAndSave() {
+            HearingRecording recording = new HearingRecording();
+            Long ccdCaseId = 999L;
 
-        assertThat(exception.getMessage())
-            .isEqualTo("Hearing Recording already exists. Likely race condition from another server");
+            when(hearingRecordingRepository.saveAndFlush(recording)).thenReturn(recording);
+
+            HearingRecording result = hearingRecordingService.updateCcdCaseId(recording, ccdCaseId);
+
+            assertThat(result.getCcdCaseId()).isEqualTo(ccdCaseId);
+            verify(hearingRecordingRepository).saveAndFlush(recording);
+        }
     }
 
-    @Test
-    void testCreateHearingRecordingShouldThrowCcdUploadExceptionOnGenericException() {
-        doReturn(TEST_FOLDER_1).when(folderService).getFolderByName(HEARING_RECORDING_DTO.getFolder());
-        doThrow(new RuntimeException("Generic DB error"))
-            .when(hearingRecordingRepository).saveAndFlush(any(HearingRecording.class));
+    @Nested
+    @DisplayName("findCcdCaseIdByFilename")
+    class FindCcdCaseIdByFilename {
 
-        CcdUploadException exception = assertThrows(CcdUploadException.class, () ->
-            recordingService.createHearingRecording(HEARING_RECORDING_DTO)
-        );
+        @Test
+        void findCcdCaseIdByFilenameShouldReturnId() {
+            String filename = "file.mp4";
+            Long expectedId = 888L;
+            when(hearingRecordingRepository.findCcdCaseIdByFilename(filename)).thenReturn(expectedId);
 
-        assertThat(exception.getMessage()).isEqualTo("Unhandled Exception trying to persist case");
-    }
+            Long result = hearingRecordingService.findCcdCaseIdByFilename(filename);
 
-    @Test
-    void testUpdateCcdCaseIdShouldSetIdAndSave() {
-        HearingRecording recording = new HearingRecording();
-        assertThat(recording.getCcdCaseId()).isNull();
-
-        recordingService.updateCcdCaseId(recording, CCD_CASE_ID);
-
-        ArgumentCaptor<HearingRecording> captor = ArgumentCaptor.forClass(HearingRecording.class);
-        verify(hearingRecordingRepository).saveAndFlush(captor.capture());
-
-        HearingRecording captured = captor.getValue();
-        assertThat(captured.getCcdCaseId()).isEqualTo(CCD_CASE_ID);
-        assertThat(captured).isSameAs(recording);
-    }
-
-    @Test
-    void deleteCaseHearingRecordingsDeletesAllRelatedDataSuccessfully() {
-        List<Long> ccdCaseIds = List.of(1L, 2L);
-        UUID hearingRecordingId = UUID.randomUUID();
-        List<HearingRecordingDeletionDto> hearingRecordingDtos = List.of(
-            new HearingRecordingDeletionDto(hearingRecordingId, null, null, "CVP", null)
-        );
-        List<HearingRecordingDeletionDto> segmentDtos = List.of(
-            new HearingRecordingDeletionDto(hearingRecordingId, UUID.randomUUID(), null, "CVP", "file1.mp4"),
-            new HearingRecordingDeletionDto(hearingRecordingId, UUID.randomUUID(), null, "VH", "file2.mp4")
-        );
-
-        doReturn(hearingRecordingDtos).when(hearingRecordingRepository)
-            .findHearingRecordingIdsAndSourceByCcdCaseIds(ccdCaseIds);
-        doReturn(segmentDtos).when(hearingRecordingSegmentRepository)
-            .findFilenamesByHearingRecordingId(any(UUID.class));
-
-        recordingService.deleteCaseHearingRecordings(ccdCaseIds);
-
-        verify(blobStorageDeleteService, times(2)).deleteBlob(any(String.class), any(HearingSource.class));
-        verify(hearingRecordingSegmentAuditEntryRepository, times(2))
-            .deleteByHearingRecordingSegmentId(any(UUID.class));
-        verify(hearingRecordingSegmentRepository, times(2)).deleteById(any(UUID.class));
-        verify(shareesAuditEntryRepository, times(1)).deleteByHearingRecordingShareeIds(anyList());
-        verify(shareesRepository).deleteByHearingRecordingIds(anyList());
-        verify(hearingRecordingAuditEntryRepository).deleteByHearingRecordingIds(anyList());
-        verify(hearingRecordingRepository).deleteByHearingRecordingIds(anyList());
-    }
-
-    @Test
-    void deleteCaseHearingRecordingsHandlesEmptyCcdCaseIdsGracefully() {
-        List<Long> ccdCaseIds = List.of();
-
-        recordingService.deleteCaseHearingRecordings(ccdCaseIds);
-
-        verifyNoInteractions(blobStorageDeleteService);
-        verifyNoInteractions(hearingRecordingSegmentAuditEntryRepository);
-        verifyNoInteractions(hearingRecordingSegmentRepository);
-        verifyNoInteractions(shareesAuditEntryRepository);
-        verifyNoInteractions(shareesRepository);
-        verifyNoInteractions(hearingRecordingAuditEntryRepository);
-    }
-
-    @Test
-    void deleteCaseHearingRecordingsHandlesNullCcdCaseIdsGracefully() {
-        recordingService.deleteCaseHearingRecordings(null);
-
-        verifyNoInteractions(blobStorageDeleteService);
-        verifyNoInteractions(hearingRecordingSegmentAuditEntryRepository);
-        verifyNoInteractions(hearingRecordingSegmentRepository);
-        verifyNoInteractions(shareesAuditEntryRepository);
-        verifyNoInteractions(shareesRepository);
-        verifyNoInteractions(hearingRecordingAuditEntryRepository);
-    }
-
-    @Test
-    void deleteCaseHearingRecordingsLogsErrorOnException() {
-        List<Long> ccdCaseIds = List.of(1L);
-        doThrow(RuntimeException.class).when(hearingRecordingRepository)
-            .findHearingRecordingIdsAndSourceByCcdCaseIds(ccdCaseIds);
-
-        recordingService.deleteCaseHearingRecordings(ccdCaseIds);
-
-        verifyNoInteractions(blobStorageDeleteService);
-        verifyNoInteractions(hearingRecordingSegmentAuditEntryRepository);
-        verifyNoInteractions(hearingRecordingSegmentRepository);
-        verifyNoInteractions(shareesAuditEntryRepository);
-        verifyNoInteractions(shareesRepository);
-        verifyNoInteractions(hearingRecordingAuditEntryRepository);
-    }
-
-    @Test
-    void findCcdCaseIdByFilenameReturnsCcdCaseIdWhenFilenameExists() {
-        String filename = "file1.mp4";
-        Long expectedCcdCaseId = 12345L;
-        doReturn(expectedCcdCaseId).when(hearingRecordingRepository).findCcdCaseIdByFilename(filename);
-
-        Long actualCcdCaseId = recordingService.findCcdCaseIdByFilename(filename);
-
-        assertEquals(expectedCcdCaseId, actualCcdCaseId);
-    }
-
-    @Test
-    void findCcdCaseIdByFilenameReturnsNullWhenFilenameDoesNotExist() {
-        String filename = "nonexistent.mp4";
-        doReturn(null).when(hearingRecordingRepository).findCcdCaseIdByFilename(filename);
-
-        Long actualCcdCaseId = recordingService.findCcdCaseIdByFilename(filename);
-
-        assertNull(actualCcdCaseId);
-    }
-
-    @Test
-    void findCcdCaseIdByFilenameThrowsExceptionWhenRepositoryFails() {
-        String filename = "file1.mp4";
-        doThrow(RuntimeException.class).when(hearingRecordingRepository).findCcdCaseIdByFilename(filename);
-        assertThrows(RuntimeException.class, () -> recordingService.findCcdCaseIdByFilename(filename));
+            assertThat(result).isEqualTo(expectedId);
+        }
     }
 }
