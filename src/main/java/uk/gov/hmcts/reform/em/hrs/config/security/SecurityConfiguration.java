@@ -79,20 +79,20 @@ public class SecurityConfiguration {
     JwtDecoder jwtDecoder() {
         log.info("Configuring JWT decoder with issuer: {}", issuerUri);
         
-        NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder)
+        NimbusJwtDecoder nimbusJwtDecoder = (NimbusJwtDecoder)
             JwtDecoders.fromOidcIssuerLocation(issuerUri);
         // We are using issuerOverride instead of issuerUri as SIDAM has the wrong issuer at the moment
         OAuth2TokenValidator<Jwt> withTimestamp = new JwtTimestampValidator();
         OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(withTimestamp);
 
-        jwtDecoder.setJwtValidator(validator);
+        nimbusJwtDecoder.setJwtValidator(validator);
         
         log.info("JWT decoder configured with timestamp-only validation (issuer/audience checks disabled)");
 
         return new JwtDecoder() {
             @Override
             public Jwt decode(String token) {
-                Jwt jwt = jwtDecoder.decode(token);
+                Jwt jwt = nimbusJwtDecoder.decode(token);
                 log.info("Decoded JWT - Issuer: {}, Audience: {}, Subject: {}", 
                     jwt.getIssuer(), 
                     jwt.getAudience(), 
