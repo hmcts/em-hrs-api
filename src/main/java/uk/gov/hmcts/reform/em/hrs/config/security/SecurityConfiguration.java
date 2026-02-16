@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.em.hrs.config.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,7 @@ import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -75,6 +77,8 @@ public class SecurityConfiguration {
 
     @Bean
     JwtDecoder jwtDecoder() {
+        log.info("Configuring JWT decoder with issuer: {}", issuerUri);
+        
         NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder)
             JwtDecoders.fromOidcIssuerLocation(issuerUri);
         // We are using issuerOverride instead of issuerUri as SIDAM has the wrong issuer at the moment
@@ -82,7 +86,19 @@ public class SecurityConfiguration {
         OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(withTimestamp);
 
         jwtDecoder.setJwtValidator(validator);
+        
+        log.info("JWT decoder configured with timestamp-only validation (issuer/audience checks disabled)");
 
-        return jwtDecoder;
+        return new JwtDecoder() {
+            @Override
+            public Jwt decode(String token) {
+                Jwt jwt = jwtDecoder.decode(token);
+                log.info("Decoded JWT - Issuer: {}, Audience: {}, Subject: {}", 
+                    jwt.getIssuer(), 
+                    jwt.getAudience(), 
+                    jwt.getSubject());
+                return jwt;
+            }
+        };
     }
 }
