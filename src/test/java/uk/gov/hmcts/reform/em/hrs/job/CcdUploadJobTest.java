@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.quartz.JobExecutionContext;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
-import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.service.JobInProgressService;
 import uk.gov.hmcts.reform.em.hrs.service.ccd.CcdUploadService;
 
@@ -17,26 +16,10 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.CASE_REFERENCE;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.RECORDING_DATETIME;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.RECORDING_REFERENCE;
 
 class CcdUploadJobTest {
-    private static final HearingRecordingDto HEARING_RECORDING_DTO = HearingRecordingDto.builder()
-        .caseRef(CASE_REFERENCE)
-        .recordingSource(HearingSource.CVP)
-        .courtLocationCode("LC")
-        .jurisdictionCode("JC")
-        .hearingRoomRef("123")
-        .recordingRef(RECORDING_REFERENCE)
-        .filename("hearing-recording-file-name")
-        .recordingDateTime(RECORDING_DATETIME)
-        .filenameExtension("mp4")
-        .fileSize(123456789L)
-        .segment(0)
-        .sourceBlobUrl("recording-cvp-uri")
-        .checkSum("erI2foA30B==")
-        .build();
+
+    private final HearingRecordingDto recordingDto = mock(HearingRecordingDto.class);
 
     private final LinkedBlockingQueue<HearingRecordingDto> ccdUploadQueue = new LinkedBlockingQueue<>(1000);
 
@@ -52,29 +35,27 @@ class CcdUploadJobTest {
 
     @Test
     void testShouldInvokeuploadionServiceWhenHearingRecordingIsPolled() {
-        ccdUploadQueue.offer(HEARING_RECORDING_DTO);
-        doNothing().when(ccdUploadService).upload(HEARING_RECORDING_DTO);
+        ccdUploadQueue.offer(recordingDto);
+        doNothing().when(ccdUploadService).upload(recordingDto);
 
         underTest.executeInternal(context);
 
-        verify(ccdUploadService, times(1)).upload(HEARING_RECORDING_DTO);
-        verify(jobInProgressService, times(1)).deRegister(HEARING_RECORDING_DTO);
+        verify(ccdUploadService, times(1)).upload(recordingDto);
+        verify(jobInProgressService, times(1)).deRegister(recordingDto);
     }
 
     @Test
     void testShouldHandleGracefullyWhenUnhandledError() {
-        ccdUploadQueue.offer(HEARING_RECORDING_DTO);
+        ccdUploadQueue.offer(recordingDto);
         doThrow(RuntimeException.class).when(ccdUploadService).upload(any(HearingRecordingDto.class));
         underTest.executeInternal(context);
         verify(ccdUploadService, times(1)).upload(any(HearingRecordingDto.class));
-        verify(jobInProgressService, times(1)).deRegister(HEARING_RECORDING_DTO);
+        verify(jobInProgressService, times(1)).deRegister(recordingDto);
     }
 
     @Test
     void testNoArgsConstructorCanBeInstantiated() {
-
         CcdUploadJob ccdUploadJob = new CcdUploadJob();
-
         assertNotNull(ccdUploadJob);
     }
 
