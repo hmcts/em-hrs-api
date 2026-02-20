@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.hrs.service.ccd;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,6 +15,7 @@ import uk.gov.hmcts.reform.em.hrs.service.SegmentService;
 import uk.gov.hmcts.reform.em.hrs.service.TtlService;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,12 +27,10 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.CCD_CASE_ID;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDING_DTO;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3;
-import static uk.gov.hmcts.reform.em.hrs.componenttests.TestUtil.hearingRecordingWithNoDataBuilder;
 
 @ExtendWith(MockitoExtension.class)
 class CcdUploadServiceImplTest {
@@ -48,96 +48,113 @@ class CcdUploadServiceImplTest {
     private CcdUploadServiceImpl underTest;
 
     private static final LocalDate A_TTL_DATE = LocalDate.now();
+    private static final Long CCD_CASE_ID = 1234567890L;
+
+    private HearingRecordingDto mockDto;
+
+    @BeforeEach
+    void setUp() {
+        mockDto = mock(HearingRecordingDto.class);
+        lenient().when(mockDto.getRecordingDateTime()).thenReturn(LocalDateTime.now());
+    }
 
     @Test
     void testShouldCreateNewCaseWhenHearingRecordingIsNotInDatabase() {
-        HearingRecording newRecording = hearingRecordingWithNoDataBuilder();
-        HearingRecording recordingWithCcdId = hearingRecordingWithNoDataBuilder();
+        HearingRecording newRecording = new HearingRecording();
+        HearingRecording recordingWithCcdId = new HearingRecording();
         recordingWithCcdId.setCcdCaseId(CCD_CASE_ID);
 
-        doReturn(Optional.empty()).when(hearingRecordingService).findHearingRecording(HEARING_RECORDING_DTO);
-        doReturn(newRecording).when(hearingRecordingService).createHearingRecording(HEARING_RECORDING_DTO);
+        doReturn(Optional.empty()).when(hearingRecordingService).findHearingRecording(mockDto);
+        doReturn(newRecording).when(hearingRecordingService).createHearingRecording(mockDto);
         doReturn(A_TTL_DATE).when(ttlService).createTtl(any(), any(), any());
-        doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).createCase(any(), eq(HEARING_RECORDING_DTO), eq(A_TTL_DATE));
+        doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).createCase(any(), eq(mockDto), eq(A_TTL_DATE));
         doReturn(recordingWithCcdId).when(hearingRecordingService).updateCcdCaseId(newRecording, CCD_CASE_ID);
 
-        underTest.upload(HEARING_RECORDING_DTO);
+        underTest.upload(mockDto);
 
-        verify(hearingRecordingService).findHearingRecording(HEARING_RECORDING_DTO);
-        verify(hearingRecordingService).createHearingRecording(HEARING_RECORDING_DTO);
-        verify(ccdDataStoreApiClient).createCase(newRecording.getId(), HEARING_RECORDING_DTO, A_TTL_DATE);
+        verify(hearingRecordingService).findHearingRecording(mockDto);
+        verify(hearingRecordingService).createHearingRecording(mockDto);
+        verify(ccdDataStoreApiClient).createCase(newRecording.getId(), mockDto, A_TTL_DATE);
         verify(hearingRecordingService).updateCcdCaseId(newRecording, CCD_CASE_ID);
-        verify(segmentService).createAndSaveSegment(any(HearingRecording.class), eq(HEARING_RECORDING_DTO));
+        verify(segmentService).createAndSaveSegment(any(HearingRecording.class), eq(mockDto));
         verify(ccdDataStoreApiClient, never()).updateCaseData(anyLong(), any(), any());
     }
 
     @Test
     void testShouldUpdateCaseWhenHearingRecordingExistsInDatabase() {
-        HearingRecording existingRecording = HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3;
+        HearingRecording existingRecording = new HearingRecording();
+        existingRecording.setCcdCaseId(CCD_CASE_ID);
 
         doReturn(Optional.of(existingRecording))
-            .when(hearingRecordingService).findHearingRecording(HEARING_RECORDING_DTO);
+            .when(hearingRecordingService).findHearingRecording(mockDto);
         doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).updateCaseData(
             anyLong(), any(), any()
         );
 
-        underTest.upload(HEARING_RECORDING_DTO);
+        underTest.upload(mockDto);
 
         verify(ccdDataStoreApiClient).updateCaseData(anyLong(), any(), any());
-        verify(segmentService).createAndSaveSegment(existingRecording, HEARING_RECORDING_DTO);
+        verify(segmentService).createAndSaveSegment(existingRecording, mockDto);
         verify(hearingRecordingService, never()).createHearingRecording(any());
     }
 
     @Test
     void testUpdateCaseShouldHandleConstraintViolationExceptionWhenSegmentExists() {
-        HearingRecording existingRecording = HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3;
+        HearingRecording existingRecording = new HearingRecording();
+        existingRecording.setCcdCaseId(CCD_CASE_ID);
+
         doReturn(Optional.of(existingRecording))
-            .when(hearingRecordingService).findHearingRecording(HEARING_RECORDING_DTO);
+            .when(hearingRecordingService).findHearingRecording(mockDto);
         doThrow(new ConstraintViolationException("test violation", null, null))
             .when(segmentService).createAndSaveSegment(any(), any());
 
-        assertDoesNotThrow(() -> underTest.upload(HEARING_RECORDING_DTO));
+        assertDoesNotThrow(() -> underTest.upload(mockDto));
 
-        verify(segmentService).createAndSaveSegment(existingRecording, HEARING_RECORDING_DTO);
+        verify(segmentService).createAndSaveSegment(existingRecording, mockDto);
     }
 
     @Test
     void testUpdateCaseShouldPropagateOtherExceptionsWhenSegmentCreationFails() {
-        HearingRecording existingRecording = HEARING_RECORDING_WITH_SEGMENTS_1_2_and_3;
+        HearingRecording existingRecording = new HearingRecording();
+        existingRecording.setCcdCaseId(CCD_CASE_ID);
+
         doReturn(Optional.of(existingRecording))
-            .when(hearingRecordingService).findHearingRecording(HEARING_RECORDING_DTO);
+            .when(hearingRecordingService).findHearingRecording(mockDto);
         doThrow(new RuntimeException("Generic DB error"))
             .when(segmentService).createAndSaveSegment(any(), any());
 
-        assertThrows(RuntimeException.class, () -> underTest.upload(HEARING_RECORDING_DTO));
+        assertThrows(RuntimeException.class, () -> underTest.upload(mockDto));
 
-        verify(segmentService).createAndSaveSegment(existingRecording, HEARING_RECORDING_DTO);
+        verify(segmentService).createAndSaveSegment(existingRecording, mockDto);
     }
 
     @Test
     void testCreateCaseShouldPropagateExceptionWhenSegmentCreationFails() {
-        doReturn(Optional.empty()).when(hearingRecordingService).findHearingRecording(HEARING_RECORDING_DTO);
-        doReturn(hearingRecordingWithNoDataBuilder()).when(hearingRecordingService).createHearingRecording(any());
-        doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).createCase(any(), any(), any());
+        HearingRecording newRecording = new HearingRecording();
+
+        doReturn(Optional.empty()).when(hearingRecordingService).findHearingRecording(mockDto);
+        doReturn(newRecording).when(hearingRecordingService).createHearingRecording(mockDto);
+        doReturn(A_TTL_DATE).when(ttlService).createTtl(any(), any(), any());
+        doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).createCase(any(), eq(mockDto), eq(A_TTL_DATE));
+        doReturn(newRecording).when(hearingRecordingService).updateCcdCaseId(newRecording, CCD_CASE_ID);
 
         doThrow(new RuntimeException("Generic DB error"))
             .when(segmentService).createAndSaveSegment(any(), any());
 
-        assertThrows(RuntimeException.class, () -> underTest.upload(HEARING_RECORDING_DTO));
+        assertThrows(RuntimeException.class, () -> underTest.upload(mockDto));
     }
-
 
     @Test
     void testShouldNotCallCcdOrSegmentApiWhenRecordingExistsButCcdIdIsNull() {
-        HearingRecording recordingWithNullCcdId = hearingRecordingWithNoDataBuilder();
+        HearingRecording recordingWithNullCcdId = new HearingRecording();
         recordingWithNullCcdId.setCcdCaseId(null);
 
         doReturn(Optional.of(recordingWithNullCcdId)).when(hearingRecordingService)
-            .findHearingRecording(HEARING_RECORDING_DTO);
+            .findHearingRecording(mockDto);
 
-        underTest.upload(HEARING_RECORDING_DTO);
+        underTest.upload(mockDto);
 
-        verify(hearingRecordingService).findHearingRecording(HEARING_RECORDING_DTO);
+        verify(hearingRecordingService).findHearingRecording(mockDto);
         verify(ccdDataStoreApiClient, never())
             .updateCaseData(anyLong(), any(UUID.class), any(HearingRecordingDto.class));
         verify(ccdDataStoreApiClient, never()).createCase(any(UUID.class), any(HearingRecordingDto.class), any());
@@ -146,13 +163,13 @@ class CcdUploadServiceImplTest {
 
     @Test
     void testShouldRethrowCcdUploadExceptionWhenHearingRecordingCreationFails() {
-        doReturn(Optional.empty()).when(hearingRecordingService).findHearingRecording(HEARING_RECORDING_DTO);
+        doReturn(Optional.empty()).when(hearingRecordingService).findHearingRecording(mockDto);
         doThrow(new CcdUploadException("Hearing Recording already exists."))
-            .when(hearingRecordingService).createHearingRecording(HEARING_RECORDING_DTO);
+            .when(hearingRecordingService).createHearingRecording(mockDto);
 
         final CcdUploadException e = assertThrows(
             CcdUploadException.class,
-            () -> underTest.upload(HEARING_RECORDING_DTO)
+            () -> underTest.upload(mockDto)
         );
 
         assertEquals("Hearing Recording already exists.", e.getMessage());
