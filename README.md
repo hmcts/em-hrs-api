@@ -20,12 +20,6 @@ So standard az cli tools are needed, as well as @hmcts.net log in with appropria
 In order for integration tests to run, a docker image is needed for the
 postgres testcontainers.
 
-For this to pull from hmcts ACR you must login to the ACR first:
-```bash
-az login # if not logged in already
-az acr login --name hmctspublic
-```
-
 ## Setup
 
 #### To clone repo and prepare to pull containers:
@@ -37,8 +31,6 @@ cd em-hrs-api/
 
 #### Clean and build the application:
 
-Requires docker desktop running
-
 ```
 ./gradlew clean
 ./gradlew build
@@ -46,7 +38,7 @@ Requires docker desktop running
 
 #### To run the application:
 
-At the moment java version must be set to 17 as 21 is not supported for local setup by CFTLib
+Requires docker desktop running
 
 ```
 az login
