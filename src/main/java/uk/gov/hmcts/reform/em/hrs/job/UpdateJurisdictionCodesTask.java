@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.em.hrs.job;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
-import com.microsoft.applicationinsights.core.dependencies.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
