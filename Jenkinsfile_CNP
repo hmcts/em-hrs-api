@@ -185,16 +185,14 @@ withPipeline(type, product, component) {
   }
 
 
-  onMaster()
-    {
+  onMaster() {
+    enableFortifyScan('em-hrs-api-aat')
+
+    afterAlways('fortify-scan') {
+      steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/Fortify Scan/**/*'
     }
-
-  enableFortifyScan('em-hrs-api-aat')
-
-  afterAlways('fortify-scan') {
-    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/Fortify Scan/**/*'
   }
-  
+
   afterAlways('test') {
     steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/reports/tests/**/*'
     steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/reports/checkstyle/**/*'
