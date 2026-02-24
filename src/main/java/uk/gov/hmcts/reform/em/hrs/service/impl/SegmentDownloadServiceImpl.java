@@ -28,7 +28,6 @@ import uk.gov.hmcts.reform.em.hrs.service.SegmentDownloadService;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobInfo;
 import uk.gov.hmcts.reform.em.hrs.storage.BlobstoreClient;
 import uk.gov.hmcts.reform.em.hrs.util.HttpHeaderProcessor;
-import uk.gov.hmcts.reform.em.hrs.util.debug.HttpHeadersLogging;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -171,9 +170,6 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         response.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
         response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
         response.setBufferSize(DEFAULT_BUFFER_SIZE);
-
-        HttpHeadersLogging
-            .logHttpHeaders(request);//keep during early life support to assist with any range or other issues.
 
         String rangeHeader = HttpHeaderProcessor.getHttpHeaderByCaseSensitiveAndLowerCase(request, HttpHeaders.RANGE);
         LOGGER.info("hearing source {}, Range header for filename {} = {}", hearingSource, filename, rangeHeader);
