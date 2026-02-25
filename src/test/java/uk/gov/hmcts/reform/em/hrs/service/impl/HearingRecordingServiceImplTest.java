@@ -8,10 +8,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 import uk.gov.hmcts.reform.em.hrs.domain.Folder;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDeletionDto;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingTtlMigrationDTO;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.exception.CcdUploadException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingAuditEntryRepository;
@@ -24,6 +26,7 @@ import uk.gov.hmcts.reform.em.hrs.service.BlobStorageDeleteService;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +35,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -263,5 +267,31 @@ class HearingRecordingServiceImplTest {
 
             assertThat(result).isEqualTo(expectedId);
         }
+    }
+
+    @Test
+    void testGetRecordingsForTtlUpdateShouldReturnDtoList() {
+        int limit = 50;
+        List<HearingRecordingTtlMigrationDTO> expectedDtos = List.of();
+
+        PageRequest expectedPageRequest = PageRequest.of(0, limit);
+
+        doReturn(expectedDtos).when(hearingRecordingRepository)
+            .findRecordsForTtlUpdate(expectedPageRequest);
+
+        List<HearingRecordingTtlMigrationDTO> result = hearingRecordingService.getRecordingsForTtlUpdate(limit);
+
+        assertThat(result).isSameAs(expectedDtos);
+        verify(hearingRecordingRepository).findRecordsForTtlUpdate(expectedPageRequest);
+    }
+
+    @Test
+    void testUpdateTtlShouldInvokeRepositoryUpdate() {
+        UUID recordingId = UUID.randomUUID();
+        LocalDate ttl = LocalDate.now();
+
+        hearingRecordingService.updateTtl(recordingId, ttl);
+
+        verify(hearingRecordingRepository).updateTtlById(recordingId, ttl);
     }
 }

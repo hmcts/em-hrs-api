@@ -4,11 +4,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDeletionDto;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingTtlMigrationDTO;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.exception.CcdUploadException;
 import uk.gov.hmcts.reform.em.hrs.repository.HearingRecordingAuditEntryRepository;
@@ -21,6 +23,7 @@ import uk.gov.hmcts.reform.em.hrs.service.BlobStorageDeleteService;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
 import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -180,5 +183,15 @@ public class HearingRecordingServiceImpl implements HearingRecordingService {
 
     public Long findCcdCaseIdByFilename(String filename) {
         return hearingRecordingRepository.findCcdCaseIdByFilename(filename);
+    }
+
+    @Override
+    public List<HearingRecordingTtlMigrationDTO> getRecordingsForTtlUpdate(int limit) {
+        return hearingRecordingRepository.findRecordsForTtlUpdate(PageRequest.of(0, limit));
+    }
+
+    @Override
+    public void updateTtl(UUID recordingId, LocalDate ttl) {
+        hearingRecordingRepository.updateTtlById(recordingId, ttl);
     }
 }
