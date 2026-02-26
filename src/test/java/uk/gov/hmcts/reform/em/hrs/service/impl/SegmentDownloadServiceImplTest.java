@@ -228,7 +228,6 @@ class SegmentDownloadServiceImplTest {
     class Download {
         @BeforeEach
         void downloadSetup() {
-            when(request.getHeaderNames()).thenReturn(Collections.emptyEnumeration());
             when(blobstoreClient.fetchBlobInfo(FILENAME, "CVP"))
                 .thenReturn(new BlobInfo(2000L, "video/mp4"));
         }
