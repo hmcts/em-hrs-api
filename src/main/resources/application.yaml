@@ -173,7 +173,7 @@ scheduling:
     update-ttl:
       batch-size: ${UPDATE_TTL_BATCH_SIZE:10}
       thread-limit: ${UPDATE_TTL_THREAD_LIMIT:1}
-      max-records: ${UPDATE_TTL_MAX_RECORDS:100}
+      no-of-iterations: ${UPDATE_TTL_NO_OF_ITERATIONS:1}
     jurisdiction-codes:
       batch-size: ${JURISDICTION_CODES_BATCH_SIZE:10}
       thread-limit: ${JURISDICTION_CODES_THREAD_LIMIT:2}
