@@ -46,7 +46,7 @@ class UpdateTtlTaskTest {
     void setUp() {
         ReflectionTestUtils.setField(updateTtlTask, "batchSize", 10);
         ReflectionTestUtils.setField(updateTtlTask, "defaultThreadLimit", 2);
-        ReflectionTestUtils.setField(updateTtlTask, "maxRecordsToProcess", 100);
+        ReflectionTestUtils.setField(updateTtlTask, "noOfIterations", 2);
 
         record1 = new HearingRecordingTtlMigrationDTO(
             UUID.randomUUID(),
@@ -59,8 +59,11 @@ class UpdateTtlTaskTest {
 
     @Test
     void shouldProcessRecordsSuccessfully() {
+        // Chain thenReturn to avoid unchecked generic array creation warning
         when(hearingRecordingService.getRecordingsForTtlUpdate(anyInt()))
-            .thenReturn(List.of(record1));
+            .thenReturn(List.of(record1))
+            .thenReturn(Collections.emptyList());
+
         when(ccdDataStoreApiClient.updateCaseWithTtl(anyLong()))
             .thenReturn(mockTtlDate);
 
@@ -84,7 +87,8 @@ class UpdateTtlTaskTest {
     @Test
     void shouldSkipDbUpdateIfCcdFails() {
         when(hearingRecordingService.getRecordingsForTtlUpdate(anyInt()))
-            .thenReturn(List.of(record1));
+            .thenReturn(List.of(record1))
+            .thenReturn(Collections.emptyList());
 
         doThrow(new RuntimeException("CCD Unavailable"))
             .when(ccdDataStoreApiClient).updateCaseWithTtl(anyLong());
@@ -105,7 +109,9 @@ class UpdateTtlTaskTest {
         );
 
         when(hearingRecordingService.getRecordingsForTtlUpdate(anyInt()))
-            .thenReturn(Arrays.asList(recA, recB));
+            .thenReturn(Arrays.asList(recA, recB))
+            .thenReturn(Collections.emptyList());
+
         when(ccdDataStoreApiClient.updateCaseWithTtl(999L))
             .thenReturn(mockTtlDate);
 
@@ -119,17 +125,42 @@ class UpdateTtlTaskTest {
     }
 
     @Test
+    void shouldCacheCcdAcrossIterations() {
+        HearingRecordingTtlMigrationDTO recA = new HearingRecordingTtlMigrationDTO(
+            UUID.randomUUID(), LocalDateTime.now(), "S", "J", 999L
+        );
+        HearingRecordingTtlMigrationDTO recB = new HearingRecordingTtlMigrationDTO(
+            UUID.randomUUID(), LocalDateTime.now(), "S", "J", 999L
+        );
+
+        // Iteration 1 gets recA. Iteration 2 gets recB.
+        when(hearingRecordingService.getRecordingsForTtlUpdate(anyInt()))
+            .thenReturn(List.of(recA))
+            .thenReturn(List.of(recB));
+
+        when(ccdDataStoreApiClient.updateCaseWithTtl(999L))
+            .thenReturn(mockTtlDate);
+
+        updateTtlTask.run();
+
+        // CCD should STILL only be called once despite processing in entirely different loop iterations
+        verify(ccdDataStoreApiClient, times(1)).updateCaseWithTtl(999L);
+        verify(hearingRecordingService).updateTtl(recA.id(), mockTtlDate);
+        verify(hearingRecordingService).updateTtl(recB.id(), mockTtlDate);
+    }
+
+    @Test
     void shouldThrowExceptionForNullCcdCaseId() {
         HearingRecordingTtlMigrationDTO recNullCcd = new HearingRecordingTtlMigrationDTO(
             UUID.randomUUID(), LocalDateTime.now(), "S", "J", null
         );
 
         when(hearingRecordingService.getRecordingsForTtlUpdate(anyInt()))
-            .thenReturn(List.of(recNullCcd));
+            .thenReturn(List.of(recNullCcd))
+            .thenReturn(Collections.emptyList());
 
         updateTtlTask.run();
 
-        // Should not call CCD or HRS update due to null check throwing exception
         verify(ccdDataStoreApiClient, never()).updateCaseWithTtl(anyLong());
         verify(hearingRecordingService, never()).updateTtl(any(), any());
     }
