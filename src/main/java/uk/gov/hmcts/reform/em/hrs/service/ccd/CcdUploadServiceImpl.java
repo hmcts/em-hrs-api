@@ -110,7 +110,7 @@ public class CcdUploadServiceImpl implements CcdUploadService {
             recordingDto.getRecordingDateTime().toLocalDate()
         );
         recording.setTtl(ttl);
-        recording.setTtlUpdated(true);
+        //        recording.setTtlUpdated(true);
 
         final Long caseId = ccdDataStoreApiClient.createCase(recording.getId(), recordingDto, ttl);
         hearingRecordingService.updateCcdCaseId(recording, caseId);
