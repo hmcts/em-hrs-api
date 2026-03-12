@@ -60,12 +60,12 @@ public interface HearingRecordingRepository extends JpaRepository<HearingRecordi
             h.ccdCaseId
         )
         FROM HearingRecording h
-        WHERE h.ttlUpdated = true
+        WHERE h.ttlUpdated = false
         ORDER BY h.createdOn ASC
         """)
     List<HearingRecordingTtlMigrationDTO> findRecordsForTtlUpdate(Pageable pageable);
 
     @Modifying
-    @Query("UPDATE HearingRecording h SET h.ttl = :ttl, h.ttlUpdated = false WHERE h.id = :id")
+    @Query("UPDATE HearingRecording h SET h.ttl = :ttl, h.ttlUpdated = true WHERE h.id = :id")
     void updateTtlById(@Param("id") UUID id, @Param("ttl") LocalDate ttl);
 }
