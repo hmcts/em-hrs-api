@@ -372,7 +372,7 @@ dependencies {
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: versions.testcontainers
   testImplementation group: 'org.testcontainers', name: 'postgresql', version: versions.testcontainers
 
-  testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.6.5', {
+  testImplementation group: 'com.devskiller', name: 'jfairy', version: '0.8.2', {
     exclude group: 'com.google.guava', module: 'guava'
   }
   testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.3.0'
