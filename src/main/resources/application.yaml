@@ -27,6 +27,8 @@ spring:
   cloud:
     compatibility-verifier:
       enabled: false
+  lifecycle:
+    timeout-per-shutdown-phase: ${TIMEOUT_SERVER_SHUTDOWN_PHASE:1m}
   jpa:
     database: postgresql
     show-sql: ${SHOW_SQL:false}
