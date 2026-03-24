@@ -20,7 +20,6 @@ import uk.gov.hmcts.reform.em.hrs.service.TtlService;
 
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -134,48 +133,6 @@ public class CcdDataStoreApiClient {
             throw new CcdUploadException("Error Uploading Segment", e);
         }
 
-    }
-
-    public LocalDate updateCaseWithTtl(Long ccdCaseId) {
-        try {
-            Map<String, String> tokens = securityService.createTokens();
-            StartEventResponse startEventResponse = startEvent(tokens, ccdCaseId, EVENT_AMEND_CASE);
-
-            final ObjectMapper mapper = new ObjectMapper();
-            mapper.findAndRegisterModules();
-
-            CaseDetails caseDetails = startEventResponse.getCaseDetails();
-            CaseHearingRecording caseHearingRecording =
-                mapper.convertValue(caseDetails.getData(), CaseHearingRecording.class);
-
-            LocalDate recordingDate = caseHearingRecording.getRecordingDate();
-            if (Objects.isNull(recordingDate)) {
-                throw new IllegalStateException("CCD case " + ccdCaseId + " has null recordingDate");
-            }
-
-            LocalDate ttl = ttlService.createTtl(
-                caseHearingRecording.getServiceCode(),
-                caseHearingRecording.getJurisdictionCode(),
-                recordingDate
-            );
-
-            caseHearingRecording.setTimeToLive(caseDataCreator.createTTLObject(ttl));
-
-            CaseDataContent caseDataContent = buildCaseDataContent(
-                startEventResponse,
-                mapper.convertValue(caseHearingRecording, JsonNode.class)
-            );
-
-            coreCaseDataApi.submitEventForCaseWorker(
-                tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
-                JURISDICTION, CASE_TYPE, ccdCaseId.toString(),
-                false, caseDataContent
-            );
-
-            return ttl;
-        } catch (Exception e) {
-            throw new CcdUploadException("Error Updating TTL", e);
-        }
     }
 
     public void updateCaseWithCodes(Long ccdCaseId, String jurisdictionCode, String serviceCode) {
