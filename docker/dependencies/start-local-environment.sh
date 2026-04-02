@@ -35,13 +35,13 @@ echo ""
 echo ""
 
 echo "Some images come from the azure repo, you will need an azure ecr login. Use this CLI command to log in:"
-echo "az acr login --name hmctspublic && az acr login --name hmctsprivate"
+echo "az acr login --name hmctsprod"
 echo ""
 echo "****************************************************************************************************************"
 
 
 echo "Logging into Azure Container Repository"
-az acr login --name hmctspublic && az acr login --name hmctsprivate
+az acr login --name hmctsprod
 
 echo "Pulling latest containers!"
 ./docker/dependencies/pull-latest-dependencies.sh
