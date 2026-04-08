@@ -28,7 +28,7 @@ import uk.gov.hmcts.reform.em.hrs.service.ScheduledTaskRunner;
 public abstract class AbstractRepositoryIntegrationTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRepositoryIntegrationTest.class);
 
-    private static final String POSTGRES_IMAGE = "hmctsprod.azurecr.io/imported/postgres:16-alpine";
+    private static final String POSTGRES_IMAGE = "hmctspublic.azurecr.io/imported/postgres:16-alpine";
 
     private static final String DATABASE_NAME = "emhrs";
     private static final String USER_NAME = "emhrs";
