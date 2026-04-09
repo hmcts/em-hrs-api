@@ -85,6 +85,11 @@ withNightlyPipeline(type, product, component) {
   overrideVaultEnvironments(vaultOverrides)
   loadVaultSecrets(secrets)
 
+  before('mutationTest') {
+    sh 'az login --identity'
+    sh 'az acr login --name hmctsprod'
+  }
+
   enableMutationTest()
   enableSecurityScan()
   enableFortifyScan('em-hrs-api-aat')
