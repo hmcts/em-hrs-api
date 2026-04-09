@@ -87,7 +87,7 @@ withNightlyPipeline(type, product, component) {
 
   before('mutationTest') {
     sh 'az login --identity'
-    sh 'az acr login --name hmctsprod --subscription 8999dec3-0104-4a27-94ee-6588559729d1'
+    sh 'az acr login --name hmctsprod'
   }
 
   enableMutationTest()
