@@ -363,10 +363,7 @@ dependencies {
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
 
-  functionalTestImplementation(group: 'com.github.hmcts', name: 'em-test-helper', version:'2.3.1') {
-    exclude group: 'org.springframework.boot'
-    exclude group: 'org.springframework.cloud'
-  }
+  functionalTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version:'2.3.1'
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
 
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
@@ -400,10 +397,7 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenity
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation(group: 'com.github.hmcts', name: 'em-test-helper', version:'2.3.1') {
-    exclude group: 'org.springframework.boot'
-    exclude group: 'org.springframework.cloud'
-  }
+  smokeTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version:'2.3.1'
 
 /***********************************************************************************************************************
  * TEST SOURCE SETS
