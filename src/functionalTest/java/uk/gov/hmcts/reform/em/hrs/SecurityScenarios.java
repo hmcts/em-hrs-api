@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import net.serenitybdd.rest.SerenityRest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper;
 import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
@@ -16,6 +17,9 @@ public class SecurityScenarios extends BaseTest {
 
 
     public static final String NON_EXISTING_FOLDER_PATH = "/folders/NON_EXISTING_FOLDER";
+
+    @Value("${idam.dummy-password}")
+    private String dummyPassword;
 
     @Autowired
     SecurityScenarios(
@@ -45,7 +49,7 @@ public class SecurityScenarios extends BaseTest {
 
     @Test
     public void getFolderShouldReturn401WhenS2sMissingAuthTokenValid() {
-        var userToken = idamHelper.authenticateUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS);
+        var userToken = idamHelper.authenticateUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, dummyPassword);
         SerenityRest
             .given()
             .header("Authorization", userToken)
@@ -72,7 +76,7 @@ public class SecurityScenarios extends BaseTest {
     @Test
     public void postRecordingSegmentShouldReturn401WhenS2STokenIsValid() {
         final JsonNode segmentPayload = createSegmentPayload("caseRef", 0);
-        var userToken = idamHelper.authenticateUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS);
+        var userToken = idamHelper.authenticateUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, dummyPassword);
 
         SerenityRest
             .given()

@@ -40,6 +40,7 @@ idam:
     redirect_uri: ${IDAM_REDIRECT_URI:http://localhost:8081/oauth2/callback}
     grant_type: 'password'
     scope: 'openid roles profile'
+  dummy-password: ${DUMMY_PASSWORD}
   hrs-ingestor:
     user-name: ${IDAM_HRS_INGESTOR_SYSTEM_USER_NAME:AAAAAAAAAAAAAAAA}
     password:  ${IDAM_HRS_INGESTOR_SYSTEM_PASSWORD:AAAAAAAAAAAAAAAA}

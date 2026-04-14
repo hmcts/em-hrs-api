@@ -29,6 +29,7 @@ idam:
     redirect_uri: ${IDAM_REDIRECT_URI:https://em-hrs-api-aat.service.core-compute-aat.internal/oauth2/callback}
     grant_type: 'password'
     scope: 'openid roles profile'
+  dummy-password: ${DUMMY_PASSWORD}
 s2s:
   api:
     url: ${S2S_BASE_URI:http://rpe-service-auth-provider-aat.service.core-compute-aat.internal}

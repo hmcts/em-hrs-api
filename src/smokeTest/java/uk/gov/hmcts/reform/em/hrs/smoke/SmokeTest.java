@@ -75,6 +75,8 @@ public class SmokeTest {
 
     @Value("${upload-ccd-definition}")
     protected boolean uploadCcdDefinition;
+    @Value("${idam.dummy-password}")
+    private String dummyPassword;
     protected ExtendedCcdHelper extendedCcdHelper;
     protected IdamHelper idamHelper;
 
@@ -112,7 +114,7 @@ public class SmokeTest {
 
     private void createIdamUser(String email, List<String> roles) {
         LOGGER.info("CREATING USER {} with roles {}", email, roles);
-        idamHelper.createUser(email, roles);
+        idamHelper.createUser(email, dummyPassword, roles);
     }
 
     @Test
