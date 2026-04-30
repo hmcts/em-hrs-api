@@ -42,6 +42,7 @@ import uk.gov.hmcts.reform.em.test.retry.RetryExtension;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -168,7 +169,7 @@ public abstract class BaseTest {
     }
 
     @PostConstruct
-    public void init() {
+    public void init() throws IOException {
         LOGGER.info("AUTHENTICATING TEST USER FOR CCD CALLS");
         hrsS2sAuth = BEARER + s2sHelper.getS2sToken();
         if (usersCreated.compareAndSet(false, true)) {
@@ -177,6 +178,7 @@ public abstract class BaseTest {
             idamHelper.createUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, CASE_WORKER_HRS_SEARCHER_ROLE);
             idamHelper.createUser(USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY, CASE_WORKER_ROLE);
             idamHelper.createUser(USER_WITH_NONACCESS_ROLE_CITIZEN, CITIZEN_ROLE);
+            extendedCcdHelper.importDefinitionFile();
         }
     }
 
