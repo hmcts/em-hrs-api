@@ -29,8 +29,8 @@ public class ExtendedCcdHelper {
     protected String ccdDefinitionFile;
     @Value("${core_case_data.api.url}")
     protected String ccdApiUrl;
-    @Value("${test.user.password}")
-    private String testUserPassword;
+    @Value("${test.system.user.password}")
+    private String systemUserPassword;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedCcdHelper.class);
 
@@ -51,7 +51,7 @@ public class ExtendedCcdHelper {
 
     public void importDefinitionFile() throws IOException, InterruptedException {
         var serviceToken = ccdAuthTokenGenerator.generate();
-        var idamToken = idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, testUserPassword);
+        var idamToken = idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, systemUserPassword);
         //These roles need to exist in both IDAM and CCD
         //Their counterparts are created in idam as part of docker/dependencies/start-local-environment.sh
         createCcdUserRole("caseworker", serviceToken, idamToken);
@@ -72,7 +72,7 @@ public class ExtendedCcdHelper {
         );
 
         String systemUserAuthenticatedToken = idamHelper.authenticateUser(
-            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, testUserPassword);
+            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, systemUserPassword);
         String microserviceEmHrsApiAuthenticatedToken = ccdAuthTokenGenerator.generate();
         ccdDefImportApi.importCaseDefinition(systemUserAuthenticatedToken,
                                              microserviceEmHrsApiAuthenticatedToken, ccdDefinitionRequest

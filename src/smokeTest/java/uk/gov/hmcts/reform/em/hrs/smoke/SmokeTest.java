@@ -65,12 +65,9 @@ public class SmokeTest {
     protected static final String USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS = "em-test-searcher@test.hmcts.net";
     protected static final String USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY = "em-test-requestor@test.hmcts.net";
     protected static final String USER_WITH_NONACCESS_ROLE_CITIZEN = "em-test-citizen@test.hmcts.net";
-    protected static final String HRS_TESTER_USER = "hrs.tester@hmcts.net";
     protected static final List<String> CASE_WORKER_ROLE = List.of(ROLE_CASE_WORKER);
     protected static final List<String> CASE_WORKER_HRS_SEARCHER_ROLE =
         List.of(ROLE_CASE_WORKER, "caseworker-hrs", "caseworker-hrs-searcher");
-    protected static final List<String> HRS_TESTER_ROLES =
-        List.of(ROLE_CASE_WORKER, "caseworker-hrs");
     protected static final List<String> CITIZEN_ROLE = List.of("citizen");
 
     @Value("${test.url}")
@@ -78,6 +75,9 @@ public class SmokeTest {
 
     @Value("${test.user.password}")
     private String testUserPassword;
+
+    @Value("${test.system.user.password}")
+    private String systemUserPassword;
 
     @Value("${upload-ccd-definition}")
     protected boolean uploadCcdDefinition;
@@ -100,8 +100,9 @@ public class SmokeTest {
 
 
         LOGGER.info("CREATING HRS FUNCTIONAL TEST SYSTEM USER");
-        createIdamUser(
+        idamHelper.createUser(
             SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION,
+            systemUserPassword,
             SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION_ROLES
         );
 
@@ -110,7 +111,6 @@ public class SmokeTest {
         createIdamUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, CASE_WORKER_HRS_SEARCHER_ROLE);
         createIdamUser(USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY, CASE_WORKER_ROLE);
         createIdamUser(USER_WITH_NONACCESS_ROLE_CITIZEN, CITIZEN_ROLE);
-        createIdamUser(HRS_TESTER_USER, HRS_TESTER_ROLES);
 
         LOGGER.info("IMPORTING CCD DEFINITION");
         extendedCcdHelper.importDefinitionFile();

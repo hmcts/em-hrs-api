@@ -46,6 +46,9 @@ public class ExtendedCcdHelper {
     @Value("${test.user.password}")
     private String testUserPassword;
 
+    @Value("${test.system.user.password}")
+    private String systemUserPassword;
+
     @Autowired
     public ExtendedCcdHelper(
         IdamHelper idamHelper,
@@ -82,7 +85,7 @@ public class ExtendedCcdHelper {
         );
 
         String systemUserAuthenticatedToken = idamHelper.authenticateUser(
-            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, testUserPassword);
+            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, systemUserPassword);
         String microserviceEmHrsApiAuthenticatedToken = ccdAuthTokenGenerator.generate();
         ccdDefImportApi.importCaseDefinition(systemUserAuthenticatedToken,
                                              microserviceEmHrsApiAuthenticatedToken, ccdDefinitionRequest
@@ -96,17 +99,17 @@ public class ExtendedCcdHelper {
     private void createCcdUserRole(String userRole) {
         ccdDefUserRoleApi.createUserRole(
             new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
-            idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, testUserPassword),
+            idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, systemUserPassword),
             ccdAuthTokenGenerator.generate()
         );
     }
 
     public void closeCcdCase(Long caseId) {
 
-        String userId = idamHelper.getUserId("hrs.tester@hmcts.net", testUserPassword);
+        String userId = idamHelper.getUserId("hrs.tester@hmcts.net", systemUserPassword);
 
         String idamToken = idamHelper.authenticateUser(
-            "hrs.tester@hmcts.net", testUserPassword);
+            "hrs.tester@hmcts.net", systemUserPassword);
         String s2sToken = ccdAuthTokenGenerator.generate();
 
         String caseTypeId = "HearingRecordings";

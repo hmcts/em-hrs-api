@@ -119,6 +119,9 @@ public abstract class BaseTest {
     @Value("${test.user.password}")
     protected String testUserPassword;
 
+    @Value("${test.system.user.password}")
+    protected String systemUserPassword;
+
     @Value("${azure.storage.cvp.container-url}")
     private String cvpContainerUrl;
 
@@ -424,7 +427,7 @@ public abstract class BaseTest {
 
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
         String userToken = idamClient.getAccessToken(
-            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, testUserPassword);
+            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, systemUserPassword);
         String uid = idamClient.getUserInfo(userToken).getUid();
 
         StartEventResponse startEventResponse =
