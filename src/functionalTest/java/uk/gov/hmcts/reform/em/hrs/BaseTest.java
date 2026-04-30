@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -76,6 +77,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public abstract class BaseTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
+    private static final AtomicBoolean usersCreated = new AtomicBoolean(false);
 
     protected static final String JURISDICTION = "HRS";
     protected static final String LOCATION_CODE = "0123";
@@ -94,6 +96,15 @@ public abstract class BaseTest {
     protected static final String DUMMY_USER_DEFAULT_PASS =
         "4590fgvhbfgbDdffm3lk4j";//USED ONLY FOR TESTS in IDAM HELPER
     protected static final String EMAIL_ADDRESS_INVALID_FORMAT = "invalid@emailaddress";
+
+    private static final String ROLE_CASE_WORKER = "caseworker";
+    private static final List<String> SYSTEM_USER_ROLES =
+        List.of(ROLE_CASE_WORKER, "caseworker-hrs", "caseworker-hrs-searcher",
+                "ccd-import", "caseworker-hrs-systemupdate");
+    private static final List<String> CASE_WORKER_ROLE = List.of(ROLE_CASE_WORKER);
+    private static final List<String> CASE_WORKER_HRS_SEARCHER_ROLE =
+        List.of(ROLE_CASE_WORKER, "caseworker-hrs", "caseworker-hrs-searcher");
+    private static final List<String> CITIZEN_ROLE = List.of("citizen");
 
     protected static final String FOLDER =
         "audiostream" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -160,6 +171,13 @@ public abstract class BaseTest {
     public void init() {
         LOGGER.info("AUTHENTICATING TEST USER FOR CCD CALLS");
         hrsS2sAuth = BEARER + s2sHelper.getS2sToken();
+        if (usersCreated.compareAndSet(false, true)) {
+            LOGGER.info("CREATING IDAM USERS FOR FUNCTIONAL TESTS");
+            idamHelper.createUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, SYSTEM_USER_ROLES);
+            idamHelper.createUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, CASE_WORKER_HRS_SEARCHER_ROLE);
+            idamHelper.createUser(USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY, CASE_WORKER_ROLE);
+            idamHelper.createUser(USER_WITH_NONACCESS_ROLE_CITIZEN, CITIZEN_ROLE);
+        }
     }
 
     public RequestSpecification authRequestForSearcherRole() {
