@@ -17,8 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import uk.gov.hmcts.reform.em.EmTestConfig;
-import uk.gov.hmcts.reform.em.test.idam.IdamConfiguration;
 
 import java.io.IOException;
 
@@ -27,8 +25,6 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 @SpringBootTest(classes = {
     AuthTokenGeneratorConfiguration.class,
-    IdamConfiguration.class,
-    EmTestConfig.class
 })
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {
