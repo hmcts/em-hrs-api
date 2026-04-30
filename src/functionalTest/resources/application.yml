@@ -30,6 +30,8 @@ logging:
 
 test:
   url: ${TEST_URL:http://localhost:8081}
+  user:
+    password: ${TEST_USER_PASSWORD}
 
 idam:
   api:

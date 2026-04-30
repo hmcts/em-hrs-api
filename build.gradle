@@ -363,7 +363,9 @@ dependencies {
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
 
-  functionalTestImplementation group: 'com.github.hmcts', name: 'em-test-helper', version:'2.3.0'
+  functionalTestImplementation(group: 'com.github.hmcts', name: 'em-test-helper', version:'3.1.0') {
+    exclude group: 'org.springframework.cloud'
+  }
   functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
 
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
@@ -397,8 +399,9 @@ dependencies {
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity, withoutStuff
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-single-page-report', version: versions.serenity
   smokeTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-  smokeTestImplementation group: 'uk.gov.hmcts.reform', name: 'em-test-helper', version:'2.2.1'
-
+  smokeTestImplementation(group: 'com.github.hmcts', name: 'em-test-helper', version:'3.1.0') {
+    exclude group: 'org.springframework.cloud'
+  }
 
 /***********************************************************************************************************************
  * TEST SOURCE SETS
@@ -535,6 +538,7 @@ bootRun {
 
 functional {
   doFirst() {
+    environment 'TEST_USER_PASSWORD', 'FB!' + UUID.randomUUID().toString().replace('-', '').take(20)
     if (project.file('./.aat-env').exists()) {
       project.file('./.aat-env').readLines().each() {
         def index = it.indexOf("=")
