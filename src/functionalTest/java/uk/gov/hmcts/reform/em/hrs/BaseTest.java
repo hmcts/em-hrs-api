@@ -123,6 +123,9 @@ public abstract class BaseTest {
     @Value("${close-ccd-test-cases}")
     protected boolean closeCcdCase;
 
+    @Value("${upload-ccd-definition}")
+    private boolean uploadCcdDefinition;
+
     //The format "yyyy-MM-dd---HH-MM-ss---SSS" will render "07-30-2021---16-07-35---485"
     private DateTimeFormatter datePartFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private DateTimeFormatter timePartFormatter = DateTimeFormatter.ofPattern("HH-MM-ss---SSS");
@@ -178,7 +181,9 @@ public abstract class BaseTest {
             idamHelper.createUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, CASE_WORKER_HRS_SEARCHER_ROLE);
             idamHelper.createUser(USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY, CASE_WORKER_ROLE);
             idamHelper.createUser(USER_WITH_NONACCESS_ROLE_CITIZEN, CITIZEN_ROLE);
-            extendedCcdHelper.importDefinitionFile();
+            if (uploadCcdDefinition) {
+                extendedCcdHelper.importDefinitionFile();
+            }
         }
     }
 
