@@ -73,9 +73,6 @@ public class SmokeTest {
     @Value("${test.url}")
     private String testUrl;
 
-    @Value("${test.user.password}")
-    private String testUserPassword;
-
     @Value("${test.system.user.password}")
     private String systemUserPassword;
 
@@ -119,7 +116,7 @@ public class SmokeTest {
 
     private void createIdamUser(String email, List<String> roles) {
         LOGGER.info("CREATING USER {} with roles {}", email, roles);
-        idamHelper.createUser(email, testUserPassword, roles);
+        idamHelper.createUser(email, systemUserPassword, roles);
     }
 
     @Test

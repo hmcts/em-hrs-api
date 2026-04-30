@@ -116,9 +116,6 @@ public abstract class BaseTest {
     @Value("${test.url}")
     protected String testUrl;
 
-    @Value("${test.user.password}")
-    protected String testUserPassword;
-
     @Value("${test.system.user.password}")
     protected String systemUserPassword;
 
@@ -184,12 +181,12 @@ public abstract class BaseTest {
 
     private RequestSpecification authRequest(String username) {
         LOGGER.info("authRequestForUsername username {}", username);
-        return setJwtTokenHeader(idamHelper.authenticateUser(username, testUserPassword))
+        return setJwtTokenHeader(idamHelper.authenticateUser(username, systemUserPassword))
             .header(SERVICE_AUTHORIZATION, hrsS2sAuth);
     }
 
     private RequestSpecification userAuthRequest(String username) {
-        return setJwtTokenHeader(idamHelper.authenticateUser(username, testUserPassword));
+        return setJwtTokenHeader(idamHelper.authenticateUser(username, systemUserPassword));
     }
 
     private RequestSpecification setJwtTokenHeader(String userToken) {
@@ -388,7 +385,7 @@ public abstract class BaseTest {
         Map<String, String> searchCriteria = Map.of("case.recordingReference", caseRef);
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
         String userToken = idamClient.getAccessToken(
-            USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, testUserPassword);
+            USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, systemUserPassword);
         String uid = idamClient.getUserInfo(userToken).getUid();
 
         LOGGER.info("with Jurisdiction {} and casetype {}", JURISDICTION, CASE_TYPE);

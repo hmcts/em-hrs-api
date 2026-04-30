@@ -45,7 +45,7 @@ public class SecurityScenarios extends BaseTest {
 
     @Test
     public void getFolderShouldReturn401WhenS2sMissingAuthTokenValid() {
-        var userToken = idamHelper.authenticateUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, testUserPassword);
+        var userToken = idamHelper.authenticateUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, systemUserPassword);
         SerenityRest
             .given()
             .header("Authorization", userToken)
@@ -72,7 +72,7 @@ public class SecurityScenarios extends BaseTest {
     @Test
     public void postRecordingSegmentShouldReturn401WhenS2STokenIsValid() {
         final JsonNode segmentPayload = createSegmentPayload("caseRef", 0);
-        var userToken = idamHelper.authenticateUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, testUserPassword);
+        var userToken = idamHelper.authenticateUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, systemUserPassword);
 
         SerenityRest
             .given()

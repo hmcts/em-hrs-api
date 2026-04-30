@@ -43,9 +43,6 @@ public class ExtendedCcdHelper {
     protected String ccdDefinitionFile;
     @Value("${core_case_data.api.url}")
     protected String ccdApiUrl;
-    @Value("${test.user.password}")
-    private String testUserPassword;
-
     @Value("${test.system.user.password}")
     private String systemUserPassword;
 
