@@ -182,6 +182,7 @@ public abstract class BaseTest {
             idamHelper.createUser(USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY, CASE_WORKER_ROLE);
             idamHelper.createUser(USER_WITH_NONACCESS_ROLE_CITIZEN, CITIZEN_ROLE);
             if (uploadCcdDefinition) {
+                LOGGER.info("Uploading CCD definitions");
                 extendedCcdHelper.importDefinitionFile();
             }
         }
