@@ -26,6 +26,7 @@ import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
+import static uk.gov.hmcts.reform.em.hrs.BaseTest.DUMMY_USER_DEFAULT_PASS;
 import static uk.gov.hmcts.reform.em.hrs.BaseTest.SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION;
 
 @Service
@@ -80,7 +81,7 @@ public class ExtendedCcdHelper {
         );
 
         String systemUserAuthenticatedToken = idamHelper.authenticateUser(
-            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION);
+            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, DUMMY_USER_DEFAULT_PASS);
         String microserviceEmHrsApiAuthenticatedToken = ccdAuthTokenGenerator.generate();
         ccdDefImportApi.importCaseDefinition(systemUserAuthenticatedToken,
                                              microserviceEmHrsApiAuthenticatedToken, ccdDefinitionRequest
@@ -94,17 +95,17 @@ public class ExtendedCcdHelper {
     private void createCcdUserRole(String userRole) {
         ccdDefUserRoleApi.createUserRole(
             new CcdDefUserRoleApi.CreateUserRoleBody(userRole, "PUBLIC"),
-            idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION),
+            idamHelper.authenticateUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, DUMMY_USER_DEFAULT_PASS),
             ccdAuthTokenGenerator.generate()
         );
     }
 
     public void closeCcdCase(Long caseId) {
 
-        String userId = idamHelper.getUserId("hrs.tester@hmcts.net");
+        String userId = idamHelper.getUserId("hrs.tester@hmcts.net", DUMMY_USER_DEFAULT_PASS);
 
         String idamToken = idamHelper.authenticateUser(
-            "hrs.tester@hmcts.net");
+            "hrs.tester@hmcts.net", DUMMY_USER_DEFAULT_PASS);
         String s2sToken = ccdAuthTokenGenerator.generate();
 
         String caseTypeId = "HearingRecordings";

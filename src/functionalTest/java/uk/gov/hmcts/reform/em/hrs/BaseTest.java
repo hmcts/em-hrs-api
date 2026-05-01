@@ -94,7 +94,7 @@ public abstract class BaseTest {
     protected static final String USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS = "em-test-searcher@test.hmcts.net";
     protected static final String USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY = "em-test-requestor@test.hmcts.net";
     protected static final String USER_WITH_NONACCESS_ROLE_CITIZEN = "em-test-citizen@test.hmcts.net";
-    protected static final String DUMMY_USER_DEFAULT_PASS =
+    public static final String DUMMY_USER_DEFAULT_PASS =
         "4590fgvhbfgbDdffm3lk4j";//USED ONLY FOR TESTS in IDAM HELPER
     protected static final String EMAIL_ADDRESS_INVALID_FORMAT = "invalid@emailaddress";
 
@@ -177,10 +177,16 @@ public abstract class BaseTest {
         hrsS2sAuth = BEARER + s2sHelper.getS2sToken();
         if (usersCreated.compareAndSet(false, true)) {
             LOGGER.info("CREATING IDAM USERS FOR FUNCTIONAL TESTS");
-            idamHelper.createUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, SYSTEM_USER_ROLES);
-            idamHelper.createUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, CASE_WORKER_HRS_SEARCHER_ROLE);
-            idamHelper.createUser(USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY, CASE_WORKER_ROLE);
-            idamHelper.createUser(USER_WITH_NONACCESS_ROLE_CITIZEN, CITIZEN_ROLE);
+            idamHelper.createUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION,
+                                  DUMMY_USER_DEFAULT_PASS,
+                                  SYSTEM_USER_ROLES
+            );
+            idamHelper.createUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS,
+                                  DUMMY_USER_DEFAULT_PASS,
+                                  CASE_WORKER_HRS_SEARCHER_ROLE
+            );
+            idamHelper.createUser(USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY, DUMMY_USER_DEFAULT_PASS, CASE_WORKER_ROLE);
+            idamHelper.createUser(USER_WITH_NONACCESS_ROLE_CITIZEN, DUMMY_USER_DEFAULT_PASS, CITIZEN_ROLE);
             if (uploadCcdDefinition) {
                 LOGGER.info("Uploading CCD definitions");
                 extendedCcdHelper.importDefinitionFile();
@@ -206,12 +212,12 @@ public abstract class BaseTest {
 
     private RequestSpecification authRequest(String username) {
         LOGGER.info("authRequestForUsername username {}", username);
-        return setJwtTokenHeader(idamHelper.authenticateUser(username))
+        return setJwtTokenHeader(idamHelper.authenticateUser(username, DUMMY_USER_DEFAULT_PASS))
             .header(SERVICE_AUTHORIZATION, hrsS2sAuth);
     }
 
     private RequestSpecification userAuthRequest(String username) {
-        return setJwtTokenHeader(idamHelper.authenticateUser(username));
+        return setJwtTokenHeader(idamHelper.authenticateUser(username, DUMMY_USER_DEFAULT_PASS));
     }
 
     private RequestSpecification setJwtTokenHeader(String userToken) {
