@@ -94,8 +94,6 @@ public abstract class BaseTest {
     protected static final String USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS = "em-test-searcher@test.hmcts.net";
     protected static final String USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY = "em-test-requestor@test.hmcts.net";
     protected static final String USER_WITH_NONACCESS_ROLE_CITIZEN = "em-test-citizen@test.hmcts.net";
-    public static final String DUMMY_USER_DEFAULT_PASS =
-        "4590fgvhbfgbDdffm3lk4j";//USED ONLY FOR TESTS in IDAM HELPER
     protected static final String EMAIL_ADDRESS_INVALID_FORMAT = "invalid@emailaddress";
 
     private static final String ROLE_CASE_WORKER = "caseworker";
@@ -140,7 +138,7 @@ public abstract class BaseTest {
     private String idamHrsIngestorUserName;
 
     @Value("${idam.hrs-ingestor.password}")
-    private String idamHrsIngestorPassword;
+    protected String idamHrsIngestorPassword;
 
     protected IdamClient idamClient;
 
@@ -178,15 +176,15 @@ public abstract class BaseTest {
         if (usersCreated.compareAndSet(false, true)) {
             LOGGER.info("CREATING IDAM USERS FOR FUNCTIONAL TESTS");
             idamHelper.createUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION,
-                                  DUMMY_USER_DEFAULT_PASS,
+                                  idamHrsIngestorPassword,
                                   SYSTEM_USER_ROLES
             );
             idamHelper.createUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS,
-                                  DUMMY_USER_DEFAULT_PASS,
+                                  idamHrsIngestorPassword,
                                   CASE_WORKER_HRS_SEARCHER_ROLE
             );
-            idamHelper.createUser(USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY, DUMMY_USER_DEFAULT_PASS, CASE_WORKER_ROLE);
-            idamHelper.createUser(USER_WITH_NONACCESS_ROLE_CITIZEN, DUMMY_USER_DEFAULT_PASS, CITIZEN_ROLE);
+            idamHelper.createUser(USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY, idamHrsIngestorPassword, CASE_WORKER_ROLE);
+            idamHelper.createUser(USER_WITH_NONACCESS_ROLE_CITIZEN, idamHrsIngestorPassword, CITIZEN_ROLE);
             if (uploadCcdDefinition) {
                 LOGGER.info("Uploading CCD definitions");
                 extendedCcdHelper.importDefinitionFile();
@@ -212,12 +210,12 @@ public abstract class BaseTest {
 
     private RequestSpecification authRequest(String username) {
         LOGGER.info("authRequestForUsername username {}", username);
-        return setJwtTokenHeader(idamHelper.authenticateUser(username, DUMMY_USER_DEFAULT_PASS))
+        return setJwtTokenHeader(idamHelper.authenticateUser(username, idamHrsIngestorPassword))
             .header(SERVICE_AUTHORIZATION, hrsS2sAuth);
     }
 
     private RequestSpecification userAuthRequest(String username) {
-        return setJwtTokenHeader(idamHelper.authenticateUser(username, DUMMY_USER_DEFAULT_PASS));
+        return setJwtTokenHeader(idamHelper.authenticateUser(username, idamHrsIngestorPassword));
     }
 
     private RequestSpecification setJwtTokenHeader(String userToken) {
@@ -416,7 +414,7 @@ public abstract class BaseTest {
         Map<String, String> searchCriteria = Map.of("case.recordingReference", caseRef);
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
         String userToken = idamClient.getAccessToken(
-            USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, DUMMY_USER_DEFAULT_PASS);
+            USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, idamHrsIngestorPassword);
         String uid = idamClient.getUserInfo(userToken).getUid();
 
         LOGGER.info("with Jurisdiction {} and casetype {}", JURISDICTION, CASE_TYPE);
@@ -455,7 +453,7 @@ public abstract class BaseTest {
 
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
         String userToken = idamClient.getAccessToken(
-            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, DUMMY_USER_DEFAULT_PASS);
+            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, idamHrsIngestorPassword);
         String uid = idamClient.getUserInfo(userToken).getUid();
 
         StartEventResponse startEventResponse =
