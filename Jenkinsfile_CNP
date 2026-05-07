@@ -15,7 +15,7 @@ properties([
   disableConcurrentBuilds()
 ])
 
-@Library("Infrastructure")
+@Library("Infrastructure@maven-mirror-auth")
 
 def type = "java"
 def product = "em"
