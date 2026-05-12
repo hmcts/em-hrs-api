@@ -42,6 +42,7 @@ import uk.gov.hmcts.reform.em.test.retry.RetryExtension;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -76,6 +78,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public abstract class BaseTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
+    private static final AtomicBoolean usersCreated = new AtomicBoolean(false);
 
     protected static final String JURISDICTION = "HRS";
     protected static final String LOCATION_CODE = "0123";
@@ -91,9 +94,16 @@ public abstract class BaseTest {
     protected static final String USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS = "em-test-searcher@test.hmcts.net";
     protected static final String USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY = "em-test-requestor@test.hmcts.net";
     protected static final String USER_WITH_NONACCESS_ROLE_CITIZEN = "em-test-citizen@test.hmcts.net";
-    protected static final String DUMMY_USER_DEFAULT_PASS =
-        "4590fgvhbfgbDdffm3lk4j";//USED ONLY FOR TESTS in IDAM HELPER
     protected static final String EMAIL_ADDRESS_INVALID_FORMAT = "invalid@emailaddress";
+
+    private static final String ROLE_CASE_WORKER = "caseworker";
+    private static final List<String> SYSTEM_USER_ROLES =
+        List.of(ROLE_CASE_WORKER, "caseworker-hrs", "caseworker-hrs-searcher",
+                "ccd-import", "caseworker-hrs-systemupdate");
+    private static final List<String> CASE_WORKER_ROLE = List.of(ROLE_CASE_WORKER);
+    private static final List<String> CASE_WORKER_HRS_SEARCHER_ROLE =
+        List.of(ROLE_CASE_WORKER, "caseworker-hrs", "caseworker-hrs-searcher");
+    private static final List<String> CITIZEN_ROLE = List.of("citizen");
 
     protected static final String FOLDER =
         "audiostream" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -111,6 +121,9 @@ public abstract class BaseTest {
     @Value("${close-ccd-test-cases}")
     protected boolean closeCcdCase;
 
+    @Value("${upload-ccd-definition}")
+    private boolean uploadCcdDefinition;
+
     //The format "yyyy-MM-dd---HH-MM-ss---SSS" will render "07-30-2021---16-07-35---485"
     private DateTimeFormatter datePartFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private DateTimeFormatter timePartFormatter = DateTimeFormatter.ofPattern("HH-MM-ss---SSS");
@@ -125,7 +138,7 @@ public abstract class BaseTest {
     private String idamHrsIngestorUserName;
 
     @Value("${idam.hrs-ingestor.password}")
-    private String idamHrsIngestorPassword;
+    protected String idamHrsIngestorPassword;
 
     protected IdamClient idamClient;
 
@@ -157,9 +170,26 @@ public abstract class BaseTest {
     }
 
     @PostConstruct
-    public void init() {
+    public void init() throws IOException {
         LOGGER.info("AUTHENTICATING TEST USER FOR CCD CALLS");
         hrsS2sAuth = BEARER + s2sHelper.getS2sToken();
+        if (usersCreated.compareAndSet(false, true)) {
+            LOGGER.info("CREATING IDAM USERS FOR FUNCTIONAL TESTS");
+            idamHelper.createUser(SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION,
+                                  idamHrsIngestorPassword,
+                                  SYSTEM_USER_ROLES
+            );
+            idamHelper.createUser(USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS,
+                                  idamHrsIngestorPassword,
+                                  CASE_WORKER_HRS_SEARCHER_ROLE
+            );
+            idamHelper.createUser(USER_WITH_REQUESTOR_ROLE_CASEWORKER_ONLY, idamHrsIngestorPassword, CASE_WORKER_ROLE);
+            idamHelper.createUser(USER_WITH_NONACCESS_ROLE_CITIZEN, idamHrsIngestorPassword, CITIZEN_ROLE);
+            if (uploadCcdDefinition) {
+                LOGGER.info("Uploading CCD definitions");
+                extendedCcdHelper.importDefinitionFile();
+            }
+        }
     }
 
     public RequestSpecification authRequestForSearcherRole() {
@@ -180,12 +210,12 @@ public abstract class BaseTest {
 
     private RequestSpecification authRequest(String username) {
         LOGGER.info("authRequestForUsername username {}", username);
-        return setJwtTokenHeader(idamHelper.authenticateUser(username))
+        return setJwtTokenHeader(idamHelper.authenticateUser(username, idamHrsIngestorPassword))
             .header(SERVICE_AUTHORIZATION, hrsS2sAuth);
     }
 
     private RequestSpecification userAuthRequest(String username) {
-        return setJwtTokenHeader(idamHelper.authenticateUser(username));
+        return setJwtTokenHeader(idamHelper.authenticateUser(username, idamHrsIngestorPassword));
     }
 
     private RequestSpecification setJwtTokenHeader(String userToken) {
@@ -384,7 +414,7 @@ public abstract class BaseTest {
         Map<String, String> searchCriteria = Map.of("case.recordingReference", caseRef);
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
         String userToken = idamClient.getAccessToken(
-            USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, DUMMY_USER_DEFAULT_PASS);
+            USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS, idamHrsIngestorPassword);
         String uid = idamClient.getUserInfo(userToken).getUid();
 
         LOGGER.info("with Jurisdiction {} and casetype {}", JURISDICTION, CASE_TYPE);
@@ -423,7 +453,7 @@ public abstract class BaseTest {
 
         String s2sToken = extendedCcdHelper.getCcdS2sToken();
         String userToken = idamClient.getAccessToken(
-            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, DUMMY_USER_DEFAULT_PASS);
+            SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, idamHrsIngestorPassword);
         String uid = idamClient.getUserInfo(userToken).getUid();
 
         StartEventResponse startEventResponse =
