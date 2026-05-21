@@ -228,6 +228,44 @@ dependencyCheck {
   }
 }
 
+dependencyManagement {
+  dependencies {
+    dependency 'com.github.junrar:junrar:7.6.0'
+    dependency 'org.apache.commons:commons-lang3:3.20.0'
+    dependencySet(group: 'org.apache.tomcat.embed', version: '10.1.55') {
+      entry 'tomcat-embed-core'
+      entry 'tomcat-embed-websocket'
+      entry 'tomcat-embed-el'
+    }
+    dependencySet(group: 'io.netty', version: '4.1.133.Final') {
+      entry 'netty-buffer'
+      entry 'netty-codec'
+      entry 'netty-codec-dns'
+      entry 'netty-codec-http'
+      entry 'netty-codec-http2'
+      entry 'netty-codec-socks'
+      entry 'netty-common'
+      entry 'netty-handler'
+      entry 'netty-handler-proxy'
+      entry 'netty-resolver'
+      entry 'netty-resolver-dns'
+      entry 'netty-resolver-dns-classes-macos'
+      entry 'netty-resolver-dns-native-macos'
+      entry 'netty-transport'
+      entry 'netty-transport-classes-epoll'
+      entry 'netty-transport-classes-kqueue'
+      entry 'netty-transport-native-epoll'
+      entry 'netty-transport-native-kqueue'
+      entry 'netty-transport-native-unix-common'
+    }
+    dependencySet(group: 'org.apache.logging.log4j', version: '2.26.0') {
+      entry 'log4j-api'
+      entry 'log4j-core'
+      entry 'log4j-to-slf4j'
+    }
+  }
+}
+
 configurations.configureEach {
   exclude group: 'org.springframework.security', module: 'spring-security-rsa'
   exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
@@ -299,7 +337,7 @@ dependencies {
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.8.17'
 //azure components
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.33.4'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.34.0'
   implementation group: 'com.azure', name: 'azure-identity', version: '1.18.3'
 
   // Job scheduling
