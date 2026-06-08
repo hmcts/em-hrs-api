@@ -320,7 +320,7 @@ dependencies {
 
   implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '9.0'
 
-  implementation group:'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.21'
+  implementation group:'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.22'
 
 //hmcts autho
   implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '3.0.5'
