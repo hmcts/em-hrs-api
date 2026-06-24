@@ -335,7 +335,7 @@ dependencies {
 
 //hmcts logging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
-  implementation group: 'com.microsoft.azure', name: 'applicationinsights-core', version: '3.7.8'
+  implementation group: 'com.microsoft.azure', name: 'applicationinsights-core', version: '3.7.9'
 //gov notify email service
   implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: '6.0.0-RELEASE'
 
