@@ -310,8 +310,8 @@ dependencies {
   implementation group: 'org.springframework.security', name: 'spring-security-core', version: versions.springSecurity
   implementation group: 'org.springframework.security', name: 'spring-security-web', version: versions.springSecurity
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.3.2'
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.3.2'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '4.3.3'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.3.3'
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
