@@ -266,6 +266,7 @@ dependencyManagement {
     // CVE-2025-7962
     dependencySet(group: 'org.eclipse.angus', version: '2.0.5') {
       entry 'angus-mail'
+      entry 'angus-activation'
     }
   }
 }
