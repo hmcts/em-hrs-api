@@ -27,11 +27,23 @@
         <packageUrl regex="true">^pkg:maven/io\.netty/.*@.*$</packageUrl>
         <cve>CVE-2026-42582</cve>
     </suppress>
-  <suppress until="2026-08-30">
-  <notes>False positive: angus-activation is a separate project from angus-mail with independent versioning.
-        CVE-2025-7962 affects angus-mail (SMTP component) only, not angus-activation (Jakarta Activation).
-        See https://github.com/dependency-check/DependencyCheck/issues/8130</notes>
+    <suppress until="2026-08-30">
+        <notes>False positive: angus-activation is a separate project from angus-mail with independent versioning.
+          CVE-2025-7962 affects angus-mail (SMTP component) only, not angus-activation (Jakarta Activation).
+          See https://github.com/dependency-check/DependencyCheck/issues/8130</notes>
         <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/angus\-activation@.*$</packageUrl>
         <cve>CVE-2025-7962</cve>
+    </suppress>
+    <suppress until="2026-08-30Z">
+        <notes>CVE-2026-54515 affects jackson-databind 2.21.x and 2.22.0 (managed by Spring Boot 3.5.15 BOM).
+          No patched release is available yet. Suppress until a fixed version is published.</notes>
+        <gav regex="true">^com\.fasterxml\.jackson\.core:jackson-databind:.*$</gav>
+        <cve>CVE-2026-54515</cve>
+    </suppress>
+    <suppress until="2026-08-30Z">
+      <notes>CVE-2026-53914 affects kotlin-stdlib 2.4.0 (pinned to avoid CVE-2020-29582 on older versions).
+        No patched release is available yet. Suppress until a fixed version is published.</notes>
+      <gav regex="true">^org\.jetbrains\.kotlin:kotlin-stdlib:.*$</gav>
+      <cve>CVE-2026-53914</cve>
     </suppress>
 </suppressions>
