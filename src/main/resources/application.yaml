@@ -101,6 +101,9 @@ idam:
         baseUrl: ${S2S_BASE_URI:http://localhost:8489}
   s2s-authorised:
     services: ${S2S_NAMES_WHITELIST:ccd_gw,em_gw,em_hrs_ingestor,xui_webapp,ccd,ccd_data,ccd_case_disposer}
+  security:
+    allowed-issuers:
+      - http://localhost:5062/o
 
 core_case_data:
   api:
