@@ -14,7 +14,7 @@ test:
   url: ${TEST_URL:http://localhost:8080}
 idam:
   api:
-    url: ${IDAM_API_BASE_URI:https://idam-api.aat.platform.hmcts.net}
+    url: ${TEST_IDAM_API_BASE_URI:https://idam-api.aat.platform.hmcts.net}
   client:
     id: ${OAUTH_CLIENT_ID:webshow}
     secret: ${IDAM_CLIENT_OAUTH_SECRET:AAAAAAAAAAAAAAAA}
