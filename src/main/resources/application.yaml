@@ -87,7 +87,7 @@ idam:
     cache:
       refresh-before-expire-in-sec: 300
   api:
-    url: ${IDAM_API_BASE_URI:http://localhost:5062}
+    url: ${IDAM_WEB_API_BASE_URI:http://localhost:5062}
   system-user:
     username: ${HRS_SYSTEM_USER:hrs.tester@hmcts.net} #hrs.tester@hmcts.net in all non prod environments
     password: ${HRS_SYSTEM_USER_PASSWORD:4590fgvhbfgbDdffm3lk4j} #password only used locally with docker containers
