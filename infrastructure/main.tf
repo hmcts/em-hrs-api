@@ -128,29 +128,30 @@ module "storage_account" {
   common_tags  = local.tags
   team_contact = var.team_contact
   destroy_me   = var.destroy_me
-
-  {
-    "rules": [
-      {
-        "enabled": var.aging_rule_hot_to_cold,
-        "name": "aging-rule-hot-to-cold",
-        "type": "Lifecycle",
-        "definition": {
-          "actions": {
-            "baseBlob": {
-              "tierToCold": {"daysAfterCreationGreaterThan": var.aging_rule_in_days }
-            }
-          },
-          "filters": {
-            "blobTypes": ["blockBlob"]
-          }
-        }
-      }
-    ]
-  }
-
 }
 
+resource "azurerm_storage_management_policy" "lifecycle_policy" {
+  storage_account_id = module.storage_account.storageaccount_id
+  {
+      "rules": [
+        {
+          "enabled": var.aging_rule_hot_to_cold,
+          "name": "aging-rule-hot-to-cold",
+          "type": "Lifecycle",
+          "definition": {
+            "actions": {
+              "baseBlob": {
+                "tierToCold": {"daysAfterCreationGreaterThan": var.aging_rule_in_days }
+              }
+            },
+            "filters": {
+              "blobTypes": ["blockBlob"]
+            }
+          }
+        }
+      ]
+    }
+}
 resource "azurerm_storage_container" "vh_container" {
   name                  = "vhrecordings"
   storage_account_name  = module.storage_account.storageaccount_name
