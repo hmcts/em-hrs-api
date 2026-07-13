@@ -96,3 +96,15 @@ variable "storage_account_allow_public_network_access" {
 variable "businessArea" {
   default = "cft"
 }
+
+variable "aging_rule_hot_to_cold" {
+  description = "Controls whether the aging rule for moving hot blobs to cold is enabled."
+  type        = bool
+  default     = true
+}
+
+variable "aging_rule_in_days" {
+  description = "Number of days after which hot blobs are moved to cold."
+  type        = number
+  default     = 120
+}
