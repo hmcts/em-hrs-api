@@ -131,7 +131,7 @@ module "storage_account" {
 }
 
 resource "azurerm_storage_management_policy" "lifecycle_policy" {
-  storage_account_id = module.storage_account.id
+  storage_account_id = module.storage_account.storageaccount_id
 
   rule {
     name    = "aging-rule-hot-to-cold"
