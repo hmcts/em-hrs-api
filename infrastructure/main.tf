@@ -131,27 +131,24 @@ module "storage_account" {
 }
 
 resource "azurerm_storage_management_policy" "lifecycle_policy" {
-  storage_account_id = module.storage_account.storageaccount_id
-  {
-      "rules": [
-        {
-          "enabled": var.aging_rule_hot_to_cold,
-          "name": "aging-rule-hot-to-cold",
-          "type": "Lifecycle",
-          "definition": {
-            "actions": {
-              "baseBlob": {
-                "tierToCold": {"daysAfterCreationGreaterThan": var.aging_rule_in_days }
-              }
-            },
-            "filters": {
-              "blobTypes": ["blockBlob"]
-            }
-          }
-        }
-      ]
+  storage_account_id = module.storage_account.id
+
+  rule {
+    name    = "aging-rule-hot-to-cold"
+    enabled = var.aging_rule_hot_to_cold
+
+    filters {
+      blob_types = ["blockBlob"]
     }
+
+    actions {
+      base_blob {
+        tier_to_cold_after_days_since_creation_greater_than = var.aging_rule_in_days
+      }
+    }
+  }
 }
+
 resource "azurerm_storage_container" "vh_container" {
   name                  = "vhrecordings"
   storage_account_name  = module.storage_account.storageaccount_name
