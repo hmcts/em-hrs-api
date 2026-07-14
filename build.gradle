@@ -268,7 +268,7 @@ dependencyManagement {
       entry 'angus-mail'
     }
     dependency 'com.fasterxml.jackson.core:jackson-databind:2.22.1'
-    dependency 'tools.jackson.core:jackson-databind:3.2.0'
+    dependency 'tools.jackson.core:jackson-databind:3.2.1'
   }
 }
 
