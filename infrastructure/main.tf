@@ -297,6 +297,7 @@ module "db-v15" {
 # Private Endpoint in VH Wowza subnet
 data "azurerm_subnet" "vh_private_endpoints" {
   provider = azurerm.vh_vnet
+  count    = var.create_vh_vnet_private_endpoint == "true" ? 1 : 0
 
   resource_group_name  = "ss-${var.vh_environment}-network-rg"
   virtual_network_name = "ss-${var.vh_environment}-vnet"
@@ -308,9 +309,9 @@ resource "azurerm_private_endpoint" "vh_vnet_private_endpoint" {
   count    = var.create_vh_vnet_private_endpoint == "true" ? 1 : 0
 
   name                = module.storage_account.storageaccount_name
-  resource_group_name = data.azurerm_subnet.vh_private_endpoints.resource_group_name
+  resource_group_name = data.azurerm_subnet.vh_private_endpoints[0].resource_group_name
   location            = var.location
-  subnet_id           = data.azurerm_subnet.vh_private_endpoints.id
+  subnet_id           = data.azurerm_subnet.vh_private_endpoints[0].id
 
   private_service_connection {
     name                           = module.storage_account.storageaccount_name
@@ -330,6 +331,7 @@ resource "azurerm_private_endpoint" "vh_vnet_private_endpoint" {
 # Private Endpoint in CVP Wowza subnet
 data "azurerm_subnet" "cvp_private_endpoints" {
   provider = azurerm.cvp_vnet
+  count    = var.create_cvp_vnet_private_endpoint == "true" ? 1 : 0
 
   resource_group_name  = "cvp-recordings-${var.cvp_environment}-rg"
   virtual_network_name = "cvp-recordings-${var.cvp_environment}-vnet"
@@ -341,9 +343,9 @@ resource "azurerm_private_endpoint" "cvp_vnet_private_endpoint" {
   count    = var.create_cvp_vnet_private_endpoint == "true" ? 1 : 0
 
   name                = module.storage_account.storageaccount_name
-  resource_group_name = data.azurerm_subnet.cvp_private_endpoints.resource_group_name
+  resource_group_name = data.azurerm_subnet.cvp_private_endpoints[0].resource_group_name
   location            = var.location
-  subnet_id           = data.azurerm_subnet.cvp_private_endpoints.id
+  subnet_id           = data.azurerm_subnet.cvp_private_endpoints[0].id
 
   private_service_connection {
     name                           = module.storage_account.storageaccount_name
