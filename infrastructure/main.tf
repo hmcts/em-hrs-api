@@ -5,23 +5,23 @@ provider "azurerm" {
 
 provider "azurerm" {
   features {}
-  skip_provider_registration = true
-  alias                      = "cft_vnet"
-  subscription_id            = var.aks_subscription_id
+  resource_provider_registrations = "none"
+  alias                           = "cft_vnet"
+  subscription_id                 = var.aks_subscription_id
 }
 
 provider "azurerm" {
   features {}
-  skip_provider_registration = true
-  alias                      = "vh_vnet"
-  subscription_id            = var.vh_subscription_id
+  resource_provider_registrations = "none"
+  alias                           = "vh_vnet"
+  subscription_id                 = var.vh_subscription_id
 }
 
 provider "azurerm" {
   features {}
-  skip_provider_registration = true
-  alias                      = "cvp_vnet"
-  subscription_id            = var.cvp_subscription_id
+  resource_provider_registrations = "none"
+  alias                           = "cvp_vnet"
+  subscription_id                 = var.cvp_subscription_id
 }
 
 locals {
@@ -40,16 +40,17 @@ resource "azurerm_resource_group" "rg" {
 }
 
 module "key-vault" {
-  source                     = "git@github.com:hmcts/cnp-module-key-vault?ref=master"
-  product                    = local.app_full_name
-  env                        = var.env
-  tenant_id                  = var.tenant_id
-  object_id                  = var.jenkins_AAD_objectId
-  resource_group_name        = azurerm_resource_group.rg.name
-  product_group_object_id    = "5d9cd025-a293-4b97-a0e5-6f43efce02c0"
-  common_tags                = var.common_tags
-  managed_identity_object_id = data.azurerm_user_assigned_identity.em-shared-identity.principal_id
-  jenkins_object_id          = data.azurerm_user_assigned_identity.jenkins.principal_id
+  source                       = "git@github.com:hmcts/cnp-module-key-vault?ref=DTSPO-31965/remove-jenkins-ptl-access"
+  product                      = local.app_full_name
+  env                          = var.env
+  tenant_id                    = var.tenant_id
+  object_id                    = var.jenkins_AAD_objectId
+  resource_group_name          = azurerm_resource_group.rg.name
+  product_group_object_id      = "5d9cd025-a293-4b97-a0e5-6f43efce02c0"
+  common_tags                  = var.common_tags
+  managed_identity_object_id   = data.azurerm_user_assigned_identity.em-shared-identity.principal_id
+  jenkins_object_id            = data.azurerm_user_assigned_identity.jenkins.principal_id
+  grant_preview_jenkins_access = var.env == "aat"
 }
 
 data "azurerm_user_assigned_identity" "jenkins" {
@@ -262,7 +263,7 @@ module "db-v15" {
   providers = {
     azurerm.postgres_network = azurerm.cft_vnet
   }
-  source                     = "git@github.com:hmcts/terraform-module-postgresql-flexible?ref=master"
+  source                     = "git@github.com:hmcts/terraform-module-postgresql-flexible?ref=DTSPO-30107-additional-postgres-admins"
   env                        = var.env
   product                    = var.product
   component                  = var.component
@@ -296,6 +297,7 @@ module "db-v15" {
 # Private Endpoint in VH Wowza subnet
 data "azurerm_subnet" "vh_private_endpoints" {
   provider = azurerm.vh_vnet
+  count    = var.create_vh_vnet_private_endpoint == "true" ? 1 : 0
 
   resource_group_name  = "ss-${var.vh_environment}-network-rg"
   virtual_network_name = "ss-${var.vh_environment}-vnet"
@@ -307,9 +309,9 @@ resource "azurerm_private_endpoint" "vh_vnet_private_endpoint" {
   count    = var.create_vh_vnet_private_endpoint == "true" ? 1 : 0
 
   name                = module.storage_account.storageaccount_name
-  resource_group_name = data.azurerm_subnet.vh_private_endpoints.resource_group_name
+  resource_group_name = data.azurerm_subnet.vh_private_endpoints[0].resource_group_name
   location            = var.location
-  subnet_id           = data.azurerm_subnet.vh_private_endpoints.id
+  subnet_id           = data.azurerm_subnet.vh_private_endpoints[0].id
 
   private_service_connection {
     name                           = module.storage_account.storageaccount_name
@@ -329,6 +331,7 @@ resource "azurerm_private_endpoint" "vh_vnet_private_endpoint" {
 # Private Endpoint in CVP Wowza subnet
 data "azurerm_subnet" "cvp_private_endpoints" {
   provider = azurerm.cvp_vnet
+  count    = var.create_cvp_vnet_private_endpoint == "true" ? 1 : 0
 
   resource_group_name  = "cvp-recordings-${var.cvp_environment}-rg"
   virtual_network_name = "cvp-recordings-${var.cvp_environment}-vnet"
@@ -340,9 +343,9 @@ resource "azurerm_private_endpoint" "cvp_vnet_private_endpoint" {
   count    = var.create_cvp_vnet_private_endpoint == "true" ? 1 : 0
 
   name                = module.storage_account.storageaccount_name
-  resource_group_name = data.azurerm_subnet.cvp_private_endpoints.resource_group_name
+  resource_group_name = data.azurerm_subnet.cvp_private_endpoints[0].resource_group_name
   location            = var.location
-  subnet_id           = data.azurerm_subnet.cvp_private_endpoints.id
+  subnet_id           = data.azurerm_subnet.cvp_private_endpoints[0].id
 
   private_service_connection {
     name                           = module.storage_account.storageaccount_name
