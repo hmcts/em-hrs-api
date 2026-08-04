@@ -13,13 +13,6 @@ provider "azurerm" {
 provider "azurerm" {
   features {}
   resource_provider_registrations = "none"
-  alias                           = "vh_vnet"
-  subscription_id                 = var.vh_subscription_id
-}
-
-provider "azurerm" {
-  features {}
-  resource_provider_registrations = "none"
   alias                           = "cvp_vnet"
   subscription_id                 = var.cvp_subscription_id
 }
@@ -292,40 +285,6 @@ module "db-v15" {
   pgsql_sku                      = var.pgsql_sku
   pgsql_storage_mb               = var.pgsql_storage_mb
   force_user_permissions_trigger = "2"
-}
-
-# Private Endpoint in VH Wowza subnet
-data "azurerm_subnet" "vh_private_endpoints" {
-  provider = azurerm.vh_vnet
-  count    = var.create_vh_vnet_private_endpoint == "true" ? 1 : 0
-
-  resource_group_name  = "ss-${var.vh_environment}-network-rg"
-  virtual_network_name = "ss-${var.vh_environment}-vnet"
-  name                 = "vh_private_endpoints"
-}
-
-resource "azurerm_private_endpoint" "vh_vnet_private_endpoint" {
-  provider = azurerm.vh_vnet
-  count    = var.create_vh_vnet_private_endpoint == "true" ? 1 : 0
-
-  name                = module.storage_account.storageaccount_name
-  resource_group_name = data.azurerm_subnet.vh_private_endpoints[0].resource_group_name
-  location            = var.location
-  subnet_id           = data.azurerm_subnet.vh_private_endpoints[0].id
-
-  private_service_connection {
-    name                           = module.storage_account.storageaccount_name
-    is_manual_connection           = false
-    private_connection_resource_id = module.storage_account.storageaccount_id
-    subresource_names              = ["blob"]
-  }
-
-  # private_dns_zone_group {
-  #   name                 = "endpoint-dnszonegroup"
-  #   private_dns_zone_ids = local.private_dns_zone_ids
-  # }
-
-  tags = var.common_tags
 }
 
 # Private Endpoint in CVP Wowza subnet
