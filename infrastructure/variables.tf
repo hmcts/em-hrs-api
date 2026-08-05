@@ -46,15 +46,11 @@ variable "sku_capacity" {
 
 variable "aks_subscription_id" {}
 
-variable "vh_subscription_id" {
-  default = ""
-}
+variable "vh_subscription_id" {}
 
 variable "cvp_subscription_id" {}
 
-variable "vh_environment" {
-  default = ""
-}
+variable "vh_environment" {}
 
 variable "cvp_environment" {}
 
