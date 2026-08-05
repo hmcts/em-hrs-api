@@ -46,6 +46,15 @@ variable "sku_capacity" {
 
 variable "aks_subscription_id" {}
 
+variable "vh_subscription_id" {}
+
+variable "vh_environment" {}
+
+variable "create_vh_vnet_private_endpoint" {
+  description = "Create a private endpoint for the VNet"
+  default     = "false"
+}
+
 variable "cvp_subscription_id" {}
 
 variable "cvp_environment" {}
