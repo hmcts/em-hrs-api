@@ -1,3 +1,3 @@
-cvp_subscription_id              = "74dacd4f-a248-45bb-a2f0-af700dc4cf68" #DTS-SHAREDSERVICES-STG
+cvp_subscription_id              = "7a4e3bd5-ae3a-4d0c-b441-2188fee3ff1c" #DTS-SHAREDSERVICES-STG
 cvp_environment                  = "stg"
 create_cvp_vnet_private_endpoint = "false"
