@@ -13,15 +13,15 @@ provider "azurerm" {
 provider "azurerm" {
   features {}
   resource_provider_registrations = "none"
-  alias                           = "cvp_vnet"
-  subscription_id                 = var.cvp_subscription_id
+  alias                           = "vh_vnet"
+  subscription_id                 = var.vh_subscription_id
 }
 
 provider "azurerm" {
   features {}
   resource_provider_registrations = "none"
-  alias                           = "vh_vnet"
-  subscription_id                 = var.vh_subscription_id
+  alias                           = "cvp_vnet"
+  subscription_id                 = var.cvp_subscription_id
 }
 
 locals {
