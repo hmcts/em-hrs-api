@@ -32,7 +32,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 @PactBroker(
     url = "${PACT_BROKER_FULL_URL:http://localhost:80}",
-    providerBranch = "${pact.provider.branch}"
+    providerBranch = "${pact.provider.branch}",
+    enablePendingPacts = "${pactbroker.enablePending:true}"
 )
 //@PactFolder("pacts")
 @IgnoreNoPactsToVerify
