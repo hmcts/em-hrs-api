@@ -226,6 +226,8 @@ dependencyCheck {
     // Disable scanning of .NET related binaries
     assemblyEnabled = false
   }
+  / Force the plugin to drop the report directly into build/reports/
+    outputDirectory = layout.buildDirectory.dir("reports").get().asFile.absolutePath
 }
 
 dependencyManagement {
