@@ -646,7 +646,7 @@ pitest {
   failWhenNoMutations = false
   detectInlinedCode = true
   junit5PluginVersion = '1.2.1'
-  pitestVersion = '1.17.3'
+  pitestVersion = '1.22.1'
 }
 
 // exclude the logback binding is coming in via cftlib
