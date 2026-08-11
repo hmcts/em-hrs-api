@@ -16,7 +16,7 @@ plugins {
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.1.7'
   id 'org.springframework.boot' version '3.5.16'
-  id 'com.github.ben-manes.versions' version '0.59.0'
+  id 'com.github.ben-manes.versions' version '0.61.0'
   id 'org.sonarqube' version '7.4.0.8496'
   id 'org.flywaydb.flyway' version '13.2.0'
   id 'au.com.dius.pact' version '4.7.5'
@@ -226,8 +226,6 @@ dependencyCheck {
     // Disable scanning of .NET related binaries
     assemblyEnabled = false
   }
-  // Force the plugin to drop the report directly into build/reports/
-    outputDirectory = layout.buildDirectory.dir("reports").get().asFile.absolutePath
 }
 
 dependencyManagement {
@@ -421,7 +419,7 @@ dependencies {
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.27.7'
-  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '6.0.1'
+  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '6.1.0'
 
   testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: versions.testcontainers
   testImplementation group: 'org.testcontainers', name: 'postgresql', version: versions.testcontainers
