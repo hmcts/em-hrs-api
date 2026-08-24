@@ -218,3 +218,6 @@ endpoint:
 authorisation:
   deleteCase:
     s2s-names-whitelist: ${DELETE_CASE_S2S_WHITELIST:ccd_case_disposer,em_gw}
+
+toggle:
+  includeidamhealth: ${ENABLE_IDAM_HEALTH_CHECK:false}
