@@ -229,6 +229,8 @@ dependencyCheck {
   }
 }
 
+ext['tomcat.version'] = '10.1.59'
+
 dependencyManagement {
   dependencies {
     dependency 'com.github.junrar:junrar:8.1.0'
