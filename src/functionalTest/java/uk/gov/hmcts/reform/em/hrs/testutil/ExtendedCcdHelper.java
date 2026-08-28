@@ -6,15 +6,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDataContent;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.Event;
 import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
-import uk.gov.hmcts.reform.em.test.ccddefinition.CcdDefImportApi;
 import uk.gov.hmcts.reform.em.test.ccddefinition.CcdDefUserRoleApi;
 import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 
@@ -26,6 +23,9 @@ import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
+import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.is;
 import static uk.gov.hmcts.reform.em.hrs.BaseTest.SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION;
 
 @Service
@@ -37,7 +37,6 @@ public class ExtendedCcdHelper {
 
     private IdamHelper idamHelper;
     private AuthTokenGenerator ccdAuthTokenGenerator;
-    private CcdDefImportApi ccdDefImportApi;
     private CcdDefUserRoleApi ccdDefUserRoleApi;
     // Sourced from key vault to ensure a consistent password across all concurrent pipeline runs
     @Value("${idam.hrs-ingestor.password}")
@@ -45,6 +44,8 @@ public class ExtendedCcdHelper {
 
     @Value("${ccd-def.file}")
     protected String ccdDefinitionFile;
+    @Value("${ccd-def.api.url}")
+    protected String ccdDefApiUrl;
     @Value("${core_case_data.api.url}")
     protected String ccdApiUrl;
 
@@ -52,12 +53,10 @@ public class ExtendedCcdHelper {
     public ExtendedCcdHelper(
         IdamHelper idamHelper,
         @Qualifier("ccdAuthTokenGenerator") AuthTokenGenerator ccdAuthTokenGenerator,
-        CcdDefImportApi ccdDefImportApi,
         CcdDefUserRoleApi ccdDefUserRoleApi
     ) {
         this.idamHelper = idamHelper;
         this.ccdAuthTokenGenerator = ccdAuthTokenGenerator;
-        this.ccdDefImportApi = ccdDefImportApi;
         this.ccdDefUserRoleApi = ccdDefUserRoleApi;
     }
 
@@ -76,19 +75,19 @@ public class ExtendedCcdHelper {
         createCcdUserRole("cft-ttl-manager");
         createCcdUserRole("caseworker-hrs-systemupdate");
 
-        MultipartFile ccdDefinitionRequest = new MockMultipartFile(
-            "x",
-            "x",
-            "application/octet-stream",
-            getHrsDefinitionFile()
-        );
-
         String systemUserAuthenticatedToken = idamHelper.authenticateUser(
             SYSTEM_USER_FOR_FUNCTIONAL_TEST_ORCHESTRATION, dummyPassword);
         String microserviceEmHrsApiAuthenticatedToken = ccdAuthTokenGenerator.generate();
-        ccdDefImportApi.importCaseDefinition(systemUserAuthenticatedToken,
-                                             microserviceEmHrsApiAuthenticatedToken, ccdDefinitionRequest
-        );
+        importCcdDefinition(systemUserAuthenticatedToken, microserviceEmHrsApiAuthenticatedToken);
+    }
+
+    private void importCcdDefinition(String idamToken, String s2sToken) {
+        getCcdDefinitionRequestSpecification(idamToken, s2sToken)
+            .multiPart("file", ccdDefinitionFile, getHrsDefinitionFile(), APPLICATION_OCTET_STREAM.getMimeType())
+            .post("/import")
+            .then().log().all()
+            .assertThat()
+            .statusCode(anyOf(is(SC_OK), is(SC_CREATED)));
     }
 
     private InputStream getHrsDefinitionFile() {
@@ -209,7 +208,17 @@ public class ExtendedCcdHelper {
     }
 
     private RequestSpecification getRequestSpecification(String idamToken, String s2sToken) {
+        return authenticatedRequest(idamToken, s2sToken)
+            .baseUri(ccdApiUrl)
+            .header("experimental", true);
+    }
 
+    private RequestSpecification getCcdDefinitionRequestSpecification(String idamToken, String s2sToken) {
+        return authenticatedRequest(idamToken, s2sToken)
+            .baseUri(ccdDefApiUrl);
+    }
+
+    private RequestSpecification authenticatedRequest(String idamToken, String s2sToken) {
         if (!StringUtils.startsWith(idamToken, BEARER_TOKEN_PREFIX)) {
             idamToken = BEARER_TOKEN_PREFIX + idamToken;
         }
@@ -219,8 +228,6 @@ public class ExtendedCcdHelper {
         return RestAssured
             .given().log().all()
             .relaxedHTTPSValidation()
-            .baseUri(ccdApiUrl)
-            .header("experimental", true)
             .header("Authorization", idamToken)
             .header("ServiceAuthorization", s2sToken);
     }

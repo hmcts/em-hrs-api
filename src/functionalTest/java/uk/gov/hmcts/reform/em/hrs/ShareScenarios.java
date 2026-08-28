@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.em.hrs;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.serenitybdd.rest.SerenityRest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
@@ -11,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import tools.jackson.databind.JsonNode;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CallbackRequest;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
@@ -115,7 +114,7 @@ public class ShareScenarios extends BaseTest {
             USER_WITH_SEARCHER_ROLE_CASEWORKER_HRS
         );
 
-        JsonNode reqBody = new ObjectMapper().convertValue(callbackRequest, JsonNode.class);
+        JsonNode reqBody = OBJECT_MAPPER.convertValue(callbackRequest, JsonNode.class);
         SerenityRest
             .given()
             .baseUri(testUrl)

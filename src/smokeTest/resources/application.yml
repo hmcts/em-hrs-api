@@ -6,7 +6,7 @@ spring:
   autoconfigure:
     debug: false
     exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
   security:
     oauth2:
       client:
