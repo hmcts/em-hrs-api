@@ -365,7 +365,7 @@ dependencies {
 
   implementation group: 'com.google.code.gson', name: 'gson', version: '2.14.0'
 
-  implementation group: 'com.google.guava', name: 'guava', version: '33.6.0-jre'
+  implementation group: 'com.google.guava', name: 'guava', version: '33.7.1-jre'
 
   cftlibImplementation 'org.springframework.boot:spring-boot-devtools'
 
