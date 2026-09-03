@@ -61,6 +61,10 @@
         <cve>CVE-2026-66299</cve>
     </suppress>
     <suppress until="2027-01-10Z">
+        <packageUrl regex="true">^pkg:maven/io\.projectreactor\.netty/reactor-netty-(core|http)@.*$</packageUrl>
+        <cve>CVE-2026-47874</cve>
+    </suppress>
+    <suppress until="2027-01-10Z">
         <notes>Spring Framework 6.2.x is EOL with no public fix for these CVEs. Fixed in Spring Framework 7.0.9
           (Spring Boot 4.0.8+). Upgrading to Spring Boot 4.x is required for a public OSS fix.
           CVE-2026-59313: Stream corruption when using SSE with the functional web framework.
@@ -89,6 +93,5 @@
         <cve>CVE-2026-59281</cve>
         <cve>CVE-2026-47891</cve>
         <cve>CVE-2026-47890</cve>
-        <cve>CVE-2026-47874</cve>
     </suppress>
 </suppressions>
