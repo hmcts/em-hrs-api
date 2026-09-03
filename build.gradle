@@ -331,7 +331,7 @@ dependencies {
   implementation group:'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.22'
 
 //hmcts autho
-  implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '3.0.5'
+  implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '3.1.0-CCD-8220'
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.3.5'
 
 //hmcts ccd
