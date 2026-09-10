@@ -408,7 +408,7 @@ dependencies {
   functionalTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-webmvc-test'
   functionalTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-jackson-test'
 
-  functionalTestImplementation(group: 'com.github.hmcts', name: 'em-test-helper', version:'3.3.0') {
+  functionalTestImplementation(group: 'com.github.hmcts', name: 'em-test-helper', version:'4.0.0') {
     exclude group: 'org.springframework.cloud'
     exclude group: 'com.github.hmcts', module: 'idam-java-client'
     exclude group: 'com.github.hmcts', module: 'core-case-data-store-client'
