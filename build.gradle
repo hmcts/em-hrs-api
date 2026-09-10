@@ -319,7 +319,6 @@ dependencies {
   implementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
   implementation "org.springframework.boot:spring-boot-starter-actuator"
-  implementation "org.springframework.boot:spring-boot-starter-jackson"
   implementation "org.springframework.boot:spring-boot-starter-validation"
   implementation "org.springframework.boot:spring-boot-starter-webmvc"
   implementation "org.springframework.boot:spring-boot-starter-restclient"
