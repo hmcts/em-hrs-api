@@ -1,23 +1,21 @@
 package uk.gov.hmcts.reform.em.hrs.config;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.cfg.DateTimeFeature;
 
 @Configuration
 public class JacksonMappingConfig {
 
     @Bean
-    public Jackson2ObjectMapperBuilder provideJackson2ObjectMapperBuilder() {
-        final Jackson2ObjectMapperBuilder jsonBuilderConfig = new Jackson2ObjectMapperBuilder();
-        jsonBuilderConfig.propertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
-        jsonBuilderConfig.findModulesViaServiceLoader(true);
-        jsonBuilderConfig.failOnUnknownProperties(false);
-        jsonBuilderConfig.featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        return jsonBuilderConfig;
+    public JsonMapperBuilderCustomizer jsonMapperBuilderCustomizer() {
+        return builder -> {
+            builder.propertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
+            builder.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+            builder.disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS);
+        };
     }
-
-
 }

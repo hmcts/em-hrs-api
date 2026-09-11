@@ -7,15 +7,15 @@ import au.com.dius.pact.provider.junitsupport.IgnoreNoPactsToVerify;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
 import au.com.dius.pact.provider.junitsupport.loader.PactBrokerConsumerVersionSelectors;
 import au.com.dius.pact.provider.junitsupport.loader.SelectorBuilder;
-import au.com.dius.pact.provider.spring.junit5.MockMvcTestTarget;
+import au.com.dius.pact.provider.spring.spring7.Spring7MockMvcTestTarget;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.oauth2.client.autoconfigure.OAuth2ClientAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -43,7 +43,10 @@ import java.util.concurrent.LinkedBlockingQueue;
     excludeAutoConfiguration = {SecurityAutoConfiguration.class, OAuth2ClientAutoConfiguration.class},
     excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = WebConfig.class)
 )
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc(
+    addFilters = false,
+    htmlUnit = @AutoConfigureMockMvc.HtmlUnit(webClient = false, webDriver = false)
+)
 public abstract class HearingControllerBaseProviderTest {
     protected MockMvc mockMvc;
     @MockitoBean
@@ -81,7 +84,7 @@ public abstract class HearingControllerBaseProviderTest {
     void before(PactVerificationContext context) {
         System.getProperties().setProperty("pact.verifier.publishResults", "true");
         if (context != null) {
-            context.setTarget(new MockMvcTestTarget(mockMvc));
+            context.setTarget(new Spring7MockMvcTestTarget(mockMvc));
         }
     }
 }

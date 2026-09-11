@@ -7,6 +7,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.specialized.BlockBlobClient;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingSource;
 import uk.gov.hmcts.reform.em.hrs.service.BlobStorageDeleteService;
 

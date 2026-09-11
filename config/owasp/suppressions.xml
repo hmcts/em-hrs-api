@@ -31,14 +31,8 @@
         <cve>CVE-2025-7962</cve>
     </suppress>
     <suppress until="2026-08-30Z">
-        <notes>CVE-2026-54515 affects com.fasterxml.jackson.core:jackson-databind 2.21.x.
-          No patched release is available yet. Suppress until a fixed version is published.</notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@.*$</packageUrl>
-        <cve>CVE-2026-54515</cve>
-    </suppress>
-    <suppress until="2026-08-30Z">
-      <notes>CVE-2026-53914 affects kotlin-stdlib 2.4.0 (pinned to avoid CVE-2020-29582 on older versions).
-        No patched release is available yet. Suppress until a fixed version is published.</notes>
+      <notes>CVE-2026-53914 is a Kotlin compiler/build-cache issue before 2.4.20. Runtime kotlin-stdlib
+        is 2.3.21. Re-evaluate if kotlin-stdlib can be raised to 2.4.20 or later.</notes>
       <gav regex="true">^org\.jetbrains\.kotlin:kotlin-stdlib:.*$</gav>
       <cve>CVE-2026-53914</cve>
     </suppress>
@@ -46,15 +40,6 @@
         <gav regex="true">^org\.apache\.httpcomponents:httpcore:.*$</gav>
         <cve>CVE-2026-54399</cve>
         <cve>CVE-2026-54428</cve>
-    </suppress>
-    <suppress until="2027-01-31Z">
-        <notes>CVE-2026-44891, CVE-2026-55831, CVE-2026-55833 were fixed in io.netty 4.2.16.Final per the Netty
-          security release notes (https://netty.io/news/2026/07/06/4-2-16-Final.html). This is a false positive
-          caused by NVD not yet reflecting the patched version range. Re-evaluate when NVD data is updated.</notes>
-        <packageUrl regex="true">^pkg:maven/io\.netty/.*@.*$</packageUrl>
-        <cve>CVE-2026-44891</cve>
-        <cve>CVE-2026-55831</cve>
-        <cve>CVE-2026-55833</cve>
     </suppress>
     <suppress until="2026-10-07Z">
         <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat-embed-(core|websocket)@.*$</packageUrl>

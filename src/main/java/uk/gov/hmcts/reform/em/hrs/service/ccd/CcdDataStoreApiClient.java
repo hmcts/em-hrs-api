@@ -1,12 +1,12 @@
 package uk.gov.hmcts.reform.em.hrs.service.ccd;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDataContent;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
@@ -140,8 +140,7 @@ public class CcdDataStoreApiClient {
         Map<String, String> tokens = securityService.createTokens();
         StartEventResponse startEventResponse = startEvent(tokens, ccdCaseId, EVENT_AMEND_CASE);
 
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.findAndRegisterModules();
+        final var mapper = JsonMapper.builder().findAndAddModules().build();
 
         CaseDetails caseDetails = startEventResponse.getCaseDetails();
         CaseHearingRecording caseHearingRecording = mapper.convertValue(

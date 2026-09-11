@@ -2,8 +2,6 @@ package uk.gov.hmcts.reform.em.hrs.storage;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.hmcts.reform.em.hrs.componenttests.config.TestApplicationConfig;
@@ -45,8 +43,6 @@ class DefaultHearingRecordingStorageIntegrationTest {
     private static final String MANY_ITEMS_FOLDER = "folder-2";
 
     private static final Random random = new SecureRandom();
-    @Captor
-    private ArgumentCaptor<String> snoopCaptor;
 
     private AzureIntegrationTestOperations azureIntegrationTestOperations;
 
@@ -62,7 +58,6 @@ class DefaultHearingRecordingStorageIntegrationTest {
 
     @BeforeEach
     void setup() {
-        snoopCaptor.getAllValues().clear();
         azureIntegrationTestOperations.clearContainer();
     }
 
