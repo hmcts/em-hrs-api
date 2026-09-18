@@ -148,12 +148,6 @@ hrs:
   ccdupload-interval-in-seconds: ${CCDUPLOAD_INTERVAL_IN_SECONDS:30} # how long between each upload (per server: 4 servers at 30 seconds = 8 per minute)
   allowed-roles: ${ALLOWED_ROLES:caseworker-hrs-searcher,caseworker-hrs} #TODO remove caseworker-hrs after all PRS synced to master
 
-auth:
-  provider:
-    service:
-      client:
-        baseUrl: ${S2S_BASE_URI:http://localhost:8489}
-
 shareelink:
   ttl: ${SHAREE_LINK_TTL:72}
 scheduling:
