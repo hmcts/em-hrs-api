@@ -27,10 +27,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
     AuthTokenGeneratorConfiguration.class,
 })
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {
-    "uk.gov.hmcts.reform.em.test",
-    "uk.gov.hmcts.reform.document"
-})
+@ComponentScan(basePackages = "uk.gov.hmcts.reform.em.test")
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(value = "classpath:application.yml")
 @WithTags({@WithTag("testType:Smoke")})

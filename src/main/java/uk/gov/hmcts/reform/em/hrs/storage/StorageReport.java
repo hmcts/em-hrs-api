@@ -1,15 +1,23 @@
 package uk.gov.hmcts.reform.em.hrs.storage;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDate;
 
 public class StorageReport {
 
     public final LocalDate today;
 
+    @JsonProperty("cvp-item-count")
     public final long cvpItemCount;
+
+    @JsonProperty("hrs-cvp-item-count")
     public final long hrsCvpItemCount;
 
+    @JsonProperty("cvp-item-count-today")
     public final long cvpItemCountToday;
+
+    @JsonProperty("hrs-cvp-item-count-today")
     public final long hrsCvpItemCountToday;
 
 
@@ -32,4 +40,3 @@ public class StorageReport {
     ) {
     }
 }
-

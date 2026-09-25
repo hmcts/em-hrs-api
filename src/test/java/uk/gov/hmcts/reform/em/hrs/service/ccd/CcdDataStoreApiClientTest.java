@@ -1,12 +1,14 @@
 package uk.gov.hmcts.reform.em.hrs.service.ccd;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDataContent;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
@@ -47,6 +49,7 @@ class CcdDataStoreApiClientTest {
     private static final LocalDate ttl = LocalDate.now();
     private static final HearingRecordingDto HEARING_RECORDING_DTO = HearingRecordingDto.builder()
         .recordingRef("recordingRef").build();
+    private static final ObjectMapper CCD_OBJECT_MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     @Mock
     SecurityService securityService;
@@ -60,8 +63,18 @@ class CcdDataStoreApiClientTest {
     @Mock
     TtlService ttlService;
 
-    @InjectMocks
     CcdDataStoreApiClient underTest;
+
+    @BeforeEach
+    void setUp() {
+        underTest = new CcdDataStoreApiClient(
+            securityService,
+            caseDataContentCreator,
+            coreCaseDataApi,
+            ttlService,
+            CCD_OBJECT_MAPPER
+        );
+    }
 
     @Test
     void shouldCreateCase() {

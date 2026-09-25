@@ -1,17 +1,19 @@
 package uk.gov.hmcts.reform.em.hrs.service.ccd;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDataContent;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.Event;
 import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
+import uk.gov.hmcts.reform.em.hrs.config.JacksonMappingConfig;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.exception.CcdUploadException;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
@@ -38,14 +40,18 @@ public class CcdDataStoreApiClient {
     private final CaseDataContentCreator caseDataCreator;
     private final CoreCaseDataApi coreCaseDataApi;
     private final TtlService ttlService;
+    private final ObjectMapper ccdObjectMapper;
 
     public CcdDataStoreApiClient(SecurityService securityService,
                                  CaseDataContentCreator caseDataCreator,
-                                 CoreCaseDataApi coreCaseDataApi, TtlService ttlService) {
+                                 CoreCaseDataApi coreCaseDataApi,
+                                 TtlService ttlService,
+                                 @Qualifier(JacksonMappingConfig.CCD_OBJECT_MAPPER) ObjectMapper ccdObjectMapper) {
         this.securityService = securityService;
         this.caseDataCreator = caseDataCreator;
         this.coreCaseDataApi = coreCaseDataApi;
         this.ttlService = ttlService;
+        this.ccdObjectMapper = ccdObjectMapper;
     }
 
     public Long createCase(
@@ -140,17 +146,14 @@ public class CcdDataStoreApiClient {
         Map<String, String> tokens = securityService.createTokens();
         StartEventResponse startEventResponse = startEvent(tokens, ccdCaseId, EVENT_AMEND_CASE);
 
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.findAndRegisterModules();
-
         CaseDetails caseDetails = startEventResponse.getCaseDetails();
-        CaseHearingRecording caseHearingRecording = mapper.convertValue(
+        CaseHearingRecording caseHearingRecording = ccdObjectMapper.convertValue(
             caseDetails.getData(), CaseHearingRecording.class);
         caseHearingRecording.setJurisdictionCode(jurisdictionCode);
         caseHearingRecording.setServiceCode(serviceCode);
 
         CaseDataContent caseDataContent = buildCaseDataContent(
-            startEventResponse, mapper.convertValue(caseHearingRecording, JsonNode.class));
+            startEventResponse, ccdObjectMapper.convertValue(caseHearingRecording, JsonNode.class));
         coreCaseDataApi.submitEventForCaseWorker(tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
                                                  JURISDICTION, CASE_TYPE, ccdCaseId.toString(),
                                                  false, caseDataContent);
