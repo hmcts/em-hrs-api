@@ -7,7 +7,7 @@ maintainers:
   - name: HMCTS Evidence Management team
 dependencies:
   - name: java
-    version: 5.3.2
+    version: 6.1.1
     repository: oci://hmctsprod.azurecr.io/helm
     condition: java.enabled
   - name: job
