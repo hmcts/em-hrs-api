@@ -94,7 +94,12 @@ data "azurerm_subnet" "private_endpoints" {
 }
 
 module "storage_account" {
-  source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=feat/remove-azurerm-version-constraint"
+  source = "git@github.com:hmcts/cnp-module-storage-account?ref=feat/remove-azurerm-version-constraint"
+
+  providers = {
+    azurerm                  = azurerm
+    azurerm.private_endpoints = azurerm.cft_vnet
+  }
   env                      = var.env
   storage_account_name     = "emhrsapi${var.env}"
   resource_group_name      = azurerm_resource_group.rg.name
@@ -203,7 +208,12 @@ resource "azurerm_key_vault_secret" "storage_account_secondary_connection_string
 module "cvp_storage_account_simulator" {
   count = var.env == "aat" ? 1 : 0
 
-  source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=feat/remove-azurerm-version-constraint"
+  source = "git@github.com:hmcts/cnp-module-storage-account?ref=feat/remove-azurerm-version-constraint"
+
+  providers = {
+    azurerm                  = azurerm
+    azurerm.private_endpoints = azurerm.cft_vnet
+  }
   env                      = var.env
   storage_account_name     = "emhrscvp${var.env}"
   resource_group_name      = azurerm_resource_group.rg.name
