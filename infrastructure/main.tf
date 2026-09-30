@@ -94,12 +94,7 @@ data "azurerm_subnet" "private_endpoints" {
 }
 
 module "storage_account" {
-  source = "git@github.com:hmcts/cnp-module-storage-account?ref=feat/remove-azurerm-version-constraint"
-
-  providers = {
-    azurerm                  = azurerm
-    azurerm.private_endpoints = azurerm.cft_vnet
-  }
+  source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=fix/private-endpoint-provider-4.x"
   env                      = var.env
   storage_account_name     = "emhrsapi${var.env}"
   resource_group_name      = azurerm_resource_group.rg.name
@@ -149,13 +144,13 @@ resource "azurerm_storage_management_policy" "lifecycle_policy" {
 
 resource "azurerm_storage_container" "vh_container" {
   name                  = "vhrecordings"
-  storage_account_id    = module.storage_account.storageaccount_id
+  storage_account_name  = module.storage_account.storageaccount_name
   container_access_type = "private"
 }
 
 resource "azurerm_storage_container" "jurisdiction_codes" {
   name                  = "jurisdictioncodes"
-  storage_account_id    = module.storage_account.storageaccount_id
+  storage_account_name  = module.storage_account.storageaccount_name
   container_access_type = "private"
 }
 
@@ -163,14 +158,14 @@ resource "azurerm_storage_container" "jurisdiction_codes" {
 resource "azurerm_storage_container" "cvpsimulator" {
   count                 = var.env != "prod" ? 1 : 0
   name                  = "cvpsimulator"
-  storage_account_id    = module.storage_account.storageaccount_id
+  storage_account_name  = module.storage_account.storageaccount_name
   container_access_type = "private"
 }
 // test container for VH
 resource "azurerm_storage_container" "vhsimulator" {
   count                 = var.env != "prod" ? 1 : 0
   name                  = "vhsimulator"
-  storage_account_id    = module.storage_account.storageaccount_id
+  storage_account_name  = module.storage_account.storageaccount_name
   container_access_type = "private"
 }
 
@@ -208,12 +203,7 @@ resource "azurerm_key_vault_secret" "storage_account_secondary_connection_string
 module "cvp_storage_account_simulator" {
   count = var.env == "aat" ? 1 : 0
 
-  source = "git@github.com:hmcts/cnp-module-storage-account?ref=feat/remove-azurerm-version-constraint"
-
-  providers = {
-    azurerm                  = azurerm
-    azurerm.private_endpoints = azurerm.cft_vnet
-  }
+  source                   = "git@github.com:hmcts/cnp-module-storage-account?ref=4.x"
   env                      = var.env
   storage_account_name     = "emhrscvp${var.env}"
   resource_group_name      = azurerm_resource_group.rg.name
