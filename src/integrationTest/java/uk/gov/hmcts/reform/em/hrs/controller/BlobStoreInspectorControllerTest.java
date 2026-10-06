@@ -96,7 +96,11 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
             .andExpect(jsonPath("$.cvp-item-count").value(1567))
             .andExpect(jsonPath("$.hrs-cvp-item-count").value(1232))
             .andExpect(jsonPath("$.cvp-item-count-today").value(332))
-            .andExpect(jsonPath("$.hrs-cvp-item-count-today").value(1000));
+            .andExpect(jsonPath("$.hrs-cvp-item-count-today").value(1000))
+            .andExpect(jsonPath("$.cvpItemCount").doesNotExist())
+            .andExpect(result -> org.assertj.core.api.Assertions.assertThat(result.getResponse().getContentAsString())
+                .doesNotContain("\"cvpItemCount\"")
+                .doesNotContain("\"hrsCvpItemCount\""));
     }
 
     @ParameterizedTest(name = "{index} => {0}")
@@ -174,7 +178,12 @@ public class BlobStoreInspectorControllerTest extends BaseWebTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.blob-url").value(blobUrl))
             .andExpect(jsonPath("$.blob-size").value(10))
-            .andExpect(jsonPath("$.last-modified").value(time.toString()));
+            .andExpect(jsonPath("$.last-modified").value(time.toString()))
+            .andExpect(jsonPath("$.blobUrl").doesNotExist())
+            .andExpect(result -> org.assertj.core.api.Assertions.assertThat(result.getResponse().getContentAsString())
+                .doesNotContain("\"blobUrl\"")
+                .doesNotContain("\"blobSize\"")
+                .doesNotContain("\"lastModified\""));
     }
 
     @ParameterizedTest(name = "{index} => Unauthorized with header: {0}")
