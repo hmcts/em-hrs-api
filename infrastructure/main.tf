@@ -101,7 +101,7 @@ module "storage_account" {
   location                 = var.location
   account_kind             = "StorageV2"
   account_tier             = "Standard"
-  account_replication_type = "ZRS"
+  account_replication_type = var.env == "prod" ? "ZRS" : "LRS"
   access_tier              = "Hot"
 
   enable_https_traffic_only = true
