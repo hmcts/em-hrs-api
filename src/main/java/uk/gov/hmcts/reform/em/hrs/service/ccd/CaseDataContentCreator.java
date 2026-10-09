@@ -1,10 +1,12 @@
 package uk.gov.hmcts.reform.em.hrs.service.ccd;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import uk.gov.hmcts.reform.em.hrs.config.JacksonMappingConfig;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.model.CaseDocument;
 import uk.gov.hmcts.reform.em.hrs.model.CaseHearingRecording;
@@ -31,7 +33,7 @@ public class CaseDataContentCreator {
 
     private final ObjectMapper objectMapper;
 
-    public CaseDataContentCreator(ObjectMapper objectMapper) {
+    public CaseDataContentCreator(@Qualifier(JacksonMappingConfig.CCD_OBJECT_MAPPER) ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 

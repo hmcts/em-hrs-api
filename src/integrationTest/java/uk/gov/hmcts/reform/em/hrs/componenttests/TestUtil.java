@@ -1,9 +1,10 @@
 package uk.gov.hmcts.reform.em.hrs.componenttests;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import org.springframework.http.MediaType;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.hmcts.reform.em.hrs.domain.Folder;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecordingSegment;
@@ -176,14 +177,17 @@ public class TestUtil {
     }
 
     public static byte[] convertObjectToJsonBytes(Object object) throws IOException {
-        final ObjectMapper om = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        final ObjectMapper om = JsonMapper.builder()
+            .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+            .build();
         return om.writeValueAsBytes(object);
     }
 
     public static String convertObjectToJsonString(Object object) throws IOException {
-        final ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.findAndRegisterModules();
-        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
+        final ObjectMapper objectMapper = JsonMapper.builder()
+            .findAndAddModules()
+            .propertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
+            .build();
         return objectMapper.writeValueAsString(object);
     }
 }
