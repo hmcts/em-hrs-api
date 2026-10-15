@@ -66,6 +66,7 @@ public class HearingRecordingSegment {
     @Column(unique = true)
     private String filename;
     private String fileExtension;
+    @Column(name = "file_md5checksum")
     private String fileMd5Checksum; // char(32),
     private Long fileSizeMb; // numeric(2),
 

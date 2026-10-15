@@ -22,6 +22,7 @@ import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +119,11 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
         return new BlobDetail(blobClient.getBlobUrl(), prop.getBlobSize(), prop.getLastModified());
     }
 
-    public record BlobDetail(String blobUrl, long blobSize, OffsetDateTime lastModified) {
+    public record BlobDetail(
+        @JsonProperty("blob-url") String blobUrl,
+        @JsonProperty("blob-size") long blobSize,
+        @JsonProperty("last-modified") OffsetDateTime lastModified
+    ) {
     }
 
     @Override

@@ -2,15 +2,18 @@ package uk.gov.hmcts.reform.em.hrs.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.context.WebApplicationContext;
+import tools.jackson.databind.json.JsonMapper;
+import uk.gov.hmcts.reform.em.hrs.dto.RecordingFilenameDto;
 import uk.gov.hmcts.reform.em.hrs.service.FolderService;
 
 import java.util.Collections;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.mockito.Mockito.times;
@@ -28,12 +31,23 @@ public class FolderControllerTest extends BaseWebTest {
     @MockitoBean
     private FolderService folderService;
 
+    @Autowired
+    private JsonMapper jsonMapper;
+
     private static final String FILENAMES = "$.filenames";
     private static final String FOLDER_NAME = "$.folder-name";
 
     @Autowired
     public FolderControllerTest(WebApplicationContext context) {
         super(context);
+    }
+
+    @Test
+    void injectedMvcJsonMapperUsesKebabCaseNotCamelCase() throws Exception {
+        String json = jsonMapper.writeValueAsString(new RecordingFilenameDto("folder-a", Set.of("a.mp4")));
+
+        assertThat(json).contains("\"folder-name\":\"folder-a\"");
+        assertThat(json).doesNotContain("\"folderName\"");
     }
 
     @Test
@@ -51,8 +65,12 @@ public class FolderControllerTest extends BaseWebTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath(FOLDER_NAME).value(folderName))
+            .andExpect(jsonPath("$.folderName").doesNotExist())
             .andExpect(jsonPath(FILENAMES, hasSize(2)))
-            .andExpect(jsonPath(FILENAMES, containsInAnyOrder(fileName1, fileName2)));
+            .andExpect(jsonPath(FILENAMES, containsInAnyOrder(fileName1, fileName2)))
+            .andExpect(result -> assertThat(result.getResponse().getContentAsString())
+                .contains("\"folder-name\"")
+                .doesNotContain("\"folderName\""));
 
         verify(folderService, times(1)).getStoredFiles(folderName);
     }

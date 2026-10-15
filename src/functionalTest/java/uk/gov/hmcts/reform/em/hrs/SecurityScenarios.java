@@ -1,9 +1,9 @@
 package uk.gov.hmcts.reform.em.hrs;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import net.serenitybdd.rest.SerenityRest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import tools.jackson.databind.JsonNode;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.em.hrs.testutil.ExtendedCcdHelper;
 import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
