@@ -73,7 +73,6 @@ def secretsForPreview = [
     secret('app-insights-connection-string', 'APP_INSIGHTS_CONNECTION_STRING'),
     secret('definition-store-api-POSTGRES-USER-V15', 'DEFINITION_STORE_DB_USERNAME'),
     secret('definition-store-api-POSTGRES-PASS-V15', 'DEFINITION_STORE_DB_PASSWORD'),
-    secret('dm-store-storage-account-primary-access-key', 'DM_STORE_STORAGE_ACCOUNT_PRIMARY_ACCESS_KEY'),
   ],
   'em-hrs-api-${env}': [
     secret('notification-api-key', 'NOTIFICATION_API_KEY'),
