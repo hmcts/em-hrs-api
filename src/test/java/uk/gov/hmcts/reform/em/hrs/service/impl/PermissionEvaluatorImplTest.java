@@ -186,7 +186,6 @@ class PermissionEvaluatorImplTest {
     private void setupUserInfoWithNoAllowedRoles() {
         UserInfo userInfo = mock(UserInfo.class);
         when(userInfo.getUid()).thenReturn("user-uid");
-        when(userInfo.getName()).thenReturn("User Name");
         when(userInfo.getRoles()).thenReturn(List.of(FORBIDDEN_ROLE));
         when(securityService.getUserInfo("Bearer " + TOKEN_VALUE)).thenReturn(userInfo);
     }

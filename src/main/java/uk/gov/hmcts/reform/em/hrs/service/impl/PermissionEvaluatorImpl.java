@@ -61,9 +61,8 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
         LOGGER.info("SECURITY FILTER");
         LOGGER.info("********************************");
         LOGGER.info(
-            "User ({}:{}) with roles ({}) attempting to access recording",
+            "User ({}) with roles ({}) attempting to access recording",
             userInfo.getUid(),
-            userInfo.getName(),
             userInfo.getRoles()
         );
 
@@ -82,13 +81,12 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
             UUID recordingId = hr.getId();
             String shareeEmail = securityService.getUserEmail(token);
             LOGGER.info(
-                "User attempting to access recording ref ({}) with email ({})",
-                hr.getRecordingRef(),
-                shareeEmail
+                "User attempting to access recording ref ({})",
+                hr.getRecordingRef()
             );
             List<HearingRecordingSharee> sharedRecordings = shareesRepository.findByShareeEmailIgnoreCase(shareeEmail);
             LOGGER.info(
-                "recordings that are shared with the user: ({}) are ({})", shareeEmail,
+                "recordings that are shared with the user are ({})",
                 sharedRecordings.stream()
                     .map(sharedRecording -> sharedRecording.getHearingRecording().getCaseRef())
                     .toList()
@@ -98,7 +96,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
                     .filter(sharedRecording -> sharedRecording.getHearingRecording().getId().equals(recordingId))
                     .findFirst();
                 if (hearingRecording.isPresent()) {
-                    LOGGER.info("User granted access through shared email ({})", shareeEmail);
+                    LOGGER.info("User granted access through shared recording");
                     return true;
                 }
             }

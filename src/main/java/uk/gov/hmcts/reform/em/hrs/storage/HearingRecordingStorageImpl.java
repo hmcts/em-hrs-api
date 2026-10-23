@@ -238,7 +238,6 @@ public class HearingRecordingStorageImpl implements HearingRecordingStorage {
                 );
 
             String updatedUri = sourceUri + "?" + sasToken;
-            LOGGER.info("Generated sourceUri {}", updatedUri);
             return updatedUri;
         }
     }

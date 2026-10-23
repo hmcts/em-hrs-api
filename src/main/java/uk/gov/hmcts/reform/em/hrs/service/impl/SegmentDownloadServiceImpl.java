@@ -101,10 +101,10 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
             String userEmail = securityService.getUserEmail(userToken);
             List<HearingRecordingSharee> hearingRecordingSharees =
                 shareesRepository.findByShareeEmailIgnoreCase(userEmail);
-            LOGGER.debug("User  {} is trying to access the recordingId  {} with segment Number {}",
-                         userEmail, recordingId, segmentNo);
+            LOGGER.debug("User is trying to access the recordingId  {} with segment Number {}",
+                         recordingId, segmentNo);
             if (!isEmpty(hearingRecordingSharees)) {
-                LOGGER.debug("User  {} has shared recordings", userEmail);
+                LOGGER.debug("User has shared recordings");
                 Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
                     .filter(hearingRecordingSharee ->
                                 hearingRecordingSharee.getHearingRecording().getId().equals(recordingId))
@@ -118,7 +118,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
                         Map.of(VALIDATION_ERROR_STRING, Constants.SHARED_EXPIRED_LINK_MSG));
                 }
             } else {
-                LOGGER.debug("No Shared recordings found for user {}", userEmail);
+                LOGGER.debug("No Shared recordings found for user");
             }
         }
 
@@ -129,11 +129,11 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         String userEmail = securityService.getUserEmail(userToken);
         List<HearingRecordingSharee> hearingRecordingSharees =
             shareesRepository.findByShareeEmailIgnoreCase(userEmail);
-        LOGGER.debug("User  {} is trying to access the recordingId  {} with fileName {}",
-                     userEmail, recordingId, fileName
+        LOGGER.debug("User is trying to access the recordingId  {} with fileName {}",
+                     recordingId, fileName
         );
         if (!isEmpty(hearingRecordingSharees)) {
-            LOGGER.debug("User  {} has shared recordings", userEmail);
+            LOGGER.debug("User has shared recordings");
             Optional<HearingRecordingSharee> recordingSharee = hearingRecordingSharees.stream()
                 .filter(hearingRecordingSharee ->
                             hearingRecordingSharee.getHearingRecording().getId().equals(recordingId))
@@ -148,7 +148,7 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
                 throw new ValidationErrorException(Map.of(VALIDATION_ERROR_STRING, Constants.SHARED_EXPIRED_LINK_MSG));
             }
         } else {
-            LOGGER.error("No Shared recordings found for user {}", userEmail);
+            LOGGER.error("No Shared recordings found for user");
             throw new ValidationErrorException(Map.of(VALIDATION_ERROR_STRING, Constants.NO_SHARED_FILE_FOR_USER));
         }
     }
@@ -228,8 +228,8 @@ public class SegmentDownloadServiceImpl implements SegmentDownloadService {
         LocalDateTime expiryTime = sharedOn.plusHours(validityInHours);
         LocalDateTime presentTime = LocalDateTime.now();
 
-        LOGGER.debug("sharedOn value is  {} with expiryTime as {} and presentTime as {} resulted in {} for email {}",
-                     sharedOn, expiryTime, presentTime, presentTime.isBefore(expiryTime), userEmail);
+        LOGGER.debug("sharedOn value is  {} with expiryTime as {} and presentTime as {} resulted in {}",
+                     sharedOn, expiryTime, presentTime, presentTime.isBefore(expiryTime));
         return  presentTime.isBefore(expiryTime);
     }
 
