@@ -51,7 +51,6 @@ public class IdamCachedClient {
      * @return The IDAM credentials
      */
     public CachedIdamCredential getIdamCredentials() {
-        log.info("Getting idam credential for system user");
         return this.idamCache.get(this.systemUsername, this::retrieveIdamInfo);
     }
 
@@ -60,7 +59,6 @@ public class IdamCachedClient {
      * @param key The username or token
      */
     public void removeAccessTokenFromCache(String key) {
-        log.info("Removing idam credential from cache");
         this.idamCache.invalidate(key);
     }
 
@@ -70,17 +68,11 @@ public class IdamCachedClient {
      * @return The IDAM credentials
      */
     private CachedIdamCredential retrieveIdamInfo(String key) {
-        log.info("Retrieving access token from IDAM");
         TokenResponse tokenResponse = idamClient
             .getAccessTokenResponse(
                 key,
                 this.systemUserPassword
             );
-
-        log.info(
-            "Retrieving user details from IDAM, token scope: {}",
-            tokenResponse.scope
-        );
 
         String tokenWithBearer = BEARER_AUTH_TYPE + tokenResponse.accessToken;
         UserInfo userDetails = idamClient.getUserInfo(tokenWithBearer);
