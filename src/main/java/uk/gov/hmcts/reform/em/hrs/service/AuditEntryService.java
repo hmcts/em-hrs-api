@@ -65,9 +65,10 @@ public class AuditEntryService {
             action,
             caseId
         );
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(auditLogFormatter.format(entry));
-        }
+        LOGGER.atDebug()
+            .setMessage("{}")
+            .addArgument(() -> auditLogFormatter.format(entry))
+            .log();
 
     }
 
@@ -94,9 +95,10 @@ public class AuditEntryService {
             caseId
         );
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(auditLogFormatter.format(entry));
-        }
+        LOGGER.atDebug()
+            .setMessage("{}")
+            .addArgument(() -> auditLogFormatter.format(entry))
+            .log();
         hearingRecordingAuditEntryRepository.save(entry);
         return entry;
 
@@ -114,9 +116,10 @@ public class AuditEntryService {
             caseId
         );
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(auditLogFormatter.format(entry));
-        }
+        LOGGER.atDebug()
+            .setMessage("{}")
+            .addArgument(() -> auditLogFormatter.format(entry))
+            .log();
         hearingRecordingSegmentAuditEntryRepository.save(entry);
         return entry;
     }
@@ -134,9 +137,10 @@ public class AuditEntryService {
             caseId
         );
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(auditLogFormatter.format(entry));
-        }
+        LOGGER.atDebug()
+            .setMessage("{}")
+            .addArgument(() -> auditLogFormatter.format(entry))
+            .log();
         hearingRecordingShareeAuditEntryRepository.save(entry);
         return entry;
     }

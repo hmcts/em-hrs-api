@@ -72,12 +72,12 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
             UUID recordingId = hr.getId();
             String shareeEmail = securityService.getUserEmail(token);
             List<HearingRecordingSharee> sharedRecordings = shareesRepository.findByShareeEmailIgnoreCase(shareeEmail);
-            LOGGER.info(
-                "recordings that are shared with the user are ({})",
-                sharedRecordings.stream()
+            LOGGER.atInfo()
+                .setMessage("Recordings that are shared with the user are ({})")
+                .addArgument(() -> sharedRecordings.stream()
                     .map(sharedRecording -> sharedRecording.getHearingRecording().getCaseRef())
-                    .toList()
-            );
+                    .toList())
+                .log();
             if (!isEmpty(sharedRecordings)) {
                 Optional<HearingRecordingSharee> hearingRecording = sharedRecordings.stream()
                     .filter(sharedRecording -> sharedRecording.getHearingRecording().getId().equals(recordingId))

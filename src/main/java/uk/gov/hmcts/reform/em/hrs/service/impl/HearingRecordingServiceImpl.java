@@ -70,7 +70,7 @@ public class HearingRecordingServiceImpl implements HearingRecordingService {
                     .findHearingRecordingIdsAndSourceByCcdCaseIds(ccdCaseIds);
 
             if (CollectionUtils.isEmpty(hearingRecordingDtos)) {
-                log.error("No HRS rows found for CCD Case IDs: {}", ccdCaseIds);
+                log.error("No HRS rows found for the given CCD Case IDs: {}", ccdCaseIds);
                 return;
             }
             List<HearingRecordingDeletionDto> hearingRecordingSegmentDtos = hearingRecordingDtos.stream()
@@ -99,7 +99,7 @@ public class HearingRecordingServiceImpl implements HearingRecordingService {
             deleteHearingRecordingDetails(hearingRecordingIds);
 
         } catch (Exception e) {
-            log.info("Database deletion failed for CCD Case IDs: {} with error: {}", ccdCaseIds, e.getMessage());
+            log.info("Database deletion failed for the given CCD Case IDs: {} with error: {}", ccdCaseIds, e.getMessage());
         }
     }
 

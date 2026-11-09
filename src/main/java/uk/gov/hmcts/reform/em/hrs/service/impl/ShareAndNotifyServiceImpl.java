@@ -75,7 +75,6 @@ public class ShareAndNotifyServiceImpl implements ShareAndNotifyService {
             })
             .toList();
 
-        LOGGER.info("segmentUrls {}", segmentUrls);
         try {
             notificationService.sendEmailNotification(recording.getCaseRef(), List.copyOf(segmentUrls),
                                                       caseData.getRecordingDate(), caseData.getRecordingTimeOfDay(),

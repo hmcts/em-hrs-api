@@ -27,7 +27,6 @@ public class AuditLogFormatter {
             .append(getPair("action", entry.getAction()))
             .append(getPair("clientIp", entry.getIpAddress()))
             .append(getPair("service", entry.getServiceName()))
-            .append(getPair("user", entry.getUsername()))
             .append(getPair("caseId", entry.getCaseId()))
             .toString();
     }
