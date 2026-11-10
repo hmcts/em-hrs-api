@@ -15,7 +15,7 @@ properties([
   disableConcurrentBuilds()
 ])
 
-@Library("Infrastructure@2.13.5") _
+@Library("Infrastructure@2.13.6") _
 
 def type = "java"
 def product = "em"
@@ -180,15 +180,6 @@ withPipeline(type, product, component) {
       echo "HRS_CVP_DEST_CONTAINER_NAME : ${env.HRS_CVP_DEST_CONTAINER_NAME}"
       echo "CVP_STORAGE_CONTAINER_NAME : ${env.CVP_STORAGE_CONTAINER_NAME}"
 
-    }
-  }
-
-
-  onMaster() {
-    enableFortifyScan('em-hrs-api-aat')
-
-    afterAlways('fortify-scan') {
-      steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/Fortify Scan/**/*'
     }
   }
 
