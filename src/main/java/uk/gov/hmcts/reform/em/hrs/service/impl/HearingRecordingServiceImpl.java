@@ -99,7 +99,11 @@ public class HearingRecordingServiceImpl implements HearingRecordingService {
             deleteHearingRecordingDetails(hearingRecordingIds);
 
         } catch (Exception e) {
-            log.info("Database deletion failed for the given CCD Case IDs: {} with error: {}", ccdCaseIds, e.getMessage());
+            log.info(
+                "Database deletion failed for the given CCD Case IDs: {} with error: {}",
+                ccdCaseIds,
+                e.getMessage()
+            );
         }
     }
 

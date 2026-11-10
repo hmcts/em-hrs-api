@@ -46,9 +46,7 @@ class AuditLogFormatterTest {
         System.out.println("Log Format=" + result);
         assertEquals("HRS-API dateTime:2021-06-09T08:52:52.422,"
             + "action:USER_DOWNLOAD_OK,"
-            + "clientIp:ip,"
             + "service:SUT,"
-            + "user:userName@hmcts.net.internal,"
             + "caseId:1234567890123456789", result);
     }
 

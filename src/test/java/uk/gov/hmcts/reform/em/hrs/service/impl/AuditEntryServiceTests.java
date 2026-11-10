@@ -1,11 +1,14 @@
 package uk.gov.hmcts.reform.em.hrs.service.impl;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.em.hrs.auditlog.AuditLogFormatter;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditEntry;
@@ -69,6 +72,7 @@ class AuditEntryServiceTests {
 
     @BeforeEach
     void prepare() {
+        ((Logger) LoggerFactory.getLogger(AuditEntryService.class)).setLevel(Level.DEBUG);
         hearingRecording = new HearingRecording();
         hearingRecording.setCcdCaseId(1234L);
         hearingRecordingSegment = new HearingRecordingSegment();
