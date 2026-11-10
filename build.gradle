@@ -291,7 +291,7 @@ configurations.configureEach {
 
 
 def versions = [
-  serenity           : '5.3.11',
+  serenity           : '5.4.2',
   lombok             : '1.18.48',
   reformLogging      : '8.0.0',
   log4JVersion       : "2.17.1",
