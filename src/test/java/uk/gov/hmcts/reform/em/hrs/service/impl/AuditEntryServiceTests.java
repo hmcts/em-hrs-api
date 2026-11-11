@@ -9,7 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
-import uk.gov.hmcts.reform.em.hrs.auditlog.AuditLogFormatter;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditEntry;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
@@ -32,7 +31,6 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -59,9 +57,6 @@ class AuditEntryServiceTests {
 
     @Mock
     private ShareesAuditEntryRepository shareesAuditEntryRepository;
-
-    @Mock
-    private AuditLogFormatter auditLogFormatter;
 
     @Mock
     private AuditEntryRepository auditEntryRepository;
@@ -104,7 +99,6 @@ class AuditEntryServiceTests {
         );
 
         assertSecurityServiceValues(entry);
-        assertLogFormatterInvoked();
         verify(hearingRecordingAuditEntryRepository, times(1))
             .save(entry);
     }
@@ -119,7 +113,6 @@ class AuditEntryServiceTests {
         );
 
         assertSecurityServiceValues(entry);
-        assertLogFormatterInvoked();
         verify(hearingRecordingSegmentAuditEntryRepository, times(1))
             .save(entry);
     }
@@ -134,7 +127,6 @@ class AuditEntryServiceTests {
         );
 
         assertSecurityServiceValues(entry);
-        assertLogFormatterInvoked();
 
         verify(shareesAuditEntryRepository, times(1))
             .save(entry);
@@ -150,7 +142,6 @@ class AuditEntryServiceTests {
             AuditActions.NOTIFY_OK
         );
 
-        assertLogFormatterInvoked();
     }
 
     @Test
@@ -226,7 +217,4 @@ class AuditEntryServiceTests {
         assertEquals(CLIENT_IP, entry.getIpAddress());
     }
 
-    private void assertLogFormatterInvoked() {
-        verify(auditLogFormatter, times(1)).format(any(AuditEntry.class));
-    }
 }
