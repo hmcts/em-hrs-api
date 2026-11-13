@@ -47,7 +47,7 @@ public class NotificationServiceImpl implements NotificationService {
         final String pattern = "dd-MMM-yyyy";
         final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         final String formattedRecordingDateTime = dateTimeFormatter.format(recordingDate) + " " + timeOfDay;
-        LOGGER.info(
+        LOGGER.debug(
             "sharee createPersonalisation caseReference {},"
                 + "formattedRecordingDateTime {}, "
                 + "recordingSegmentDownloadUrls {}",

@@ -1,11 +1,8 @@
 package uk.gov.hmcts.reform.em.hrs.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.hmcts.reform.em.hrs.auditlog.AuditLogFormatter;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditEntry;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
@@ -27,8 +24,6 @@ import java.util.List;
 @Service
 public class AuditEntryService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuditEntryService.class);
-
     private final HearingRecordingAuditEntryRepository hearingRecordingAuditEntryRepository;
 
     private final HearingRecordingSegmentAuditEntryRepository hearingRecordingSegmentAuditEntryRepository;
@@ -36,8 +31,6 @@ public class AuditEntryService {
     private final ShareesAuditEntryRepository hearingRecordingShareeAuditEntryRepository;
 
     private final SecurityService securityService;
-
-    private final AuditLogFormatter auditLogFormatter;
 
     private final AuditEntryRepository auditEntryRepository;
 
@@ -47,14 +40,13 @@ public class AuditEntryService {
         HearingRecordingAuditEntryRepository hearingRecordingAuditEntryRepository,
         HearingRecordingSegmentAuditEntryRepository hearingRecordingSegmentAuditEntryRepository,
         ShareesAuditEntryRepository hearingRecordingShareeAuditEntryRepository,
-        SecurityService securityService, AuditLogFormatter auditLogFormatter,
+        SecurityService securityService,
         AuditEntryRepository auditEntryRepository
     ) {
         this.hearingRecordingAuditEntryRepository = hearingRecordingAuditEntryRepository;
         this.hearingRecordingSegmentAuditEntryRepository = hearingRecordingSegmentAuditEntryRepository;
         this.hearingRecordingShareeAuditEntryRepository = hearingRecordingShareeAuditEntryRepository;
         this.securityService = securityService;
-        this.auditLogFormatter = auditLogFormatter;
         this.auditEntryRepository = auditEntryRepository;
     }
 
@@ -65,10 +57,6 @@ public class AuditEntryService {
             action,
             caseId
         );
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(auditLogFormatter.format(entry));
-        }
-
     }
 
     public List<HearingRecordingAuditEntry> findHearingRecordingAudits(HearingRecording hearingRecording) {
@@ -93,10 +81,6 @@ public class AuditEntryService {
             action,
             caseId
         );
-
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(auditLogFormatter.format(entry));
-        }
         hearingRecordingAuditEntryRepository.save(entry);
         return entry;
 
@@ -114,9 +98,6 @@ public class AuditEntryService {
             caseId
         );
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(auditLogFormatter.format(entry));
-        }
         hearingRecordingSegmentAuditEntryRepository.save(entry);
         return entry;
     }
@@ -134,9 +115,6 @@ public class AuditEntryService {
             caseId
         );
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(auditLogFormatter.format(entry));
-        }
         hearingRecordingShareeAuditEntryRepository.save(entry);
         return entry;
     }

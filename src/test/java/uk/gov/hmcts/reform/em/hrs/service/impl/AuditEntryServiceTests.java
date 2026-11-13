@@ -1,12 +1,14 @@
 package uk.gov.hmcts.reform.em.hrs.service.impl;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.em.hrs.auditlog.AuditLogFormatter;
+import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditActions;
 import uk.gov.hmcts.reform.em.hrs.domain.AuditEntry;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
@@ -29,7 +31,6 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -58,9 +59,6 @@ class AuditEntryServiceTests {
     private ShareesAuditEntryRepository shareesAuditEntryRepository;
 
     @Mock
-    private AuditLogFormatter auditLogFormatter;
-
-    @Mock
     private AuditEntryRepository auditEntryRepository;
 
     private HearingRecording hearingRecording;
@@ -69,6 +67,7 @@ class AuditEntryServiceTests {
 
     @BeforeEach
     void prepare() {
+        ((Logger) LoggerFactory.getLogger(AuditEntryService.class)).setLevel(Level.DEBUG);
         hearingRecording = new HearingRecording();
         hearingRecording.setCcdCaseId(1234L);
         hearingRecordingSegment = new HearingRecordingSegment();
@@ -100,7 +99,6 @@ class AuditEntryServiceTests {
         );
 
         assertSecurityServiceValues(entry);
-        assertLogFormatterInvoked();
         verify(hearingRecordingAuditEntryRepository, times(1))
             .save(entry);
     }
@@ -115,7 +113,6 @@ class AuditEntryServiceTests {
         );
 
         assertSecurityServiceValues(entry);
-        assertLogFormatterInvoked();
         verify(hearingRecordingSegmentAuditEntryRepository, times(1))
             .save(entry);
     }
@@ -130,7 +127,6 @@ class AuditEntryServiceTests {
         );
 
         assertSecurityServiceValues(entry);
-        assertLogFormatterInvoked();
 
         verify(shareesAuditEntryRepository, times(1))
             .save(entry);
@@ -146,7 +142,6 @@ class AuditEntryServiceTests {
             AuditActions.NOTIFY_OK
         );
 
-        assertLogFormatterInvoked();
     }
 
     @Test
@@ -222,7 +217,4 @@ class AuditEntryServiceTests {
         assertEquals(CLIENT_IP, entry.getIpAddress());
     }
 
-    private void assertLogFormatterInvoked() {
-        verify(auditLogFormatter, times(1)).format(any(AuditEntry.class));
-    }
 }

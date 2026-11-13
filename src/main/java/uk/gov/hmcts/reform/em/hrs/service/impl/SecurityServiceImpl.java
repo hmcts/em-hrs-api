@@ -89,9 +89,7 @@ public class SecurityServiceImpl implements SecurityService {
             LOGGER.warn("Using dummy serviceName because token is blank");
             return DUMMY_NAME;
         }
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Using token ({}) to get serviceName", s2sToken.substring(0, 15));
-        }
+
         return getServiceName(s2sToken);
     }
 
