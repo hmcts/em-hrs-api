@@ -54,6 +54,10 @@ public class CaseHearingRecording {
     private List<Map<String, Object>> recordingFiles;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("caseAccessCategory")
+    private String caseAccessCategory;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("TTL")
     private TtlCcdObject timeToLive;
 

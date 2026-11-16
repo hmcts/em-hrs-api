@@ -29,6 +29,7 @@ class CaseDataContentCreatorTest {
 
     private static final UUID RECORDING_ID = UUID.randomUUID();
     private static final String RECORDING_REF = "FT-0111-testfile200M";
+    private static final String CASE_ACCESS_CATEGORY = "HRS:AA";
     private static ObjectMapper objectMapper;
     HearingRecordingDto hearingRecordingDto;
     CaseDataContentCreator underTest;
@@ -74,7 +75,8 @@ class CaseDataContentCreatorTest {
     @Test
     void createCaseStartData() {
 
-        JsonNode actual = underTest.createCaseStartData(hearingRecordingDto, RECORDING_ID, LocalDate.now());
+        JsonNode actual = underTest
+            .createCaseStartData(hearingRecordingDto, RECORDING_ID, LocalDate.now(), CASE_ACCESS_CATEGORY);
 
         assertEquals("FM", actual.get("jurisdictionCode").asText());
         assertEquals(RECORDING_REF, actual.get("recordingReference").asText());
@@ -88,13 +90,14 @@ class CaseDataContentCreatorTest {
             ),
             actual.at("/recordingFiles/0/value/documentLink/document_url").asText()
         );
+        assertEquals(CASE_ACCESS_CATEGORY, actual.get("caseAccessCategory").asText());
     }
 
     @Test
     void createCaseStartDataWithTtl() {
 
         var ttl = LocalDate.now();
-        JsonNode actual = underTest.createCaseStartData(hearingRecordingDto, RECORDING_ID, ttl);
+        JsonNode actual = underTest.createCaseStartData(hearingRecordingDto, RECORDING_ID, ttl, CASE_ACCESS_CATEGORY);
 
         assertEquals("FM", actual.get("jurisdictionCode").asText());
         assertEquals(RECORDING_REF, actual.get("recordingReference").asText());
@@ -186,7 +189,8 @@ class CaseDataContentCreatorTest {
             .segment(0)
             .build();
 
-        JsonNode actual = underTest.createCaseStartData(pmHearingRecordingDto, RECORDING_ID, LocalDate.now());
+        JsonNode actual = underTest
+            .createCaseStartData(pmHearingRecordingDto, RECORDING_ID, LocalDate.now(), CASE_ACCESS_CATEGORY);
 
         assertEquals("PM", actual.get("recordingTimeOfDay").asText());
     }
@@ -205,7 +209,7 @@ class CaseDataContentCreatorTest {
             .build();
 
         JsonNode actual = underTest.createCaseStartData(
-            hearingRecordingWithNullDateTime, RECORDING_ID, LocalDate.now()
+            hearingRecordingWithNullDateTime, RECORDING_ID, LocalDate.now(), CASE_ACCESS_CATEGORY
         );
 
         assertEquals("", actual.get("recordingTimeOfDay").asText());

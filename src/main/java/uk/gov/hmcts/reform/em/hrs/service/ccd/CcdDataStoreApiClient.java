@@ -57,7 +57,8 @@ public class CcdDataStoreApiClient {
     public Long createCase(
         final UUID recordingId,
         final HearingRecordingDto hearingRecordingDto,
-        LocalDate ttl
+        LocalDate ttl,
+        String caseAccessCategory
     ) {
         CaseDataContent caseData = null;
         try {
@@ -68,7 +69,7 @@ public class CcdDataStoreApiClient {
 
             caseData = buildCaseDataContent(
                 startEventResponse,
-                caseDataCreator.createCaseStartData(hearingRecordingDto, recordingId, ttl)
+                caseDataCreator.createCaseStartData(hearingRecordingDto, recordingId, ttl, caseAccessCategory)
             );
 
             CaseDetails caseDetails = coreCaseDataApi
