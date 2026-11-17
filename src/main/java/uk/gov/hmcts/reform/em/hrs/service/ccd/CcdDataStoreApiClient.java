@@ -72,6 +72,8 @@ public class CcdDataStoreApiClient {
                 caseDataCreator.createCaseStartData(hearingRecordingDto, recordingId, ttl, caseAccessCategory)
             );
 
+            logCaseData("createCase------>", caseData);
+
             CaseDetails caseDetails = coreCaseDataApi
                 .submitForCaseworker(tokens.get(USER), tokens.get(SERVICE), tokens.get(USER_ID),
                                      JURISDICTION, CASE_TYPE, false, caseData
@@ -111,6 +113,8 @@ public class CcdDataStoreApiClient {
 
             caseData = buildCaseDataContent(startEventResponse, caseDataCreator.createCaseUpdateData(
                 startEventResponse.getCaseDetails().getData(), recordingId, hearingRecordingDto));
+
+            logCaseData("updateCaseData", caseData);
 
             LOGGER.info(
                 "updating ccd case (id {}) with new recording (ref {})",
@@ -176,6 +180,11 @@ public class CcdDataStoreApiClient {
             .eventToken(startEventResponse.getToken())
             .data(data)
             .build();
+    }
+
+    private void logCaseData(String operation, CaseDataContent caseData) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        LOGGER.info("[{}] submitting case data: {}", operation, gson.toJson(caseData));
     }
 
     private void logCaseDataError(CaseDataContent caseData) {
