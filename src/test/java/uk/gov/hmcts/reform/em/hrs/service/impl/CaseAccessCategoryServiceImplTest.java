@@ -1,8 +1,10 @@
 package uk.gov.hmcts.reform.em.hrs.service.impl;
 
 import org.junit.jupiter.api.Test;
+import uk.gov.hmcts.reform.em.hrs.exception.ValidationErrorException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CaseAccessCategoryServiceImplTest {
 
@@ -34,18 +36,18 @@ class CaseAccessCategoryServiceImplTest {
     }
 
     @Test
-    void shouldReturnDefaultCategoryWhenServiceIdIsNull() {
-        assertEquals("HRS:AA", underTest.getCaseAccessCategory(null));
+    void shouldThrowValidationErrorExceptionWhenServiceIdIsNull() {
+        assertThrows(ValidationErrorException.class, () -> underTest.getCaseAccessCategory(null));
     }
 
     @Test
-    void shouldReturnDefaultCategoryWhenServiceIdIsSingleChar() {
-        assertEquals("HRS:AA", underTest.getCaseAccessCategory("A"));
+    void shouldThrowValidationErrorExceptionWhenServiceIdIsSingleChar() {
+        assertThrows(ValidationErrorException.class, () -> underTest.getCaseAccessCategory("A"));
     }
 
     @Test
-    void shouldReturnDefaultCategoryWhenServiceIdIsEmpty() {
-        assertEquals("HRS:AA", underTest.getCaseAccessCategory(""));
+    void shouldThrowValidationErrorExceptionWhenServiceIdIsEmpty() {
+        assertThrows(ValidationErrorException.class, () -> underTest.getCaseAccessCategory(""));
     }
 
 }
