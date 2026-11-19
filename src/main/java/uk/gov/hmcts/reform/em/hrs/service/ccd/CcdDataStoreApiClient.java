@@ -142,7 +142,8 @@ public class CcdDataStoreApiClient {
 
     }
 
-    public void updateCaseWithCodes(Long ccdCaseId, String jurisdictionCode, String serviceCode) {
+    public void updateCaseWithCodes(Long ccdCaseId, String jurisdictionCode, String serviceCode,
+                                    String caseAccessCategory) {
 
         Map<String, String> tokens = securityService.createTokens();
         StartEventResponse startEventResponse = startEvent(tokens, ccdCaseId, EVENT_AMEND_CASE);
@@ -152,6 +153,7 @@ public class CcdDataStoreApiClient {
             caseDetails.getData(), CaseHearingRecording.class);
         caseHearingRecording.setJurisdictionCode(jurisdictionCode);
         caseHearingRecording.setServiceCode(serviceCode);
+        caseHearingRecording.setCaseAccessCategory(caseAccessCategory);
 
         CaseDataContent caseDataContent = buildCaseDataContent(
             startEventResponse, ccdObjectMapper.convertValue(caseHearingRecording, JsonNode.class));

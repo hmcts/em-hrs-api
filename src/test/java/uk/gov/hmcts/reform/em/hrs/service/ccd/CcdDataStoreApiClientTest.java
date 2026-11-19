@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.em.hrs.service.ccd;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.JsonNode;
@@ -322,11 +323,17 @@ class CcdDataStoreApiClientTest {
         doReturn(startEventResponse).when(coreCaseDataApi)
             .startEvent(USER_TOKEN, SERVICE_TOKEN, ccdCaseId.toString(), AMEND_CASE);
 
-        underTest.updateCaseWithCodes(ccdCaseId, "jurisdiction code", "service codes");
+        underTest.updateCaseWithCodes(ccdCaseId, "jurisdiction code", "service codes", CASE_ACCESS_CATEGORY);
 
+        ArgumentCaptor<CaseDataContent> caseDataCaptor = ArgumentCaptor.forClass(CaseDataContent.class);
         verify(coreCaseDataApi).submitEventForCaseWorker(eq(USER_TOKEN), eq(SERVICE_TOKEN), eq(USER_ID),
                                                          eq(JURISDICTION), eq(CASE_TYPE), eq(ccdCaseId.toString()),
-                                                         eq(false), any(CaseDataContent.class));
+                                                         eq(false), caseDataCaptor.capture());
+
+        JsonNode submittedData = (JsonNode) caseDataCaptor.getValue().getData();
+        assertEquals("jurisdiction code", submittedData.get("jurisdictionCode").asText());
+        assertEquals("service codes", submittedData.get("serviceCode").asText());
+        assertEquals(CASE_ACCESS_CATEGORY, submittedData.get("caseAccessCategory").asText());
     }
 
 }
