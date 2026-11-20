@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.em.hrs.service.ccd;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.JsonNode;
@@ -47,6 +48,7 @@ class CcdDataStoreApiClientTest {
     private static final String USER_ID = "123456";
     private static final UUID RECORDING_ID = UUID.randomUUID();
     private static final LocalDate ttl = LocalDate.now();
+    private static final String CASE_ACCESS_CATEGORY = "HRS:AA";
     private static final HearingRecordingDto HEARING_RECORDING_DTO = HearingRecordingDto.builder()
         .recordingRef("recordingRef").build();
     private static final ObjectMapper CCD_OBJECT_MAPPER = JsonMapper.builder().findAndAddModules().build();
@@ -92,7 +94,9 @@ class CcdDataStoreApiClientTest {
 
         JsonNode data = JsonNodeFactory.instance.objectNode();
 
-        doReturn(data).when(caseDataContentCreator).createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID, ttl);
+        doReturn(data)
+            .when(caseDataContentCreator)
+            .createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID, ttl, CASE_ACCESS_CATEGORY);
 
         CaseDataContent caseData = CaseDataContent.builder().data(data)
             .event(Event.builder().build()).build();
@@ -101,7 +105,7 @@ class CcdDataStoreApiClientTest {
             USER_TOKEN, SERVICE_TOKEN, USER_ID, JURISDICTION, CASE_TYPE, false, caseData
         );
 
-        Long caseId = underTest.createCase(RECORDING_ID, HEARING_RECORDING_DTO, ttl);
+        Long caseId = underTest.createCase(RECORDING_ID, HEARING_RECORDING_DTO, ttl, CASE_ACCESS_CATEGORY);
 
         assertEquals(CASE_ID, caseId);
     }
@@ -113,7 +117,8 @@ class CcdDataStoreApiClientTest {
         assertThatExceptionOfType(CcdUploadException.class).isThrownBy(() -> underTest.createCase(
             RECORDING_ID,
             HEARING_RECORDING_DTO,
-            ttl
+            ttl,
+            CASE_ACCESS_CATEGORY
         ));
     }
 
@@ -130,7 +135,8 @@ class CcdDataStoreApiClientTest {
         assertThatExceptionOfType(CcdUploadException.class).isThrownBy(() -> underTest.createCase(
             RECORDING_ID,
             HEARING_RECORDING_DTO,
-            ttl
+            ttl,
+            CASE_ACCESS_CATEGORY
         ));
     }
 
@@ -148,12 +154,13 @@ class CcdDataStoreApiClientTest {
             .startCase(USER_TOKEN, SERVICE_TOKEN, CASE_TYPE, CREATE_CASE);
 
         doThrow(CcdUploadException.class).when(caseDataContentCreator)
-            .createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID, ttl);
+            .createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID, ttl, CASE_ACCESS_CATEGORY);
 
         assertThatExceptionOfType(CcdUploadException.class).isThrownBy(() -> underTest.createCase(
             RECORDING_ID,
             HEARING_RECORDING_DTO,
-            ttl
+            ttl,
+            CASE_ACCESS_CATEGORY
         ));
     }
 
@@ -172,7 +179,9 @@ class CcdDataStoreApiClientTest {
 
         JsonNode data = JsonNodeFactory.instance.objectNode();
 
-        doReturn(data).when(caseDataContentCreator).createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID, ttl);
+        doReturn(data)
+            .when(caseDataContentCreator)
+            .createCaseStartData(HEARING_RECORDING_DTO, RECORDING_ID, ttl, CASE_ACCESS_CATEGORY);
 
         CaseDataContent caseData = CaseDataContent.builder().data(data)
             .event(Event.builder().build()).build();
@@ -185,7 +194,8 @@ class CcdDataStoreApiClientTest {
         assertThatExceptionOfType(CcdUploadException.class).isThrownBy(() -> underTest.createCase(
             RECORDING_ID,
             HEARING_RECORDING_DTO,
-            ttl
+            ttl,
+            CASE_ACCESS_CATEGORY
         ));
 
 
@@ -210,7 +220,8 @@ class CcdDataStoreApiClientTest {
 
         JsonNode data = JsonNodeFactory.instance.objectNode();
 
-        doReturn(data).when(caseDataContentCreator)
+        doReturn(data)
+            .when(caseDataContentCreator)
             .createCaseUpdateData(startEventResponse.getCaseDetails().getData(), RECORDING_ID, HEARING_RECORDING_DTO);
 
         CaseDataContent caseData = CaseDataContent.builder().data(data)
@@ -312,11 +323,17 @@ class CcdDataStoreApiClientTest {
         doReturn(startEventResponse).when(coreCaseDataApi)
             .startEvent(USER_TOKEN, SERVICE_TOKEN, ccdCaseId.toString(), AMEND_CASE);
 
-        underTest.updateCaseWithCodes(ccdCaseId, "jurisdiction code", "service codes");
+        underTest.updateCaseWithCodes(ccdCaseId, "jurisdiction code", "service codes", CASE_ACCESS_CATEGORY);
 
+        ArgumentCaptor<CaseDataContent> caseDataCaptor = ArgumentCaptor.forClass(CaseDataContent.class);
         verify(coreCaseDataApi).submitEventForCaseWorker(eq(USER_TOKEN), eq(SERVICE_TOKEN), eq(USER_ID),
                                                          eq(JURISDICTION), eq(CASE_TYPE), eq(ccdCaseId.toString()),
-                                                         eq(false), any(CaseDataContent.class));
+                                                         eq(false), caseDataCaptor.capture());
+
+        JsonNode submittedData = (JsonNode) caseDataCaptor.getValue().getData();
+        assertEquals("jurisdiction code", submittedData.get("jurisdictionCode").asText());
+        assertEquals("service codes", submittedData.get("serviceCode").asText());
+        assertEquals(CASE_ACCESS_CATEGORY, submittedData.get("caseAccessCategory").asText());
     }
 
 }

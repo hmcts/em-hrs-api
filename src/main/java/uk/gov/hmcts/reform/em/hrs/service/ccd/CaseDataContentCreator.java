@@ -40,7 +40,8 @@ public class CaseDataContentCreator {
     public JsonNode createCaseStartData(
         final HearingRecordingDto hearingRecordingDto,
         final UUID recordingId,
-        LocalDate ttl
+        LocalDate ttl,
+        String caseAccessCategory
     ) {
 
         CaseHearingRecording caseRecording = CaseHearingRecording.builder()
@@ -58,6 +59,7 @@ public class CaseDataContentCreator {
             .jurisdictionCode(hearingRecordingDto.getJurisdictionCode())
             .courtLocationCode(hearingRecordingDto.getCourtLocationCode())
             .recordingReference(hearingRecordingDto.getCaseRef())
+            .caseAccessCategory(caseAccessCategory)
             .timeToLive(createTTLObject(ttl))
             .build();
 

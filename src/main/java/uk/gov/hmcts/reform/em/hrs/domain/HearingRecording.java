@@ -69,6 +69,7 @@ public class HearingRecording {
 
 
     private LocalDate ttl;
+    private String caseAccessCategory;
     private String recordingRef;
     private String caseRef;
     private String hearingLocationCode;
