@@ -21,7 +21,7 @@ plugins {
   id 'org.flywaydb.flyway' version '13.12.2'
   id 'au.com.dius.pact' version '4.7.7'
   id 'info.solidsoft.pitest' version '1.19.0'
-  id 'com.github.hmcts.rse-cft-lib' version '0.19.2526'
+  id 'com.github.hmcts.rse-cft-lib' version '0.19.2535'
   id 'uk.gov.hmcts.java' version '0.12.70'
   id 'org.owasp.dependencycheck' version '13.0.0'
   id 'net.serenity-bdd.serenity-gradle-plugin' version '5.4.2'
@@ -234,7 +234,7 @@ ext['tomcat.version'] = '11.0.25'
 
 dependencyManagement {
   imports {
-    mavenBom "org.springframework.cloud:spring-cloud-dependencies:2025.1.4"
+    mavenBom "org.springframework.cloud:spring-cloud-dependencies:2025.1.5"
   }
   dependencies {
     dependency 'com.github.junrar:junrar:8.1.2'
