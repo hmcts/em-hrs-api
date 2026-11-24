@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
+import uk.gov.hmcts.reform.em.hrs.service.CaseAccessCategoryService;
 import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentService;
 import uk.gov.hmcts.reform.em.hrs.service.TtlService;
@@ -25,18 +26,21 @@ public class CcdUploadServiceImpl implements CcdUploadService {
     private final HearingRecordingService hearingRecordingService;
     private final SegmentService segmentService;
     private final TtlService ttlService;
+    private final CaseAccessCategoryService caseAccessCategoryService;
 
     @Autowired
     public CcdUploadServiceImpl(
         final CcdDataStoreApiClient ccdDataStoreApiClient,
         final HearingRecordingService hearingRecordingService,
         final SegmentService segmentService,
-        final TtlService ttlService
+        final TtlService ttlService,
+        final CaseAccessCategoryService caseAccessCategoryService
     ) {
         this.ccdDataStoreApiClient = ccdDataStoreApiClient;
         this.hearingRecordingService = hearingRecordingService;
         this.segmentService = segmentService;
         this.ttlService = ttlService;
+        this.caseAccessCategoryService = caseAccessCategoryService;
     }
 
     @Override
@@ -111,7 +115,10 @@ public class CcdUploadServiceImpl implements CcdUploadService {
         );
         recording.setTtl(ttl);
 
-        final Long caseId = ccdDataStoreApiClient.createCase(recording.getId(), recordingDto, ttl);
+        var caseAccessCategory = caseAccessCategoryService.getCaseAccessCategory(recordingDto.getServiceCode());
+        recording.setCaseAccessCategory(caseAccessCategory);
+
+        final Long caseId = ccdDataStoreApiClient.createCase(recording.getId(), recordingDto, ttl, caseAccessCategory);
         hearingRecordingService.updateCcdCaseId(recording, caseId);
 
         LOGGER.info("Created case in CCD: {} for  {} ", caseId, recordingDto.getRecordingSource());

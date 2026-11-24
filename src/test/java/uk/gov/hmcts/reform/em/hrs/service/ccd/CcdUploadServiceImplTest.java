@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.em.hrs.domain.HearingRecording;
 import uk.gov.hmcts.reform.em.hrs.dto.HearingRecordingDto;
 import uk.gov.hmcts.reform.em.hrs.exception.CcdUploadException;
+import uk.gov.hmcts.reform.em.hrs.service.CaseAccessCategoryService;
 import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
 import uk.gov.hmcts.reform.em.hrs.service.SegmentService;
 import uk.gov.hmcts.reform.em.hrs.service.TtlService;
@@ -43,12 +44,15 @@ class CcdUploadServiceImplTest {
     private CcdDataStoreApiClient ccdDataStoreApiClient;
     @Mock
     private TtlService ttlService;
+    @Mock
+    private CaseAccessCategoryService caseAccessCategoryService;
 
     @InjectMocks
     private CcdUploadServiceImpl underTest;
 
     private static final LocalDate A_TTL_DATE = LocalDate.now();
     private static final Long CCD_CASE_ID = 1234567890L;
+    private static final String CASE_ACCESS_CATEGORY = "HRS:AA";
 
     private HearingRecordingDto mockDto;
 
@@ -56,6 +60,7 @@ class CcdUploadServiceImplTest {
     void setUp() {
         mockDto = mock(HearingRecordingDto.class);
         lenient().when(mockDto.getRecordingDateTime()).thenReturn(LocalDateTime.now());
+        lenient().when(caseAccessCategoryService.getCaseAccessCategory(any())).thenReturn(CASE_ACCESS_CATEGORY);
     }
 
     @Test
@@ -67,14 +72,16 @@ class CcdUploadServiceImplTest {
         doReturn(Optional.empty()).when(hearingRecordingService).findHearingRecording(mockDto);
         doReturn(newRecording).when(hearingRecordingService).createHearingRecording(mockDto);
         doReturn(A_TTL_DATE).when(ttlService).createTtl(any(), any(), any());
-        doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).createCase(any(), eq(mockDto), eq(A_TTL_DATE));
+        doReturn(CCD_CASE_ID)
+            .when(ccdDataStoreApiClient).createCase(any(), eq(mockDto), eq(A_TTL_DATE), eq(CASE_ACCESS_CATEGORY));
         doReturn(recordingWithCcdId).when(hearingRecordingService).updateCcdCaseId(newRecording, CCD_CASE_ID);
 
         underTest.upload(mockDto);
 
         verify(hearingRecordingService).findHearingRecording(mockDto);
         verify(hearingRecordingService).createHearingRecording(mockDto);
-        verify(ccdDataStoreApiClient).createCase(newRecording.getId(), mockDto, A_TTL_DATE);
+        verify(ccdDataStoreApiClient)
+            .createCase(eq(newRecording.getId()), eq(mockDto), eq(A_TTL_DATE), eq(CASE_ACCESS_CATEGORY));
         verify(hearingRecordingService).updateCcdCaseId(newRecording, CCD_CASE_ID);
         verify(segmentService).createAndSaveSegment(any(HearingRecording.class), eq(mockDto));
         verify(ccdDataStoreApiClient, never()).updateCaseData(anyLong(), any(), any());
@@ -135,7 +142,9 @@ class CcdUploadServiceImplTest {
         doReturn(Optional.empty()).when(hearingRecordingService).findHearingRecording(mockDto);
         doReturn(newRecording).when(hearingRecordingService).createHearingRecording(mockDto);
         doReturn(A_TTL_DATE).when(ttlService).createTtl(any(), any(), any());
-        doReturn(CCD_CASE_ID).when(ccdDataStoreApiClient).createCase(any(), eq(mockDto), eq(A_TTL_DATE));
+        doReturn(CCD_CASE_ID)
+            .when(ccdDataStoreApiClient)
+            .createCase(any(), eq(mockDto), eq(A_TTL_DATE), eq(CASE_ACCESS_CATEGORY));
         doReturn(newRecording).when(hearingRecordingService).updateCcdCaseId(newRecording, CCD_CASE_ID);
 
         doThrow(new RuntimeException("Generic DB error"))
@@ -157,7 +166,8 @@ class CcdUploadServiceImplTest {
         verify(hearingRecordingService).findHearingRecording(mockDto);
         verify(ccdDataStoreApiClient, never())
             .updateCaseData(anyLong(), any(UUID.class), any(HearingRecordingDto.class));
-        verify(ccdDataStoreApiClient, never()).createCase(any(UUID.class), any(HearingRecordingDto.class), any());
+        verify(ccdDataStoreApiClient, never())
+            .createCase(any(UUID.class), any(HearingRecordingDto.class), any(), any());
         verify(segmentService, never()).createAndSaveSegment(any(), any());
     }
 
@@ -173,7 +183,7 @@ class CcdUploadServiceImplTest {
         );
 
         assertEquals("Hearing Recording already exists.", e.getMessage());
-        verify(ccdDataStoreApiClient, never()).createCase(any(), any(), any());
+        verify(ccdDataStoreApiClient, never()).createCase(any(), any(), any(), any());
         verify(segmentService, never()).createAndSaveSegment(any(), any());
     }
 }

@@ -11,10 +11,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.hrs.exception.BlobCopyException;
+import uk.gov.hmcts.reform.em.hrs.service.CaseAccessCategoryService;
 import uk.gov.hmcts.reform.em.hrs.service.HearingRecordingService;
 import uk.gov.hmcts.reform.em.hrs.service.ccd.CcdDataStoreApiClient;
 
@@ -50,15 +51,18 @@ public class UpdateJurisdictionCodesTask  implements Runnable {
 
     private final CcdDataStoreApiClient ccdDataStoreApiClient;
     private final HearingRecordingService hearingRecordingService;
+    private final CaseAccessCategoryService caseAccessCategoryService;
 
     public UpdateJurisdictionCodesTask(@Qualifier("jurisdictionCodesContainerClient") BlobContainerClient blobClient,
                                        NamedParameterJdbcTemplate namedParameterJdbcTemplate,
                                        CcdDataStoreApiClient ccdDataStoreApiClient,
-                                       HearingRecordingService hearingRecordingService) {
+                                       HearingRecordingService hearingRecordingService,
+                                       CaseAccessCategoryService caseAccessCategoryService) {
         this.blobClient = blobClient;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.ccdDataStoreApiClient = ccdDataStoreApiClient;
         this.hearingRecordingService = hearingRecordingService;
+        this.caseAccessCategoryService = caseAccessCategoryService;
     }
 
     @Override
@@ -123,10 +127,13 @@ public class UpdateJurisdictionCodesTask  implements Runnable {
 
         String filename = recordingRecord.filename;
         try {
+            String caseAccessCategory = recordingRecord.serviceCode == null
+                ? null
+                : caseAccessCategoryService.getCaseAccessCategory(recordingRecord.serviceCode);
             ccdDataStoreApiClient.updateCaseWithCodes(
-                ccdCaseId, recordingRecord.jurisdictionCode, recordingRecord.serviceCode);
+                ccdCaseId, recordingRecord.jurisdictionCode, recordingRecord.serviceCode, caseAccessCategory);
             logger.info("CCD updated for ccd case id: {}", ccdCaseId);
-            updateHrsMetaData(recordingRecord);
+            updateHrsMetaData(recordingRecord, caseAccessCategory);
             logger.info("HRS DB updated for ccd case id: {}", ccdCaseId);
         } catch (Exception e) {
             logger.info("Failed to update case with jurisdiction and service codes for filename: {}",
@@ -140,12 +147,16 @@ public class UpdateJurisdictionCodesTask  implements Runnable {
         return Objects.isNull(cell) || cell.getStringCellValue().isBlank() ? null : cell.getStringCellValue();
     }
 
-    private void updateHrsMetaData(UpdateRecordingRecord updateRecordingRecord) {
-        // This maps the object's properties to the named parameters in the SQL
-        BeanPropertySqlParameterSource params = new BeanPropertySqlParameterSource(updateRecordingRecord);
+    private void updateHrsMetaData(UpdateRecordingRecord updateRecordingRecord, String caseAccessCategory) {
+        MapSqlParameterSource params = new MapSqlParameterSource()
+            .addValue("jurisdictionCode", updateRecordingRecord.jurisdictionCode)
+            .addValue("serviceCode", updateRecordingRecord.serviceCode)
+            .addValue("caseAccessCategory", caseAccessCategory)
+            .addValue("filename", updateRecordingRecord.filename);
         namedParameterJdbcTemplate.update(
             "UPDATE hearing_recording "
-                + "SET jurisdiction_code = :jurisdictionCode, service_code = :serviceCode "
+                + "SET jurisdiction_code = :jurisdictionCode, service_code = :serviceCode, "
+                + "case_access_category = :caseAccessCategory "
                 + "WHERE id = (SELECT hearing_recording_id "
                 + "FROM hearing_recording_segment "
                 + "WHERE filename = :filename)", params);
